@@ -1,0 +1,20 @@
+# python start_by_file.py --category website --name DailyHealthTips.md
+python start_by_file.py --category gui --name DataSummarizer.md
+# python start_by_file.py --category gui --name NotepadPlus.md
+# python start_by_file.py --category gui --name MedicalHealthTracker.md
+# python start_by_file.py --category gui --name ScienceLibrary.md
+# python start_by_file.py --category gui --name CalculationAssistant.md
+# python start_by_file.py --category gui --name BookshelfManager.md
+# python start_by_file.py --category gui --name DataVisualizer.md
+# python start_by_file.py --category gui --name SecurePasswordVault.md
+# python start_by_file.py --category gui --name ShapeMaster.md
+# python start_by_file.py --category gui --name ImageEnhancer.md
+# python start_by_file.py --category gui --name PaintPal.md
+# python start_by_file.py --category gui --name ShoppingPlanner.md
+# python start_by_file.py --category gui --name ExpenseComparator.md
+# python start_by_file.py --category gui --name BookNote.md
+# python start_by_file.py --category gui --name SportsEquipmentInventoryTracker.md
+# python start_by_file.py --category gui --name BusinessTaskScheduler.md
+# python start_by_file.py --category gui --name InvestmentTracker.md
+# python start_by_file.py --category gui --name OfficeStockManager.md
+# python start_by_file.py --category gui --name PhotoStickerMaker.md
