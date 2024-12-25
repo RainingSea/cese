@@ -1,65 +1,54 @@
 import unittest
-import pygame
 from game import Game
-from grid import Grid
-from score import Score
-from timer import Timer
-from wordlist import WordList
 
 class TestWordLinkPuzzleGame(unittest.TestCase):
 
     def setUp(self):
-        # Initialize the game and its components
+        # Initialize the game
         self.game = Game()
-        self.grid = self.game.grid
-        self.score = self.game.score
-        self.timer = self.game.timer
-        self.wordlist = self.game.formed_words
 
     def test_connect_letters_to_form_word(self):
-        # Functionalities 1: Connect Letters to Form a Word
-        # Simulate connecting letters "C", "A", "T"
-        connected_letters = ['C', 'A', 'T']
-        word = ''.join(connected_letters)
-        is_valid = self.game.validate_word(word)
-        self.assertTrue(is_valid, "The word 'CAT' should be recognized as a valid word")
+        # Functionalities 1: Test connecting letters to form a word
+        self.game.get_word_from_input = lambda: "CAT"  # Simulate input
+        valid = self.game.validate_word("CAT")
+        self.assertTrue(valid, "The word 'CAT' should be recognized as valid.")
 
     def test_scoring_system(self):
-        # Functionalities 2: Scoring System
-        # Simulate forming the word "DOG"
-        word = "DOG"
-        points = self.score.calculate_score(word)
-        self.assertEqual(points, 1, "The player should receive 1 point for the word 'DOG'")
+        # Functionalities 2: Test scoring system for the word "DOG"
+        points = self.game.score.calculate_score("DOG")
+        self.assertEqual(points, 3, "The player should receive 3 points for the word 'DOG'.")
 
     def test_timer_functionality(self):
-        # Functionalities 3: Timer Functionality
-        self.timer.start_timer(60)
-        initial_time = self.timer.time_left
-        self.timer.update_timer()
-        self.assertEqual(self.timer.time_left, initial_time - 1, "Timer should count down correctly")
+        # Functionalities 3: Test timer functionality
+        self.game.timer.start_timer(60)  # Start timer with 60 seconds
+        initial_time = self.game.timer.time_left
+        self.game.timer.update_timer()  # Simulate timer update
+        self.assertEqual(self.game.timer.time_left, initial_time - 1, "Timer should count down correctly.")
 
     def test_difficulty_levels(self):
-        # Functionalities 4: Difficulty Levels
-        self.grid.generate_grid('Hard')
-        grid_size = len(self.grid.letters)
-        self.assertEqual(grid_size, 8, "The grid size for 'Hard' difficulty should be 8x8")
+        # Functionalities 4: Test setting difficulty level
+        self.game.start_game('Hard')
+        grid_size = self.game.grid.get_grid_size('Hard')
+        self.assertEqual(grid_size, 8, "The grid size for 'Hard' difficulty should be 8.")
 
     def test_save_progress(self):
-        # Functionalities 5: Save Progress
-        self.game.save_progress()
+        # Functionalities 5: Test saving progress
+        self.game.score.add_points(10)  # Simulate scoring
+        self.game.formed_words.add_word("CAT")  # Simulate forming a word
+        self.game.timer.start_timer(30)  # Simulate timer
+        self.game.save_progress()  # Save progress
         with open('game_state.txt', 'r') as f:
             lines = f.readlines()
-        self.assertIn("Score:", lines[0], "Game state should contain score information")
-        self.assertIn("Words:", lines[1], "Game state should contain words information")
-        self.assertIn("Time Left:", lines[2], "Game state should contain time left information")
+            self.assertIn("Score: 10", lines[0], "Score should be saved correctly.")
+            self.assertIn("Words: CAT", lines[1], "Formed words should be saved correctly.")
+            self.assertIn("Time Left: 30", lines[2], "Time left should be saved correctly.")
 
     def test_load_saved_progress(self):
-        # Functionalities 6: Load Saved Progress
-        self.game.save_progress()  # Ensure there is a saved state
-        self.game.load_progress()
-        self.assertEqual(self.score.get_score(), 0, "Score should be restored to 0")
-        self.assertEqual(self.wordlist.get_words(), [], "Word list should be restored to empty")
-        self.assertEqual(self.timer.time_left, 0, "Time left should be restored to 0")
+        # Functionalities 6: Test loading saved progress
+        self.game.load_progress()  # Load progress
+        self.assertEqual(self.game.score.get_score(), 0, "Score should be loaded correctly.")
+        self.assertEqual(self.game.timer.time_left, 0, "Time left should be loaded correctly.")
+        self.assertEqual(self.game.formed_words.get_words(), [], "Formed words should be loaded correctly.")
 
 if __name__ == '__main__':
     unittest.main()

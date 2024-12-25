@@ -53,7 +53,7 @@ def read_md_file(file_path):
 ### gpt api
 def call_openai_api(prompt, model):
     client = OpenAI(
-        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",
+        api_key="sk-nF4KFp0FggnT6bfpH2JwYhRsFWnPpfohEAtERbHlMXCIdlki",
         base_url="https://api.chatanywhere.tech",
     )
     try:
@@ -138,6 +138,7 @@ def autogen(project_path):
     project_category = path.parent.name
 
     if os.path.exists(os.path.join(project_path, "code", "testcode.py")):
+        print("### Already exist a testcode.py ###")
         return
     # 只处理文件夹
     if os.path.isdir(project_path):
@@ -165,7 +166,7 @@ def autogen(project_path):
         prompt = prompt.replace("{codebase}", codebase)
         prompt = prompt.replace("{testcase}", testcase)
         # 调用OpenAI API获取测试代码
-        test_code = call_openai_api(prompt=prompt, model="gpt-4o")
+        test_code = call_openai_api(prompt=prompt, model="gpt-4o-mini")
         print(f"Test code:\n{test_code}")
         # 保存生成的测试代码并运行测试
         testcode_path = save_test_code(

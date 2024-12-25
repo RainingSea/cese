@@ -12,8 +12,7 @@ architecture:
 -----
 
 ## format example
-[CONTENT]
-
+{{
 "Required packages": [
     "flask==1.1.2",
     "bcrypt==3.2.0"
@@ -38,8 +37,7 @@ architecture:
     ...
 }},
 "Shared Knowledge": "`game.py` contains functions shared across the project.",
-
-[/CONTENT]
+}}
 
 ## nodes: "<node>: <type>  # <instruction>"
 - Required packages: typing.List[str]  # Provide required packages in requirements.txt format.
@@ -56,7 +54,7 @@ architecture:
 
 ## constraint
 Language: Please use the same language as Human INPUT.
-Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+Format: output like format example, nothing else.
 If you are doing website development, please do not encrypt the account password for the login function.
 Related and simple tasks should be combined into one task to reduce the overall number of tasks(no more than 10) during you making "Task List".
 

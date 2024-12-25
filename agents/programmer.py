@@ -51,6 +51,8 @@ class Programmer(Role):
         architecture = self.getArchiture().content
         task_plan = self.getProjectPlan().content
 
+        print(task_plan)
+
         # --------------- decompose and assign tasks to programmer
 
         task_dict = self.task_list_extract()
@@ -504,8 +506,8 @@ class Programmer(Role):
         return result
 
     def message_to_file(self, code_text):
-        os.makedirs(Team.project_dir + "code")
-        code_base_dir = Team.project_dir + "code/"
+        os.makedirs(os.path.join(Team.project_dir, "code"))
+        code_base_dir = os.path.join(Team.project_dir, "code")
         # split based on ###_
         code_text_split = code_text.split("### ")
 
@@ -515,14 +517,16 @@ class Programmer(Role):
             if name:
                 # if name contains a directory, create it
                 file_relative_directory = os.path.dirname(name)
-                code_dir = code_base_dir + file_relative_directory
+                code_dir = os.path.join(code_base_dir, file_relative_directory)
                 if not os.path.exists(code_dir):
                     # makedir_s, recursely create folders
                     os.makedirs(code_dir)
                 # writing result to local
                 print(self.profile + " writting CODE: " + str(name))
                 Team.log.info(self.profile + " writting CODE: " + str(name))
-                super().save_file_overwrite(code_base_dir + str(name), str(code))
+                super().save_file_overwrite(
+                    os.path.join(code_base_dir, str(name)), str(code)
+                )
 
     def message_to_file_review(self, code_text):
         os.makedirs(Team.project_dir + "review_code")
@@ -666,28 +670,31 @@ class Programmer(Role):
 
     def task_list_extract(self):
         task_plan = self.getProjectPlan().content
+        task_dict = ast.literal_eval(task_plan)
+        task_list_content = task_dict["Task list"]
 
-        # extract *task list* from Task Plan
-        task_list_pattern = r'"Task list":\s*\{(.*?)\},'
-        match = re.search(task_list_pattern, task_plan, re.DOTALL)
+        # # extract *task list* from Task Plan
+        # task_list_pattern = r'"Task list":\s*\{(.*?)\},'
+        # match = re.search(task_list_pattern, task_plan, re.DOTALL)
 
-        if match:
-            # 提取任务列表
-            task_list_content = match.group(1).strip()
-            # 构造成 JSON 格式（可选）
-            task_list_content = "{" + task_list_content + "}"
-        else:
-            return "Task list not found."
-        # print(task_list_content)
-        # transfer *task list*(string format) to a dict
-        task_dict = ast.literal_eval(task_list_content)
+        # if match:
+        #     # 提取任务列表
+        #     task_list_content = match.group(1).strip()
+        #     # 构造成 JSON 格式（可选）
+        #     task_list_content = "{" + task_list_content + "}"
+        # else:
+        #     print("Task list not found.")
+        #     return "Task list not found."
+        # # print(task_list_content)
+        # # transfer *task list*(string format) to a dict
+        # task_dict = ast.literal_eval(task_list_content)
 
         # 打印结果
-        print(task_dict)
+        print(task_list_content)
         print("Task Dictionary:")
         _log_task = ""
-        for key, value in task_dict.items():
+        for key, value in task_list_content.items():
             print(f"Key: {key}, Value: {value}")
             _log_task = _log_task + f"Key: {key}, Value: {value}" + "\n"
         Team.log.info("Task Dictionary:\n" + _log_task)
-        return task_dict
+        return task_list_content

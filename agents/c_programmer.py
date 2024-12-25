@@ -29,7 +29,7 @@ from agents.role import Role
 from agents.team import Team
 from agents.searcher import Searcher
 from messages.message import Message
-from utils.read import read_markdown
+from utils.read import read_file_2_line
 
 
 class C_Programmer(Role):
@@ -105,7 +105,7 @@ class C_Programmer(Role):
         self.message_to_file(self.write_adapator(self.code_base))
         return
 
-    def go(self):
+    def go(self, ce_feedback):
         print(self.trigger_task)
         print(self.profile + " " + self.name + " Coding...")
         Team.log.info(self.profile + " " + self.name + " Coding...")
@@ -127,47 +127,26 @@ class C_Programmer(Role):
             # counter_reason, counter_code = self.read_counter()
             # ---------- constructing prompt to LLM ----------
             system_prompt = SystemMessage(content=CODING_SYS)
-            if str(key) == self.trigger_task:
-                print("\n-----# trigger task #-----\n")
-                Team.log.info("-----# trigger task #-----")
-                # use counter prompt
-                user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
-                user_prompt_msg = user_prompt_template.invoke(
-                    {
-                        "architecture": architecture,
-                        "task_plan": task_plan,
-                        "task": value,
-                        "code": self.read_code_base(),
-                        "prd_part": retrieval_refer,
-                        # input your counter dir / will be replaced in a RAM variables when framework is solid
-                        "negative_code": read_dir(
-                            "D:\\02-Project\\02-Align\models\RTADev\Altdev\project\game\\2048_20241223154031\code"
-                        ),
-                    }
-                )
-                user_prompt = user_prompt_msg.to_messages()[0]
 
-                # prompt LLM
-                Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-                code_result = self.llm.invoke(system_prompt, user_prompt)
-                Team.log.info("\n" + code_result)
-            else:
-                user_prompt_template = ChatPromptTemplate.from_template(CODING_P)
-                user_prompt_msg = user_prompt_template.invoke(
-                    {
-                        "architecture": architecture,
-                        "task_plan": task_plan,
-                        "task": value,
-                        "code": self.read_code_base(),
-                        "prd_part": retrieval_refer,
-                    }
-                )
-                user_prompt = user_prompt_msg.to_messages()[0]
-
-                # prompt LLM
-                Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-                code_result = self.llm.invoke(system_prompt, user_prompt)
-                Team.log.info("\n" + code_result)
+            print("\n-----# trigger task #-----\n")
+            Team.log.info("-----# trigger task #-----")
+            # use counter prompt
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
+            user_prompt_msg = user_prompt_template.invoke(
+                {
+                    "architecture": architecture,
+                    "task_plan": task_plan,
+                    "task": value,
+                    "code": self.read_code_base(),
+                    "prd_part": retrieval_refer,
+                    "ce_feedback": ce_feedback,
+                }
+            )
+            user_prompt = user_prompt_msg.to_messages()[0]
+            # prompt LLM
+            Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+            code_result = self.llm.invoke(system_prompt, user_prompt)
+            Team.log.info("\n" + code_result)
 
             self.compare_code(code_result)
 
@@ -572,8 +551,8 @@ class C_Programmer(Role):
         return result
 
     def message_to_file(self, code_text):
-        os.makedirs(Team.project_dir + "code")
-        code_base_dir = Team.project_dir + "code/"
+        os.makedirs(os.path.join(Team.project_dir, "code"))
+        code_base_dir = os.path.join(Team.project_dir, "code")
         # split based on ###_
         code_text_split = code_text.split("### ")
 
@@ -583,14 +562,16 @@ class C_Programmer(Role):
             if name:
                 # if name contains a directory, create it
                 file_relative_directory = os.path.dirname(name)
-                code_dir = code_base_dir + file_relative_directory
+                code_dir = os.path.join(code_base_dir, file_relative_directory)
                 if not os.path.exists(code_dir):
                     # makedir_s, recursely create folders
                     os.makedirs(code_dir)
                 # writing result to local
                 print(self.profile + " writting CODE: " + str(name))
                 Team.log.info(self.profile + " writting CODE: " + str(name))
-                super().save_file_overwrite(code_base_dir + str(name), str(code))
+                super().save_file_overwrite(
+                    os.path.join(code_base_dir, str(name)), str(code)
+                )
 
     def message_to_file_review(self, code_text):
         os.makedirs(Team.project_dir + "review_code")
@@ -724,40 +705,23 @@ class C_Programmer(Role):
         counter_codes = ""
         for ccp in counter_codes_path:
             counter_codes += ccp.split("/")[-1]
-            counter_codes += read_markdown(counter_path / Path(ccp))
+            counter_codes += read_file_2_line(counter_path / Path(ccp))
             counter_codes += "\n"
 
         counter_reason_path = counter_path / "counter_reason.txt"
-        counter_reason = read_markdown(counter_reason_path)
+        counter_reason = read_file_2_line(counter_reason_path)
 
         return counter_reason, counter_codes
 
     def task_list_extract(self):
         task_plan = self.getProjectPlan().content
-        print(task_plan)
-
-        # extract *task list* from Task Plan
-        task_list_pattern = r'"Task list":\s*\{(.*?)\},'
-        match = re.search(task_list_pattern, task_plan, re.DOTALL)
-
-        if match:
-            # 提取任务列表
-            task_list_content = match.group(1).strip()
-            # 构造成 JSON 格式（可选）
-            task_list_content = "{" + task_list_content + "}"
-        else:
-            print("Task list not found.")
-            return "Task list not found."
+        task_dict = ast.literal_eval(task_plan)
+        task_list_content = task_dict["Task list"]
         # print(task_list_content)
-        # transfer *task list*(string format) to a dict
-        task_dict = ast.literal_eval(task_list_content)
-
-        # 打印结果
-        print(task_dict)
         print("Task Dictionary:")
         _log_task = ""
-        for key, value in task_dict.items():
+        for key, value in task_list_content.items():
             print(f"Key: {key}, Value: {value}")
             _log_task = _log_task + f"Key: {key}, Value: {value}" + "\n"
         Team.log.info("Task Dictionary:\n" + _log_task)
-        return task_dict
+        return task_list_content

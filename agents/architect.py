@@ -95,4 +95,7 @@ class Architect(Role):
         result = read_file_2_line(Path(Team.incremental_base_dir) / "architect.md")
         module_msg = Message(sender=self.profile, content=result)
         self.own_message = module_msg
-        Team.all_messages.append(module_msg)
+        if Team.all_messages[2] == None:
+            Team.all_messages.append(module_msg)
+        else:
+            Team.all_messages[2] = module_msg

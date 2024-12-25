@@ -103,4 +103,7 @@ class Product_Manager(Role):
         result = read_file_2_line(Path(Team.incremental_base_dir) / "prd.md")
         module_msg = Message(sender=self.profile, content=result)
         self.own_message = module_msg
-        Team.all_messages.append(module_msg)
+        if Team.all_messages[1] == None:
+            Team.all_messages.append(module_msg)
+        else:
+            Team.all_messages[1] = module_msg

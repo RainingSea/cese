@@ -19,7 +19,7 @@ from prompt.retrieval_prompt import RETRIEVAL_SYS, RETRIEVAL
 from agents.role import Role
 from agents.team import Team
 from messages.message import Message
-from utils.read import read_markdown
+from utils.read import read_file_2_line
 
 
 class Searcher:

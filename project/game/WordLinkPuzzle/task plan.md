@@ -1,4 +1,4 @@
-[CONTENT]
+{
 "Required packages": [
     "pygame==2.0.1"
 ],
@@ -45,4 +45,4 @@
     'T9':'|final testing and debugging|test all functionalities and fix issues|[T7,T8]|related files:["main.py","game.py","grid.py","score.py","timer.py","wordlist.py"]'
 },
 "Shared Knowledge": "`game.py` contains functions shared across the project, including game state management and word validation.",
-[/CONTENT]
+}

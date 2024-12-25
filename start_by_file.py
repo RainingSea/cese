@@ -20,7 +20,7 @@ import argparse
 
 def start_project():
     category = "game"
-    name = "2048.md"
+    name = "WordLinkPuzzle.md"
     # parser = argparse.ArgumentParser(description="original Requirement")
     # parser.add_argument("--category", type=str, help="gui")
     # parser.add_argument("--name", type=str, help="DailyHealthTips.md")

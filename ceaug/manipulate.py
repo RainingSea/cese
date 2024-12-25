@@ -2,6 +2,21 @@ import re, random
 import ast
 
 
+def ce_generate(task_plan):
+    task_list_dict = extract_task_list(task_plan)
+    dict_task_plan = ast.literal_eval(task_plan)
+    # assign the number of c.e.
+    ce_number = 1
+    ce_result = []
+    for i in range(ce_number):
+        new_task_plan = dict_task_plan.copy()
+        ce = disturbing(task_list_dict)
+        new_task_plan["Task list"] = ce
+        ce_result.append(str(new_task_plan))
+
+    return ce_result
+
+
 def extract_task_list(task_plan):
     """
     accept a task_plan and extract the task_list to a dict, return this dict.
@@ -23,7 +38,7 @@ def extract_task_list(task_plan):
     task_dict = ast.literal_eval(task_list_content)
 
     # 打印结果
-    print(task_dict)
+    # print(task_dict)
     print("Task Dictionary:")
 
     _log_task = ""
@@ -34,11 +49,11 @@ def extract_task_list(task_plan):
     return task_dict
 
 
-def disturbing_strategy(task_dict):
+def disturbing(task_dict):
     """
     accept a task_dict, apply disturbing strategy to it.
     """
-    perform_swaps(task_dict)
+    return perform_swaps(task_dict)
 
 
 def perform_swaps(d, num_swaps=1):

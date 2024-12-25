@@ -152,10 +152,8 @@ CODING_C = """
 ## files(already available)
 {code}
 
-## negative reference
-negative reason: The game does not end the current session and reset its state after a win or loss, resulting in the game-over screen still being displayed the next time it is opened. mind this part in your implementation.
-
-{negative_code}
+## Counter Example Error Case Reference.
+{ce_feedback}
 
 -----
 # Format Example 
@@ -197,7 +195,7 @@ If you are doing Game Development, do not follow the rules of Website and Game d
 # important rule
 Use '###' to SPLIT CODE SECTIONS, neither '#' and not '##'. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
-11. A negative reference Regarding the current task is given, which includes codes that do not fully implement the current task. Analyze the issues between the negative reference's codes and the task, and still base on the "## files(already available)" to write or revise your code. 
+11. An example of a counter case for the entire project is provided in "Counter Example Error Case Reference". This counter case includes some errors that require attention. When completing the code for this task, please pay extra attention to the current task and the points highlighted in the case, avoiding these errors to produce better code.
 """
 
 CODING_P = """
