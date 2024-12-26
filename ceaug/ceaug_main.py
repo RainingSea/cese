@@ -81,7 +81,10 @@ def make_ce_dirs(project_dir, task_plan):
 
 
 def ceaug(
+    base_dir,
     project_dirs,
+    project_category,
+    project_name,
     user_req,
 ):
     # 获取代码仓库
@@ -97,20 +100,25 @@ def ceaug(
     max_score = -1.0
     code_feedback_selected = ""
 
-    user_req = read_file_2_line(
-        "D:\Project\CE\CE\dataset\SD-bench\dataset\game\WordLinkPuzzle.md"
-    )
+    # user_req = read_file_2_line(
+    #     "D:\Project\CE\CE\dataset\SD-bench\dataset\game\WordLinkPuzzle.md"
+    # )
+    print(project_dirs)
+    print(user_req)
 
     for i in range(len(project_dirs)):
         print("# # # # # # # # # # # # " + project_dirs[i])
         project_dir = project_dirs[i]
 
         code_base = read_codebase(os.path.join(project_dir, "code"))
-        # 编写测试代码testcode.py并保存在code文件夹中
-        test_code = autogen(project_dir)
+        # 编写测试代码testcode.py
+        test_code = autogen(project_dir, project_category, project_name)
 
-        # 运行测试代码，并保存结果在一个log文件中
+        # 运行测试代码
+        print("work dir before test: " + str(Path.cwd()))
         unit_test_result = runUnitTest(project_dir)
+        # 切回来目录
+        os.chdir(base_dir)
         print(unit_test_result["output"])
         print("\n###################################")
 
@@ -181,7 +189,7 @@ def ceaug(
 
     print(code_feedback_selected)
 
-    return code_feedback_selected
+    return max_score, code_feedback_selected
     # return code_feedback
 
 

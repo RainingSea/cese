@@ -81,12 +81,12 @@ Please regenerate the code based on Problem and your previous code.
 
 -----
 # Format Example
-### main.py
+*** main.py
 ```python
 ...
 ```
 
-### ui.py
+*** ui.py
 ```python
 ...
 ```
@@ -94,7 +94,7 @@ Please regenerate the code based on Problem and your previous code.
 -----
 
 # Instruction
-1. Use '###' to SPLIT CODE SECTIONS, neither '#' nor '##'. Output format strictly referenced "Format example".
+1. Use '***' to SPLIT CODE SECTIONS, neither '#' nor '##'. Output format strictly referenced "Format example".
 2. Write out EVERY CODE DETAIL, DON'T LEAVE TODO, PASS, Placeholder.
 3. Only write code result, do not output any other content in the start or in the end.
 
@@ -113,12 +113,12 @@ CODE ERROR REPORT:
 {error_report}
 -----
 # Format Example 
-### main.py
+*** main.py
 ```python
 ...
 ```
 
-### ui.py
+*** ui.py
 ```python
 ...
 ```
@@ -126,7 +126,7 @@ CODE ERROR REPORT:
 # Instruction: Based on the CODE and CODE ERROR REPORT, follow "Format example", fix code.
 
 # ATTENTION
-1. Use '###' to SPLIT CODE SECTIONS, neither '#' and not '##'. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
+1. Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
 3. Only write code result, do not output any other content in the start or in the end.
 """
@@ -153,16 +153,17 @@ CODING_C = """
 {code}
 
 ## Counter Example Error Case Reference.
+
 {ce_feedback}
 
 -----
 # Format Example 
-### main.py
+*** main.py
 ```python
 ...
 ```
 
-### ui.py
+*** ui.py
 ```python
 ...
 ```
@@ -170,7 +171,7 @@ CODING_C = """
 # Instruction: Based on the context, follow "Format example", write or revise code to complete task described in "Your Task".
 
 ### ATTENTION
-1. Use '###' to SPLIT CODE SECTIONS, neither '#' and not '##'. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
+1. Use '*** ' to SPLIT different CODE SECTIONS, do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
 3. Follow task: YOU MUST write Comprehensive codes to complete task.
 4. Understand "Related document": follow these document with architecture and task, as guideline to construct your code 
@@ -193,7 +194,7 @@ If you are doing GUI tkinter Development, do not follow the rules of Website and
 If the software needs to load data, please make sure the loading data code matches the data format and data file.
 If you are doing Game Development, do not follow the rules of Website and Game development.
 # important rule
-Use '###' to SPLIT CODE SECTIONS, neither '#' and not '##'. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 11. An example of a counter case for the entire project is provided in "Counter Example Error Case Reference". This counter case includes some errors that require attention. When completing the code for this task, please pay extra attention to the current task and the points highlighted in the case, avoiding these errors to produce better code.
 """
@@ -220,12 +221,12 @@ CODING_P = """
 
 -----
 # Format Example 
-### main.py
+*** main.py
 ```python
 ...
 ```
 
-### ui.py
+*** ui.py
 ```python
 ...
 ```
@@ -233,7 +234,7 @@ CODING_P = """
 # Instruction: Based on the context, follow "Format example", write or revise code to complete task described in "Your Task".
 
 ### ATTENTION
-1. Use '###' to SPLIT CODE SECTIONS, neither '#' and not '##'. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
+1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
 3. Follow task: YOU MUST write Comprehensive codes to complete task.
 4. Understand "Related document": follow these document with architecture and task, as guideline to construct your code 
@@ -256,6 +257,6 @@ If you are doing GUI tkinter Development, do not follow the rules of Website and
 If the software needs to load data, please make sure the loading data code matches the data format and data file.
 If you are doing Game Development, do not follow the rules of Website and Game development.
 # important rule
-Use '###' to SPLIT CODE SECTIONS, neither '#' and not '##'. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+Use '***' to SPLIT CODE SECTIONS, neither '#' and not '##'. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 """

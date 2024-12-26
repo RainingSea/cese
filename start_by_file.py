@@ -1,6 +1,7 @@
 import dashscope
 from datetime import datetime
 import argparse
+from pathlib import Path
 
 from utils.commen import read_yaml
 from agents.team import Team
@@ -44,8 +45,18 @@ def start_project():
     origin_req = project_description
     # Build Agent's Team
     team = Team()
+    Team.projec_catogory = category
     Team.project_name = project_name
-    projdir = "./project/" + category + "/" + project_name + "_" + formatted_time + "/"
+
+    projdir = (
+        "D:/Project/CE/CE/project/"
+        + category
+        + "/"
+        + project_name
+        + "_"
+        + formatted_time
+        + "/"
+    )
     Team.set_projdir(projdir)
     Team.set_log()
 

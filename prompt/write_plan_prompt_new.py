@@ -56,7 +56,7 @@ architecture:
 Language: Please use the same language as Human INPUT.
 Format: output like format example, nothing else.
 If you are doing website development, please do not encrypt the account password for the login function.
-Related and simple tasks should be combined into one task to reduce the overall number of tasks(no more than 10) during you making "Task List".
+Related and simple tasks should be combined into one task to reduce the overall number of tasks(no more than 3) during you making "Task List".
 
 ## action
 Follow instructions of nodes, generate output and make sure it follows the format example.

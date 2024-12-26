@@ -89,9 +89,12 @@ class Project_Manager(Role):
         print(self.profile + " " + self.name + " extracting Plan......")
         Team.log.info(self.profile + " " + self.name + " extracting Plan......")
         result = read_file_2_line(Path(Team.incremental_base_dir) / "task plan.md")
+        if not os.path.exists(os.path.join(Team.project_dir, "task plan.md")):
+            self.message_to_file(result)
         module_msg = Message(sender=self.profile, content=result)
         self.own_message = module_msg
-        if Team.all_messages[3] == None:
+        if len(Team.all_messages) <= 3:
             Team.all_messages.append(module_msg)
         else:
             Team.all_messages[3] = module_msg
+

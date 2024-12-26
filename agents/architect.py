@@ -93,9 +93,12 @@ class Architect(Role):
         print(self.profile + " " + self.name + " extracting Architect......")
         Team.log.info(self.profile + " " + self.name + " extracting Architect......")
         result = read_file_2_line(Path(Team.incremental_base_dir) / "architect.md")
+        if not os.path.exists(os.path.join(Team.project_dir, "architect.md")):
+            self.message_to_file(result)
         module_msg = Message(sender=self.profile, content=result)
         self.own_message = module_msg
-        if Team.all_messages[2] == None:
+        # not perfect for now
+        if len(Team.all_messages) <= 2:
             Team.all_messages.append(module_msg)
         else:
             Team.all_messages[2] = module_msg

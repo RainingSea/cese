@@ -125,17 +125,12 @@ def run_test_code(file_path):
         return f"Error during execution: {e.stderr}"
 
 
-def autogen(project_path):
+def autogen(project_path, category, project_name):
     """
     the path to the code should be passed as an argument (Team.project_dir).
     example: ./project/game/wordlinkpuzzle/
     """
-    # Parse the project_category and name from the path.
-    path = Path(project_path)
-    # extract wordlinkpuzzle
-    project_name = path.name
-    # extract game
-    project_category = path.parent.name
+    project_category = category
 
     if os.path.exists(os.path.join(project_path, "code", "testcode.py")):
         print("### Already exist a testcode.py ###")
@@ -145,9 +140,10 @@ def autogen(project_path):
         # 确保代码库和测试用例路径正确
         codebase_path = os.path.join(project_path, "code")
         # 换成绝对路径
+        # 后期这里要更换，就是不刷数据集的情况下：在命令行里提供是否包含测试用例的参数，如果包含，就按类似这种方法提取；如果不包含，就生成测试用例，并且返回测试用例路径
         testcase_path = os.path.join(
             "D:/Project/Datasets/SD-bench/testcase",
-            project_category,
+            category,
             f"TestCases_{project_name}.md",
         )
         # 读取代码库和测试用例文件
@@ -196,7 +192,7 @@ def runUnitTest(project_path):
 
     project_path = os.path.join(project_path, "code")
     os.chdir(project_path)
-    print(f"CURRENT DIR {project_path}")
+    print(f"CURRENT DIR1 {project_path}")
     # 在加载测试前清理模块缓存
     clear_imports()
     # 加载测试文件 (testcode.py)
