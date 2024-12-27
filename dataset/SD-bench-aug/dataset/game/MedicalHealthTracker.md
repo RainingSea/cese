@@ -4,7 +4,7 @@
 
 Medical Health Tracker is a software application that allows users to track and monitor their overall health and wellness. Users can input various health-related data such as daily activities, exercise routines, sleep patterns, nutrition intake, and stress levels. The software provides visualizations to help users analyze their health trends.
 
-## Core Features (Updated)
+## Core Features
 ### Daily Activity Tracking
 1. Allow users to input and categorize daily activities (e.g., work, leisure, physical activity).
 2. Option to add custom activity types.

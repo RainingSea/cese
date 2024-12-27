@@ -7,7 +7,7 @@ import subprocess
 import pandas as pd
 import sys
 import unittest
-from utils.read import read_dir
+from utils.read import read_dir, read_file_2_line
 from ceaug.auto_test_prompt import (
     prompt_for_game_testing,
     prompt_for_gui_testing,
@@ -134,7 +134,8 @@ def autogen(project_path, category, project_name):
 
     if os.path.exists(os.path.join(project_path, "code", "testcode.py")):
         print("### Already exist a testcode.py ###")
-        return
+        testcode = read_file_2_line(os.path.join(project_path, "code", "testcode.py"))
+        return testcode
     # 只处理文件夹
     if os.path.isdir(project_path):
         # 确保代码库和测试用例路径正确
@@ -142,7 +143,7 @@ def autogen(project_path, category, project_name):
         # 换成绝对路径
         # 后期这里要更换，就是不刷数据集的情况下：在命令行里提供是否包含测试用例的参数，如果包含，就按类似这种方法提取；如果不包含，就生成测试用例，并且返回测试用例路径
         testcase_path = os.path.join(
-            "D:/Project/Datasets/SD-bench/testcase",
+            "D:/Project/CE/CE/dataset/SD-bench/testcase",
             category,
             f"TestCases_{project_name}.md",
         )
@@ -162,7 +163,7 @@ def autogen(project_path, category, project_name):
         prompt = prompt.replace("{codebase}", codebase)
         prompt = prompt.replace("{testcase}", testcase)
         # 调用OpenAI API获取测试代码
-        test_code = call_openai_api(prompt=prompt, model="gpt-4o-mini")
+        test_code = call_openai_api(prompt=prompt, model="gpt-4o")
         print(f"Test code:\n{test_code}")
         # 保存生成的测试代码并运行测试
         testcode_path = save_test_code(

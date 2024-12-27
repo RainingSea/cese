@@ -6,7 +6,7 @@ def ce_generate(task_plan):
     task_list_dict = extract_task_list(task_plan)
     dict_task_plan = ast.literal_eval(task_plan)
     # assign the number of c.e.
-    ce_number = 2
+    ce_number = 1
     ce_result = []
     for i in range(ce_number):
         new_task_plan = dict_task_plan.copy()

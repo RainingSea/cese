@@ -9,10 +9,13 @@ This is the PRD you can retrieve, which contains functional requirements for the
 This is the user's original demand, which includes not only functional requirements but also other special requirements.
 {user_demand}
 
-now, you get one following task:
+now, you get one following specific task:
 {task}
 
-Based on these two documents, extract the sections related to the task.
-You need to integrate the two sections, including removing duplicate parts and so on.
-Attention: extracted result must not alter any part of the content retrieved. 
+You should extract the sections related to the task(the specific task above), from these two documents to me.
+Then, You need to integrate the two sections, including removing duplicate parts and so on. 
+Attention: extracted result must not alter any part of the content retrieved.
+Only extract the necessary sections.
+Remove the requirements you are certain are unnecessary. 
+Less is better.
 """
