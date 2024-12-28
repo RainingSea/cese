@@ -1,3 +1,19 @@
+PROMPT_FOR_TEST_ANA = """
+Here is the entire codebase for a project: {code_base}.
+Here are the unit test codes for this project: {unit_test_code}.
+These are all the unit test results (only including the failed ones):{test_results}
+
+Please analyze the results one by one. For each unit test result, analyze step by step to identify the reasons for the test failure.
+"""
+
+PROMPT_FOR_SCORING = """
+the user requirement is:
+{user_req}.
+
+So, step to step, analyze the issues mentioned above and assess the extent to which these issues hinder the code from perfectly fulfilling the user requirements. Assign a score (0-10) based on the significance of the issues, where 0 indicates the issue has minimal impact or is unlikely to occur during coding, and 10 indicates the issue has a major impact or is highly likely to occur during coding.
+At the end of your output, you need to display the score using the following format:[END]score[END], where "score" should be replaced with the score you have assigned.
+"""
+
 prompt_for_web_testing = """
 Common Attention:
 Attention 1: You can only write code in Python.
@@ -287,20 +303,4 @@ class TestCalculator(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
-"""
-
-PROMPT_FOR_TEST_ANA = """
-Here is the entire codebase for a project: {code_base}.
-Here are the unit test codes for this project: {unit_test_code}.
-These are all the unit test results (only including the failed ones):{test_results}
-
-Please analyze the results one by one. For each unit test result, analyze step by step to identify the reasons for the test failure.
-"""
-
-PROMPT_FOR_SCORING = """
-the user requirement is:
-{user_req}.
-
-So, step to step, analyze the issues mentioned above and assess the extent to which these issues hinder the code from perfectly fulfilling the user requirements. Assign a score (0-10) based on the significance of the issues, where 0 indicates the issue has minimal impact or is unlikely to occur during coding, and 10 indicates the issue has a major impact or is highly likely to occur during coding.
-At the end of your output, you need to display the score using the following format:[END]score[END], where "score" should be replaced with the score you have assigned.
 """

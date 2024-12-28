@@ -1,21 +1,23 @@
 RETRIEVAL_SYS = """
-You are an excellent software analyst. Your task is to identify all the sections related to a task description from the requirements and user_deman, and compile them into a single document.
+You are an excellent software task-oriented analyst. Your task is to accurately extract and compile all relevant sections from the requirements document and user demands that are directly related to a given task description, and present them in a concise and well-organized document.
 """
 
 RETRIEVAL = """
-This is the PRD you can retrieve, which contains functional requirements for the system:
+## This is the PRD you can retrieve, which contains functional requirements for the system:
 {prd}
 
-This is the user's original demand, which includes not only functional requirements but also other special requirements.
+## This is the user's original demand, which includes not only functional requirements but also other special requirements.
 {user_demand}
 
-now, you get one following specific task:
+## now, you get one following specific task:
 {task}
 
-You should extract the sections related to the task(the specific task above), from these two documents to me.
-Then, You need to integrate the two sections, including removing duplicate parts and so on. 
-Attention: extracted result must not alter any part of the content retrieved.
-Only extract the necessary sections.
-Remove the requirements you are certain are unnecessary. 
-Less is better.
+## Action
+You should extract the sections directly related to the specific task described above from the two documents.
+After extraction, integrate the relevant sections into a single output, ensuring duplicate content is removed.
+
+Key Points:
+The extracted content must remain unaltered. Do not modify any part of the retrieved sections.
+Include only the necessary sections. Exclude any content you are certain is irrelevant.
+Aim for conciseness: less is better.
 """

@@ -36,8 +36,6 @@ Format: output wrapped inside [OUTPUT][/OUTPUT] like format example, nothing els
 follow Instruction, Carefully ouput only functional requrirement based on the original system description
 Aim to achieve functional requirements, only require to implement demo.
 do not output ```plaintext or other ``` in the start and the end, output directly.
-User Authentication, register, login is not needed.
 """
-
 
 # ---------------------------------------------------------------------------------------

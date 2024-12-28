@@ -169,7 +169,7 @@ Here are some lessons and reflections gained from the flawed implementation of t
 (End for Relatd PRD)
 # Instruction: Based on the context, follow "Format example", write or revise code to complete task described in "Your Task".
 
-### ATTENTION
+## ATTENTION
 1. Use '*** ' to SPLIT different CODE SECTIONS, do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
 3. Follow task: YOU MUST write Comprehensive codes to complete task.
@@ -180,55 +180,68 @@ Here are some lessons and reflections gained from the flawed implementation of t
 8. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
 9. Only write code result, do not output any other content in the start or in the end
 10. If you need to generate text data, you should use | for data segmentation instead of ,.
-# Website Development Rule
-If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
-If you are doing website development, please do not encrypt the account password for the login function.
-If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
-If you are doing Website Development, do not follow the rules of Website and Game development.
-
-# When storing data:
+# Instruction: Based on the context, follow "Format example", write or revise code to complete task described in "Your Task".
+## ATTENTION
+1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
+2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
+3. Follow task: YOU MUST write Comprehensive codes to complete Your Task.
+4. Understand "Documents Relevant to Your Task": Use this document, along with the architecture and task plan, as guidelines to construct your code.
+4. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
+5. You must import the third-party libraries used in your code
+6. If you import a Class, you must import it firstly.
+7. Determine the order of writing the files based on your understanding of the project.
+9. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
+9. Only write code result, do not output any other content in the start or in the end.
+10. If you need to generate text data, follow the rules outlined in "When Storing Data" below.
+ <When storing data>:
 Different groups of data are distinguished by line breaks.
 Different contents of the same group of data are distinguished by |.
 Within any single content that contains multiple sub-entries, those sub-entries are separated by commas ,.
 Example:
 admin1|pass123|entry1,entry2,entry3  
-admin2|pass123|entry1  
-admin3|pass123|entry1,entry2  
-Make sure that:
+admin2|pass123|entry1
+Make sure:
 The | character is used only to separate distinct contents within a group.
 Commas , are used exclusively to separate multiple sub-entries within a single content.
 
+# Website Development Rule
+If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
+If you are doing website development, please do not encrypt the account password for the login function.
+If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
+If you are doing Website Development, do not follow the rules of Website and Game development.
 # GUI tkinter Development Rule
 If you are doing GUI tkinter Development, do not follow the rules of Website and Game development.
 # Game Development Rule
 If the software needs to load data, please make sure the loading data code matches the data format and data file.
 If you are doing Game Development, do not follow the rules of Website and Game development.
+
 # important rule
-Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
-Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
-11. An example of a counter case for the entire project is provided in "Counter Example Error Case Reference". This counter case includes some errors that require attention. When completing the code for this task, please pay extra attention to the current task and the points highlighted in the counter case, avoiding these errors to produce better code.
+## Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+## Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
+## When creating a .txt file, include 2–3 lines of default data for testing, and ensure a newline character (\n) is added at the end of the last line.
+
+# Counter Example Error Case Reference guideline
+An example of a counter case for the entire project is provided in "Counter Example Error Case Reference". This counter case includes some errors that require attention. When completing the code for this task, please pay extra attention to the current task and the points highlighted in the counter case, avoiding these errors to produce better code.
 """
 
 CODING_P = """
 # Context
-
 ## Design
 {architecture}
 ## Whole Task Plan
 {task_plan}
 
-## Your Task
-{task}
-
-## Relatd Document
-{{
-{prd_part}
-}}
-(End for Relatd PRD)
-
 ## files(already available)
 {code}
 
+## Your Task
+{task}
+
+## Documents Relevant to Your Task
+{{
+{prd_part}
+}}
+(End for Documents Relevant)
 -----
 # Format Example 
 *** main.py
@@ -242,26 +255,19 @@ CODING_P = """
 ```
 -----
 # Instruction: Based on the context, follow "Format example", write or revise code to complete task described in "Your Task".
-
-### ATTENTION
+## ATTENTION
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
-3. Follow task: YOU MUST write Comprehensive codes to complete task.
-4. Understand "Related document": follow these document with architecture and task, as guideline to construct your code 
-4. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THIS FILE.
+3. Follow task: YOU MUST write Comprehensive codes to complete Your Task.
+4. Understand "Documents Relevant to Your Task": Use this document, along with the architecture and task plan, as guidelines to construct your code.
+4. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
 5. You must import the third-party libraries used in your code
 6. If you import a Class, you must import it firstly.
 7. Determine the order of writing the files based on your understanding of the project.
 9. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
-9. Only write code result, do not output any other content in the start or in the end
-10. If you need to generate text data, you should use | for data segmentation instead of ,.
-# Website Development Rule
-If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
-If you are doing website development, please do not encrypt the account password for the login function.
-If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
-If you are doing Website Development, do not follow the rules of Website and Game development.
-
-# When storing data:
+9. Only write code result, do not output any other content in the start or in the end.
+10. If you need to generate text data, follow the rules outlined in "When Storing Data" below.
+ <When storing data>:
 Different groups of data are distinguished by line breaks.
 Different contents of the same group of data are distinguished by |.
 Within any single content that contains multiple sub-entries, those sub-entries are separated by commas ,.
@@ -272,15 +278,19 @@ Make sure:
 The | character is used only to separate distinct contents within a group.
 Commas , are used exclusively to separate multiple sub-entries within a single content.
 
+# Website Development Rule
+If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
+If you are doing website development, please do not encrypt the account password for the login function.
+If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
+If you are doing Website Development, do not follow the rules of Website and Game development.
 # GUI tkinter Development Rule
 If you are doing GUI tkinter Development, do not follow the rules of Website and Game development.
 # Game Development Rule
 If the software needs to load data, please make sure the loading data code matches the data format and data file.
 If you are doing Game Development, do not follow the rules of Website and Game development.
+
 # important rule
 Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
-
-When creating a .txt file, populate it with some default data for testing purposes, and ensure to add a newline character at the end of the last line.
-When writing the function to add data, you need to add a newline character first, and then add the content of the data.
+When creating a .txt file, include 2–3 lines of default data for testing, and ensure a newline character (\n) is added at the end of the last line.
 """

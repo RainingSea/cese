@@ -52,7 +52,7 @@ class Searcher:
         Team.log.info(system_prompt.content + "\n" + user_prompt.content)
         retrieval_result = self.llm.invoke(system_prompt, user_prompt)
         # ---------- logging --------
-        Team.log.info("\n" + retrieval_result)
+        Team.log.info("retrievaled reslt is: \n" + retrieval_result)
         return retrieval_result
 
     def getOriginalDescription(self):
