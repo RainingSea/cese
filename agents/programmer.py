@@ -54,11 +54,10 @@ class Programmer(Role):
         print(task_plan)
 
         # --------------- decompose and assign tasks to programmer
-
         task_dict = self.task_list_extract()
 
-        # print(self.team.roles["Searcher"].retrieval(task_dict["T0"]))
         for key, value in task_dict.items():
+            # Retrieve content relevant to this task from the requirements document.
             retrieval_refer = self.team.roles["Searcher"].retrieval(value)
             print("Starting to Code for " + str(key) + " " + value + "/n")
 

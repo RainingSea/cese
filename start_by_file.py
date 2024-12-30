@@ -20,17 +20,20 @@ import argparse
 
 
 def start_project():
-    category = "game"
-    name = "WordLinkPuzzle.md"
-    # parser = argparse.ArgumentParser(description="original Requirement")
-    # parser.add_argument("--category", type=str, help="gui")
-    # parser.add_argument("--name", type=str, help="DailyHealthTips.md")
-    # args = parser.parse_args()
+    # category = "website"
+    # name = "CharitableGivingPlatform.md"
+    parser = argparse.ArgumentParser(description="original Requirement")
+    parser.add_argument("--category", type=str, help="gui")
+    parser.add_argument("--name", type=str, help="DailyHealthTips.md")
+    args = parser.parse_args()
     # print(f"Received Original Requirement Name : {args.name}")
     ### dataset path
-    # category = args.category
-    # name = args.name
-    project_description_path = f"./dataset/SD-bench-aug/dataset/{category}/{name}"
+    category = args.category
+    name = args.name
+    # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
+    project_description_path = (
+        f"D:\Project\CE\CE\dataset\SD-bench\dataset\{category}/{name}"
+    )
     # framework execution start time
     start_time = datetime.now()
     formatted_time = start_time.strftime("%Y%m%d%H%M%S")
@@ -48,15 +51,7 @@ def start_project():
     Team.projec_catogory = category
     Team.project_name = project_name
 
-    projdir = (
-        "D:/Project/CE/CE/project/"
-        + category
-        + "/"
-        + project_name
-        + "_"
-        + formatted_time
-        + "/"
-    )
+    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "2/"
     Team.set_projdir(projdir)
     Team.set_log()
 

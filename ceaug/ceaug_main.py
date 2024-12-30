@@ -155,7 +155,7 @@ def ceaug(
         messages.append(
             {
                 "role": "user",
-                "content": "summarize the issues in this project's code based on all the unit test results. Issues about the test codes is not needed to analyze.   ",
+                "content": "summarize the issues in this project's code based on all the unit test results. Only neIssues about the test codes is not needed to analyze.   ",
             }
         )
         code_feedback = chat_to_LLM(messages)

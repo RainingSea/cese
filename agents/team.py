@@ -52,14 +52,14 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        # inter_launch = True
-        inter_launch = False
+        inter_launch = True
+        # inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:
             # 读取已有项目中的文件，然后开发，go_inter()代表读取已有文件作为角色在工作流中的信息
             Team.incremental_base_dir = os.path.normpath(
-                "D:\Project\CE\CE\project\game\WordLinkPuzzle"
+                "D:\Project\CE\CE\project\website\CharitableGivingPlatform"
             )
             self.roles["Product Manager"].go_inter()
             self.roles["Architect"].go_inter()
@@ -77,14 +77,19 @@ class Team(BaseModel):
             # self.roles["Reviewer"].target = self.roles["Project Manager"]
             # self.roles["Reviewer"].go()
             Team.active_role(self.roles["Project Manager"].profile)
+
+        self.roles["Programmer"].go()
+
+        print("Dev execute END")
+        return
         # _______________ generate PRD, Architect, Task Plan _______________
         #
         #
         # ______________ counter example augment(optional) ______________
         # make dirs for each counter example project
-
         # create a the same dir of project base, distinct by ce_{number} / like, ce_1, ce_2, ce_3
         ce_projects_paths = make_ce_dirs(Team.project_dir, Team.all_messages[3].content)
+
         # every ce_project_path is a dir contains prd, arch, plan.
         # generate coresponding code for each ce_project_path
         for j in range(len(ce_projects_paths)):
@@ -98,7 +103,6 @@ class Team(BaseModel):
             self.roles["Programmer"].go()
 
         # pass all the ce_project, execute unit test, analyze, and select the most valuable one
-        # print("Current Working Directory1:")
 
         # Attention!
         # ceaug() execute unit test, which requires switching work dir to the test code's project dir
@@ -110,16 +114,15 @@ class Team(BaseModel):
             Team.project_name,
             Team.all_messages[0].content,
         )
+        Team.log.info("### ceaug feedback\n" + str(ce_feedback))
         # switch to original project dir
-        # os.chdir(previous_project_dir)
 
-        # Team.project_dir = previous_project_dir
         # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
-        # print("Current Working Directory2:", Path.cwd())
         os.chdir(previous_work_dir)
         Team.project_dir = pervious_project_dir
         Team.incremental_base_dir = pervious_project_dir
-        # print("Current Working Directory:", Path.cwd())
+
+        Team.log.info("begin CE Coding")
         self.roles["Product Manager"].go_inter()
         self.roles["Architect"].go_inter()
         self.roles["Project Manager"].go_inter()
