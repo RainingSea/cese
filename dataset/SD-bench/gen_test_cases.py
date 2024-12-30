@@ -1,7 +1,7 @@
 import sys
 import os
 from openai import OpenAI
-from prompt import prompt_for_gen_test_cases
+from gen_test_cases_prompt import prompt_for_gen_test_cases
 ### gpt api
 def call_openai_api(prompt, model):
     client = OpenAI(
