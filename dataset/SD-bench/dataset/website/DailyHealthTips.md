@@ -8,7 +8,6 @@ Develop a web application named 'DailyHealthTips' that provides users with daily
 ## Core Features
 Users shall be able to log in to their accounts.
 Users shall be able to navigate to the Registration Page via the Register here link if they do not have an account.
-Users shall be redirected to archives page by default after login.
 Users shall be able to view the current daily health tip and navigate to previous or next tips.
 Users shall be able to view all historical daily health tips through a tips archive.
 Users shall be able to search for specific tips from the tips archive.
