@@ -18,6 +18,6 @@ After extraction, integrate the relevant sections into a single output, ensuring
 
 Key Points:
 The extracted content must remain unaltered. Do not modify any part of the retrieved sections.
-Include only the necessary sections. Exclude any content you are certain is irrelevant.
+Include only the necessary sections. Exclude any content you are certain is irrelevant to the current task.
 Aim for conciseness: less is better.
 """

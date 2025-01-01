@@ -30,6 +30,8 @@ from agents.team import Team
 from agents.searcher import Searcher
 from messages.message import Message
 from utils.read import read_file_2_line
+from utils.edit_txt import add_newline_to_txt_files
+from utils.edit_txt import update_flask_port
 
 
 class C_Programmer(Role):
@@ -72,7 +74,7 @@ class C_Programmer(Role):
                 {
                     "architecture": architecture,
                     "task_plan": task_plan,
-                    "task": value,
+                    "task": str(key) + ":" + value,
                     "code": self.read_code_base(),
                     "prd_part": retrieval_refer,
                 }
@@ -157,6 +159,12 @@ class C_Programmer(Role):
         # Team.log.info(self.read_code_base())
         Team.log.info("\n\n\n\n")
         Team.log.info(self.write_adapator(self.code_base))
+
+        code_msg = Message(
+            sender=self.profile, content=self.write_adapator(self.code_base)
+        )
+        Team.all_messages.append(code_msg)
+
         self.message_to_file(self.write_adapator(self.code_base))
 
     # def go():
@@ -571,6 +579,9 @@ class C_Programmer(Role):
                     os.path.join(code_base_dir, str(name)), str(code)
                 )
 
+        add_newline_to_txt_files(code_base_dir)
+        update_flask_port(os.path.join(code_base_dir, "main.py"))
+
     def message_to_file_review(self, code_text):
         os.makedirs(Team.project_dir + "review_code")
         code_base_dir = Team.project_dir + "review_code/"
@@ -597,7 +608,7 @@ class C_Programmer(Role):
             os.makedirs(Team.project_dir + "test_code")
         # split based on ###_
         code_base_dir = Team.project_dir + "test_code/"
-        code_text_split = code_text.split("### ")
+        code_text_split = code_text.split("*** ")
 
         for i in range(1, len(code_text_split)):
             name, code = self.match(code_text_split[i])
@@ -613,6 +624,9 @@ class C_Programmer(Role):
                 print(self.profile + " writting Test CODE: " + str(name))
                 Team.log.info(self.profile + " writting Test CODE: " + str(name))
                 super().save_file_overwrite(code_base_dir + str(name), str(code))
+
+        add_newline_to_txt_files(code_base_dir)
+        update_flask_port(os.path.join(code_base_dir, "main.py"))
 
     def update_own_message(self, msg: Message):
         self.own_message = msg

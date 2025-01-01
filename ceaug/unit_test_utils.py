@@ -50,6 +50,21 @@ def read_md_file(file_path):
         return f"Error: Could not read the file '{file_path}'. Reason: {e}"
 
 
+def chat_to_LLM(messages):
+
+    client = OpenAI(
+        api_key="sk-nF4KFp0FggnT6bfpH2JwYhRsFWnPpfohEAtERbHlMXCIdlki",  # 只需要填写key就可以了
+        base_url="https://api.chatanywhere.tech",
+    )
+    response = client.chat.completions.create(
+        messages=messages,
+        model="gpt-4o-mini",
+        # stream=True, # 这个开了要用chunk的调用方法
+    )
+    # print(response.choices[0].message.content, end="", flush=True)
+    return response.choices[0].message.content
+
+
 ### gpt api
 def call_openai_api(prompt, model):
     client = OpenAI(
@@ -125,21 +140,17 @@ def run_test_code(file_path):
         return f"Error during execution: {e.stderr}"
 
 
-def autogen(project_path, category, project_name):
-    """
-    the path to the code should be passed as an argument (Team.project_dir).
-    example: ./project/game/wordlinkpuzzle/
-    """
+def test_code_autogen(codebase_path, category, project_name):
+
     project_category = category
 
-    if os.path.exists(os.path.join(project_path, "code", "testcode.py")):
+    if os.path.exists(os.path.join(codebase_path, "testcode.py")):
         print("### Already exist a testcode.py ###")
-        testcode = read_file_2_line(os.path.join(project_path, "code", "testcode.py"))
+        testcode = read_file_2_line(os.path.join(codebase_path, "testcode.py"))
         return testcode
     # 只处理文件夹
-    if os.path.isdir(project_path):
-        # 确保代码库和测试用例路径正确
-        codebase_path = os.path.join(project_path, "code")
+    if os.path.isdir(codebase_path):
+
         # 换成绝对路径
         # 后期这里要更换，就是不刷数据集的情况下：在命令行里提供是否包含测试用例的参数，如果包含，就按类似这种方法提取；如果不包含，就生成测试用例，并且返回测试用例路径
         testcase_path = os.path.join(
@@ -201,18 +212,11 @@ def web_text_strip(input_text):
     return cleaned_text
 
 
-def runUnitTest(project_path, category):
-    path = Path(project_path)
-    # extract wordlinkpuzzle
-    project_name = path.name
-    # extract game
-    project_category = category
+def runUnitTest(codebase_path, project_category, project_name):
 
     print(f"----------------[START {project_name}]---------------------")
-
-    project_path = os.path.join(project_path, "code")
-    os.chdir(project_path)
-    print(f"CURRENT DIR1 {project_path}")
+    os.chdir(codebase_path)
+    print(f"CURRENT DIR1 {codebase_path}")
     # 在加载测试前清理模块缓存
     clear_imports()
     # 加载测试文件 (testcode.py)
@@ -250,13 +254,8 @@ def runUnitTest(project_path, category):
     print(f"Failed: {failed}")
     print(f"Errors: {errors}")
     print(f"----------------[END {project_name}]---------------------")
-    new_row = pd.DataFrame([info])
-    print(info)
 
-    # 使用 pd.concat() 合并新的数据行
-    # results = pd.concat([results, new_row], ignore_index=True)
-    # 写入 CSV 文件
-    # write_results_to_csv(results, meta_data_path)
+    print(info)
     # 清除当前的测试套件和加载器
     suite._tests.clear()  # 清除测试套件中的测试用例
     loader = None  # 清除测试加载器对象

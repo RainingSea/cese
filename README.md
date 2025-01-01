@@ -28,3 +28,6 @@ log还没有同步
 |                    |        category          | 项目种类，帮助创建，最重要的是帮助找测试用例 |
 |                    |          name            | 项目名，帮助创建，最重要的是帮助找测试用例 |
 | ceaug/auto_test.py | testcase_path(autogen)   | 测试用例目录路径 |  
+
+
+(1)发现一些共性错误，例如route login

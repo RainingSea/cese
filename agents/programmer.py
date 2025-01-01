@@ -13,6 +13,7 @@ from langchain_core.messages import SystemMessage
 
 # project's utility lib
 from utils.commen import str_to_role
+from utils.edit_txt import add_newline_to_txt_files
 
 # custom lib
 from prompt.write_code_prompt import (
@@ -29,6 +30,7 @@ from agents.team import Team
 from agents.searcher import Searcher
 from messages.message import Message
 from utils.read import read_file_2_line
+from utils.edit_txt import update_flask_port
 
 
 class Programmer(Role):
@@ -39,7 +41,6 @@ class Programmer(Role):
     system_msg: str = CODING_SYS
     own_message: Message = None
     team: Team = None
-    # all_code_files: dict[str, list] = Field(default_factory=dict, validate_default=True)
     action: str = "Code"
     code_base: dict[str, str] = Field(default_factory=dict, validate_default=True)
 
@@ -50,8 +51,6 @@ class Programmer(Role):
         # ---------- get the information needed from SCR ----------
         architecture = self.getArchiture().content
         task_plan = self.getProjectPlan().content
-
-        print(task_plan)
 
         # --------------- decompose and assign tasks to programmer
         task_dict = self.task_list_extract()
@@ -70,7 +69,7 @@ class Programmer(Role):
                 {
                     "architecture": architecture,
                     "task_plan": task_plan,
-                    "task": value,
+                    "task": str(key) + ":" + value,
                     "code": self.read_code_base(),
                     "prd_part": retrieval_refer,
                 }
@@ -472,6 +471,9 @@ class Programmer(Role):
                 super().save_file_overwrite(
                     os.path.join(code_base_dir, str(name)), str(code)
                 )
+
+        add_newline_to_txt_files(code_base_dir)
+        update_flask_port(os.path.join(code_base_dir, "main.py"))
 
     def message_to_file_review(self, code_text):
         os.makedirs(Team.project_dir + "review_code")

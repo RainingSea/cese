@@ -13,7 +13,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from agents.role import Role
 from utils.log import Log
-from ceaug.ceaug_main import ceaug, make_ce_dirs
+from ceaug.ceaug_main import ceaug, create_ce_document
 
 
 class Team(BaseModel):
@@ -52,14 +52,15 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        inter_launch = True
-        # inter_launch = False
+        # inter_launch = True
+        inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:
-            # 读取已有项目中的文件，然后开发，go_inter()代表读取已有文件作为角色在工作流中的信息
+            # Read files from an existing project, then proceed with development.
+            # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
             Team.incremental_base_dir = os.path.normpath(
-                "D:\Project\CE\CE\project\website\CharitableGivingPlatform"
+                "D:\Project\CE\CE\project\website\RecipeHub"
             )
             self.roles["Product Manager"].go_inter()
             self.roles["Architect"].go_inter()
@@ -78,17 +79,16 @@ class Team(BaseModel):
             # self.roles["Reviewer"].go()
             Team.active_role(self.roles["Project Manager"].profile)
 
-        self.roles["Programmer"].go()
-
-        print("Dev execute END")
-        return
         # _______________ generate PRD, Architect, Task Plan _______________
         #
         #
         # ______________ counter example augment(optional) ______________
         # make dirs for each counter example project
         # create a the same dir of project base, distinct by ce_{number} / like, ce_1, ce_2, ce_3
-        ce_projects_paths = make_ce_dirs(Team.project_dir, Team.all_messages[3].content)
+        # ce_projects_paths = ["D:\Project\CE\CE\project\website\RecipeHub\ce\ce_0"]
+        ce_projects_paths = create_ce_document(
+            Team.project_dir, Team.all_messages[3].content
+        )
 
         # every ce_project_path is a dir contains prd, arch, plan.
         # generate coresponding code for each ce_project_path
@@ -103,46 +103,55 @@ class Team(BaseModel):
             self.roles["Programmer"].go()
 
         # pass all the ce_project, execute unit test, analyze, and select the most valuable one
-
-        # Attention!
-        # ceaug() execute unit test, which requires switching work dir to the test code's project dir
-        # Must switch back
+        # |_____________________________________________________________|
+        # |                      Attention!                             |
+        # | ceaug() execute unit test, which                            |
+        # | requires switching work dir to the test code's project dir "|
+        # |                   Must switch back!                         |
+        # |_____________________________________________________________|
+        # |
         ce_score, ce_feedback = ceaug(
             previous_work_dir,
             ce_projects_paths,
             Team.projec_catogory,
             Team.project_name,
             Team.all_messages[0].content,
+            Team.log,
         )
-        Team.log.info("### ceaug feedback\n" + str(ce_feedback))
-        # switch to original project dir
-
-        # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
         os.chdir(previous_work_dir)
         Team.project_dir = pervious_project_dir
         Team.incremental_base_dir = pervious_project_dir
 
-        Team.log.info("begin CE Coding")
-        self.roles["Product Manager"].go_inter()
-        self.roles["Architect"].go_inter()
-        self.roles["Project Manager"].go_inter()
-        # _______________ counter example augment _______________
-        #
-        #
-        # _______________ programer generate code ______________
-        # comparative experiment / also default
-        # (default) no ceaug coding
-        # self.roles["Programmer"].go()
-        # (augment) ceaug coding
-        self.roles["C_Programmer"].go(ce_feedback)
-        # Team.active_role(self.roles["Programmer"].profile)
-        # _______________ programer generate code ______________
-        #
-        #
-        # _______________ test _________________
-        # self.roles["Code Tester"].go()
-        # Team.active_role(self.roles["Code Tester"].profile)
-        # _______________ test _________________
+        if ce_feedback:
+            # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
+            Team.log.info("### ceaug feedback\n" + str(ce_feedback))
+
+            # use feedback from counter example to augment coding
+            Team.log.info("begin CE Coding")
+            self.roles["Product Manager"].go_inter()
+            self.roles["Architect"].go_inter()
+            self.roles["Project Manager"].go_inter()
+            # _______________ counter example augment _______________
+            #
+            #
+            # _______________ programer generate code ______________
+            # (augment) ceaug coding
+            self.roles["C_Programmer"].go(ce_feedback)
+            # Team.active_role(self.roles["Programmer"].profile)
+            # _______________ programer generate code ______________
+            #
+            #
+            # _______________ test _________________
+            # self.roles["Code Tester"].go()
+            # Team.active_role(self.roles["Code Tester"].profile)
+            # _______________ test _________________
+        else:
+            Team.log.info("No CE, Normal Coding")
+            self.roles["Product Manager"].go_inter()
+            self.roles["Architect"].go_inter()
+            self.roles["Project Manager"].go_inter()
+            self.roles["Programmer"].code_base.clear()
+            self.roles["Programmer"].go()
 
         print("Dev execute END")
 
