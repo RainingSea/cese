@@ -52,8 +52,8 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        inter_launch = True
-        # inter_launch = False
+        # inter_launch = True
+        inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:

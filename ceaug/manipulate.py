@@ -1,17 +1,30 @@
 import re, random
 import ast
+from openai import OpenAI
+import time
+import math
+from datetime import datetime
 
 
 def ce_generate(task_plan):
-    task_list_dict = extract_task_list(task_plan)
+    # transfer the task plan(dict str) to a dict in python
     dict_task_plan = ast.literal_eval(task_plan)
+
+    # extract the task list, use re match
+    task_list_dict = extract_task_list(task_plan)
+
     # assign the number of c.e.
-    ce_number = 3
+    ce_number = 2
     ce_result = []
     for i in range(ce_number):
+        # avoid affecting the original plan.
         new_task_plan = dict_task_plan.copy()
-        ce = disturbing(task_list_dict)
+        task_list_dict_copy = task_list_dict.copy()
+        # disturbing, get counter example task list
+        ce = disturbing(task_list_dict_copy)
+        # replace the origin task list to disturbed task list
         new_task_plan["Task list"] = ce
+
         ce_result.append(str(new_task_plan))
 
     return ce_result
@@ -39,7 +52,7 @@ def extract_task_list(task_plan):
 
     # 打印结果
     # print(task_dict)
-    print("Task Dictionary:")
+    print("Extracted Task Dictionary:")
 
     _log_task = ""
     for key, value in task_dict.items():
@@ -49,11 +62,25 @@ def extract_task_list(task_plan):
     return task_dict
 
 
-def disturbing(task_dict):
+def disturbing(task_list_dict):
     """
     accept a task_dict, apply disturbing strategy to it.
     """
-    return perform_swaps(task_dict)
+    # ________  swap the order of two tasks _________
+    # return perform_swaps(task_dict)
+    # ________  swap the order of two tasks _________
+
+    # _________ remove a task(randomly) _________
+    return remove_tasks(task_list_dict)
+    # _________ remove a task(randomly) _________
+
+    # _________ edit a task _________
+    # return edit_task(task_list_dict)
+    # _________ edit a task _________
+
+    # ________ no disturbing, just return the original one __________
+    # return task_list_dict
+    # ________ no disturbing, just return the original one __________
 
 
 def perform_swaps(d, num_swaps=1):
@@ -73,3 +100,104 @@ def perform_swaps(d, num_swaps=1):
     # 将交换后的列表转换回字典
 
     return current_dict
+
+
+def remove_tasks(d):
+    """
+    randomly remove a task
+    """
+    if not d:
+        print("The dictionary is empty, nothing to remove.")
+        return None
+
+    seed_value = int(time.time())
+    with open("D:\Project\CE\CE\seed.txt", "a") as file:
+        file.write(str(datetime.now()) + " " + str(seed_value) + "\n")
+    random.seed(seed_value)
+
+    num_keys = len(d)
+    sample_size = math.ceil(num_keys * 0.3)
+    sample_size = min(sample_size, num_keys)
+
+    keys_to_remove = random.sample(list(d.keys()), sample_size)
+    removed_values = [d.pop(key) for key in keys_to_remove]
+
+    for k in len(keys_to_remove):
+        print(f"\n\nRemoved key: {keys_to_remove[k]}, value: {removed_values[k]}")
+
+    return d
+
+
+def chat_to_LLM(messages):
+
+    client = OpenAI(
+        api_key="sk-nF4KFp0FggnT6bfpH2JwYhRsFWnPpfohEAtERbHlMXCIdlki",  # 只需要填写key就可以了
+        base_url="https://api.chatanywhere.tech",
+    )
+    response = client.chat.completions.create(
+        messages=messages,
+        model="gpt-4o-mini",
+        # stream=True, # 这个开了要用chunk的调用方法
+    )
+    # print(response.choices[0].message.content, end="", flush=True)
+    return response.choices[0].message.content
+
+
+def edit_task(d):
+    """
+    edit one task
+    """
+    if not d:
+        print("The dictionary is empty, nothing to remove.")
+        return None
+    # seed
+    seed_value = int(time.time())
+    with open("D:\Project\CE\CE\seed.txt", "a") as file:
+        file.write(str(datetime.now()) + " " + str(seed_value))
+    random.seed(seed_value)
+    #
+    # key_to_edit = random.choice(list(d.keys()))
+    task_number = 2
+    keys_to_edit = random.sample(list(d.keys()), 2)
+    task_description = [None] * 2
+    task_description[0] = d[keys_to_edit[0]]
+    task_description[1] = d[keys_to_edit[1]]
+
+    messages = []
+    _log_task = ""
+    for key, value in d.items():
+        print(f"Key: {key}, Value: {value}")
+        _log_task = _log_task + f"Key: {key}, Value: {value}" + "\n"
+    template = """Here is a task plan list for implementing a project. I have selected {task_number} task, and now I want to create a negative example based on this task. Please make the task I selected more vague.
+    You only need to return an edited task.
+    # vague example:
+    input:Create StoryManager class methods for creating and saving stories, handle form submission from story_creation.html, and save story data to stories.txt.
+    output:Write some functions in the StoryManager class to do stuff with stories, handle some kind of form input, and save to a file.
+    the whole task plan is:{task_plan},
+    the task I selected is:{task},
+    follow example and return a edited task.
+    """
+    messages.append(
+        {
+            "role": "user",
+            "content": template.format_map(
+                {
+                    "task_plan": _log_task,
+                    "task": f"{keys_to_edit[0]} + :  + {task_description[0]} and {keys_to_edit[1]} + :  + {task_description[1]}",
+                }
+            ),
+        }
+    )
+    edited_task = chat_to_LLM(messages)
+    print(
+        "\nedit: "
+        + str(keys_to_edit)
+        + " \nbefore edit: \n"
+        + task_description[0]
+        + "\n"
+        + task_description[1]
+        + "\nafter edit: "
+        + edited_task
+    )
+    d[keys_to_edit[0]] = edited_task
+    return d
