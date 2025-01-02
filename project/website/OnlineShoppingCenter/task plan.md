@@ -8,54 +8,43 @@
 "Logic Analysis": [
     [
         "main.py",
-        "Contains the main application logic, including user authentication and product management."
+        "The main file of the application, responsible for initializing the Flask app and routing. Contains the main application logic."
     ],
     [
         "templates/login.html",
-        "Contains the HTML structure for the Login Page."
+        "HTML template for user login, includes form for username and password."
     ],
     [
         "templates/registration.html",
-        "Contains the HTML structure for the Registration Page."
+        "HTML template for user registration, includes form for username, password, and email."
     ],
     [
         "templates/product_listing.html",
-        "Contains the HTML structure for the Product Listing Page."
+        "HTML template for displaying products, includes 'Add to Cart' buttons."
     ],
     [
         "templates/shopping_cart.html",
-        "Contains the HTML structure for the Shopping Cart Page."
+        "HTML template for viewing and managing the shopping cart."
     ],
     [
         "templates/checkout.html",
-        "Contains the HTML structure for the Checkout Page."
+        "HTML template for entering shipping address and payment information."
     ],
     [
         "templates/order_confirmation.html",
-        "Contains the HTML structure for the Order Confirmation Page."
-    ],
-    [
-        "users.txt",
-        "Stores user data."
-    ],
-    [
-        "products.txt",
-        "Stores product data."
-    ],
-    [
-        "orders.txt",
-        "Stores order data."
+        "HTML template for displaying order summary after checkout."
     ]
 ],
 "Task list": 
 {
-    'T0':'|handle user authentication|implement login and registration functions|[]|related files:["main.py", "templates/login.html", "templates/registration.html", "users.txt"]',
-    'T1':'|manage product browsing|implement product loading and display functions|[T0]|related files:["main.py", "templates/product_listing.html", "products.txt"]',
-    'T2':'|handle shopping cart management|implement add, remove, and view cart functions|[T1]|related files:["main.py", "templates/shopping_cart.html"]',
-    'T3':'|process checkout|implement checkout and order confirmation functions|[T2]|related files:["main.py", "templates/checkout.html", "templates/order_confirmation.html", "orders.txt"]',
-    'T4':'|setup application structure|create Flask app and route definitions|[T0, T1, T2, T3]|related files:["main.py"]',
-    'T5':'|create HTML templates|design and implement HTML for all pages|[T0, T1, T2, T3]|related files:["templates/login.html", "templates/registration.html", "templates/product_listing.html", "templates/shopping_cart.html", "templates/checkout.html", "templates/order_confirmation.html"]'
+    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
+    'T1':'|Implement user registration functionality and create registration page.|related files:["main.py", "templates/registration.html"]',
+    'T2':'|Implement user login functionality and create login page.|related files:["main.py", "templates/login.html"]',
+    'T3':'|Implement product browsing functionality and create product listing page.|related files:["main.py", "templates/product_listing.html"]',
+    'T4':'|Implement shopping cart management functionality and create shopping cart page.|related files:["main.py", "templates/shopping_cart.html"]',
+    'T5':'|Implement checkout process and create checkout page.|related files:["main.py", "templates/checkout.html"]',
+    'T6':'|Implement order confirmation functionality and create order confirmation page.|related files:["main.py", "templates/order_confirmation.html"]'
 },
 "Full API spec": "",
-"Shared Knowledge": "`main.py` contains the main application logic and functions shared across the project."
+"Shared Knowledge": "The application will use local text files for data storage, including users.txt for user accounts, products.txt for product listings, and cart.txt for shopping cart data."
 }

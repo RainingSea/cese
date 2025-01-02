@@ -8,47 +8,43 @@
 "Logic Analysis": [
     [
         "main.py",
-        "Contains the main application logic and routing for the RecipeHub application."
+        "The main file of the application, responsible for initializing the Flask app, routing, and handling HTTP requests."
     ],
     [
         "templates/login.html",
-        "Contains the HTML structure for the Login Page."
+        "HTML template for the Login Page, includes form for username and password input."
     ],
     [
         "templates/register.html",
-        "Contains the HTML structure for the Registration Page."
+        "HTML template for the Registration Page, includes form for new user registration."
     ],
     [
         "templates/home.html",
-        "Contains the HTML structure for the Home Page."
+        "HTML template for the Home Page, displays welcome message and navigation links."
     ],
     [
         "templates/recipe_submission.html",
-        "Contains the HTML structure for the Recipe Submission Page."
+        "HTML template for the Recipe Submission Page, includes form for entering recipe details."
     ],
     [
         "templates/recipe_browsing.html",
-        "Contains the HTML structure for the Recipe Browsing Page."
+        "HTML template for the Recipe Browsing Page, includes search functionality and recipe list display."
     ],
     [
         "templates/user_profile.html",
-        "Contains the HTML structure for the User Profile Page."
-    ],
-    [
-        "templates/recipe_details.html",
-        "Contains the HTML structure for the Recipe Details Page."
+        "HTML template for the User Profile Page, displays user information and submitted recipes."
     ]
 ],
 "Task list": 
 {
-    'T0':'|handle user authentication|implement login and registration functions|[]|related files:["main.py", "templates/login.html", "templates/register.html"]',
-    'T1':'|create home page navigation|implement home page and navigation links|[T0]|related files:["main.py", "templates/home.html"]',
-    'T2':'|implement recipe submission|create recipe submission form and handle submissions|[T1]|related files:["main.py", "templates/recipe_submission.html"]',
-    'T3':'|implement recipe browsing|create recipe browsing functionality and search|[T2]|related files:["main.py", "templates/recipe_browsing.html"]',
-    'T4':'|implement user profile management|create user profile page and account deletion|[T3]|related files:["main.py", "templates/user_profile.html"]',
-    'T5':'|implement recipe details view|create recipe details page and navigation|[T4]|related files:["main.py", "templates/recipe_details.html"]',
-    'T6':'|setup data storage|implement data handling for users and recipes|[T0]|related files:["main.py", "users.txt", "recipes.txt"]'
+    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
+    'T1':'|Create Login Page and implement user login functionality.|related files:["main.py", "templates/login.html"]',
+    'T2':'|Create Registration Page and implement user registration functionality.|related files:["main.py", "templates/register.html"]',
+    'T3':'|Develop Home Page with navigation links and welcome message.|related files:["main.py", "templates/home.html"]',
+    'T4':'|Implement Recipe Submission Page with form handling and success/error messages.|related files:["main.py", "templates/recipe_submission.html"]',
+    'T5':'|Create Recipe Browsing Page with search functionality and recipe details display.|related files:["main.py", "templates/recipe_browsing.html"]',
+    'T6':'|Develop User Profile Page for viewing user information and managing recipes.|related files:["main.py", "templates/user_profile.html"]'
 },
 "Full API spec": "",
-"Shared Knowledge": "The application uses Flask for routing and local text files for data storage."
+"Shared Knowledge": "The application will use a consistent layout for all HTML templates, ensuring a uniform user experience."
 }

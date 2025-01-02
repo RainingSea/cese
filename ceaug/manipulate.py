@@ -71,7 +71,7 @@ def disturbing(task_list_dict):
     # ________  swap the order of two tasks _________
 
     # _________ remove a task(randomly) _________
-    return remove_tasks(task_list_dict)
+    return remove_task(task_list_dict)
     # _________ remove a task(randomly) _________
 
     # _________ edit a task _________
@@ -102,28 +102,19 @@ def perform_swaps(d, num_swaps=1):
     return current_dict
 
 
-def remove_tasks(d):
+def remove_task(d):
     """
     randomly remove a task
     """
     if not d:
         print("The dictionary is empty, nothing to remove.")
         return None
-
-    seed_value = int(time.time())
-    with open("D:\Project\CE\CE\seed.txt", "a") as file:
-        file.write(str(datetime.now()) + " " + str(seed_value) + "\n")
-    random.seed(seed_value)
-
-    num_keys = len(d)
-    sample_size = math.ceil(num_keys * 0.3)
-    sample_size = min(sample_size, num_keys)
-
+    sample_size = math.ceil(len(d) * 0.3)
+    sample_size = min(sample_size, len(d))
     keys_to_remove = random.sample(list(d.keys()), sample_size)
+    print("Keys to remove:", str(keys_to_remove))
     removed_values = [d.pop(key) for key in keys_to_remove]
-
-    for k in len(keys_to_remove):
-        print(f"\n\nRemoved key: {keys_to_remove[k]}, value: {removed_values[k]}")
+    print("Removed values:", str(removed_values))
 
     return d
 
@@ -156,21 +147,17 @@ def edit_task(d):
         file.write(str(datetime.now()) + " " + str(seed_value))
     random.seed(seed_value)
     #
-    # key_to_edit = random.choice(list(d.keys()))
-    task_number = 2
-    keys_to_edit = random.sample(list(d.keys()), 2)
-    task_description = [None] * 2
-    task_description[0] = d[keys_to_edit[0]]
-    task_description[1] = d[keys_to_edit[1]]
+    key_to_edit = random.choice(list(d.keys()))
+    task_description = d[key_to_edit]
 
     messages = []
     _log_task = ""
     for key, value in d.items():
         print(f"Key: {key}, Value: {value}")
         _log_task = _log_task + f"Key: {key}, Value: {value}" + "\n"
-    template = """Here is a task plan list for implementing a project. I have selected {task_number} task, and now I want to create a negative example based on this task. Please make the task I selected more vague.
+    template = """Here is a task plan list for implementing a project. I have selected one task, and now I want to create a negative example based on this task. Please make the task I selected more vague.
     You only need to return an edited task.
-    # vague example:
+    # Example:
     input:Create StoryManager class methods for creating and saving stories, handle form submission from story_creation.html, and save story data to stories.txt.
     output:Write some functions in the StoryManager class to do stuff with stories, handle some kind of form input, and save to a file.
     the whole task plan is:{task_plan},
@@ -183,7 +170,7 @@ def edit_task(d):
             "content": template.format_map(
                 {
                     "task_plan": _log_task,
-                    "task": f"{keys_to_edit[0]} + :  + {task_description[0]} and {keys_to_edit[1]} + :  + {task_description[1]}",
+                    "task": str(key_to_edit) + ": " + task_description,
                 }
             ),
         }
@@ -191,13 +178,11 @@ def edit_task(d):
     edited_task = chat_to_LLM(messages)
     print(
         "\nedit: "
-        + str(keys_to_edit)
-        + " \nbefore edit: \n"
-        + task_description[0]
-        + "\n"
-        + task_description[1]
+        + str(key_to_edit)
+        + " \nbefore edit: "
+        + task_description
         + "\nafter edit: "
         + edited_task
     )
-    d[keys_to_edit[0]] = edited_task
+    d[key_to_edit] = edited_task
     return d

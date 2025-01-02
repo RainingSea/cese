@@ -1,27 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-users_file = 'users.txt'
-recipes_file = 'recipes.txt'
+app.secret_key = 'your_secret_key'  # Change this to a random secret key
 
 class User:
     def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
 
-    def save(self):
-        with open(users_file, 'a') as f:
-            f.write(f"{self.username}|{self.password}\n")
-
-    def delete(self):
-        users = []
-        with open(users_file, 'r') as f:
-            users = f.readlines()
-        with open(users_file, 'w') as f:
-            for user in users:
-                if user.split('|')[0] != self.username:
-                    f.write(user)
+    def to_string(self) -> str:
+        return f"{self.username}|{self.password}"
 
 class Recipe:
     def __init__(self, title: str, ingredients: str, instructions: str):
@@ -29,139 +18,141 @@ class Recipe:
         self.ingredients = ingredients
         self.instructions = instructions
 
-    def save(self):
-        with open(recipes_file, 'a') as f:
-            f.write(f"{self.title}|{self.ingredients}|{self.instructions}\n")
+    def to_string(self) -> str:
+        return f"{self.title}|{self.ingredients}|{self.instructions}"
 
 class RecipeHub:
-    def register(self, username: str, password: str) -> bool:
-        with open(users_file, 'r') as f:
-            users = f.readlines()
-            for user in users:
-                if user.split('|')[0] == username:
-                    return False  # User already exists
+    def __init__(self, users_file: str, recipes_file: str):
+        self.users_file = users_file
+        self.recipes_file = recipes_file
+        self.users = self.load_users()
+        self.recipes = self.load_recipes()
+
+    def load_users(self):
+        users = []
+        if os.path.exists(self.users_file):
+            with open(self.users_file, 'r') as file:
+                for line in file:
+                    username, password = line.strip().split('|')[:2]
+                    users.append(User(username, password))
+        return users
+
+    def load_recipes(self):
+        recipes = []
+        if os.path.exists(self.recipes_file):
+            with open(self.recipes_file, 'r') as file:
+                for line in file:
+                    title, ingredients, instructions = line.strip().split('|')
+                    recipes.append(Recipe(title, ingredients, instructions))
+        return recipes
+
+    def register_user(self, username: str, password: str) -> bool:
+        if any(user.username == username for user in self.users):
+            return False
         new_user = User(username, password)
-        new_user.save()
+        self.users.append(new_user)
+        with open(self.users_file, 'a') as file:
+            file.write(new_user.to_string() + '\n')
         return True
 
-    def login(self, username: str, password: str) -> bool:
-        with open(users_file, 'r') as f:
-            users = f.readlines()
-            for user in users:
-                if user.split('|')[0] == username and user.split('|')[1].strip() == password:
-                    return True  # Login successful
-        return False
+    def login_user(self, username: str, password: str) -> bool:
+        return any(user.username == username and user.password == password for user in self.users)
 
-    def submit_recipe(self, title: str, ingredients: str, instructions: str) -> bool:
-        new_recipe = Recipe(title, ingredients, instructions)
-        new_recipe.save()
+    def submit_recipe(self, recipe: Recipe) -> bool:
+        self.recipes.append(recipe)
+        with open(self.recipes_file, 'a') as file:
+            file.write(recipe.to_string() + '\n')
         return True
 
     def search_recipes(self, keyword: str) -> list:
-        with open(recipes_file, 'r') as f:
-            recipes = f.readlines()
-            matching_recipes = []
-            for recipe in recipes:
-                if keyword.lower() in recipe.split('|')[0].lower():
-                    matching_recipes.append(recipe.strip())
-            return matching_recipes
+        return [recipe for recipe in self.recipes if keyword.lower() in recipe.title.lower()]
 
     def get_user_recipes(self, username: str) -> list:
-        user_recipes = []
-        with open(recipes_file, 'r') as f:
-            recipes = f.readlines()
-            for recipe in recipes:
-                if recipe.split('|')[0] == username:  # Assuming the title is the username for simplicity
-                    user_recipes.append(recipe.strip())
-        return user_recipes
+        return [recipe for recipe in self.recipes if recipe.title.startswith(username)]
 
-    def delete_account(self, username: str) -> bool:
-        user = User(username, "")
-        user.delete()
+    def delete_user(self, username: str) -> bool:
+        self.users = [user for user in self.users if user.username != username]
+        self.save_users()
         return True
 
-    def get_recipe_details(self, title: str) -> Recipe:
-        with open(recipes_file, 'r') as f:
-            recipes = f.readlines()
-            for recipe in recipes:
-                if recipe.split('|')[0] == title:
-                    title, ingredients, instructions = recipe.strip().split('|')
-                    return Recipe(title, ingredients, instructions)
-        return None
+    def save_users(self):
+        with open(self.users_file, 'w') as file:
+            for user in self.users:
+                file.write(user.to_string() + '\n')
 
-@app.route('/', methods=['GET', 'POST'])
+# Initialize RecipeHub
+recipe_hub = RecipeHub('users.txt', 'recipes.txt')
+
+@app.route('/')
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        hub = RecipeHub()
-        if hub.login(username, password):
-            session['username'] = username
-            return redirect(url_for('home'))
-        else:
-            return "Invalid credentials, please try again."
     return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def do_login():
+    username = request.form['username']
+    password = request.form['password']
+    if recipe_hub.login_user(username, password):
+        session['username'] = username
+        flash("Login successful!", "success")
+        return redirect(url_for('home'))
+    flash("Invalid username or password!", "error")
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        hub = RecipeHub()
-        if hub.register(username, password):
+        if recipe_hub.register_user(username, password):
+            flash("Registration successful!", "success")
             return redirect(url_for('login'))
-        else:
-            return "Username already exists, please choose another."
+        flash("Username already exists!", "error")
     return render_template('register.html')
 
 @app.route('/home')
 def home():
     return render_template('home.html')
 
-@app.route('/recipe_submission', methods=['GET', 'POST'])
-def recipe_submission():
+@app.route('/submit_recipe', methods=['GET', 'POST'])
+def submit_recipe():
     if request.method == 'POST':
         title = request.form['title']
         ingredients = request.form['ingredients']
         instructions = request.form['instructions']
-        hub = RecipeHub()
-        if hub.submit_recipe(title, ingredients, instructions):
-            return "Recipe submitted successfully!"
-        else:
-            return "Error submitting recipe."
+        recipe = Recipe(title, ingredients, instructions)
+        if recipe_hub.submit_recipe(recipe):
+            flash("Recipe submitted successfully!", "success")
+            return redirect(url_for('home'))
+        flash("Error submitting recipe!", "error")
     return render_template('recipe_submission.html')
 
-@app.route('/recipe_browsing', methods=['GET', 'POST'])
-def recipe_browsing():
+@app.route('/browse_recipes', methods=['GET', 'POST'])
+def browse_recipes():
     if request.method == 'POST':
         keyword = request.form['keyword']
-        hub = RecipeHub()
-        recipes = hub.search_recipes(keyword)
+        recipes = recipe_hub.search_recipes(keyword)
         return render_template('recipe_browsing.html', recipes=recipes)
-    return render_template('recipe_browsing.html', recipes=[])
+    return render_template('recipe_browsing.html', recipes=recipe_hub.recipes)
 
 @app.route('/recipe_details/<title>')
 def recipe_details(title):
-    hub = RecipeHub()
-    recipe = hub.get_recipe_details(title)
+    recipe = recipe_hub.get_recipe_details(title)
     if recipe:
         return render_template('recipe_details.html', recipe=recipe)
-    return "Recipe not found."
+    flash("Recipe not found!", "error")
+    return redirect(url_for('browse_recipes'))
 
-@app.route('/user_profile')
+@app.route('/user_profile', methods=['GET', 'POST'])
 def user_profile():
-    username = session.get('username')
-    hub = RecipeHub()
-    user_recipes = hub.get_user_recipes(username)
-    return render_template('user_profile.html', username=username, recipes=user_recipes)
-
-@app.route('/delete_account', methods=['POST'])
-def delete_account():
-    username = session.get('username')
-    hub = RecipeHub()
-    hub.delete_account(username)
-    session.pop('username', None)
-    return redirect(url_for('login'))
+    if request.method == 'POST':
+        if 'delete_account' in request.form:
+            username = session.get('username')
+            recipe_hub.delete_user(username)
+            session.clear()
+            flash("Account deleted successfully!", "success")
+            return redirect(url_for('login'))
+    user_recipes = recipe_hub.get_user_recipes(session.get('username', ''))
+    return render_template('user_profile.html', user_recipes=user_recipes)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=8163, debug=True)

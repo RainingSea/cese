@@ -110,21 +110,3 @@ class Product_Manager(Role):
             Team.all_messages.append(module_msg)
         else:
             Team.all_messages[1] = module_msg
-
-    def go_inter2(self):
-        # 从项目dir里读取，并且加到自己的
-        print(self.profile + " " + self.name + " extracting PRD......")
-        Team.log.info(self.profile + " " + self.name + " extracting PRD......")
-        result = read_file_2_line(
-            "D:\Project\CE\CE\project\game\WordLinkPuzzle\\prd.md"
-        )
-        if not os.path.exists(os.path.join(Team.project_dir, "prd.md")):
-            print("pure init, create files")
-            self.message_to_file(result)
-        module_msg = Message(sender=self.profile, content=result)
-        self.own_message = module_msg
-        # not perfect for now
-        if len(Team.all_messages) <= 1:
-            Team.all_messages.append(module_msg)
-        else:
-            Team.all_messages[1] = module_msg

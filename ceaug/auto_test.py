@@ -182,12 +182,31 @@ def clear_imports():
             del sys.modules[module]
 
 
-def runUnitTest(project_path):
+def web_text_strip(input_text):
+
+    patterns = [
+        r"^.*?GetHandleVerifier.*$",
+        r"^.*?\(No symbol\).*$",
+        r"^.*?BaseThreadInitThunk.*$",
+        r"^.*?RtlUserThreadStart.*$",
+    ]
+
+    # Combine patterns into a single regex
+    combined_pattern = re.compile("|".join(patterns), re.MULTILINE)
+    # Remove matching lines
+    cleaned_text = re.sub(combined_pattern, "", input_text)
+    # Remove extra blank lines
+    cleaned_text = re.sub(r"\n+", "\n", cleaned_text).strip()
+    print(cleaned_text)
+    return cleaned_text
+
+
+def runUnitTest(project_path, category):
     path = Path(project_path)
     # extract wordlinkpuzzle
     project_name = path.name
     # extract game
-    project_category = path.parent.name
+    project_category = category
 
     print(f"----------------[START {project_name}]---------------------")
 
@@ -208,6 +227,10 @@ def runUnitTest(project_path):
     result = runner.run(suite)
 
     test_output = output_stream.getvalue()
+    if project_category == "website":
+        # filter out some unimportant and repetitive output.
+        print("#### strip ####")
+        test_output = web_text_strip(test_output)
 
     total = int(result.testsRun)
     passed = int(result.testsRun - len(result.failures) - len(result.errors))

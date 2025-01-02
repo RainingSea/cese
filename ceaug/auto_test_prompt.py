@@ -11,7 +11,8 @@ the user requirement is:
 {user_req}.
 
 So, step to step, analyze the issues mentioned above and assess the extent to which these issues hinder the code from perfectly fulfilling the user requirements. Assign a score (0-10) based on the significance of the issues, where 0 indicates the issue has minimal impact or is unlikely to occur during coding, and 10 indicates the issue has a major impact or is highly likely to occur during coding.
-At the end of your output, you need to display the score using the following format:[END]score[END], where "score" should be replaced with the score you have assigned.
+At the end of your output, you need to display the average score(also range from 0 to 10), using the following format:[END]score[END], where "score" should be replaced with the score you have assigned.
+example:[END]5.0[END]
 """
 
 prompt_for_web_testing = """
@@ -23,7 +24,7 @@ Attention 4: The test code needs to be directly executable and only need to cove
 Attention 5: You will implement the test.py and finish it follows in the strictly defined format.
 Attention 6: You should run codebase code yourself, testing one feature per run. so you need to run the command "python main.py"
 Attention 6: Chrome WebDriver is already installed and the path is in the environment variable, so there is no need to specify its path in the test code. And 'WebDriver' object has no attribute 'find_element_by_id'
-Attention 7: Access to the login page is available at http://localhost:5000. Navigation is restricted to http://localhost:5000 exclusively via the driver.get() method; navigation to other URLs is not allowed.
+Attention 7: the project's port is assigned in main.py, last line, like"app.run(port=XXXX, debug=True)". use this port to replace the following "XXXX": Access to the login page is available at http://localhost:XXXX. Navigation is restricted to http://localhost:XXXX exclusively via the driver.get() method; navigation to other URLs is not allowed.
 Attention 8: You must utilize the username and password from Data Storage to construct a login method within the test class. 
 Attention 9: Access to All pages, except for the login and registration pages, requires logging in from the login page and then proceeding by clicking the corresponding buttons on the page to navigate to the desired page.
 Attention 10: After logging in, you will be redirected to other pages and will not stay on the login page.
@@ -48,7 +49,7 @@ class TestDailyJournalApp(unittest.TestCase):
     def setUp(self):
         # Initialize the webdriver and open the login page
         self.process = subprocess.Popen(['python', 'main.py'])  # 修改为实际路径
-        time.sleep(5)  # 等待 Web 应用完全启动
+        time.sleep(2)  # 等待 Web 应用完全启动
         self.driver = webdriver.Chrome()
         self.driver.get('http://localhost:5000/login')
 

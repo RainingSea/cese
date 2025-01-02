@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request, redirect, session, url_for
-import json
+from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'your_secret_key'  # Replace with a secure key in production
 
 class User:
     def __init__(self, username: str, password: str, email: str):
@@ -10,125 +9,80 @@ class User:
         self.password = password
         self.email = email
 
-    def to_dict(self) -> dict:
-        return {
-            'username': self.username,
-            'password': self.password,
-            'email': self.email
-        }
+    def save(self):
+        with open('users.txt', 'a') as f:
+            f.write(f"{self.username}|{self.password}|{self.email}\n")
 
-class UserManager:
-    def __init__(self, filename: str):
-        self.filename = filename
-        self.users = self.load_users()
-
-    def add_user(self, user: User) -> None:
-        self.users.append(user)
-        self.save_users()
-
-    def get_user(self, username: str) -> User:
-        for user in self.users:
-            if user.username == username:
-                return user
-        return None
-
-    def load_users(self) -> list:
-        users = []
+    @staticmethod
+    def load_users():
+        users = {}
         try:
-            with open(self.filename, 'r') as file:
-                for line in file:
+            with open('users.txt', 'r') as f:
+                for line in f:
                     username, password, email = line.strip().split('|')
-                    users.append(User(username, password, email))
+                    users[username] = (password, email)
         except FileNotFoundError:
-            pass
+            open('users.txt', 'w').close()  # Create file if it doesn't exist
         return users
 
-    def save_users(self) -> None:
-        with open(self.filename, 'w') as file:
-            for user in self.users:
-                file.write(f"{user.username}|{user.password}|{user.email}\n")
-
 class Tutor:
-    def __init__(self, name: str, subject: str, availability: str):
+    def __init__(self, name: str, subject: str):
         self.name = name
         self.subject = subject
-        self.availability = availability
 
-    def to_dict(self) -> dict:
-        return {
-            'name': self.name,
-            'subject': self.subject,
-            'availability': self.availability
-        }
+    def save(self):
+        with open('tutors.txt', 'a') as f:
+            f.write(f"{self.name}|{self.subject}\n")
 
-class TutorManager:
-    def __init__(self, filename: str):
-        self.filename = filename
-        self.tutors = self.load_tutors()
-
-    def load_tutors(self) -> list:
+    @staticmethod
+    def load_tutors():
         tutors = []
         try:
-            with open(self.filename, 'r') as file:
-                for line in file:
-                    name, subject, availability = line.strip().split('|')
-                    tutors.append(Tutor(name, subject, availability))
+            with open('tutors.txt', 'r') as f:
+                for line in f:
+                    name, subject = line.strip().split('|')
+                    tutors.append(Tutor(name, subject))
         except FileNotFoundError:
-            pass
+            open('tutors.txt', 'w').close()  # Create file if it doesn't exist
         return tutors
 
 class TutoringRequest:
-    def __init__(self, subject: str, details: str, preferred_date: str):
+    def __init__(self, username: str, subject: str, details: str, preferred_date: str):
+        self.username = username
         self.subject = subject
         self.details = details
         self.preferred_date = preferred_date
 
-    def to_dict(self) -> dict:
-        return {
-            'subject': self.subject,
-            'details': self.details,
-            'preferred_date': self.preferred_date
-        }
+    def save(self):
+        with open('requests.txt', 'a') as f:
+            f.write(f"{self.username}|{self.subject}|{self.details}|{self.preferred_date}\n")
 
-class RequestManager:
-    def __init__(self, filename: str):
-        self.filename = filename
-        self.requests = self.load_requests()
-
-    def add_request(self, request: TutoringRequest) -> None:
-        self.requests.append(request)
-        self.save_requests()
-
-    def load_requests(self) -> list:
+    @staticmethod
+    def load_requests():
         requests = []
         try:
-            with open(self.filename, 'r') as file:
-                for line in file:
-                    subject, details, preferred_date = line.strip().split('|')
-                    requests.append(TutoringRequest(subject, details, preferred_date))
+            with open('requests.txt', 'r') as f:
+                for line in f:
+                    username, subject, details, preferred_date = line.strip().split('|')
+                    requests.append(TutoringRequest(username, subject, details, preferred_date))
         except FileNotFoundError:
-            pass
+            open('requests.txt', 'w').close()  # Create file if it doesn't exist
         return requests
 
-    def save_requests(self) -> None:
-        with open(self.filename, 'w') as file:
-            for request in self.requests:
-                file.write(f"{request.subject}|{request.details}|{request.preferred_date}\n")
-
-tutor_manager = TutorManager('tutors.txt')
-user_manager = UserManager('users.txt')
-request_manager = RequestManager('requests.txt')
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = user_manager.get_user(username)
-        if user and user.password == password:
-            session['username'] = username
-            return redirect(url_for('dashboard'))
     return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def do_login():
+    username = request.form['username']
+    password = request.form['password']
+    users = User.load_users()
+    
+    if username in users and users[username][0] == password:
+        session['username'] = username
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -137,45 +91,39 @@ def register():
         password = request.form['password']
         email = request.form['email']
         new_user = User(username, password, email)
-        user_manager.add_user(new_user)
+        new_user.save()
         return redirect(url_for('login'))
     return render_template('register.html')
 
-@app.route('/dashboard', methods=['GET', 'POST'])
+@app.route('/dashboard')
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    tutors = tutor_manager.tutors
+    tutors = Tutor.load_tutors()
+    return render_template('dashboard.html', tutors=tutors)
+
+@app.route('/request_tutoring', methods=['POST'])
+def request_tutoring():
+    if 'username' not in session:
+        return redirect(url_for('login'))
     
-    if request.method == 'POST':
-        subject = request.form['subject']
-        details = request.form['details']
-        preferred_date = request.form['preferred_date']
-        new_request = TutoringRequest(subject, details, preferred_date)
-        request_manager.add_request(new_request)
-        return redirect(url_for('dashboard'))
+    subject = request.form['subject']
+    details = request.form['details']
+    preferred_date = request.form['preferred_date']
+    tutoring_request = TutoringRequest(session['username'], subject, details, preferred_date)
+    tutoring_request.save()
+    
+    return redirect(url_for('dashboard'))
 
-    return render_template('dashboard.html', username=session['username'], tutors=tutors, requests=request_manager.requests)
-
-@app.route('/profile', methods=['GET'])
+@app.route('/profile')
 def profile():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    user = user_manager.get_user(session['username'])
-    return render_template('profile.html', username=user.username, email=user.email)
-
-@app.route('/cancel_request/<int:request_id>', methods=['POST'])
-def cancel_request(request_id):
-    if 'username' not in session:
-        return redirect(url_for('login'))
-
-    if 0 <= request_id < len(request_manager.requests):
-        del request_manager.requests[request_id]
-        request_manager.save_requests()
-    
-    return redirect(url_for('dashboard'))
+    users = User.load_users()
+    email = users[session['username']][1]
+    return render_template('profile.html', username=session['username'], email=email)
 
 @app.route('/logout')
 def logout():
@@ -188,10 +136,10 @@ def contact():
         name = request.form['name']
         email = request.form['email']
         message = request.form['message']
-        with open('contact_requests.txt', 'a') as file:
-            file.write(f"{name}|{email}|{message}\n")
+        with open('contact_requests.txt', 'a') as f:
+            f.write(f"{name}|{email}|{message}\n")
         return redirect(url_for('dashboard'))
     return render_template('contact.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=8166, debug=True)

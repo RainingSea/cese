@@ -8,55 +8,47 @@
 "Logic Analysis": [
     [
         "main.py",
-        "Contains the main application logic and runs the Flask app"
-    ],
-    [
-        "UserManager.py",
-        "Contains UserManager class for handling user registration and login"
-    ],
-    [
-        "BookManager.py",
-        "Contains BookManager class for handling book creation and retrieval"
+        "The main file of the application, responsible for initializing the Flask app and routing. Contains main function and handles user authentication and book management."
     ],
     [
         "templates/login.html",
-        "HTML template for user login"
+        "Contains the HTML structure for the Login Page, including form for username and password."
     ],
     [
         "templates/registration.html",
-        "HTML template for user registration"
+        "Contains the HTML structure for the Registration Page, including form for new user registration."
     ],
     [
         "templates/dashboard.html",
-        "HTML template for user dashboard"
+        "Contains the HTML structure for the Dashboard Page, displaying navigation options for users."
     ],
     [
         "templates/create_book.html",
-        "HTML template for creating a new book"
+        "Contains the HTML structure for the Create New Book Page, including form for book title, author, and content."
     ],
     [
         "templates/my_books.html",
-        "HTML template for displaying user's books"
+        "Contains the HTML structure for the My Books Page, displaying a list of published books."
     ],
     [
         "templates/book_details.html",
-        "HTML template for displaying book details"
+        "Contains the HTML structure for the Book Details Page, displaying the selected book's details."
     ],
     [
         "templates/about.html",
-        "HTML template for about page"
+        "Contains the HTML structure for the About Page, providing application information."
     ]
 ],
 "Task list": 
 {
-    'T0':'|handle user authentication|implement login and registration functions|[]|related files:["main.py", "UserManager.py", "templates/login.html", "templates/registration.html"]',
-    'T1':'|manage book operations|implement book creation and retrieval functions|[T0]|related files:["main.py", "BookManager.py", "templates/create_book.html", "templates/my_books.html", "templates/book_details.html"]',
-    'T2':'|setup application structure|initialize Flask app and configure routes|[T0, T1]|related files:["main.py"]',
-    'T3':'|create user data storage|implement user data handling with text file|[T0]|related files:["UserManager.py", "users.txt"]',
-    'T4':'|create book data storage|implement book data handling with text file|[T1]|related files:["BookManager.py", "books.txt"]',
-    'T5':'|design user interface|create HTML templates for all pages|[T0, T1]|related files:["templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/create_book.html", "templates/my_books.html", "templates/book_details.html", "templates/about.html"]',
-    'T6':'|finalize application|test and deploy the application|[T2, T3, T4, T5]|related files:["main.py", "UserManager.py", "BookManager.py", "users.txt", "books.txt"]'
+    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
+    'T1':'|Implement user login functionality and session management.|related files:["main.py", "templates/login.html"]',
+    'T2':'|Implement user registration functionality and data storage in users.txt.|related files:["main.py", "templates/registration.html"]',
+    'T3':'|Create Dashboard Page and navigation to Create New Book and My Books pages.|related files:["main.py", "templates/dashboard.html"]',
+    'T4':'|Implement Create New Book functionality and data storage in books.txt.|related files:["main.py", "templates/create_book.html"]',
+    'T5':'|Implement My Books Page to list published books and link to Book Details Page.|related files:["main.py", "templates/my_books.html"]',
+    'T6':'|Implement Book Details Page to display selected book information.|related files:["main.py", "templates/book_details.html"]'
 },
 "Full API spec": "",
-"Shared Knowledge": "`UserManager.py` and `BookManager.py` contain classes for managing users and books, respectively."
+"Shared Knowledge": "`main.py` contains the core application logic and routing shared across the project."
 }

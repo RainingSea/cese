@@ -8,49 +8,38 @@
 "Logic Analysis": [
     [
         "main.py",
-        "Contains the main application logic, routing, and session management"
+        "Contains the main application logic, including user registration, login, and routing for different pages."
     ],
     [
         "templates/login.html",
-        "Contains the HTML structure for the login page"
+        "HTML template for user login, including form for username and password."
     ],
     [
         "templates/register.html",
-        "Contains the HTML structure for the registration page"
+        "HTML template for user registration, including form for username, password, and email."
     ],
     [
         "templates/dashboard.html",
-        "Contains the HTML structure for the dashboard"
+        "HTML template for user dashboard, including buttons for viewing tutors and requesting tutoring."
     ],
     [
         "templates/profile.html",
-        "Contains the HTML structure for the user profile page"
+        "HTML template for user profile, displaying username and email."
     ],
     [
         "templates/contact.html",
-        "Contains the HTML structure for the contact form"
-    ],
-    [
-        "users.txt",
-        "Stores user account information"
-    ],
-    [
-        "tutors.txt",
-        "Stores available tutor information"
-    ],
-    [
-        "requests.txt",
-        "Stores tutoring requests"
+        "HTML template for contacting support, including form for name, email, and message."
     ]
 ],
 "Task list": 
 {
-    'T0':'|handle user registration and login|implement user registration and login functions|[]|related files:["main.py", "templates/login.html", "templates/register.html", "users.txt"]',
-    'T1':'|create user dashboard|implement dashboard functionality and view tutors|[T0]|related files:["main.py", "templates/dashboard.html", "tutors.txt"]',
-    'T2':'|manage tutoring requests|implement request tutoring and cancel request functions|[T1]|related files:["main.py", "templates/dashboard.html", "requests.txt"]',
-    'T3':'|implement user profile|create profile page functionality|[T0]|related files:["main.py", "templates/profile.html", "users.txt"]',
-    'T4':'|set up contact support|implement contact form functionality|[T1]|related files:["main.py", "templates/contact.html"]',
-    'T5':'|handle user logout|implement logout functionality|[T0]|related files:["main.py"]'
+    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
+    'T1':'|Implement user registration functionality and create registration page.|related files:["main.py", "templates/register.html"]',
+    'T2':'|Implement user login functionality and create login page.|related files:["main.py", "templates/login.html"]',
+    'T3':'|Create user dashboard and implement view tutors and request tutoring functionality.|related files:["main.py", "templates/dashboard.html"]',
+    'T4':'|Implement user profile page and logout functionality.|related files:["main.py", "templates/profile.html"]',
+    'T5':'|Create contact support page and implement contact form functionality.|related files:["main.py", "templates/contact.html"]',
+    'T6':'|Implement data storage logic for users, tutors, and requests using text files.|related files:["main.py"]'
 },
 "Full API spec": "",
 "Shared Knowledge": "`main.py` contains the core application logic and routing for the web application."
