@@ -78,10 +78,6 @@ class Team(BaseModel):
             # self.roles["Reviewer"].go()
             Team.active_role(self.roles["Project Manager"].profile)
 
-        self.roles["Programmer"].go()
-
-        print("Dev execute END")
-        return
         # _______________ generate PRD, Architect, Task Plan _______________
         #
         #
