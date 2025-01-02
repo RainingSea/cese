@@ -138,14 +138,6 @@ def test_result_analyze(code_base, test_code, unit_test_result):
 
 
 def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log):
-    # 获取代码仓库
-    # 默认操作code文件夹
-    # project_dirs = [
-    #     "D:\Project\CE\CE\project\game\WordLinkPuzzle",
-    #     "D:\Project\CE\CE\project\game\WordLinkPuzzle_1",
-    #     "D:\Project\CE\CE\project\game\WordLinkPuzzle_2",
-    # ]
-    # generate ce project dirs (not contains code)
 
     max_score = -1.0
     code_feedback_selected = ""

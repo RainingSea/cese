@@ -30,7 +30,7 @@ class Code_Tester(Role):
     def go(self):
         self.codebase_dir = os.path.join(Team.project_dir, "code")
 
-        # ______________ Level One: Test for syntax errors; check if the tests can run ______________
+        # ______________ Level Zero: Test for syntax errors; check if the tests can run ______________
         architecture = self.getArchiture().content
         # if not web project
 
@@ -49,7 +49,7 @@ class Code_Tester(Role):
         Max_test_turn = 1
         Max_install_turn = 3
 
-        # _____ iterative test _____
+        # _____ iterative _____
         while test_turn <= Max_test_turn and install_turn <= Max_install_turn:
             # get entry file path
             main_py_path = self.get_entry_file()
@@ -120,7 +120,7 @@ class Code_Tester(Role):
         # test_msg = Message(sender=self.profile, content="Test Still Failed")
         # self.own_message = test_msg
         # Team.all_messages.append(test_msg)
-        # _____ iterative test _____
+        # _____ iterative _____
         # ______________ Level One: Test for syntax errors; check if the tests can run ______________
         #
         #
