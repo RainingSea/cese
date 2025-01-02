@@ -9,8 +9,8 @@
 @REM python start_by_file.py --category website --name ParentingAdiviceForum.md
 @REM python start_by_file.py --category website --name PersonalBlog.md
 @REM python start_by_file.py --category website --name RemoteJobBoard.md
-@REM python start_by_file.py --category website --name TaskManager.md
-@REM python start_by_file.py --category website --name VirtualBookPublishing.md
+python start_by_file.py --category website --name TaskManager.md
+python start_by_file.py --category website --name VirtualBookPublishing.md
 python start_by_file.py --category website --name OnlineShoppingCenter.md
 python start_by_file.py --category website --name RecipeHub.md
 python start_by_file.py --category website --name PeerTutoringNetwork.md

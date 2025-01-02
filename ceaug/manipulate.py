@@ -2,6 +2,7 @@ import re, random
 import ast
 from openai import OpenAI
 import time
+import math
 from datetime import datetime
 
 
@@ -13,7 +14,7 @@ def ce_generate(task_plan):
     task_list_dict = extract_task_list(task_plan)
 
     # assign the number of c.e.
-    ce_number = 1
+    ce_number = 2
     ce_result = []
     for i in range(ce_number):
         # avoid affecting the original plan.
@@ -70,11 +71,11 @@ def disturbing(task_list_dict):
     # ________  swap the order of two tasks _________
 
     # _________ remove a task(randomly) _________
-    # return remove_one(task_list_dict)
+    return remove_task(task_list_dict)
     # _________ remove a task(randomly) _________
 
     # _________ edit a task _________
-    return edit_task(task_list_dict)
+    # return edit_task(task_list_dict)
     # _________ edit a task _________
 
     # ________ no disturbing, just return the original one __________
@@ -101,16 +102,20 @@ def perform_swaps(d, num_swaps=1):
     return current_dict
 
 
-def remove_one(d):
+def remove_task(d):
     """
     randomly remove a task
     """
     if not d:
         print("The dictionary is empty, nothing to remove.")
         return None
-    key_to_remove = random.choice(list(d.keys()))
-    removed_value = d.pop(key_to_remove)
-    print(f"\n\nRemoved key: {key_to_remove}, value: {removed_value}")
+    sample_size = math.ceil(len(d) * 0.3)
+    sample_size = min(sample_size, len(d))
+    keys_to_remove = random.sample(list(d.keys()), sample_size)
+    print("Keys to remove:", str(keys_to_remove))
+    removed_values = [d.pop(key) for key in keys_to_remove]
+    print("Removed values:", str(removed_values))
+
     return d
 
 

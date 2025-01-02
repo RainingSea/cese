@@ -81,62 +81,6 @@ def create_ce_document(project_dir, task_plan):
     return ce_project_paths
 
 
-def test_result_analyze(code_base, test_code, unit_test_result):
-    # 1. ask LLM to analyze the unit test results
-    messages = []
-    values = {
-        "code_base": code_base,
-        "unit_test_code": test_code,
-        "test_results": unit_test_result["output"],
-    }
-    # m_0, ask llm to analyze the unit test result
-    PROMPT_FOR_TEST_ANA = """You are a software test analyst. Please help me analyze the code of a project.
-    Here is the entire codebase for a project: {code_base}.
-    Here are the unit test codes for this project: {unit_test_code}.
-    These are all the unit test results (only including the failed ones):{test_results}
-    
-    Please analyze the test results one by one. For each unit test result, analyze step by step to identify the reasons for the test failure."""
-    messages.append(format_prompt(PROMPT_FOR_TEST_ANA, values))
-    unit_test_result_analysis = chat_to_LLM(messages)
-    log.info(str(messages[0]))
-    print(unit_test_result_analysis)
-    print("\n###################################")
-    # 2. judge if any of the issues is caused by code (rather than other unrelated reasons)
-    # m_1, llm's response(unit test result)
-    messages.append({"role": "assistant", "content": unit_test_result_analysis})
-    log.info(str(messages[1]))
-    # m_2, ask llm to decide if the issues is from code
-    messages.append(
-        {
-            "role": "user",
-            "content": "Do you think the issue is caused by errors in the project's code or poorly written test cases? If it is a code error, please include a [CODE] at the end of your output. Ifnot, you don't need to add anything. Thank you.",
-        }
-    )
-    log.info(str(messages[2]))
-    relevance = chat_to_LLM(messages)
-    if "[CODE]" not in relevance:
-        continue
-    print(relevance)
-    print("\n###################################")
-    # 3. summarize the code feedback
-    # m_3, llm's response(whether from code)
-    messages.append({"role": "assistant", "content": relevance})
-    log.info(str(messages[3]))
-    # m_4, ask llm to summarize the unit test result
-    messages.append(
-        {
-            "role": "user",
-            # "content": "summarize the issues in this project's code based on all the unit test results. Only neIssues about the test codes is not needed to analyze.   ",
-            "content": """Summarize the above mentioned issues or errors. You only need to summarize the issues or errors in the project identified from the un it test result. Then, you need toprovide detailed guidance for improvement.      
-            The issues must be exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded.Besides, issues about the test codes is not needed to analyze, only analyze issues that are relevant to the project's own code.""",
-        }
-    )
-    code_feedback = chat_to_LLM(messages)
-    log.info(code_feedback)
-    print(code_feedback)
-    print("\n###################################")
-
-
 def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log):
 
     max_score = -1.0
