@@ -3,9 +3,9 @@
 @REM python start_by_file.py --category website --name DailyJournalApp.md
 @REM python start_by_file.py --category website --name DigitalStorytellingPlatform.md
 @REM python start_by_file.py --category website --name FreelancerMarketplace.md
-python start_by_file.py --category website --name GreenLivingGuide.md
-python start_by_file.py --category website --name NoteTakingApp.md
-python start_by_file.py --category website --name OnlineVintageMarket.md
+@REM python start_by_file.py --category website --name GreenLivingGuide.md
+@REM python start_by_file.py --category website --name NoteTakingApp.md
+@REM python start_by_file.py --category website --name OnlineVintageMarket.md
 @REM python start_by_file.py --category website --name ParentingAdiviceForum.md
 @REM python start_by_file.py --category website --name PersonalBlog.md
 @REM python start_by_file.py --category website --name RemoteJobBoard.md
