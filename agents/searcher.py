@@ -53,7 +53,12 @@ class Searcher:
         retrieval_result = self.llm.invoke(system_prompt, user_prompt)
         # ---------- logging --------
         Team.log.info("retrievaled reslt is: \n" + retrieval_result)
-        return retrieval_result
+
+        # extract the final result(llm's response include reasoning path which is not needed)
+        match = re.search(r"\[docu\]\s*(.*)", retrieval_result, re.DOTALL)
+        if match:
+            final_result = match.group(1).strip()
+        return final_result
 
     def getOriginalDescription(self):
         return Team.all_messages[0]

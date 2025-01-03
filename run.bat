@@ -12,7 +12,7 @@ python start_by_file.py --category website --name OnlineVintageMarket.md
 @REM python start_by_file.py --category website --name TaskManager.md
 @REM python start_by_file.py --category website --name VirtualBookPublishing.md
 @REM python start_by_file.py --category website --name OnlineShoppingCenter.md
-@REM python start_by_file.py --category website --name RecipeHub.md
+python start_by_file.py --category website --name RecipeHub.md
 @REM python start_by_file.py --category website --name PeerTutoringNetwork.md
 
 @REM python start_by_file.py --category website --name CharitableGivingPlatform.md
