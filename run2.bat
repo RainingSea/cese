@@ -6,13 +6,13 @@
 @REM python start_by_file.py --category website --name GreenLivingGuide.md
 @REM python start_by_file.py --category website --name NoteTakingApp.md
 @REM python start_by_file.py --category website --name OnlineVintageMarket.md
-@REM python start_by_file.py --category website --name ParentingAdiviceForum.md
-@REM python start_by_file.py --category website --name PersonalBlog.md
-@REM python start_by_file.py --category website --name RemoteJobBoard.md
+python start_by_file.py --category website --name ParentingAdiviceForum.md
+python start_by_file.py --category website --name PersonalBlog.md
+python start_by_file.py --category website --name RemoteJobBoard.md
 @REM python start_by_file.py --category website --name TaskManager.md
 @REM python start_by_file.py --category website --name VirtualBookPublishing.md
 @REM python start_by_file.py --category website --name OnlineShoppingCenter.md
-python start_by_file.py --category website --name RecipeHub.md
+@REM python start_by_file.py --category website --name RecipeHub.md
 @REM python start_by_file.py --category website --name PeerTutoringNetwork.md
 
 @REM python start_by_file.py --category website --name CharitableGivingPlatform.md

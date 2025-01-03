@@ -12,12 +12,16 @@ RETRIEVAL = """
 ## now, you get one following specific task:
 {task}
 
+Key Points:
+1.The extracted content must remain unaltered. Do not modify any part of the retrieved sections.
+2.Include only the necessary sections. Exclude any content you are certain is irrelevant to the current task.
+3.Aim for conciseness: less is better.
+4.If the retrieved specific task is a fundamental task, do not retrieve functional requirements.
+
 ## Action
 You should extract the sections directly related to the specific task described above from the two documents.
 After extraction, integrate the relevant sections into a single output, ensuring duplicate content is removed.
-
-Key Points:
-The extracted content must remain unaltered. Do not modify any part of the retrieved sections.
-Include only the necessary sections. Exclude any content you are certain is irrelevant to the current task.
-Aim for conciseness: less is better.
+step by step, determine the task type, analyze the task, and finally retrieve relevant content.
+attention: the final result should begin with [docu] to facilitate extraction using re.
+example:[docu]your final result
 """
