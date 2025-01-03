@@ -83,4 +83,4 @@ def book_details(title):
     return "Book not found."
 
 if __name__ == '__main__':
-    app.run(port=8156, debug=True)
+    app.run(port=8156, debug=False)

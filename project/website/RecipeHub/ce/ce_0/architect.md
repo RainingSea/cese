@@ -1,35 +1,43 @@
 [CONTENT]
-"Implementation approach": "We will use Flask as the web framework for the RecipeHub application, which allows for easy routing and handling of HTTP requests. The application will be structured with a simple MVC pattern, where the models will handle data storage in text files, the views will be HTML templates, and the controllers will manage user interactions. For the front-end, we will use basic HTML forms for user input and navigation.",
-"UI design":"- The application will have a Login Page for user authentication, a Registration Page for new users, a Home Page for navigation, a Recipe Submission Page for adding new recipes, a Recipe Browsing Page for searching and viewing recipes, and a User Profile Page for managing user accounts. Each page will have a consistent layout with navigation links to facilitate user experience.",
-"Data Storage":"Data will be stored in local text files. Different types of data will be stored in separate `.txt` files. We will define the following files: `users.txt` for storing user credentials, `recipes.txt` for storing recipes, and `messages.txt` for storing success/error messages.",
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/home.html", "templates/recipe_submission.html", "templates/recipe_browsing.html", "templates/user_profile.html", "recipes.txt", "users.txt", "messages.txt"],
+"Implementation approach": "We will use Flask as the web framework to create the RecipeHub application. Flask is lightweight and suitable for building simple web applications. For the front end, we will use HTML to create the necessary templates. User authentication will be handled using session management in Flask, and data will be stored in local text files for simplicity and efficiency.",
+"UI design":"- The application will consist of several HTML pages: Login Page, Registration Page, Home Page, Recipe Submission Page, Recipe Browsing Page, User Profile Page, and Recipe Details Page. Each page will have forms and buttons for user interaction, and navigation links to move between pages.",
+"Data Storage":"Data will be stored in local text files. We will create the following files: 'users.txt' for storing user credentials, 'recipes.txt' for storing submitted recipes. Each line in 'users.txt' will contain a username and password, while 'recipes.txt' will contain recipe details in a structured format.",
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/home.html", "templates/recipe_submission.html", "templates/recipe_browsing.html", "templates/user_profile.html", "templates/recipe_details.html", "users.txt", "recipes.txt"],
 "Data structures and interfaces": "
 classDiagram
+    class Main {
+        -Flask app
+        +main() str
+    }
     class User {
         -username: str
         -password: str
         +__init__(username: str, password: str)
-        +to_string() str
+        +save() void
+        +delete() void
     }
     class Recipe {
         -title: str
         -ingredients: str
         -instructions: str
         +__init__(title: str, ingredients: str, instructions: str)
-        +to_string() str
+        +save() void
     }
-    class RecipeHub {
+    class UserManager {
         -users_file: str
-        -recipes_file: str
-        +__init__(users_file: str, recipes_file: str)
-        +register_user(username: str, password: str) bool
-        +login_user(username: str, password: str) bool
-        +submit_recipe(recipe: Recipe) bool
-        +search_recipes(keyword: str) list
-        +get_user_recipes(username: str) list
-        +delete_user(username: str) bool
+        +register(username: str, password: str) bool
+        +login(username: str, password: str) bool
+        +delete_account(username: str) void
     }
-    User --> RecipeHub
-    Recipe --> RecipeHub
+    class RecipeManager {
+        -recipes_file: str
+        +submit_recipe(recipe: Recipe) void
+        +search_recipes(keyword: str) list
+        +get_recipe_details(title: str) Recipe
+    }
+    Main --> UserManager
+    Main --> RecipeManager
+    UserManager --> User
+    RecipeManager --> Recipe
 ",
 [/CONTENT]

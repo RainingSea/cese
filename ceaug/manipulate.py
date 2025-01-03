@@ -6,7 +6,7 @@ import math
 from datetime import datetime
 
 
-def ce_generate(task_plan):
+def ce_generate(task_plan, log):
     # transfer the task plan(dict str) to a dict in python
     dict_task_plan = ast.literal_eval(task_plan)
 
@@ -14,14 +14,14 @@ def ce_generate(task_plan):
     task_list_dict = extract_task_list(task_plan)
 
     # assign the number of c.e.
-    ce_number = 2
+    ce_number = 1
     ce_result = []
     for i in range(ce_number):
         # avoid affecting the original plan.
         new_task_plan = dict_task_plan.copy()
         task_list_dict_copy = task_list_dict.copy()
         # disturbing, get counter example task list
-        ce = disturbing(task_list_dict_copy)
+        ce = disturbing(task_list_dict_copy, log)
         # replace the origin task list to disturbed task list
         new_task_plan["Task list"] = ce
 
@@ -58,11 +58,11 @@ def extract_task_list(task_plan):
     for key, value in task_dict.items():
         print(f"Key: {key}, Value: {value}")
         _log_task = _log_task + f"Key: {key}, Value: {value}" + "\n"
-
+    print()
     return task_dict
 
 
-def disturbing(task_list_dict):
+def disturbing(task_list_dict, log):
     """
     accept a task_dict, apply disturbing strategy to it.
     """
@@ -71,11 +71,11 @@ def disturbing(task_list_dict):
     # ________  swap the order of two tasks _________
 
     # _________ remove a task(randomly) _________
-    return remove_task(task_list_dict)
+    # return remove_task(task_list_dict)
     # _________ remove a task(randomly) _________
 
     # _________ edit a task _________
-    # return edit_task(task_list_dict)
+    return edit_task(task_list_dict, log)
     # _________ edit a task _________
 
     # ________ no disturbing, just return the original one __________
@@ -134,10 +134,11 @@ def chat_to_LLM(messages):
     return response.choices[0].message.content
 
 
-def edit_task(d):
+def edit_task(d, log):
     """
     edit one task
     """
+
     if not d:
         print("The dictionary is empty, nothing to remove.")
         return None
@@ -147,22 +148,34 @@ def edit_task(d):
         file.write(str(datetime.now()) + " " + str(seed_value))
     random.seed(seed_value)
     #
-    key_to_edit = random.choice(list(d.keys()))
-    task_description = d[key_to_edit]
+    keys = list(d.keys())
+    num_to_select = max(1, round(len(keys) * 0.25))
+    keys_to_edit = random.sample(keys, num_to_select)
 
     messages = []
     _log_task = ""
+    print("before edit")
     for key, value in d.items():
         print(f"Key: {key}, Value: {value}")
         _log_task = _log_task + f"Key: {key}, Value: {value}" + "\n"
+
     template = """Here is a task plan list for implementing a project. I have selected one task, and now I want to create a negative example based on this task. Please make the task I selected more vague.
     You only need to return an edited task.
+    I will provide you with an example where the task of creating a freely selectable area is omitted, and instead, a fixed area is selected. Please replicate this kind of mistake or ambiguous task behavior.
     # Example:
-    input:Create StoryManager class methods for creating and saving stories, handle form submission from story_creation.html, and save story data to stories.txt.
-    output:Write some functions in the StoryManager class to do stuff with stories, handle some kind of form input, and save to a file.
+    input:Implement the image cropping feature by allowing users to freely select a region, then crop that region as the output.
+    output:Implement the image cropping feature, allowing users to crop a central region as the result.
+    ---
     the whole task plan is:{task_plan},
     the task I selected is:{task},
-    follow example and return a edited task.
+    follow instruction and return {num} edited task. 
+    In the output, any unclear tasks or tasks that require special marking should be enclosed within two ***(3-star) symbols, and each task should end with '[end]' to facilitate the distinction between different parts of the task.
+    example:
+    ***
+    T1:vague task1[end]
+    T2:vague task2[end]
+    ...
+    ***
     """
     messages.append(
         {
@@ -170,19 +183,36 @@ def edit_task(d):
             "content": template.format_map(
                 {
                     "task_plan": _log_task,
-                    "task": str(key_to_edit) + ": " + task_description,
+                    "task": str(keys_to_edit),
+                    "num": str(num_to_select),
                 }
             ),
         }
     )
-    edited_task = chat_to_LLM(messages)
-    print(
-        "\nedit: "
-        + str(key_to_edit)
-        + " \nbefore edit: "
-        + task_description
-        + "\nafter edit: "
-        + edited_task
-    )
-    d[key_to_edit] = edited_task
+    edited_tasks = chat_to_LLM(messages)
+    print(edited_tasks)
+    log.info(edited_tasks)
+    matches = re.findall(r"\*\*\*(.*?)\*\*\*", edited_tasks, re.DOTALL)
+    print(matches[0].strip())
+    match = re.search(r"\*\*\*(.*?)\*\*\*", edited_tasks)
+    if match:
+        # 获取被三个星号包围的内容
+        enclosed_content = match.group(1)
+
+        sentences = [
+            sentence.strip()
+            for sentence in enclosed_content.split("[end]")
+            if sentence.strip()
+        ]
+
+        print(sentences)
+        for i in range(len(sentences)):
+            parts = sentences[i].split(":", 1)
+            if len(parts) == 2:
+                vague_key = parts[0].strip()  # 左侧内容
+                vague_task = parts[1].strip()  # 右侧内容
+                d[vague_key] = vague_task
+    else:
+        print("No content found between ***.")
+
     return d

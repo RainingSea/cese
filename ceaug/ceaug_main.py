@@ -27,7 +27,7 @@ def format_prompt(template, values):
     return {"role": "user", "content": result}
 
 
-def create_ce_document(project_dir, task_plan):
+def create_ce_document(project_dir, task_plan, log):
 
     ce_project_path = ""
     # make dir for the whole counter examples
@@ -37,7 +37,7 @@ def create_ce_document(project_dir, task_plan):
 
     # _______________ generate disturbed plan/ arch / prd of counter example ______________
     # generate 2(default) error(disturbed, whatever) task plan
-    ce_plans = ce_generate(task_plan)
+    ce_plans = ce_generate(task_plan,log)
     ce_project_paths = []
     # make a directory for each counter example, and create prd, arch, task plan.
     for i in range(len(ce_plans)):
@@ -126,7 +126,7 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
         messages.append(format_prompt(PROMPT_FOR_TEST_ANA, values))
         unit_test_result_analysis = chat_to_LLM(messages)
 
-        log.info(str(messages[0]))
+        log.info(messages[0]["content"])
         print(unit_test_result_analysis)
         print("\n###################################")
 
@@ -159,8 +159,12 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
             {
                 "role": "user",
                 # "content": "summarize the issues in this project's code based on all the unit test results. Only neIssues about the test codes is not needed to analyze.   ",
-                "content": """Summarize the above mentioned issues or errors. You only need to summarize the issues or errors in the project identified from the unit test result. Then, you need to provide detailed guidance for improvement. 
-                The issues must be exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded. Besides, issues about the test codes is not needed to analyze, only analyze issues that are relevant to the project's own code.""",
+                "content": """Summarize the above mentioned issues or errors. You only need to summarize the issues or errors in the project identified from the unit test result. 
+                Attention: The issues must be exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded. Besides, issues result from the test codes is not needed to analyze, only analyze issues that are relevant to the project's own code.
+                Then, you need to provide guidance(Needs to be concise and summarative) for improvement. The guidance you provide should adhere to the following aspects:
+                (1) Be concise and general in nature.
+                (2) Must offer insights based on issues revealed by unit tests, highlighting points to watch for when developing the project again.
+                (3) Ideally, provide guidance at the level of pseudo-code or a planning framework, rather than addressing simple code-related issues. """,
             }
         )
 

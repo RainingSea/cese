@@ -87,7 +87,9 @@ class Team(BaseModel):
         # create a the same dir of project base, distinct by ce_{number} / like, ce_1, ce_2, ce_3
         # ce_projects_paths = ["D:\Project\CE\CE\project\website\RecipeHub\ce\ce_0"]
         ce_projects_paths = create_ce_document(
-            Team.project_dir, Team.all_messages[3].content
+            Team.project_dir,
+            Team.all_messages[3].content,
+            Team.log,
         )
 
         # every ce_project_path is a dir contains prd, arch, plan.
