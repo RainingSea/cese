@@ -79,8 +79,10 @@ def start_project():
 
     model = GPT(config["llm_4o"])
     model_review = GPT(config["llm_4o"])
-    high_temp_config = create_config_copy_with_new_temperature(config["llm_4o"], 1.0)
-    high_temp_model = GPT(high_temp_config)
+    programmer_config = create_config_copy_with_new_temperature(
+                            config["llm_4o"], config["llm_4o"]["programmer_temperature"]
+                        )
+    programmer_model = GPT(programmer_config)
     # launch project
     team.set_origin_req(project_name, origin_req)
 
@@ -88,11 +90,11 @@ def start_project():
     product_manager = Product_Manager(llm=model, llm_review=model_review, team=team)
     architect = Architect(llm=model, llm_review=model_review, team=team)
     projct_manager = Project_Manager(llm=model, llm_review=model_review, team=team)
-    programmer = Programmer(llm=model, llm_review=model_review, team=team)
-    code_tester = Code_Tester(llm=model, llm_review=high_temp_model, team=team)
+    programmer = Programmer(llm=programmer_model, llm_review=model_review, team=team)
+    code_tester = Code_Tester(llm=model, llm_review=model_review, team=team)
     reviewer = Reviewer(target=projct_manager, team=team)
     searcher = Searcher(llm=model, team=team)
-    c_programmer = C_Programmer(llm=model, llm_review=high_temp_model, team=team)
+    c_programmer = C_Programmer(llm=programmer_model, llm_review=model_review, team=team)
 
     team.hire_roles(
         product_manager,

@@ -40,7 +40,7 @@ class GPT:
     # args is HumanMessage, SystemMessage (variable length)
     def invoke(self, *args):
         Team.log.info(
-            f"-----------------{self.model.temperature}-------------------------------"
+            f"self.model.temperature-----------------{self.model.temperature}-------------------------------"
         )
         # messages = [system_msg, user_msg]
         messages = [arg for arg in args]

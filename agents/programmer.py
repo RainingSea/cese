@@ -78,6 +78,7 @@ class Programmer(Role):
 
             # prompt LLM
             Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+            Team.log.info(f"Programmer working a Task")
             code_result = self.llm.invoke(system_prompt, user_prompt)
             Team.log.info("\n" + code_result)
 
