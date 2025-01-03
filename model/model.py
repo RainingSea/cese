@@ -31,7 +31,7 @@ class Qwen:
 class GPT:
     def __init__(self, config: dict):
         self.model = ChatOpenAI(
-            temperature=0.2,
+            temperature=config["temperature"],
             model=config["model"],
             api_key=config["api_key"],
             base_url=config["base_url"],
@@ -39,6 +39,9 @@ class GPT:
 
     # args is HumanMessage, SystemMessage (variable length)
     def invoke(self, *args):
+        Team.log.info(
+            f"-----------------{self.model.temperature}-------------------------------"
+        )
         # messages = [system_msg, user_msg]
         messages = [arg for arg in args]
         output_parser = StrOutputParser()

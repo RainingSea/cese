@@ -2,6 +2,7 @@ import dashscope
 from datetime import datetime
 import argparse
 from pathlib import Path
+import copy
 
 from utils.commen import read_yaml
 from agents.team import Team
@@ -36,7 +37,8 @@ def start_project():
 
     # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
     project_description_path = (
-        f"D:\Project\CE\CE\dataset\SD-bench\dataset\{category}/{name}"
+        # f"D:\Project\CE\CE\dataset\SDE-bench\dataset\{category}/{name}"
+        f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
     )
     # framework execution start time
     start_time = datetime.now()
@@ -64,7 +66,7 @@ def start_project():
     #     + formatted_time
     #     + "/"
     # )
-    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
+    projdir = "D:/algorithm/agent/cese/project/" + category + "/" + project_name + "/"
     Team.set_projdir(projdir)
     Team.set_log()
 
@@ -77,7 +79,8 @@ def start_project():
 
     model = GPT(config["llm_4o"])
     model_review = GPT(config["llm_4o"])
-
+    high_temp_config = create_config_copy_with_new_temperature(config["llm_4o"], 1.0)
+    high_temp_model = GPT(high_temp_config)
     # launch project
     team.set_origin_req(project_name, origin_req)
 
@@ -86,10 +89,10 @@ def start_project():
     architect = Architect(llm=model, llm_review=model_review, team=team)
     projct_manager = Project_Manager(llm=model, llm_review=model_review, team=team)
     programmer = Programmer(llm=model, llm_review=model_review, team=team)
-    code_tester = Code_Tester(llm=model, llm_review=model_review, team=team)
+    code_tester = Code_Tester(llm=model, llm_review=high_temp_model, team=team)
     reviewer = Reviewer(target=projct_manager, team=team)
     searcher = Searcher(llm=model, team=team)
-    c_programmer = C_Programmer(llm=model, llm_review=model_review, team=team)
+    c_programmer = C_Programmer(llm=model, llm_review=high_temp_model, team=team)
 
     team.hire_roles(
         product_manager,
@@ -136,6 +139,23 @@ def start_project():
         + " Seconds"
         + "\n-----------------"
     )
+
+def create_config_copy_with_new_temperature(config: dict, new_temperature: float) -> dict:
+    """
+    Args:
+        config:
+        new_temperature:
+
+    Returns:
+
+    """
+    config_copy = copy.deepcopy(config)
+
+    # 修改副本中的温度
+    if "temperature" in config_copy:
+        config_copy["temperature"] = new_temperature
+
+    return config_copy
 
 
 def model_config():
