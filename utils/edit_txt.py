@@ -26,6 +26,7 @@ def add_newline_to_txt_files(directory):
 
 
 def read_port():
+    # "D:\Project\CE\CE\port.txt"
     with open("D:\Project\CE\CE\port.txt", "r") as file:
         port_number = file.read()
     return int(port_number)
@@ -57,9 +58,15 @@ def update_flask_port(file_path, port):
 
         # 找到最后一行 app.run 并替换为指定端口
         updated_lines = []
+        replaced = False
+
         for line in lines:
-            if re.search(r"app\.run\(.*\)", line):
-                updated_lines.append(f"    app.run(port={port}, debug=False)\n")
+            if not replaced and re.match(r"(\s*).*?app\.run\(.*\)", line):  # 匹配前缀
+                indent = re.match(r"(\s*)", line).group(1)  # 提取缩进
+                updated_lines.append(
+                    f"{indent}app.run(port={port}, debug=False)\n"
+                )  # 替换
+                replaced = True  # 标志设置为 True，防止后续替换
             else:
                 updated_lines.append(line)
 
@@ -74,6 +81,7 @@ def update_flask_port(file_path, port):
 
     # write back the next available port
     write_port(port)
+    return port
 
 
 if __name__ == "__main__":

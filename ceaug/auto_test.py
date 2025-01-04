@@ -25,6 +25,8 @@ def read_codebase(codebase_path):
         content.append(f"{indent}--- DIRECTORY: {root} ---\n")
 
         for file in files:
+            if file == "testcode.py":
+                continue
             file_type = os.path.splitext(file)[-1].lower()
             if file_type in {".html", ".py", ".txt", ".csv", ".json"}:
                 file_path = os.path.join(root, file)

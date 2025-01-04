@@ -79,12 +79,85 @@ class Team(BaseModel):
             # self.roles["Reviewer"].target = self.roles["Project Manager"]
             # self.roles["Reviewer"].go()
             Team.active_role(self.roles["Project Manager"].profile)
+            
         self.roles["Programmer"].go()
         code_base_dir = os.path.join(Team.project_dir, "code")
         port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
+        for j in range(2):
+            # set code dir
+            ce_projects_paths = [Team.project_dir]
+            # execute unit test
+            ce_score, ce_feedback = ceaug(
+                previous_work_dir,
+                ce_projects_paths,
+                Team.projec_catogory,
+                Team.project_name,
+                Team.all_messages[0].content,
+                Team.log,
+            )
+            # use feedback to regenate
+            # self.roles["C_Programmer"].go(ce_feedback)
+            if ce_feedback == "CodeIsGood":
+                return
+            else:
+                print(ce_feedback)
+                self.roles["Code Tester"].unit_test_feedback = ce_feedback
+                self.roles["Code Tester"].go()
+                port = update_flask_port(
+                    os.path.join(code_base_dir, "main.py"), str(port)
+                )
+
+        return
+
+    def run(self):
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
+
+        # inter_launch = True
+        inter_launch = False
+
+        # _______________ generate PRD, Architect, Task Plan _______________
+        if inter_launch:
+            # Read files from an existing project, then proceed with development.
+            # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
+            Team.incremental_base_dir = os.path.normpath(
+                "D:\Project\CE\CE\project\website\RecipeHub"
+            )
+            self.roles["Product Manager"].go_inter()
+            self.roles["Architect"].go_inter()
+            self.roles["Project Manager"].go_inter()
+        else:
+            self.roles["Product Manager"].go()
+            Team.active_role(self.roles["Product Manager"].profile)
+
+            self.roles["Architect"].go()
+            # self.roles["Reviewer"].target = self.roles["Architect"]
+            # self.roles["Reviewer"].go()
+            Team.active_role(self.roles["Architect"].profile)
+
+            self.roles["Project Manager"].go()
+            # self.roles["Reviewer"].target = self.roles["Project Manager"]
+            # self.roles["Reviewer"].go()
+            Team.active_role(self.roles["Project Manager"].profile)
+
         # set code dir
-        ce_projects_paths = [Team.project_dir]
+        ce_projects_paths = create_ce_document(
+            Team.project_dir, Team.all_messages[3].content, Team.log
+        )
+
+        for j in range(len(ce_projects_paths)):
+            print(f"\ngenerate the code of {j}th counter project\n")
+            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
+            self.roles["Product Manager"].go_inter()
+            self.roles["Architect"].go_inter()
+            self.roles["Project Manager"].go_inter()
+            # temporarily change project dir to a ce folder
+            Team.project_dir = ce_projects_paths[j]
+            self.roles["Programmer"].go()
+            code_base_dir = os.path.join(Team.project_dir, "code")
+            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+
         # execute unit test
         ce_score, ce_feedback = ceaug(
             previous_work_dir,
@@ -96,39 +169,6 @@ class Team(BaseModel):
         )
         # use feedback to regenate
         # self.roles["C_Programmer"].go(ce_feedback)
-        if ce_feedback == "CodeIsGood":
-            pass
-        else:
-            self.roles["Code Tester"].unit_test_feedback = ce_feedback
-            self.roles["Code Tester"].go()
-            port = update_flask_port(os.path.join(code_base_dir, "main.py"), str(port))
-
-        return
-        # _______________ generate PRD, Architect, Task Plan _______________
-        #
-        #
-        # ______________ counter example augment(optional) ______________
-        # make dirs for each counter example project
-        # create a the same dir of project base, distinct by ce_{number} / like, ce_1, ce_2, ce_3
-        # ce_projects_paths = ["D:\Project\CE\CE\project\website\RecipeHub\ce\ce_0"]
-        ce_projects_paths = create_ce_document(
-            Team.project_dir,
-            Team.all_messages[3].content,
-            Team.log,
-        )
-
-        # every ce_project_path is a dir contains prd, arch, plan.
-        # generate coresponding code for each ce_project_path
-        for j in range(len(ce_projects_paths)):
-            print(f"\ngenerate the code of {j}th counter project\n")
-            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
-            self.roles["Product Manager"].go_inter()
-            self.roles["Architect"].go_inter()
-            self.roles["Project Manager"].go_inter()
-            # temporarily change project dir to a ce folder
-            Team.project_dir = ce_projects_paths[j]
-            self.roles["Programmer"].go()
-
         # pass all the ce_project, execute unit test, analyze, and select the most valuable one
         # |_____________________________________________________________|
         # |                      Attention!                             |
@@ -137,51 +177,31 @@ class Team(BaseModel):
         # |                   Must switch back!                         |
         # |_____________________________________________________________|
         # |
-        ce_score, ce_feedback = ceaug(
-            previous_work_dir,
-            ce_projects_paths,
-            Team.projec_catogory,
-            Team.project_name,
-            Team.all_messages[0].content,
-            Team.log,
-        )
+
         os.chdir(previous_work_dir)
         Team.project_dir = pervious_project_dir
         Team.incremental_base_dir = pervious_project_dir
 
+        self.roles["Product Manager"].go_inter()
+        self.roles["Architect"].go_inter()
+        self.roles["Project Manager"].go_inter()
         if ce_feedback:
             # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
             Team.log.info("### ceaug feedback\n" + str(ce_feedback))
-
             # use feedback from counter example to augment coding
             Team.log.info("begin CE Coding")
-            self.roles["Product Manager"].go_inter()
-            self.roles["Architect"].go_inter()
-            self.roles["Project Manager"].go_inter()
-            # _______________ counter example augment _______________
-            #
-            #
-            # _______________ programer generate code ______________
-            # (augment) ceaug coding
+            # C_programmer temperature is 0.2
             self.roles["C_Programmer"].go(ce_feedback)
-            # Team.active_role(self.roles["Programmer"].profile)
-            # _______________ programer generate code ______________
-            #
-            #
-            # _______________ test _________________
-            # self.roles["Code Tester"].go()
-            # Team.active_role(self.roles["Code Tester"].profile)
-            # _______________ test _________________
         else:
             Team.log.info("No CE, Normal Coding")
-            self.roles["Product Manager"].go_inter()
-            self.roles["Architect"].go_inter()
-            self.roles["Project Manager"].go_inter()
-
             self.roles["Programmer"].code_base.clear()
             self.roles["Programmer"].go()
 
+        code_base_dir = os.path.join(Team.project_dir, "code")
+        port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+
         print("Dev execute END")
+        return
 
     @classmethod
     def set_projdir(cls, projdir: str):

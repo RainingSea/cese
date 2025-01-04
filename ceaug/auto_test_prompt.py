@@ -30,13 +30,16 @@ Attention 9: Access to All pages, except for the login and registration pages, r
 Attention 10: After logging in, you will be redirected to other pages and will not stay on the login page.
 Attention 11: For each Functionalities in Black Box Unit Test Cases, please generate a unit test function. If the functionality is not implemented in the codebase, generate a corresponding test point that returns a failure.Each unit test function corresponds to a Functionalities in Black Box Unit Test Cases.
 Attention 12: If a Functionalities has multiple test cases, you should write all of them inside one unit test function.
+Attention 13: self.driver.get('http://localhost:5000/') this line code in example could also be self.driver.get('http://localhost:5000/login').carefully check the code logic to determine which one is the correct one.
 ### codebase
 {codebase}
 ### testcase
 {testcase}
 ### instruction: Write test code for the software in the codebase based on the test cases.
 
+
 ### Example Code
+
 ```python
 import unittest
 from selenium import webdriver
@@ -51,7 +54,7 @@ class TestDailyJournalApp(unittest.TestCase):
         self.process = subprocess.Popen(['python', 'main.py'])
         time.sleep(2)  # 等待 Web 应用完全启动
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:5000/login')
+        self.driver.get('http://localhost:5000/') 
 
     def tearDown(self):
         # Close the web driver session

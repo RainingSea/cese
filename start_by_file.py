@@ -2,6 +2,7 @@ import dashscope
 from datetime import datetime
 import argparse
 from pathlib import Path
+import copy
 
 from utils.commen import read_yaml
 from agents.team import Team
@@ -55,16 +56,16 @@ def start_project():
     Team.projec_catogory = category
     Team.project_name = project_name
 
-    projdir = (
-        "D:/Project/CE/CE/project/"
-        + category
-        + "/"
-        + project_name
-        + "_"
-        + formatted_time
-        + "/"
-    )
-    # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
+    # projdir = (
+    #     "D:/Project/CE/CE/project/"
+    #     + category
+    #     + "/"
+    #     + project_name
+    #     + "_"
+    #     + formatted_time
+    #     + "/"
+    # )
+    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
     Team.set_projdir(projdir)
     Team.set_log()
 
@@ -77,7 +78,10 @@ def start_project():
 
     model = GPT(config["llm_4o"])
     model_review = GPT(config["llm_4o"])
-
+    programmer_config = create_config_copy_with_new_temperature(
+        config["llm_4o"], config["llm_4o"]["programmer_temperature"]
+    )
+    programmer_model = GPT(programmer_config)
     # launch project
     team.set_origin_req(project_name, origin_req)
 
@@ -85,10 +89,11 @@ def start_project():
     product_manager = Product_Manager(llm=model, llm_review=model_review, team=team)
     architect = Architect(llm=model, llm_review=model_review, team=team)
     projct_manager = Project_Manager(llm=model, llm_review=model_review, team=team)
-    programmer = Programmer(llm=model, llm_review=model_review, team=team)
+    programmer = Programmer(llm=programmer_model, llm_review=model_review, team=team)
     code_tester = Code_Tester(llm=model, llm_review=model_review, team=team)
     reviewer = Reviewer(target=projct_manager, team=team)
     searcher = Searcher(llm=model, team=team)
+    # this is a normal programmer, don't need to change temperature
     c_programmer = C_Programmer(llm=model, llm_review=model_review, team=team)
 
     team.hire_roles(
@@ -136,6 +141,26 @@ def start_project():
         + " Seconds"
         + "\n-----------------"
     )
+
+
+def create_config_copy_with_new_temperature(
+    config: dict, new_temperature: float
+) -> dict:
+    """
+    Args:
+        config:
+        new_temperature:
+
+    Returns:
+
+    """
+    config_copy = copy.deepcopy(config)
+
+    # 修改副本中的温度
+    if "temperature" in config_copy:
+        config_copy["temperature"] = new_temperature
+
+    return config_copy
 
 
 def model_config():

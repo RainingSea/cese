@@ -76,6 +76,7 @@ class Programmer(Role):
         code_result = self.llm.invoke(system_prompt, user_prompt)
         Team.log.info("\n" + code_result)
         # ________ store in self code dict ________
+        Team.log.info("Compare Code")
         self.compare_code(code_result)
         code_result_split = code_result.split("*** ")
         for i in range(1, len(code_result_split)):

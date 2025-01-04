@@ -48,7 +48,7 @@ class C_Programmer(Role):
     trigger_task: str = "T7"
 
     def go(self, ce_feedback):
-        print(self.trigger_task)
+        # print(self.trigger_task)
         print(self.profile + " " + self.name + " Coding...")
         Team.log.info(self.profile + " " + self.name + " Coding...")
 
@@ -78,7 +78,12 @@ class C_Programmer(Role):
         Team.log.info(system_prompt.content + "\n" + user_prompt.content)
         code_result = self.llm.invoke(system_prompt, user_prompt)
         Team.log.info("\n" + code_result)
-
+        # ________ store in self code dict ________
+        self.compare_code(code_result)
+        code_result_split = code_result.split("*** ")
+        for i in range(1, len(code_result_split)):
+            file_name, file_content = self.match(code_result_split[i])
+            self.code_base[file_name] = file_content
         self.message_to_file(code_result)
 
         code_msg = Message(sender=self.profile, content=code_result)

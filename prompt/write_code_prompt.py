@@ -189,7 +189,6 @@ If you are doing website development, be sure to route the root path (/). If the
 If you are doing website development, please do not encrypt the account password for the login function.
 If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
 If you are doing Website Development, do not follow the rules of Website and Game development.
-If you are using Flask in production, set the debug mode to False.
 
 # important rule
 Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
@@ -248,7 +247,7 @@ If you are doing website development, be sure to route the root path (/). If the
 If you are doing website development, please do not encrypt the account password for the login function.
 If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
 If you are doing Website Development, do not follow the rules of Website and Game development.
-If you are using Flask in production, set the debug mode to False.
+
 # GUI tkinter Development Rule
 If you are doing GUI tkinter Development, do not follow the rules of Website and Game development.
 # Game Development Rule
@@ -322,7 +321,6 @@ If you are doing website development, be sure to route the root path (/). If the
 If you are doing website development, please do not encrypt the account password for the login function.
 If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
 If you are doing Website Development, do not follow the rules of Website and Game development.
-If you are using Flask in production, set the debug mode to False.
 # GUI tkinter Development Rule
 If you are doing GUI tkinter Development, do not follow the rules of Website and Game development.
 # Game Development Rule

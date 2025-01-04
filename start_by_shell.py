@@ -1,6 +1,7 @@
 import dashscope
 from datetime import datetime
 import argparse
+import copy
 
 from utils.commen import read_yaml
 from agents.team import Team
@@ -51,6 +52,9 @@ def start_project():
     model = GPT(config["llm_4o"])
     model_review = GPT(config["llm_4o"])
 
+    high_temp_config = create_config_copy_with_new_temperature(config["llm_4o"], 1.0)
+    high_temp_model = GPT(high_temp_config)
+
     # launch project
     team.set_origin_req(project_name, origin_req)
 
@@ -58,7 +62,7 @@ def start_project():
     product_manager = Product_Manager(llm=model, llm_review=model_review, team=team)
     architect = Architect(llm=model, llm_review=model_review, team=team)
     projct_manager = Project_Manager(llm=model, llm_review=model_review, team=team)
-    programmer = Programmer(llm=model, llm_review=model_review, team=team)
+    programmer = Programmer(llm=model, llm_review=high_temp_model, team=team)
     code_tester = Code_Tester(llm=model, llm_review=model_review, team=team)
     reviewer = Reviewer(target=projct_manager, team=team)
 
@@ -101,6 +105,23 @@ def start_project():
         + "\n-----------------"
     )
 
+
+def create_config_copy_with_new_temperature(config: dict, new_temperature: float) -> dict:
+    """
+    Args:
+        config:
+        new_temperature:
+
+    Returns:
+
+    """
+    config_copy = copy.deepcopy(config)
+
+    # 修改副本中的温度
+    if "temperature" in config_copy:
+        config_copy["temperature"] = new_temperature
+
+    return config_copy
 
 def model_config():
     # loading config for different models, include Qwen and GPT

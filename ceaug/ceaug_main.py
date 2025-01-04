@@ -50,7 +50,7 @@ def create_ce_document(project_dir, task_plan, log):
         os.makedirs(ce_path)
         # create ce plan
         with open(os.path.join(ce_path, "task plan.md"), "w", encoding="utf-8") as f:
-            f.write(ce_plans[i])
+            f.write(str(ce_plans[i]))
 
         # copy prd and architect
         src_dir = project_dir
@@ -90,7 +90,8 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
 
     max_score = -1.0
     code_feedback_selected = ""
-
+    all_code_feedbacks = []
+    all_unit_test_results = []
     for i in range(len(project_dirs)):
         print("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
         log.info("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
@@ -179,50 +180,40 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
         code_feedback = chat_to_LLM(messages)
         code_feedback_selected = code_feedback
         log.info(code_feedback)
-        # log.info(code_feedback)
-        # print(code_feedback)
-        # print("\n###################################")
 
-        # # 4. scoring the unit test result issues (0~10)
-        # # m_5, llm's response(issues summary)
-        # messages.append({"role": "assistant", "content": code_feedback})
+        all_code_feedbacks.append(code_feedback)
+        all_unit_test_results.append(unit_test_result)
 
-        # values_scoring = {
-        #     "user_req": user_req,
-        # }
-        # # m_6, ask the llm to score
-        # PROMPT_FOR_SCORING = """
-        # Next, step to step, analyze the issues mentioned above and assess the extent to which these issues hinder the code from perfectly fulfilling the user requirements. Assign a score (0-10) based on the significance of the issues, where 0 indicates the issue has minimal impact or is unlikely to occur during coding, and 10 indicates the issue has a major impact or is highly likely to occur during coding.
-        # the user requirement is:{user_req}.
-        # At the end of your output, you need to display the average score(also range from 0 to 10), using the following format:[END]score[END], where "score" should be replaced with the score you have assigned.
-        # example:[END]5.0[END]"""
-        # messages.append(format_prompt(PROMPT_FOR_SCORING, values_scoring))
-        # # m_7, llm's response(score)
-        # score_result = chat_to_LLM(messages)
-        # log.info(str(score_result))
-        # print(score_result)
-        # print("\n###################################")
+    if len(project_dirs) > 1 and len(all_code_feedbacks) > 1:
+        sum_messages = []
+        all_summaries = ""
+        for k in range(len(all_code_feedbacks)):
+            all_summaries = (
+                all_summaries
+                + str(k)
+                + f"|(problem){all_unit_test_results[k]['output']}:(solution){all_code_feedbacks[k]}|\n"
+            )
 
-        # start_tag = "[END]"
-        # end_tag = "[END]"
-        # start_index = score_result.find(start_tag) + len(start_tag)
-        # end_index = score_result.find(end_tag, start_index)
+        # means it is counter example model
+        PROMPT_FOR_SUMMARY_MERGE = """Your goal is to summarize the following summaries. The format of these summaries is |problem:solution|. You should remove duplicates, that is, summaries with the same solution to the same problem. For the same problem, there are different solutions, and you should record them all. Pay special attention to keep the original content of the summary as much as possible, and don't lose information. all the summaries are:{summaries}.
+        """
+        summary_merge_values = {"summaries": all_summaries}
+        sum_messages.append(
+            format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
+        )
+        print(sum_messages[0]["content"])
+        log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        summaries_summary = chat_to_LLM(sum_messages)
+        log.info("summaried summaries:\n" + summaries_summary)
+        return max_score, summaries_summary
 
-        # # 提取出的内容
-        # score = float(score_result[start_index:end_index])
-        # # _________________ ask LLM to get feedback ________________
-
-        # if score > max_score:
-        #     max_score = score
-        #     code_feedback_selected = code_feedback
     if code_feedback_selected:
         print("final selected:\n" + code_feedback_selected)
         log.info("final selected:\n" + code_feedback_selected)
+        return max_score, code_feedback_selected
     else:
         # code has no problem, maybe other fact"
-        return "CodeIsGood"
-
-    return max_score, code_feedback_selected
+        return max_score, "CodeIsGood"
 
 
 # _______________ useful functions _______________
@@ -235,7 +226,7 @@ def ce_generate(task_plan, log):
     task_list_dict = extract_task_list(task_plan)
 
     # assign the number of c.e.
-    ce_number = 1
+    ce_number = 2
     ce_result = []
     for i in range(ce_number):
         # avoid affecting the original plan.
@@ -246,7 +237,7 @@ def ce_generate(task_plan, log):
         # replace the origin task list to disturbed task list
         new_task_plan["Task list"] = ce
 
-        ce_result.append(str(new_task_plan))
+        ce_result.append((new_task_plan))
 
     return ce_result
 
