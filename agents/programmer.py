@@ -53,46 +53,41 @@ class Programmer(Role):
         task_plan = self.getProjectPlan().content
 
         # --------------- decompose and assign tasks to programmer
-        task_dict = self.task_list_extract()
+        # task_dict = self.task_list_extract()
 
-        for key, value in task_dict.items():
-            # Retrieve content relevant to this task from the requirements document.
-            retrieval_refer = self.team.roles["Searcher"].retrieval(value)
-            print("Starting to Code for " + str(key) + " " + value + "/n")
+        # for key, value in task_dict.items():
+        # Retrieve content relevant to this task from the requirements document.
+        # retrieval_refer = self.team.roles["Searcher"].retrieval(value)
+        # print("Starting to Code for " + str(key) + " " + value + "/n")
+        # --------------- get counter info -----------------
+        # counter_reason, counter_code = self.read_counter()
+        # ---------- constructing prompt to LLM ----------
+        system_prompt = SystemMessage(content=CODING_SYS)
+        user_prompt_template = ChatPromptTemplate.from_template(CODING)
+        user_prompt_msg = user_prompt_template.invoke(
+            {
+                "architecture": architecture,
+                "task_plan": task_plan,
+            }
+        )
+        user_prompt = user_prompt_msg.to_messages()[0]
+        # prompt LLM
+        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+        code_result = self.llm.invoke(system_prompt, user_prompt)
+        Team.log.info("\n" + code_result)
+        # ________ store in self code dict ________
+        self.compare_code(code_result)
+        code_result_split = code_result.split("*** ")
+        for i in range(1, len(code_result_split)):
+            file_name, file_content = self.match(code_result_split[i])
+            self.code_base[file_name] = file_content
 
-            # --------------- get counter info -----------------
-            # counter_reason, counter_code = self.read_counter()
-            # ---------- constructing prompt to LLM ----------
-            system_prompt = SystemMessage(content=CODING_SYS)
-            user_prompt_template = ChatPromptTemplate.from_template(CODING_P)
-            user_prompt_msg = user_prompt_template.invoke(
-                {
-                    "architecture": architecture,
-                    "task_plan": task_plan,
-                    "task": str(key) + ":" + value,
-                    "code": self.read_code_base(),
-                    "prd_part": retrieval_refer,
-                }
-            )
-            user_prompt = user_prompt_msg.to_messages()[0]
+        self.message_to_file(code_result)
+        code_msg = Message(sender=self.profile, content=code_result)
+        Team.all_messages.append(code_msg)
+        self.own_message = code_msg
 
-            # prompt LLM
-            Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-            code_result = self.llm.invoke(system_prompt, user_prompt)
-            Team.log.info("\n" + code_result)
-
-            self.compare_code(code_result)
-
-            # 更新同名文件或者添加新文件
-            code_result_split = code_result.split("*** ")
-            for i in range(1, len(code_result_split)):
-                file_name, file_content = self.match(code_result_split[i])
-                self.code_base[file_name] = file_content
-
-        # Team.log.info(self.read_code_base())
-        Team.log.info("\n\n\n\n")
-        Team.log.info(self.write_adapator(self.code_base))
-        self.message_to_file(self.write_adapator(self.code_base))
+        # Team.all_messages.append(code_msg)
 
         # ---------- writing result to local ----------
         # this is code before align
@@ -113,6 +108,12 @@ class Programmer(Role):
 
         # self.own_message = code_msg
         return
+
+    def store_code_dict(self, code_result):
+        code_result_split = code_result.split("*** ")
+        for i in range(1, len(code_result_split)):
+            file_name, file_content = self.match(code_result_split[i])
+            self.code_base[file_name] = file_content
 
     def read_code_base(self):
         # code could also include other types file, like txt.
@@ -450,7 +451,9 @@ class Programmer(Role):
         return result
 
     def message_to_file(self, code_text):
-        os.makedirs(os.path.join(Team.project_dir, "code"))
+        if not os.path.exists(os.path.join(Team.project_dir, "code")):
+            # makedir_s, recursely create folders
+            os.makedirs(os.path.join(Team.project_dir, "code"))
         code_base_dir = os.path.join(Team.project_dir, "code")
         # split based on ***_
         code_text_split = code_text.split("*** ")
@@ -471,9 +474,7 @@ class Programmer(Role):
                 super().save_file_overwrite(
                     os.path.join(code_base_dir, str(name)), str(code)
                 )
-
         add_newline_to_txt_files(code_base_dir)
-        update_flask_port(os.path.join(code_base_dir, "main.py"))
 
     def message_to_file_review(self, code_text):
         os.makedirs(Team.project_dir + "review_code")
@@ -497,11 +498,12 @@ class Programmer(Role):
                 super().save_file_overwrite(code_base_dir + str(name), str(code))
 
     def message_to_file_test(self, code_text):
-        if not os.path.exists(Team.project_dir + "test_code"):
-            os.makedirs(Team.project_dir + "test_code")
-        # split based on ###_
-        code_base_dir = Team.project_dir + "test_code/"
-        code_text_split = code_text.split("### ")
+        if not os.path.exists(os.path.join(Team.project_dir, "test_code")):
+            # makedir_s, recursely create folders
+            os.makedirs(os.path.join(Team.project_dir, "test_code"))
+        code_base_dir = os.path.join(Team.project_dir, "test_code")
+        # split based on ***_
+        code_text_split = code_text.split("*** ")
 
         for i in range(1, len(code_text_split)):
             name, code = self.match(code_text_split[i])
@@ -509,14 +511,17 @@ class Programmer(Role):
             if name:
                 # if name contains a directory, create it
                 file_relative_directory = os.path.dirname(name)
-                code_dir = code_base_dir + file_relative_directory
+                code_dir = os.path.join(code_base_dir, file_relative_directory)
                 if not os.path.exists(code_dir):
                     # makedir_s, recursely create folders
                     os.makedirs(code_dir)
                 # writing result to local
-                print(self.profile + " writting Test CODE: " + str(name))
-                Team.log.info(self.profile + " writting Test CODE: " + str(name))
-                super().save_file_overwrite(code_base_dir + str(name), str(code))
+                print(self.profile + " writting Testing CODE: " + str(name))
+                Team.log.info(self.profile + " writting Testing CODE: " + str(name))
+                super().save_file_overwrite(
+                    os.path.join(code_base_dir, str(name)), str(code)
+                )
+        add_newline_to_txt_files(code_base_dir)
 
     def update_own_message(self, msg: Message):
         self.own_message = msg

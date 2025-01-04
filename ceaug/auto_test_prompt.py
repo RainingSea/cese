@@ -48,7 +48,7 @@ class TestDailyJournalApp(unittest.TestCase):
 
     def setUp(self):
         # Initialize the webdriver and open the login page
-        self.process = subprocess.Popen(['python', 'main.py'])  # 修改为实际路径
+        self.process = subprocess.Popen(['python', 'main.py'])
         time.sleep(2)  # 等待 Web 应用完全启动
         self.driver = webdriver.Chrome()
         self.driver.get('http://localhost:5000/login')

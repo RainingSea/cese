@@ -39,10 +39,11 @@ def write_port(port):
         print(e)
 
 
-def update_flask_port(file_path):
+def update_flask_port(file_path, port):
     # 读取用户输入的端口号
-    port = read_port()
-    port = port + 1
+    if not port:
+        port = read_port()
+        port = port + 1
 
     # 读取 main.py 文件路径
     if not os.path.isfile(file_path):
@@ -58,7 +59,7 @@ def update_flask_port(file_path):
         updated_lines = []
         for line in lines:
             if re.search(r"app\.run\(.*\)", line):
-                updated_lines.append(f"    app.run(port={port}, debug=True)\n")
+                updated_lines.append(f"    app.run(port={port}, debug=False)\n")
             else:
                 updated_lines.append(line)
 

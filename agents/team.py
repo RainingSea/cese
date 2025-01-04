@@ -14,6 +14,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from agents.role import Role
 from utils.log import Log
 from ceaug.ceaug_main import ceaug, create_ce_document
+from utils.edit_txt import add_newline_to_txt_files, update_flask_port
 
 
 class Team(BaseModel):
@@ -48,7 +49,7 @@ class Team(BaseModel):
     active_roles: ClassVar[list[str]] = []
     cost: ClassVar[int] = 0
 
-    def run(self):
+    def run_self_evo(self):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
@@ -78,7 +79,31 @@ class Team(BaseModel):
             # self.roles["Reviewer"].target = self.roles["Project Manager"]
             # self.roles["Reviewer"].go()
             Team.active_role(self.roles["Project Manager"].profile)
+        self.roles["Programmer"].go()
+        code_base_dir = os.path.join(Team.project_dir, "code")
+        port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
+        # set code dir
+        ce_projects_paths = [Team.project_dir]
+        # execute unit test
+        ce_score, ce_feedback = ceaug(
+            previous_work_dir,
+            ce_projects_paths,
+            Team.projec_catogory,
+            Team.project_name,
+            Team.all_messages[0].content,
+            Team.log,
+        )
+        # use feedback to regenate
+        # self.roles["C_Programmer"].go(ce_feedback)
+        if ce_feedback == "CodeIsGood":
+            pass
+        else:
+            self.roles["Code Tester"].unit_test_feedback = ce_feedback
+            self.roles["Code Tester"].go()
+            port = update_flask_port(os.path.join(code_base_dir, "main.py"), str(port))
+
+        return
         # _______________ generate PRD, Architect, Task Plan _______________
         #
         #
@@ -152,6 +177,7 @@ class Team(BaseModel):
             self.roles["Product Manager"].go_inter()
             self.roles["Architect"].go_inter()
             self.roles["Project Manager"].go_inter()
+
             self.roles["Programmer"].code_base.clear()
             self.roles["Programmer"].go()
 

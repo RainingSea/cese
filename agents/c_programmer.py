@@ -47,66 +47,6 @@ class C_Programmer(Role):
     code_base: dict[str, str] = Field(default_factory=dict, validate_default=True)
     trigger_task: str = "T7"
 
-    def c_go(self):
-        print(self.profile + " " + self.name + " Coding...")
-        Team.log.info(self.profile + " " + self.name + " Coding...")
-
-        # ---------- get the information needed from SCR ----------
-        architecture = self.getArchiture().content
-        task_plan = self.getProjectPlan().content
-
-        # --------------- decompose and assign tasks to programmer
-
-        task_dict = self.task_list_extract()
-
-        # print(self.team.roles["Searcher"].retrieval(task_dict["T0"]))
-
-        for key, value in task_dict.items():
-            retrieval_refer = self.team.roles["Searcher"].retrieval(value)
-            print("Starting to Code for " + str(key) + " " + value + "/n")
-
-            # --------------- get counter info -----------------
-            # counter_reason, counter_code = self.read_counter()
-            # ---------- constructing prompt to LLM ----------
-            system_prompt = SystemMessage(content=CODING_SYS)
-            user_prompt_template = ChatPromptTemplate.from_template(CODING_P)
-            user_prompt_msg = user_prompt_template.invoke(
-                {
-                    "architecture": architecture,
-                    "task_plan": task_plan,
-                    "task": str(key) + ":" + value,
-                    "code": self.read_code_base(),
-                    "prd_part": retrieval_refer,
-                }
-            )
-            user_prompt = user_prompt_msg.to_messages()[0]
-
-            # prompt LLM
-            Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-            code_result = self.llm.invoke(system_prompt, user_prompt)
-            Team.log.info("\n" + code_result)
-
-            self.compare_code(code_result)
-
-            # 更新同名文件或者添加新文件
-            code_result_split = code_result.split("*** ")
-            for i in range(1, len(code_result_split)):
-                file_name, file_content = self.match(code_result_split[i])
-                self.code_base[file_name] = file_content
-
-            # 如果是问题task 就返回
-            if str(key) == self.trigger_task:
-                print("\n-----# trigger task #-----\n")
-                Team.log.info("-----# trigger task #-----")
-                self.message_to_file(code_result)
-                return
-
-        # Team.log.info(self.read_code_base())
-        Team.log.info("\n\n\n\n")
-        Team.log.info(self.write_adapator(self.code_base))
-        self.message_to_file(self.write_adapator(self.code_base))
-        return
-
     def go(self, ce_feedback):
         print(self.trigger_task)
         print(self.profile + " " + self.name + " Coding...")
@@ -118,54 +58,32 @@ class C_Programmer(Role):
 
         # --------------- decompose and assign tasks to programmer
 
-        task_dict = self.task_list_extract()
+        # task_dict = self.task_list_extract()
 
-        # print(self.team.roles["Searcher"].retrieval(task_dict["T0"]))
-        for key, value in task_dict.items():
-            retrieval_refer = self.team.roles["Searcher"].retrieval(value)
-            print("Starting to Code for " + str(key) + " " + value + "/n")
-
-            # --------------- get counter info -----------------
-            # counter_reason, counter_code = self.read_counter()
-            # ---------- constructing prompt to LLM ----------
-            system_prompt = SystemMessage(content=CODING_SYS)
-
-            # use counter prompt
-            user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
-            user_prompt_msg = user_prompt_template.invoke(
-                {
-                    "architecture": architecture,
-                    "task_plan": task_plan,
-                    "task": value,
-                    "code": self.read_code_base(),
-                    "prd_part": retrieval_refer,
-                    "ce_feedback": ce_feedback,
-                }
-            )
-            user_prompt = user_prompt_msg.to_messages()[0]
-            # prompt LLM
-            Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-            code_result = self.llm.invoke(system_prompt, user_prompt)
-            Team.log.info("\n" + code_result)
-
-            self.compare_code(code_result)
-
-            # 更新同名文件或者添加新文件
-            code_result_split = code_result.split("*** ")
-            for i in range(1, len(code_result_split)):
-                file_name, file_content = self.match(code_result_split[i])
-                self.code_base[file_name] = file_content
-
-        # Team.log.info(self.read_code_base())
-        Team.log.info("\n\n\n\n")
-        Team.log.info(self.write_adapator(self.code_base))
-
-        code_msg = Message(
-            sender=self.profile, content=self.write_adapator(self.code_base)
+        # --------------- get counter info -----------------
+        # counter_reason, counter_code = self.read_counter()
+        # ---------- constructing prompt to LLM ----------
+        system_prompt = SystemMessage(content=CODING_SYS)
+        # use counter prompt
+        user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
+        user_prompt_msg = user_prompt_template.invoke(
+            {
+                "architecture": architecture,
+                "task_plan": task_plan,
+                "ce_feedback": ce_feedback,
+            }
         )
-        Team.all_messages.append(code_msg)
+        user_prompt = user_prompt_msg.to_messages()[0]
+        # prompt LLM
+        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+        code_result = self.llm.invoke(system_prompt, user_prompt)
+        Team.log.info("\n" + code_result)
 
-        self.message_to_file(self.write_adapator(self.code_base))
+        self.message_to_file(code_result)
+
+        code_msg = Message(sender=self.profile, content=code_result)
+
+        # Team.all_messages.append(code_msg)
 
     # def go():
 
@@ -557,7 +475,9 @@ class C_Programmer(Role):
         return result
 
     def message_to_file(self, code_text):
-        os.makedirs(os.path.join(Team.project_dir, "code"))
+        if not os.path.exists(os.path.join(Team.project_dir, "code")):
+            # makedir_s, recursely create folders
+            os.makedirs(os.path.join(Team.project_dir, "code"))
         code_base_dir = os.path.join(Team.project_dir, "code")
         # split based on ***_
         code_text_split = code_text.split("*** ")
@@ -580,7 +500,7 @@ class C_Programmer(Role):
                 )
 
         add_newline_to_txt_files(code_base_dir)
-        update_flask_port(os.path.join(code_base_dir, "main.py"))
+        # update_flask_port(os.path.join(code_base_dir, "main.py"))
 
     def message_to_file_review(self, code_text):
         os.makedirs(Team.project_dir + "review_code")

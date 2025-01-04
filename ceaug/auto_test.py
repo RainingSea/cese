@@ -197,7 +197,7 @@ def web_text_strip(input_text):
     cleaned_text = re.sub(combined_pattern, "", input_text)
     # Remove extra blank lines
     cleaned_text = re.sub(r"\n+", "\n", cleaned_text).strip()
-    print(cleaned_text)
+
     return cleaned_text
 
 
@@ -231,6 +231,7 @@ def runUnitTest(project_path, category):
         # filter out some unimportant and repetitive output.
         print("#### strip ####")
         test_output = web_text_strip(test_output)
+        print(test_output)
 
     total = int(result.testsRun)
     passed = int(result.testsRun - len(result.failures) - len(result.errors))
@@ -250,8 +251,7 @@ def runUnitTest(project_path, category):
     print(f"Failed: {failed}")
     print(f"Errors: {errors}")
     print(f"----------------[END {project_name}]---------------------")
-    new_row = pd.DataFrame([info])
-    print(info)
+    # print(info)
 
     # 使用 pd.concat() 合并新的数据行
     # results = pd.concat([results, new_row], ignore_index=True)

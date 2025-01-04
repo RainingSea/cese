@@ -2,12 +2,13 @@ from agents.role import Role
 from agents.team import Team
 from pathlib import Path
 import sys, os, subprocess
+import difflib
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from openai import OpenAI
 
-from prompt.write_code_prompt import DEBUG, CODING_SYS
+from prompt.write_code_prompt import DEBUG, CODING_SYS, DEBUG_UNIT_TEST
 from messages.message import Message
 from utils.read import read_codebase, read_file_2_line
 from ceaug.auto_test_prompt import (
@@ -25,211 +26,242 @@ class Code_Tester(Role):
     profile: str = "Code Tester"
     team: Team = None
     own_message: Message = None
+    unit_test_feedback: str = ""
     codebase_dir: str = ""
 
     def go(self):
         self.codebase_dir = os.path.join(Team.project_dir, "code")
 
-        # ______________ Level Zero: Test for syntax errors; check if the tests can run ______________
-        architecture = self.getArchiture().content
-        # if not web project
+        code = self.getCode().content
+        unit_test_feedback = self.unit_test_feedback
 
-        # if web project
-        if "flask" in architecture.lower():
-            Team.log.info(
-                "Tester | ----------- Use flask, please test by human --------------------"
-            )
-            test_msg = Message(sender=self.profile, content="Test Stop")
-            self.own_message = test_msg
-            Team.all_messages.append(test_msg)
-            return
-
-        test_turn = 1
-        install_turn = 1
-        Max_test_turn = 1
-        Max_install_turn = 3
-
-        # _____ iterative _____
-        while test_turn <= Max_test_turn and install_turn <= Max_install_turn:
-            # get entry file path
-            main_py_path = self.get_entry_file()
-            print(main_py_path)
-            # test if code could run and get the running state
-            result, result_data = self.run_main_py(main_py_path)
-            #
-            # if code run successfully
-            if result == "SUCCESS":
-                test_msg = Message(sender=self.profile, content="Test Success")
-                self.own_message = test_msg
-                Team.all_messages.append(test_msg)
-                break
-            # if breaks because lacking package
-            elif result == "IMPORT_ERROR":
-                Team.log.info("Tester | lacking third package:" + result_data)
-                # install package
-                install_result = self.install_package(result_data)
-                # if install successfully
-                if install_result == "INS_S":
-                    print(
-                        "Tester | Restarting the execution after installing the missing package."
-                    )
-                    Team.log.info(
-                        "Tester | Restarting the execution after installing the missing package."
-                    )
-                    install_turn += 1
-                # if install fails
-                else:
-                    test_msg = Message(
-                        sender=self.profile, content="Test Install Failed"
-                    )
-                    self.own_message = test_msg
-                    Team.all_messages.append(test_msg)
-                    break
-            # if breaks because other code problem
-            elif result == "OTHER_ERROR":
-                # Coding Error, call the Coder to fix
-                print(f"An error occurred: {result_data}")
-                Team.log.info("Tester | An error occurred: " + result_data)
-
-                code = self.getCode().content
-                system_prompt = SystemMessage(content=CODING_SYS)
-                user_prompt_template = ChatPromptTemplate.from_template(DEBUG)
-                user_prompt_msg = user_prompt_template.invoke(
-                    {
-                        "code": code,
-                        "error_report": result_data,
-                    }
-                )
-                user_prompt = user_prompt_msg.to_messages()[0]
-                Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-                fix_code_result = self.team.roles["Programmer"].llm.invoke(
-                    system_prompt, user_prompt
-                )
-                # logging
-                Team.log.info(
-                    "Tester | Fixed code based on the test :\n" + fix_code_result
-                )
-                self.team.roles["Programmer"].update_own_message(
-                    Message(sender="Programmer", content=fix_code_result)
-                )
-                self.team.roles["Programmer"].message_to_file_test(fix_code_result)
-                self.codebase_dir = os.path.join(Team.project_dir, "test_code")
-                # # Re-test the fixed code, but only record the results without processing them.
-                # self.run_main_py(main_py_path)
-                test_turn += 1
-        # test_msg = Message(sender=self.profile, content="Test Still Failed")
-        # self.own_message = test_msg
-        # Team.all_messages.append(test_msg)
-        # _____ iterative _____
-        # ______________ Level One: Test for syntax errors; check if the tests can run ______________
-        #
-        #
-        #
-        # ______________ Level Two: Unit test; check if code functions well ______________
-        # config what unit test need
-        project_category = Team.projec_catogory
-        project_name = Team.project_name
-
-        # get project's code
-        code_base = read_codebase(self.codebase_dir)
-        # get project's testcode
-        test_code = test_code_autogen(self.codebase_dir, project_category, project_name)
-
-        # apply unit test, will cd codebase_dir(which contains testcode.py) and execute it
-        base_dir = Path.cwd()
-
-        unit_test_raw_result = runUnitTest(
-            self.codebase_dir, project_category, project_name
+        system_prompt = SystemMessage(content=CODING_SYS)
+        user_prompt_template = ChatPromptTemplate.from_template(DEBUG_UNIT_TEST)
+        user_prompt_msg = user_prompt_template.invoke(
+            {
+                "code": code,
+                "unit_test_report": unit_test_feedback,
+            }
         )
-
-        os.chdir(base_dir)
-
-        unit_test_analysis = self.test_result_analyze(
-            code_base, test_code, unit_test_raw_result
+        user_prompt = user_prompt_msg.to_messages()[0]
+        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+        fix_code_result = self.team.roles["Programmer"].llm.invoke(
+            system_prompt, user_prompt
         )
-        # ______________ Level Two: Unit test; check if code functions well ______________
-        #
-        #
-        #
-        # ______________ Level Three: step by step to fix code ______________
+        # logging
+        Team.log.info("Tester | Fixed code based on the test :\n" + fix_code_result)
 
-        # the most straight
-        # read all the code skeleton
+        self.team.roles["Programmer"].compare_code(fix_code_result)
+        self.team.roles["Programmer"].store_code_dict(fix_code_result)
 
-        if "<INFO> Finished" in review_result_level_1:
-            # indicate low level problem, code review could fix
-            pass
+        self.team.roles["Programmer"].update_own_message(
+            Message(sender="Programmer", content=fix_code_result)
+        )
+        self.team.roles["Programmer"].message_to_file(fix_code_result)
 
-        # _____ check function not implemented _____
-        function_add_ask = {
-            "role": "user",
-            "content": """
-            unit test report: {sub_unit_test_report},
-            codes:{codes}",
-            
-            "Based on the previous review results, a feature mentioned in the requirement {req} has not been implemented. You need to implement this feature. Here is the current project code:"
-            """,
-        }
-        # _____ check function not implemented _____
+    # def go(self):
+    #     self.codebase_dir = os.path.join(Team.project_dir, "code")
 
-        # _____ check static syntax error for unit test _____
-        chat_messages = []
-        skeleton = getSkeleton()
+    #     # ______________ Level Zero: Test for syntax errors; check if the tests can run ______________
+    #     architecture = self.getArchiture().content
+    #     # if not web project
 
-        skeleton_ana_sys = {
-            "role": "system",
-            "content": "you are a good Code Reviewer.",
-        }
-        # first, extract buggy code
-        skeleton_ana_ask = {
-            "role": "user",
-            "content": """I have a software project with the code already implemented, along with its skeleton and unit test results. Based on the unit test results (known to failed or contain errors), please identify the specific block of the original code that is related to this test. Only the relevant code block needs to be identified.
-            =======
-            the project code is: {code}.
-            the code skeleton is: {code_skeleton}.
-            unit_test_result is: {unit_test_result}.
-            related unit test case description is: {test_case_descption}.
-            Think step by step and reason yourself to the right decisions to make sure we get it right.
-            """.format_map(),
-        }
-        chat_messages.append(skeleton_ana_sys, skeleton_ana_ask)
-        buggy_code = chat_to_LLM(chat_messages)
-        chat_messages.append({"role": "assistant", "content": buggy_code})
+    #     # if web project
+    #     if "flask" in architecture.lower():
+    #         Team.log.info(
+    #             "Tester | ----------- Use flask, please test by human --------------------"
+    #         )
+    #         test_msg = Message(sender=self.profile, content="Test Stop")
+    #         self.own_message = test_msg
+    #         Team.all_messages.append(test_msg)
+    #         return
 
-        # after extracting the buggy code, first examine the syntax level(low level) bug
-        # Mainly check for errors like unused variables, issues in data structures, or function parameters.
+    #     test_turn = 1
+    #     install_turn = 1
+    #     Max_test_turn = 1
+    #     Max_install_turn = 3
 
-        # skeleton_ana(code_base, skeleton, unit_test_analysis)
-        code_review_ask = {
-            "role": "user",
-            "content": """Now, we need to review the code based on the test report. 
-            unit test report: {sub_unit_test_report},
-            codes:{codes},
-            check the following formulated regulations:
-            "1) all referenced classes should be imported;
-            "2) all methods should be implemented;
-            "3) all methods need to have the necessary comments;
-            "you should check the above regulations one by one and review the codes in detail, and give me instructions on how to fix. If the codes are perfect and you have no comment on them, return only one line like \"<INFO> Finished\"."
-            """,
-        }
-        review_result_level_1 = chat_messages.append(code_review_ask)
-        chat_messages.append({"role": "assistant", "content": review_result_level_1})
-        # _____ check static syntax error for unit test _____
+    #     # _____ iterative _____
+    #     while test_turn <= Max_test_turn and install_turn <= Max_install_turn:
+    #         # get entry file path
+    #         main_py_path = self.get_entry_file()
+    #         print(main_py_path)
+    #         # test if code could run and get the running state
+    #         result, result_data = self.run_main_py(main_py_path)
+    #         #
+    #         # if code run successfully
+    #         if result == "SUCCESS":
+    #             test_msg = Message(sender=self.profile, content="Test Success")
+    #             self.own_message = test_msg
+    #             Team.all_messages.append(test_msg)
+    #             break
+    #         # if breaks because lacking package
+    #         elif result == "IMPORT_ERROR":
+    #             Team.log.info("Tester | lacking third package:" + result_data)
+    #             # install package
+    #             install_result = self.install_package(result_data)
+    #             # if install successfully
+    #             if install_result == "INS_S":
+    #                 print(
+    #                     "Tester | Restarting the execution after installing the missing package."
+    #                 )
+    #                 Team.log.info(
+    #                     "Tester | Restarting the execution after installing the missing package."
+    #                 )
+    #                 install_turn += 1
+    #             # if install fails
+    #             else:
+    #                 test_msg = Message(
+    #                     sender=self.profile, content="Test Install Failed"
+    #                 )
+    #                 self.own_message = test_msg
+    #                 Team.all_messages.append(test_msg)
+    #                 break
+    #         # if breaks because other code problem
+    #         elif result == "OTHER_ERROR":
+    #             # Coding Error, call the Coder to fix
+    #             print(f"An error occurred: {result_data}")
+    #             Team.log.info("Tester | An error occurred: " + result_data)
 
-        # line level fix
-        fix_code()
+    #             code = self.getCode().content
+    #             system_prompt = SystemMessage(content=CODING_SYS)
+    #             user_prompt_template = ChatPromptTemplate.from_template(DEBUG)
+    #             user_prompt_msg = user_prompt_template.invoke(
+    #                 {
+    #                     "code": code,
+    #                     "error_report": result_data,
+    #                 }
+    #             )
+    #             user_prompt = user_prompt_msg.to_messages()[0]
+    #             Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+    #             fix_code_result = self.team.roles["Programmer"].llm.invoke(
+    #                 system_prompt, user_prompt
+    #             )
+    #             # logging
+    #             Team.log.info(
+    #                 "Tester | Fixed code based on the test :\n" + fix_code_result
+    #             )
+    #             self.team.roles["Programmer"].update_own_message(
+    #                 Message(sender="Programmer", content=fix_code_result)
+    #             )
+    #             self.team.roles["Programmer"].message_to_file_test(fix_code_result)
+    #             self.codebase_dir = os.path.join(Team.project_dir, "test_code")
+    #             # # Re-test the fixed code, but only record the results without processing them.
+    #             # self.run_main_py(main_py_path)
+    #             test_turn += 1
+    #     # test_msg = Message(sender=self.profile, content="Test Still Failed")
+    #     # self.own_message = test_msg
+    #     # Team.all_messages.append(test_msg)
+    #     # _____ iterative _____
+    #     # ______________ Level One: Test for syntax errors; check if the tests can run ______________
+    #     #
+    #     #
+    #     #
+    #     # ______________ Level Two: Unit test; check if code functions well ______________
+    #     # config what unit test need
+    #     project_category = Team.projec_catogory
+    #     project_name = Team.project_name
 
-        # run after test
-        run()
+    #     # get project's code
+    #     code_base = read_codebase(self.codebase_dir)
+    #     # get project's testcode
+    #     test_code = test_code_autogen(self.codebase_dir, project_category, project_name)
 
-        # if exceed max test turn, counter example fix
+    #     # apply unit test, will cd codebase_dir(which contains testcode.py) and execute it
+    #     base_dir = Path.cwd()
 
-        #
+    #     unit_test_raw_result = runUnitTest(
+    #         self.codebase_dir, project_category, project_name
+    #     )
 
-        save_code()
-        # ______________ Level Three: step by step to fix code ______________
+    #     os.chdir(base_dir)
 
-        # If not exit from the while loop, it must be following two situations, which necessarily means there is an error
+    #     unit_test_analysis = self.test_result_analyze(
+    #         code_base, test_code, unit_test_raw_result
+    #     )
+    #     # ______________ Level Two: Unit test; check if code functions well ______________
+    #     #
+    #     #
+    #     #
+    #     # ______________ Level Three: step by step to fix code ______________
+
+    #     # the most straight
+    #     # read all the code skeleton
+
+    #     if "<INFO> Finished" in review_result_level_1:
+    #         # indicate low level problem, code review could fix
+    #         pass
+
+    #     # _____ check function not implemented _____
+    #     function_add_ask = {
+    #         "role": "user",
+    #         "content": """
+    #         unit test report: {sub_unit_test_report},
+    #         codes:{codes}",
+
+    #         "Based on the previous review results, a feature mentioned in the requirement {req} has not been implemented. You need to implement this feature. Here is the current project code:"
+    #         """,
+    #     }
+    #     # _____ check function not implemented _____
+
+    #     # _____ check static syntax error for unit test _____
+    #     chat_messages = []
+    #     skeleton = getSkeleton()
+
+    #     skeleton_ana_sys = {
+    #         "role": "system",
+    #         "content": "you are a good Code Reviewer.",
+    #     }
+    #     # first, extract buggy code
+    #     skeleton_ana_ask = {
+    #         "role": "user",
+    #         "content": """I have a software project with the code already implemented, along with its skeleton and unit test results. Based on the unit test results (known to failed or contain errors), please identify the specific block of the original code that is related to this test. Only the relevant code block needs to be identified.
+    #         =======
+    #         the project code is: {code}.
+    #         the code skeleton is: {code_skeleton}.
+    #         unit_test_result is: {unit_test_result}.
+    #         related unit test case description is: {test_case_descption}.
+    #         Think step by step and reason yourself to the right decisions to make sure we get it right.
+    #         """.format_map(),
+    #     }
+    #     chat_messages.append(skeleton_ana_sys, skeleton_ana_ask)
+    #     buggy_code = chat_to_LLM(chat_messages)
+    #     chat_messages.append({"role": "assistant", "content": buggy_code})
+
+    #     # after extracting the buggy code, first examine the syntax level(low level) bug
+    #     # Mainly check for errors like unused variables, issues in data structures, or function parameters.
+
+    #     # skeleton_ana(code_base, skeleton, unit_test_analysis)
+    #     code_review_ask = {
+    #         "role": "user",
+    #         "content": """Now, we need to review the code based on the test report.
+    #         unit test report: {sub_unit_test_report},
+    #         codes:{codes},
+    #         check the following formulated regulations:
+    #         "1) all referenced classes should be imported;
+    #         "2) all methods should be implemented;
+    #         "3) all methods need to have the necessary comments;
+    #         "you should check the above regulations one by one and review the codes in detail, and give me instructions on how to fix. If the codes are perfect and you have no comment on them, return only one line like \"<INFO> Finished\"."
+    #         """,
+    #     }
+    #     review_result_level_1 = chat_messages.append(code_review_ask)
+    #     chat_messages.append({"role": "assistant", "content": review_result_level_1})
+    #     # _____ check static syntax error for unit test _____
+
+    #     # line level fix
+    #     fix_code()
+
+    #     # run after test
+    #     run()
+
+    #     # if exceed max test turn, counter example fix
+
+    #     #
+
+    #     save_code()
+    #     # ______________ Level Three: step by step to fix code ______________
+
+    #     # If not exit from the while loop, it must be following two situations, which necessarily means there is an error
 
     def get_entry_file(self):
         # windows use \\ as path separator
