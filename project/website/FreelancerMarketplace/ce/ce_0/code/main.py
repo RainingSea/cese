@@ -1,46 +1,43 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from user import User
-from project import Project
+from flask import Flask, render_template, request, redirect, session
+import os
+import json
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-app.config['DEBUG'] = True
 
-class App:
-    def __init__(self):
-        self.users = User.load_all()
-        self.projects = Project.load_all()
+class User:
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
 
-    def login(self, username: str, password: str) -> bool:
-        for user in self.users:
-            if user.username == username and user.password == password:
-                session['username'] = username
-                return True
-        return False
+    def save(self):
+        with open('users.txt', 'a') as file:
+            file.write(f"{self.username}|{self.password}\n")
 
-    def register(self, username: str, password: str) -> bool:
-        new_user = User(username, password)
-        new_user.save()
-        self.users.append(new_user)
-        return True
+    @staticmethod
+    def load(username: str):
+        users = User.load_all()
+        return next((user for user in users if user.username == username), None)
 
-    def search_freelancer(self, name: str):
-        # Dummy implementation as we don't have a freelancer database
-        return []
-
-    def create_project(self, name: str, description: str, freelancer: str):
-        new_project = Project(name, description, freelancer)
-        new_project.save()
-        self.projects.append(new_project)
+    @staticmethod
+    def load_all():
+        users = []
+        if os.path.exists('users.txt'):
+            with open('users.txt', 'r') as file:
+                for line in file:
+                    username, password = line.strip().split('|')
+                    users.append(User(username, password))
+        return users
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        application = App()
-        if application.login(username, password):
-            return redirect(url_for('home'))
+        user = User.load(username)
+        if user and user.password == password:
+            session['username'] = username
+            return redirect('/home')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -48,34 +45,14 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        application = App()
-        application.register(username, password)
-        return redirect(url_for('login'))
+        new_user = User(username, password)
+        new_user.save()
+        return redirect('/')
     return render_template('registration.html')
 
 @app.route('/home')
 def home():
     return render_template('home.html')
 
-@app.route('/profile')
-def profile():
-    return render_template('profile.html')
-
-@app.route('/projects', methods=['GET', 'POST'])
-def project_management():
-    if request.method == 'POST':
-        name = request.form['name']
-        description = request.form['description']
-        freelancer = request.form['freelancer']
-        application = App()
-        application.create_project(name, description, freelancer)
-        return redirect(url_for('project_management'))
-    return render_template('project_management.html')
-
-@app.route('/freelancer_profile')
-def freelancer_profile():
-    return render_template('freelancer_profile.html')
-
 if __name__ == '__main__':
-    application = App()
-    app.run(port=8023, debug=False)
+    app.run(port=8091, debug=False)

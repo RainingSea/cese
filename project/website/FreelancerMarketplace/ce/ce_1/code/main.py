@@ -1,74 +1,58 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, session
+from data_manager import DataManager
 from user import User
+from freelancer import Freelancer
 from project import Project
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-app.config['SESSION_TYPE'] = 'filesystem'
+app.secret_key = 'your_secret_key'  # Change this to a random secret key
+data_manager = DataManager()
 
-class App:
-    def __init__(self):
-        self.users = User.load_all()
-        self.projects = Project.load_all()
-
-    def login(self, username: str, password: str) -> bool:
-        for user in self.users:
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        users = data_manager.load_users()
+        for user in users:
             if user.username == username and user.password == password:
                 session['username'] = username
-                return True
-        return False
-
-    def register(self, username: str, password: str) -> bool:
-        if any(user.username == username for user in self.users):
-            return False
-        new_user = User(username, password)
-        new_user.save()
-        self.users.append(new_user)
-        return True
-        
-    def create_project(self, name: str, description: str, freelancer: str):
-        new_project = Project(name, description, freelancer)
-        new_project.save()
-        self.projects.append(new_project)
-
-@app.route('/')
-def login_page():
+                return redirect('/home')
     return render_template('login.html')
 
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.form['username']
-    password = request.form['password']
-    app_instance = App()
-    if app_instance.login(username, password):
-        return redirect(url_for('home'))
-    return 'Invalid credentials, please try again.'
-
-@app.route('/register')
-def registration_page():
+@app.route('/registration', methods=['GET', 'POST'])
+def registration():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        new_user = User(username, password)
+        data_manager.save_user(new_user)
+        return redirect('/')
     return render_template('registration.html')
-
-@app.route('/register_user', methods=['POST'])
-def register_user():
-    username = request.form['username']
-    password = request.form['password']
-    app_instance = App()
-    if app_instance.register(username, password):
-        return redirect(url_for('login_page'))
-    return 'Username already exists.'
 
 @app.route('/home')
 def home():
     return render_template('home.html')
 
-@app.route('/create_project', methods=['POST'])
-def create_project():
-    name = request.form['name']
-    description = request.form['description']
-    freelancer = request.form['freelancer']
-    app_instance = App()
-    app_instance.create_project(name, description, freelancer)
-    return redirect(url_for('home'))
+@app.route('/project_management', methods=['GET', 'POST'])
+def project_management():
+    if request.method == 'POST':
+        project_name = request.form['project_name']
+        description = request.form['description']
+        freelancer = request.form['freelancer']
+        new_project = Project(project_name, description, freelancer)
+        data_manager.save_project(new_project)
+        return redirect('/home')
+    return render_template('project_management.html')
+
+@app.route('/profile_management', methods=['GET', 'POST'])
+def profile_management():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        # Update user logic can go here
+        return redirect('/home')
+    return render_template('profile_management.html')
 
 if __name__ == '__main__':
-    app.run(port=8024, debug=False)
+    app.run(port=8092, debug=False)

@@ -7,38 +7,37 @@ import subprocess
 class TestDigitalStorytellingPlatform(unittest.TestCase):
 
     def setUp(self):
-        # Start the web application
+        # Initialize the webdriver and open the login page
         self.process = subprocess.Popen(['python', 'main.py'])
-        time.sleep(2)  # Wait for the web application to fully start
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8020')
+        self.driver.get('http://localhost:8088/') 
 
     def tearDown(self):
-        # Close the web driver session and terminate the process
+        # Close the web driver session
         self.driver.quit()
         self.process.terminate()
 
     def login(self, username, password):
         # Helper method to perform login
-        self.driver.find_element(By.ID, 'username').send_keys(username)
-        self.driver.find_element(By.ID, 'password').send_keys(password)
-        self.driver.find_element(By.XPATH, '//input[@value="Login"]').click()
+        self.driver.find_element(By.NAME, 'username').send_keys(username)
+        self.driver.find_element(By.NAME, 'password').send_keys(password)
+        self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
         time.sleep(1)  # Wait for the next page to load
 
     def test_user_login(self):
         # Functionalities 1: Test user login functionality
-        self.login("admin", "password123")
+        self.login("admin", "pass123")
 
         # Verify that the Story Creation Page has loaded
         self.assertIn("Create Story", self.driver.page_source)
 
-    def test_navigate_to_registration(self):
+    def test_navigate_to_registration_page(self):
         # Functionalities 2: Test navigation to the Registration Page
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
         time.sleep(1)  # Wait for the next page to load
 
         # Verify that the Registration Page has loaded
-        self.assertIn("Register", self.driver.title)
+        self.assertIn("Register", self.driver.page_source)
 
     def test_user_registration(self):
         # Functionalities 3: Test user registration functionality
@@ -50,62 +49,62 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
         new_email = "new_user@example.com"
 
         # Input username, password, and email for registration
-        self.driver.find_element(By.ID, 'username').send_keys(new_username)
-        self.driver.find_element(By.ID, 'password').send_keys(new_password)
-        self.driver.find_element(By.ID, 'email').send_keys(new_email)
-        self.driver.find_element(By.XPATH, '//input[@value="Register"]').click()
+        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
+        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
+        self.driver.find_element(By.NAME, 'email').send_keys(new_email)
+        self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
         time.sleep(1)  # Wait for the next page to load
 
         # Verify the user is redirected to the login page
-        self.assertIn("Login", self.driver.title)
+        self.assertIn("Login", self.driver.page_source)
 
-    def test_create_new_story(self):
+    def test_creating_a_new_story(self):
         # Functionalities 4: Test creating a new story
-        self.login("admin", "password123")
+        self.login("admin", "pass123")
 
-        # Fill out the story creation form
+        # Fill out the new story form
         story_title = "My New Story"
         story_content = "This is the content of my new story."
-        self.driver.find_element(By.ID, 'title').send_keys(story_title)
-        self.driver.find_element(By.ID, 'content').send_keys(story_content)
-        self.driver.find_element(By.XPATH, '//input[@value="Save Story"]').click()
-        time.sleep(1)  # Wait for the story to be saved
+        self.driver.find_element(By.NAME, 'title').send_keys(story_title)
+        self.driver.find_element(By.NAME, 'content').send_keys(story_content)
+        self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
+        time.sleep(1)  # Wait for saving the story
 
-        # Verify that the story is saved
+        # Verify that the story is saved in the text file
         with open('stories.txt', 'r') as file:
             stories = file.read()
             self.assertIn(story_title, stories)
             self.assertIn(story_content, stories)
 
-    def test_save_story(self):
+    def test_saving_a_story(self):
         # Functionalities 5: Test saving a story
-        self.login("admin", "password123")
+        self.login("admin", "pass123")
 
-        # Fill out the story creation form
+        # Fill out the new story form
         story_title = "Another Story"
         story_content = "This is another story content."
-        self.driver.find_element(By.ID, 'title').send_keys(story_title)
-        self.driver.find_element(By.ID, 'content').send_keys(story_content)
-        self.driver.find_element(By.XPATH, '//input[@value="Save Story"]').click()
-        time.sleep(1)  # Wait for the story to be saved
+        self.driver.find_element(By.NAME, 'title').send_keys(story_title)
+        self.driver.find_element(By.NAME, 'content').send_keys(story_content)
+        self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
+        time.sleep(1)  # Wait for saving the story
 
-        # Verify that the story is saved
+        # Verify that the story is saved in the text file
         with open('stories.txt', 'r') as file:
             stories = file.read()
             self.assertIn(story_title, stories)
             self.assertIn(story_content, stories)
 
-    def test_edit_story(self):
+    def test_editing_a_story(self):
         # Functionalities 6: Test editing a story
         self.fail("Editing a story functionality is not implemented.")
 
-    def test_navigating_application(self):
+    def test_navigating_the_application(self):
         # Functionalities 7: Test navigating the application
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
         time.sleep(1)  # Wait for the next page to load
 
-        # Verify that the Registration Page has loaded
-        self.assertIn("Register", self.driver.title)
+        # Verify that the registration page loads successfully
+        self.assertIn("Register", self.driver.page_source)
 
 if __name__ == '__main__':
     unittest.main()

@@ -225,7 +225,7 @@ def runUnitTest(project_path, category):
     output_stream = io.StringIO()
 
     # 创建 TextTestRunner 实例，运行测试用例并输出结果
-    runner = unittest.TextTestRunner(stream=output_stream)
+    runner = unittest.TextTestRunner(stream=output_stream, verbosity=2)
     result = runner.run(suite)
 
     test_output = output_stream.getvalue()

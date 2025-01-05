@@ -1,25 +1,19 @@
 class Story:
-    def __init__(self, username: str, title: str, content: str):
-        self.username = username
+    def __init__(self, title: str, content: str, user_id: str):
         self.title = title
         self.content = content
+        self.user_id = user_id
 
-    def save(self) -> None:
-        with open('stories.txt', 'a') as file:
-            file.write(f"{self.username}|{self.title}|{self.content}\n")
+    def save(self):
+        with open('stories.txt', 'a') as f:
+            f.write(f"{self.user_id}|{self.title}|{self.content}\n")
 
-
-class StoryManager:
-    def __init__(self, stories_file: str):
-        self.stories_file = stories_file
-
-    def load_stories(self) -> list:
+    @staticmethod
+    def load(user_id: str):
         stories = []
-        with open(self.stories_file, 'r') as file:
-            for line in file:
-                username, title, content = line.strip().split('|')
-                stories.append(Story(username, title, content))
+        with open('stories.txt', 'r') as f:
+            for line in f:
+                story_data = line.strip().split('|')
+                if story_data[0] == user_id:
+                    stories.append(Story(story_data[1], story_data[2], story_data[0]))
         return stories
-
-    def save_story(self, story: Story) -> None:
-        story.save()

@@ -1,40 +1,33 @@
 [CONTENT]
-"Implementation approach": "We will use Flask as the web framework to create the Daily Journal App. Flask is lightweight and easy to use for building web applications. The application will handle user authentication, registration, and journal entry management. We will use local text files for data storage, ensuring simplicity and efficiency without the need for a SQL database.",
-"UI design":"- The application will have a Login Page for user authentication, a Registration Page for new users, a Dashboard Page to view journal entries, and a New Entry Page for creating journal entries. Each page will be designed using HTML templates served by Flask.",
-"Data Storage":"Data will be stored in local text files. We will create the following files: 'users.txt' for storing user credentials, 'journal_entries.txt' for storing journal entries, and 'sessions.txt' for managing user sessions. Each entry will be stored in a structured format to facilitate easy retrieval.",
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/new_entry.html", "users.txt", "journal_entries.txt", "sessions.txt"],
+"Implementation approach": "We will use Flask as the web framework for the Daily Journal App. Flask is lightweight and suitable for building simple web applications. The application will handle user authentication, registration, and journal entry management. We will also use the built-in file handling capabilities of Python to store user data and journal entries in local text files.",
+"UI design":"- The application will have a simple layout with three main pages: Login Page, Registration Page, and Dashboard Page. The Dashboard Page will display a list of journal entries with titles and dates, and will include a link to create a new journal entry. The New Entry Page will have fields for entering the title and content of the journal entry.",
+"Data Storage":"Data will be stored in local text files. We will create the following text files: 'users.txt' for storing user credentials (username and password), and 'journal_entries.txt' for storing journal entries (title, content, and date). Each entry will be stored in a structured format to facilitate easy retrieval.",
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/new_entry.html", "users.txt", "journal_entries.txt"],
 "Data structures and interfaces": "
 classDiagram
     class User {
-        -username: str
-        -password: str
+        -str username
+        -str password
         +__init__(username: str, password: str)
         +save() void
-        +load(username: str) User
+        +validate(username: str, password: str) bool
     }
     class JournalEntry {
-        -title: str
-        -content: str
-        -date: str
+        -str title
+        -str content
+        -str date
         +__init__(title: str, content: str, date: str)
         +save() void
-        +load_all() list
     }
-    class Session {
-        -username: str
-        +__init__(username: str)
-        +save() void
-        +load() str
-    }
-    class App {
-        +login(username: str, password: str) bool
+    class JournalApp {
+        -list[User] users
+        -list[JournalEntry] entries
         +register(username: str, password: str) bool
+        +login(username: str, password: str) bool
         +create_entry(title: str, content: str) void
-        +view_entries() list
-        +logout() void
+        +get_entries() list
     }
-    User --> App
-    JournalEntry --> App
-    Session --> App
+    User --> JournalApp
+    JournalEntry --> JournalApp
 ",
 [/CONTENT]

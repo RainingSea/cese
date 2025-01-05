@@ -7,14 +7,16 @@ import subprocess
 class TestDailyJournalApp(unittest.TestCase):
 
     def setUp(self):
-        # Initialize the webdriver and open the login page
+        # Start the Flask app
         self.process = subprocess.Popen(['python', 'main.py'])
-        time.sleep(2)  # Wait for the web application to fully start
+        time.sleep(1)  # Wait for the server to start
+
+        # Initialize the webdriver and open the login page
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8017/login')
+        self.driver.get('http://localhost:8085/') 
 
     def tearDown(self):
-        # Close the web driver session
+        # Close the web driver session and stop the Flask app
         self.driver.quit()
         self.process.terminate()
 
@@ -27,14 +29,14 @@ class TestDailyJournalApp(unittest.TestCase):
 
     def test_login(self):
         # Functionalities 1: Test user login functionality
-        self.login("admin", "pass123")
+        self.login("admin1", "pass123")
 
         # Verify that the Dashboard Page has loaded
         self.assertIn("Dashboard", self.driver.title)
 
     def test_navigate_to_registration(self):
         # Functionalities 2: Test navigation to the Registration Page
-        self.driver.find_element(By.LINK_TEXT, 'Register').click()
+        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
         time.sleep(1)  # Wait for the next page to load
 
         # Verify that the Registration Page has loaded
@@ -42,7 +44,7 @@ class TestDailyJournalApp(unittest.TestCase):
 
     def test_registration(self):
         # Functionalities 3: Test user registration functionality
-        self.driver.find_element(By.LINK_TEXT, 'Register').click()
+        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
         time.sleep(1)  # Wait for the next page to load
 
         new_username = "new_user"
@@ -59,7 +61,7 @@ class TestDailyJournalApp(unittest.TestCase):
 
     def test_view_journal_entries(self):
         # Functionalities 4: Test viewing journal entries after logging in
-        self.login("admin", "pass123")
+        self.login("admin1", "pass123")
 
         # Verify that the Dashboard Page shows entries
         entries = self.driver.find_elements(By.TAG_NAME, 'li')
@@ -67,20 +69,18 @@ class TestDailyJournalApp(unittest.TestCase):
 
     def test_create_new_entry(self):
         # Functionalities 5: Test creating a new journal entry
-        self.login("admin", "pass123")
+        self.login("admin1", "pass123")
 
         # Navigate to New Entry Page
-        self.driver.find_element(By.LINK_TEXT, 'New Entry').click()
+        self.driver.find_element(By.LINK_TEXT, 'Create New Entry').click()
         time.sleep(1)  # Wait for the next page to load
 
         entry_title = "My New Journal Entry"
         entry_content = "This is the content of my new journal entry."
-        entry_date = "2023-10-03"
 
         # Fill out the new entry form
         self.driver.find_element(By.NAME, 'title').send_keys(entry_title)
         self.driver.find_element(By.NAME, 'content').send_keys(entry_content)
-        self.driver.find_element(By.NAME, 'date').send_keys(entry_date)
         self.driver.find_element(By.XPATH, '//button[text()="Save Entry"]').click()
         time.sleep(1)  # Wait for saving the entry
 
@@ -89,11 +89,29 @@ class TestDailyJournalApp(unittest.TestCase):
 
     def test_save_journal_entry(self):
         # Functionalities 6: Test saving a journal entry
-        self.fail("Not implemented")
+        self.login("admin1", "pass123")
+
+        # Navigate to New Entry Page
+        self.driver.find_element(By.LINK_TEXT, 'Create New Entry').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        entry_title = "Test Entry"
+        entry_content = "This is a test entry."
+
+        # Fill out the new entry form
+        self.driver.find_element(By.NAME, 'title').send_keys(entry_title)
+        self.driver.find_element(By.NAME, 'content').send_keys(entry_content)
+        self.driver.find_element(By.XPATH, '//button[text()="Save Entry"]').click()
+        time.sleep(1)  # Wait for saving the entry
+
+        # Verify that the entry is saved to the local text file
+        with open('journal_entries.txt', 'r') as f:
+            entries = f.read()
+            self.assertIn(entry_title, entries)
 
     def test_logout(self):
         # Functionalities 7: Test logging out
-        self.login("admin", "pass123")
+        self.login("admin1", "pass123")
 
         # Click the Logout button
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
@@ -104,7 +122,25 @@ class TestDailyJournalApp(unittest.TestCase):
 
     def test_data_storage(self):
         # Functionalities 8: Test data storage
-        self.fail("Not implemented")
+        self.login("admin1", "pass123")
+
+        # Navigate to New Entry Page
+        self.driver.find_element(By.LINK_TEXT, 'Create New Entry').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        entry_title = "Storage Test Entry"
+        entry_content = "This is a storage test entry."
+
+        # Fill out the new entry form
+        self.driver.find_element(By.NAME, 'title').send_keys(entry_title)
+        self.driver.find_element(By.NAME, 'content').send_keys(entry_content)
+        self.driver.find_element(By.XPATH, '//button[text()="Save Entry"]').click()
+        time.sleep(1)  # Wait for saving the entry
+
+        # Verify that the entry is saved to the local text file
+        with open('journal_entries.txt', 'r') as f:
+            entries = f.read()
+            self.assertIn(entry_title, entries)
 
 if __name__ == '__main__':
     unittest.main()

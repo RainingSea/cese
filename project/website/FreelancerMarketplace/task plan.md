@@ -8,11 +8,11 @@
 "Logic Analysis": [
     [
         "main.py",
-        "Contains the main function and handles user authentication, project management, and freelancer profiles. Includes methods for login, registration, searching freelancers, and creating projects."
+        "Contains main function and initializes the Flask app. Responsible for routing and handling user sessions."
     ],
     [
         "templates/login.html",
-        "HTML template for the login page, includes form for username and password input."
+        "HTML template for the login page, includes form for username and password."
     ],
     [
         "templates/registration.html",
@@ -23,28 +23,40 @@
         "HTML template for the home page, displays welcome message and search options."
     ],
     [
-        "templates/profile.html",
-        "HTML template for profile management, allows users to edit their profile details."
+        "templates/freelancer_profile.html",
+        "HTML template for displaying freelancer details."
     ],
     [
         "templates/project_management.html",
-        "HTML template for managing projects, allows users to create and view projects."
+        "HTML template for managing projects, includes form for creating new projects."
     ],
     [
-        "templates/freelancer_profile.html",
-        "HTML template for displaying freelancer details."
+        "templates/profile_management.html",
+        "HTML template for editing user profile details."
+    ],
+    [
+        "users.txt",
+        "Text file for storing user credentials."
+    ],
+    [
+        "freelancers.txt",
+        "Text file for storing freelancer profiles."
+    ],
+    [
+        "projects.txt",
+        "Text file for storing project details."
     ]
 ],
 "Task list": 
 {
-    'T0':'|Set up Flask application and create main.py file.|related files:["main.py"]',
-    'T1':'|Develop user authentication functionality including login and registration.|related files:["main.py", "templates/login.html", "templates/registration.html"]',
-    'T2':'|Create home page with welcome message and search functionality for freelancers.|related files:["main.py", "templates/home.html"]',
-    'T3':'|Implement project management features including creating and viewing projects.|related files:["main.py", "templates/project_management.html"]',
-    'T4':'|Develop freelancer profile page to display details and enable navigation.|related files:["main.py", "templates/freelancer_profile.html"]',
-    'T5':'|Implement profile management functionality to edit user details.|related files:["main.py", "templates/profile.html"]',
-    'T6':'|Set up data storage for users and projects using text files.|related files:["users.txt", "projects.txt"]'
+    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
+    'T1':'|Implement login functionality and session management.|related files:["main.py", "templates/login.html"]',
+    'T2':'|Implement registration functionality and user account creation.|related files:["main.py", "templates/registration.html"]',
+    'T3':'|Create home page with welcome message and search options.|related files:["main.py", "templates/home.html"]',
+    'T4':'|Implement search functionality for freelancers and display results.|related files:["main.py", "templates/home.html", "templates/freelancer_profile.html"]',
+    'T5':'|Implement project management page and functionality to create new projects.|related files:["main.py", "templates/project_management.html"]',
+    'T6':'|Implement profile management page and functionality to update user details.|related files:["main.py", "templates/profile_management.html"]'
 },
 "Full API spec": "",
-"Shared Knowledge": "`main.py` contains core application logic and user management functions."
+"Shared Knowledge": "`main.py` contains the main application logic and routing for the web application."
 }

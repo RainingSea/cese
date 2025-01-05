@@ -1,0 +1,58 @@
+{
+"Required packages": [
+    "flask==1.1.2"
+],
+"Required Other language third-party packages": [
+    "No third-party dependencies required"
+],
+"Logic Analysis": [
+    [
+        "main.py",
+        "The main file of the application, responsible for initializing the Flask app and routing. Contains the main function and handles user authentication and job listing functionalities."
+    ],
+    [
+        "templates/login.html",
+        "HTML template for the login page, includes fields for username and password."
+    ],
+    [
+        "templates/registration.html",
+        "HTML template for the registration page, includes fields for username, password, and email."
+    ],
+    [
+        "templates/home.html",
+        "HTML template for the home page, displays featured job listings and a button to browse all jobs."
+    ],
+    [
+        "templates/job_posting.html",
+        "HTML template for the job posting page, includes fields for job title, company name, and job description."
+    ],
+    [
+        "templates/profile.html",
+        "HTML template for the profile page, displays user details and options to edit the profile."
+    ],
+    [
+        "users.txt",
+        "Text file for storing user credentials."
+    ],
+    [
+        "jobs.txt",
+        "Text file for storing job listings."
+    ],
+    [
+        "applied_jobs.txt",
+        "Text file for tracking which jobs users have applied to."
+    ]
+],
+"Task list": 
+{
+    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
+    'T1':'|Develop user authentication: login and registration functionalities.|related files:["main.py", "templates/login.html", "templates/registration.html", "users.txt"]',
+    'T2':'|Create home page with featured job listings and browse jobs functionality.|related files:["main.py", "templates/home.html", "jobs.txt"]',
+    'T3':'|Implement job posting functionality for authorized users.|related files:["main.py", "templates/job_posting.html", "jobs.txt"]',
+    'T4':'|Develop profile page with user details and edit profile options.|related files:["main.py", "templates/profile.html", "users.txt"]',
+    'T5':'|Implement job application functionality for users.|related files:["main.py", "jobs.txt", "applied_jobs.txt"]',
+    'T6':'|Set up data storage for users and jobs using text files.|related files:["users.txt", "jobs.txt", "applied_jobs.txt"]'
+},
+"Full API spec": "",
+"Shared Knowledge": "`main.py` contains the core application logic and routing shared across the project."
+}

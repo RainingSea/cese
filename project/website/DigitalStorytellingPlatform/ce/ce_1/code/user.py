@@ -4,29 +4,29 @@ class User:
         self.password = password
         self.email = email
 
-    def save(self) -> None:
-        with open('users.txt', 'a') as file:
-            file.write(f"{self.username}|{self.password}|{self.email}\n")
+    def save(self):
+        with open('users.txt', 'a') as f:
+            f.write(f"{self.username}|{self.password}|{self.email}\n")
 
+    @staticmethod
+    def load(username: str):
+        with open('users.txt', 'r') as f:
+            for line in f:
+                user_data = line.strip().split('|')
+                if user_data[0] == username:
+                    return User(user_data[0], user_data[1], user_data[2])
+        return None
 
-class UserManager:
-    def __init__(self, users_file: str):
-        self.users_file = users_file
+class Auth:
+    def login(self, username: str, password: str) -> bool:
+        user = User.load(username)
+        if user and user.password == password:
+            return True
+        return False
 
-    def load_users(self) -> list:
-        users = []
-        with open(self.users_file, 'r') as file:
-            for line in file:
-                username, password, email = line.strip().split('|')
-                users.append(User(username, password, email))
-        return users
-
-    def save_user(self, user: User) -> None:
-        user.save()
-
-    def authenticate(self, username: str, password: str) -> bool:
-        users = self.load_users()
-        for user in users:
-            if user.username == username and user.password == password:
-                return True
+    def register(self, username: str, password: str, email: str) -> bool:
+        if User.load(username) is None:
+            new_user = User(username, password, email)
+            new_user.save()
+            return True
         return False

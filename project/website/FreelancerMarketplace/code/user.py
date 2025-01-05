@@ -4,17 +4,8 @@ class User:
         self.password = password
 
     def save(self):
-        with open('users.txt', 'a') as file:
-            file.write(f"{self.username},{self.password}\n")
+        pass  # Saving is handled in DataManager
 
     @staticmethod
-    def load_all() -> list:
-        users = []
-        try:
-            with open('users.txt', 'r') as file:
-                for line in file:
-                    username, password = line.strip().split(',')
-                    users.append(User(username, password))
-        except FileNotFoundError:
-            pass
-        return users
+    def load(username: str):
+        pass  # Loading is handled in DataManager

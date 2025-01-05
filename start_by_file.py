@@ -109,7 +109,7 @@ def start_project():
     #
     #
     # ------------------- launch project ------------------------
-    team.run_self_evo()
+    team.run()
     # ------------------- launch project ------------------------
     #
     #

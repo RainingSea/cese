@@ -7,14 +7,13 @@ import subprocess
 class TestDailyJournalApp(unittest.TestCase):
 
     def setUp(self):
-        # Start the web application
+        # Initialize the webdriver and open the login page
         self.process = subprocess.Popen(['python', 'main.py'])
-        time.sleep(2)  # Wait for the web application to fully start
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8018')
+        self.driver.get('http://localhost:8086/') 
 
     def tearDown(self):
-        # Close the web driver session and terminate the web application
+        # Close the web driver session
         self.driver.quit()
         self.process.terminate()
 
@@ -93,8 +92,8 @@ class TestDailyJournalApp(unittest.TestCase):
         self.driver.find_element(By.LINK_TEXT, 'New Entry').click()
         time.sleep(1)  # Wait for the next page to load
 
-        entry_title = "Test Save Entry"
-        entry_content = "Testing save functionality."
+        entry_title = "Test Entry"
+        entry_content = "Test Content"
 
         # Fill out the new entry form
         self.driver.find_element(By.NAME, 'title').send_keys(entry_title)
@@ -102,10 +101,8 @@ class TestDailyJournalApp(unittest.TestCase):
         self.driver.find_element(By.XPATH, '//button[text()="Save Entry"]').click()
         time.sleep(1)  # Wait for saving the entry
 
-        # Verify that the entry is saved to the local text file
-        with open('journal_entries.txt', 'r') as file:
-            entries = file.read()
-            self.assertIn(entry_title, entries)
+        # Verify that the new entry is displayed on the Dashboard
+        self.assertIn(entry_title, self.driver.page_source)
 
     def test_logout(self):
         # Functionalities 7: Test logging out
@@ -126,8 +123,8 @@ class TestDailyJournalApp(unittest.TestCase):
         self.driver.find_element(By.LINK_TEXT, 'New Entry').click()
         time.sleep(1)  # Wait for the next page to load
 
-        entry_title = "Data Storage Test"
-        entry_content = "Testing data storage functionality."
+        entry_title = "Storage Test Entry"
+        entry_content = "Storage Test Content"
 
         # Fill out the new entry form
         self.driver.find_element(By.NAME, 'title').send_keys(entry_title)
@@ -135,7 +132,7 @@ class TestDailyJournalApp(unittest.TestCase):
         self.driver.find_element(By.XPATH, '//button[text()="Save Entry"]').click()
         time.sleep(1)  # Wait for saving the entry
 
-        # Verify that the entry is saved to the local text file
+        # Verify that the entry is stored in the text file
         with open('journal_entries.txt', 'r') as file:
             entries = file.read()
             self.assertIn(entry_title, entries)

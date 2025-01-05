@@ -12,30 +12,29 @@
     ],
     [
         "templates/login.html",
-        "HTML template for the Login Page, containing the form for user login."
+        "HTML template for the Login Page, includes form for username and password."
     ],
     [
         "templates/register.html",
-        "HTML template for the Registration Page, containing the form for user registration."
+        "HTML template for the Registration Page, includes form for username and password."
     ],
     [
         "templates/dashboard.html",
-        "HTML template for the Dashboard Page, displaying the list of journal entries."
+        "HTML template for the Dashboard Page, displays list of journal entries."
     ],
     [
         "templates/new_entry.html",
-        "HTML template for the New Entry Page, containing the form for creating a new journal entry."
+        "HTML template for the New Entry Page, includes fields for title and content."
     ]
 ],
 "Task list": 
 {
     'T0':'|Set up Flask application and routing.|related files:["main.py"]',
-    'T1':'|Implement user registration functionality including form handling and saving user data.|related files:["main.py", "templates/register.html"]',
-    'T2':'|Implement user login functionality including form handling and session management.|related files:["main.py", "templates/login.html"]',
-    'T3':'|Create Dashboard functionality to display journal entries.|related files:["main.py", "templates/dashboard.html"]',
+    'T1':'|Implement user registration functionality including form handling and data storage.|related files:["main.py", "templates/register.html"]',
+    'T2':'|Implement user login functionality including form handling and validation.|related files:["main.py", "templates/login.html"]',
+    'T3':'|Create Dashboard Page to display journal entries and implement logout functionality.|related files:["main.py", "templates/dashboard.html"]',
     'T4':'|Implement functionality to create and save new journal entries.|related files:["main.py", "templates/new_entry.html"]',
-    'T5':'|Implement user logout functionality.|related files:["main.py"]'
+    'T5':'|Implement file handling for user credentials and journal entries storage.|related files:["main.py"]'
 },
-"Full API spec": "",
-"Shared Knowledge": "`main.py` contains the core application logic and routing shared across the project."
+"Shared Knowledge": "`main.py` contains the main application logic and routing for the project."
 }

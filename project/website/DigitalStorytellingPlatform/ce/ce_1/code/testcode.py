@@ -7,14 +7,14 @@ import subprocess
 class TestDigitalStorytellingPlatform(unittest.TestCase):
 
     def setUp(self):
-        # Initialize the webdriver and open the login page
+        # Start the application
         self.process = subprocess.Popen(['python', 'main.py'])
-        time.sleep(2)  # Wait for the web application to fully start
+        time.sleep(1)  # Wait for the server to start
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8021')
+        self.driver.get('http://localhost:8089/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session
+        # Close the web driver session and terminate the server process
         self.driver.quit()
         self.process.terminate()
 
@@ -63,48 +63,46 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
         # Functionalities 4: Test creating a new story
         self.login("admin", "admin123")
 
-        # Enter story title and content
         story_title = "My New Story"
         story_content = "This is the content of my new story."
+
+        # Fill out the new story form
         self.driver.find_element(By.NAME, 'title').send_keys(story_title)
         self.driver.find_element(By.NAME, 'content').send_keys(story_content)
         self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
-        time.sleep(1)  # Wait for the story to be saved
+        time.sleep(1)  # Wait for saving the story
 
         # Verify that the story is saved in the text file
-        with open('stories.txt', 'r') as file:
-            stories = file.read()
-            self.assertIn(story_title, stories)
-            self.assertIn(story_content, stories)
+        with open('stories.txt', 'r') as f:
+            self.assertIn(f"admin|{story_title}|{story_content}", f.read())
 
     def test_saving_story(self):
         # Functionalities 5: Test saving a story
         self.login("admin", "admin123")
 
-        # Enter story title and content
         story_title = "Another Story"
         story_content = "This is another story content."
+
+        # Fill out the new story form
         self.driver.find_element(By.NAME, 'title').send_keys(story_title)
         self.driver.find_element(By.NAME, 'content').send_keys(story_content)
         self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
-        time.sleep(1)  # Wait for the story to be saved
+        time.sleep(1)  # Wait for saving the story
 
         # Verify that the story is saved in the text file
-        with open('stories.txt', 'r') as file:
-            stories = file.read()
-            self.assertIn(story_title, stories)
-            self.assertIn(story_content, stories)
+        with open('stories.txt', 'r') as f:
+            self.assertIn(f"admin|{story_title}|{story_content}", f.read())
 
     def test_editing_story(self):
         # Functionalities 6: Test editing a story
-        self.fail("Editing a story functionality is not implemented.")
+        self.fail("Editing a story functionality is not implemented")
 
     def test_navigating_application(self):
         # Functionalities 7: Test navigating the application
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
         time.sleep(1)  # Wait for the next page to load
 
-        # Verify that the Registration Page has loaded
+        # Verify that the Registration Page loads successfully
         self.assertIn("Register", self.driver.title)
 
 if __name__ == '__main__':
