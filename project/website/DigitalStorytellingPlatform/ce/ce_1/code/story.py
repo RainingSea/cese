@@ -1,19 +1,20 @@
 class Story:
-    def __init__(self, title: str, content: str, user_id: str):
+    def __init__(self, title: str, content: str):
         self.title = title
         self.content = content
-        self.user_id = user_id
 
     def save(self):
         with open('stories.txt', 'a') as f:
-            f.write(f"{self.user_id}|{self.title}|{self.content}\n")
+            f.write(f"{self.title}|{self.content}\n")
 
-    @staticmethod
-    def load(user_id: str):
-        stories = []
-        with open('stories.txt', 'r') as f:
-            for line in f:
-                story_data = line.strip().split('|')
-                if story_data[0] == user_id:
-                    stories.append(Story(story_data[1], story_data[2], story_data[0]))
-        return stories
+class StoryManager:
+    def __init__(self, stories_file: str):
+        self.stories_file = stories_file
+
+    def create_story(self, title: str, content: str):
+        new_story = Story(title, content)
+        new_story.save()
+
+    def edit_story(self, title: str, new_content: str):
+        # For simplicity, this method is not implemented in this example
+        pass

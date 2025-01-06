@@ -7,13 +7,14 @@ import subprocess
 class TestNoteTakingApp(unittest.TestCase):
 
     def setUp(self):
-        # Initialize the webdriver and open the login page
+        # Start the Flask app
         self.process = subprocess.Popen(['python', 'main.py'])
+        time.sleep(1)  # Wait for the server to start
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8098/') 
+        self.driver.get('http://localhost:8175/')  # Open the login page
 
     def tearDown(self):
-        # Close the web driver session
+        # Close the web driver session and stop the Flask app
         self.driver.quit()
         self.process.terminate()
 
@@ -26,8 +27,7 @@ class TestNoteTakingApp(unittest.TestCase):
 
     def test_user_login(self):
         # Functionalities 1: Test user login functionality
-        self.login("admin", "adminpass")
-
+        self.login("user1", "password1")
         # Verify that the Dashboard Page has loaded
         self.assertIn("Dashboard", self.driver.title)
 
@@ -50,17 +50,14 @@ class TestNoteTakingApp(unittest.TestCase):
 
     def test_view_notes_on_dashboard(self):
         # Functionalities 3: Test viewing notes on the Dashboard Page
-        self.login("admin", "adminpass")
-
+        self.login("user1", "password1")
         # Verify that the Dashboard Page shows notes
         notes = self.driver.find_elements(By.TAG_NAME, 'li')
         self.assertGreater(len(notes), 0, "No notes found on the dashboard.")
 
     def test_add_new_note(self):
         # Functionalities 4: Test adding a new note
-        self.login("admin", "adminpass")
-
-        # Navigate to Add Note Page
+        self.login("user1", "password1")
         self.driver.find_element(By.LINK_TEXT, 'Add Note').click()
         time.sleep(1)  # Wait for the next page to load
 
@@ -78,70 +75,69 @@ class TestNoteTakingApp(unittest.TestCase):
 
     def test_view_note_details(self):
         # Functionalities 5: Test viewing note details
-        self.login("admin", "adminpass")
-
-        # Click on a note to view its details
-        self.driver.find_element(By.LINK_TEXT, 'View').click()
-        time.sleep(1)  # Wait for the note details page to load
+        self.login("user1", "password1")
+        self.driver.find_element(By.LINK_TEXT, 'First Note').click()
+        time.sleep(1)  # Wait for the next page to load
 
         # Verify that the note details are displayed
-        self.assertIn("View Note", self.driver.title)
+        self.assertIn("First Note", self.driver.page_source)
+        self.assertIn("This is the content of the first note.", self.driver.page_source)
 
     def test_edit_note(self):
         # Functionalities 6: Test editing a note
-        self.fail("Edit note functionality not implemented")
+        self.login("user1", "password1")
+        self.driver.find_element(By.LINK_TEXT, 'First Note').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        new_content = "Updated content for the first note."
+        self.driver.find_element(By.NAME, 'content').clear()
+        self.driver.find_element(By.NAME, 'content').send_keys(new_content)
+        self.driver.find_element(By.XPATH, '//button[text()="Edit"]').click()
+        time.sleep(1)  # Wait for the note to be updated
+
+        # Verify that the note content is updated
+        self.assertIn(new_content, self.driver.page_source)
 
     def test_delete_note(self):
         # Functionalities 7: Test deleting a note
-        self.login("admin", "adminpass")
+        self.login("user1", "password1")
+        self.driver.find_element(By.LINK_TEXT, 'Second Note').click()
+        time.sleep(1)  # Wait for the next page to load
 
-        # Click on a note to view its details
-        self.driver.find_element(By.LINK_TEXT, 'View').click()
-        time.sleep(1)  # Wait for the note details page to load
-
-        # Click the Delete button
-        self.driver.find_element(By.XPATH, '//button[text()="Delete Note"]').click()
+        self.driver.find_element(By.XPATH, '//button[text()="Delete"]').click()
         time.sleep(1)  # Wait for the note to be deleted
 
         # Verify that the note is no longer displayed on the Dashboard
-        self.assertNotIn("Test Note", self.driver.page_source)
+        self.assertNotIn("Second Note", self.driver.page_source)
 
     def test_search_for_note(self):
         # Functionalities 8: Test searching for a note
-        self.login("admin", "adminpass")
-
-        # Navigate to Search Note Page
+        self.login("user1", "password1")
         self.driver.find_element(By.LINK_TEXT, 'Search Notes').click()
-        time.sleep(1)  # Wait for the search page to load
+        time.sleep(1)  # Wait for the next page to load
 
-        # Perform a search
-        self.driver.find_element(By.NAME, 'query').send_keys("Test Note")
+        self.driver.find_element(By.NAME, 'query').send_keys("First Note")
         self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
         time.sleep(1)  # Wait for the search results
 
-        # Verify that the search results contain the note
-        self.assertIn("Test Note", self.driver.page_source)
+        # Verify that the search results display the matching note
+        self.assertIn("First Note", self.driver.page_source)
 
     def test_navigate_back_to_dashboard(self):
         # Functionalities 9: Test navigating back to the Dashboard
-        self.login("admin", "adminpass")
-
-        # Navigate to Search Note Page
+        self.login("user1", "password1")
         self.driver.find_element(By.LINK_TEXT, 'Search Notes').click()
-        time.sleep(1)  # Wait for the search page to load
+        time.sleep(1)  # Wait for the next page to load
 
-        # Click the Back to Dashboard link
         self.driver.find_element(By.LINK_TEXT, 'Back to Dashboard').click()
-        time.sleep(1)  # Wait for the dashboard to load
+        time.sleep(1)  # Wait for the Dashboard to load
 
-        # Verify that the Dashboard Page has loaded
+        # Verify that the user is back on the Dashboard Page
         self.assertIn("Dashboard", self.driver.title)
 
     def test_logout(self):
         # Functionalities 10: Test logging out
-        self.login("admin", "adminpass")
-
-        # Click the Logout button
+        self.login("user1", "password1")
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
         time.sleep(1)  # Wait for the next page to load
 

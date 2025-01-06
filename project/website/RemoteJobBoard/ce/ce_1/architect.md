@@ -1,8 +1,8 @@
 [CONTENT]
-"Implementation approach": "We will use Flask as the web framework for developing the RemoteJobBoard application. Flask is lightweight and allows for easy routing and templating. For the front-end, we will use HTML to create the necessary templates for the login, registration, home, job posting, and profile pages. The application will handle user authentication and job listings using local text files for data storage.",
-"UI design":"- The main UI will consist of a login page, registration page, home page, job posting page, and profile page. Each page will have a navigation bar for easy access to different functionalities. The login page will have fields for username and password, while the registration page will include fields for username, password, and email. The home page will display featured job listings and a button to browse all jobs. The job posting page will have fields for job title, company name, and job description. The profile page will show user details and options to edit the profile.",
-"Data Storage":"Data will be stored in local text files. We will create the following files: 'users.txt' for storing user credentials, 'jobs.txt' for storing job listings, and 'applied_jobs.txt' for tracking which jobs users have applied to. Each file will store data in a structured format, such as JSON, to facilitate easy reading and writing.",
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/job_posting.html", "templates/profile.html", "users.txt", "jobs.txt", "applied_jobs.txt"],
+"Implementation approach": "We will use Flask as the web framework for building the RemoteJobBoard application. Flask is lightweight and allows for easy routing and template rendering. For the front end, we will use HTML to create the necessary templates. The application will handle user authentication, job posting, and profile management. Data will be stored in local text files for simplicity and ease of access.",
+"UI design":"- The main UI will consist of several HTML pages: login.html for user login, registration.html for user registration, home.html for displaying job listings, browse_jobs.html for browsing all jobs, post_job.html for posting new jobs, and profile.html for user profile management. Each page will have navigation links to facilitate user movement throughout the application.",
+"Data Storage":"Data will be stored in local text files. The following files will be created: 'users.txt' for storing user credentials and profile information, 'jobs.txt' for storing job listings, and 'applied_jobs.txt' for tracking job applications. Each file will contain structured data in a simple format, such as JSON or CSV, to facilitate easy reading and writing.",
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/browse_jobs.html", "templates/post_job.html", "templates/profile.html", "users.txt", "jobs.txt", "applied_jobs.txt"],
 "Data structures and interfaces": "
 classDiagram
     class Main {
@@ -13,27 +13,26 @@ classDiagram
         -username: str
         -password: str
         -email: str
-        +register(username: str, password: str, email: str) bool
-        +login(username: str, password: str) bool
-        +update_profile(email: str) bool
+        +__init__(username: str, password: str, email: str)
+        +save() void
+        +load(username: str) User
     }
     class Job {
         -title: str
         -company: str
         -description: str
-        +post_job(title: str, company: str, description: str) bool
-        +apply_job(username: str) bool
+        +__init__(title: str, company: str, description: str)
+        +save() void
+        +load_all() list
     }
-    class DataStorage {
-        +save_user(user: User) bool
-        +load_users() list
-        +save_job(job: Job) bool
-        +load_jobs() list
-        +save_applied_job(username: str, job_title: str) bool
-        +load_applied_jobs(username: str) list
+    class Application {
+        -username: str
+        -job_title: str
+        +__init__(username: str, job_title: str)
+        +save() void
     }
     Main --> User
     Main --> Job
-    Main --> DataStorage
+    Main --> Application
 ",
 [/CONTENT]

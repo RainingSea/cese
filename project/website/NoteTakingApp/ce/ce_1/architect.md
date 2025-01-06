@@ -1,32 +1,30 @@
 [CONTENT]
-"Implementation approach": "We will use Flask as the web framework for the NoteTakingApp, which allows for easy routing and handling of requests. User authentication will be managed using simple session management. Data will be stored in local text files for users and their notes, ensuring a lightweight and efficient solution without the need for a SQL database.",
-"UI design":"- The application will have a simple navigation structure with the following pages: Login Page, Registration Page, Dashboard Page, Add Note Page, View Note Page, and Search Note Page. Each page will be designed using HTML forms and basic styling to ensure usability.",
-"Data Storage":"Data will be stored in local text files. The following files will be used: 'users.txt' for storing user credentials and 'notes_{username}.txt' for storing notes associated with each user. Each note will be stored in a structured format, such as 'title|content|timestamp'.",
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/add_note.html", "templates/view_note.html", "templates/search_note.html", "users.txt"],
+"Implementation approach": "We will use Flask as the web framework for the NoteTakingApp, which allows for easy routing and templating. The application will handle user authentication, note management, and data storage using local text files. The user interface will be built using HTML templates served by Flask.",
+"UI design":"- The application will have a Login Page for user authentication, a Registration Page for new users, a Dashboard Page to display notes, an Add Note Page for creating new notes, a View Note Page for editing and deleting notes, and a Search Note Page for searching notes by title. Each page will be linked for easy navigation.",
+"Data Storage":"Data will be stored in local text files. User data will be stored in 'users.txt' and notes will be stored in 'notes.txt'. Each line in 'users.txt' will contain a username and password, while each line in 'notes.txt' will contain a note title and content, separated by a delimiter.",
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/add_note.html", "templates/view_note.html", "templates/search_note.html", "users.txt", "notes.txt"],
 "Data structures and interfaces": "
 classDiagram
-    class Main {
+    class NoteTakingApp {
         -UserManager user_manager
         -NoteManager note_manager
-        +main() str
+        +run() None
     }
     class UserManager {
-        -str filename
-        +__init__(filename: str)
+        -str users_file
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +logout() void
+        +load_users() dict
     }
     class NoteManager {
-        -str filename
-        +__init__(username: str)
-        +add_note(title: str, content: str) void
-        +edit_note(old_title: str, new_title: str, new_content: str) void
-        +delete_note(title: str) void
+        -str notes_file
+        +add_note(title: str, content: str) None
+        +edit_note(title: str, new_content: str) None
+        +delete_note(title: str) None
         +search_notes(query: str) list
-        +get_all_notes() list
+        +load_notes() dict
     }
-    Main --> UserManager
-    Main --> NoteManager
+    NoteTakingApp --> UserManager
+    NoteTakingApp --> NoteManager
 ",
 [/CONTENT]

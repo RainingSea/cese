@@ -8,25 +8,24 @@ class User:
         with open('users.txt', 'a') as f:
             f.write(f"{self.username}|{self.password}|{self.email}\n")
 
-    @staticmethod
-    def load(username: str):
-        with open('users.txt', 'r') as f:
-            for line in f:
-                user_data = line.strip().split('|')
-                if user_data[0] == username:
-                    return User(user_data[0], user_data[1], user_data[2])
-        return None
-
-class Auth:
-    def login(self, username: str, password: str) -> bool:
-        user = User.load(username)
-        if user and user.password == password:
-            return True
-        return False
+class UserManager:
+    def __init__(self, users_file: str):
+        self.users_file = users_file
 
     def register(self, username: str, password: str, email: str) -> bool:
-        if User.load(username) is None:
-            new_user = User(username, password, email)
-            new_user.save()
-            return True
+        with open(self.users_file, 'r') as f:
+            users = f.readlines()
+            for user in users:
+                if user.split('|')[0] == username:
+                    return False  # User already exists
+        new_user = User(username, password, email)
+        new_user.save()
+        return True
+
+    def login(self, username: str, password: str) -> bool:
+        with open(self.users_file, 'r') as f:
+            users = f.readlines()
+            for user in users:
+                if user.split('|')[0] == username and user.split('|')[1] == password:
+                    return True
         return False

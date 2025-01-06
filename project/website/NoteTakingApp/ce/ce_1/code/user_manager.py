@@ -1,25 +1,26 @@
 class UserManager:
-    def __init__(self, filename: str):
-        self.filename = filename
-        self.load_users()
-
-    def load_users(self):
-        self.users = {}
-        with open(self.filename, 'r') as file:
-            for line in file:
-                username, password, _ = line.strip().split('|')
-                self.users[username] = password
+    def __init__(self, users_file: str):
+        self.users_file = users_file
+        self.users = self.load_users()
 
     def register(self, username: str, password: str) -> bool:
         if username in self.users:
             return False
         self.users[username] = password
-        with open(self.filename, 'a') as file:
-            file.write(f"{username}|{password}|\n")
+        with open(self.users_file, 'a') as f:
+            f.write(f"{username}|{password}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
         return self.users.get(username) == password
 
-    def logout(self) -> None:
-        pass
+    def load_users(self) -> dict:
+        users = {}
+        try:
+            with open(self.users_file, 'r') as f:
+                for line in f:
+                    username, password = line.strip().split('|')
+                    users[username] = password
+        except FileNotFoundError:
+            pass
+        return users

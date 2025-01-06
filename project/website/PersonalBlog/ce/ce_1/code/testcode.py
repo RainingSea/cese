@@ -7,14 +7,14 @@ import subprocess
 class TestPersonalBlogApp(unittest.TestCase):
 
     def setUp(self):
-        # Start the application
+        # Initialize the webdriver and open the login page
         self.process = subprocess.Popen(['python', 'main.py'])
-        time.sleep(1)  # Allow some time for the server to start
+        time.sleep(1)  # Give the server time to start
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8107/')  # Access the login page
+        self.driver.get('http://localhost:8187/') 
 
     def tearDown(self):
-        # Close the web driver session and stop the server
+        # Close the web driver session
         self.driver.quit()
         self.process.terminate()
 
@@ -26,101 +26,101 @@ class TestPersonalBlogApp(unittest.TestCase):
         time.sleep(1)  # Wait for the next page to load
 
     def test_user_registration(self):
-        # Test user registration functionality
+        # Functionalities 1: User Registration
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
         time.sleep(1)  # Wait for the registration page to load
 
-        new_username = "new_user"
-        new_password = "new_password"
-        new_email = "new_user@example.com"
-
-        # Input registration details
-        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
-        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
-        self.driver.find_element(By.NAME, 'email').send_keys(new_email)
+        self.driver.find_element(By.NAME, 'username').send_keys('testuser')
+        self.driver.find_element(By.NAME, 'password').send_keys('testpassword')
+        self.driver.find_element(By.NAME, 'email').send_keys('testuser@example.com')
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
-        time.sleep(1)  # Wait for the next page to load
+        time.sleep(1)  # Wait for the redirection to login page
 
-        # Verify registration success message
-        self.assertIn("Registration successful", self.driver.page_source)
+        # Verify the user is redirected to the login page
+        self.assertIn("Login", self.driver.title)
 
     def test_user_login(self):
-        # Test user login functionality
-        self.login("admin", "pass123")
+        # Functionalities 2: User Login
+        self.login("user1", "password1")
 
         # Verify that the Main Blog Page has loaded
-        self.assertIn("Main Blog Page", self.driver.page_source)
+        self.assertIn("Main Blog", self.driver.title)
 
     def test_create_new_blog_post(self):
-        # Test creating a new blog post
-        self.login("admin", "pass123")
-
-        # Navigate to New Post Page
+        # Functionalities 3: Create a New Blog Post
+        self.login("user1", "password1")
         self.driver.find_element(By.LINK_TEXT, 'Create New Post').click()
         time.sleep(1)  # Wait for the new post page to load
 
-        post_title = "Test Post"
-        post_content = "This is a test post."
-        post_author = "admin"
-
-        # Fill out the new post form
-        self.driver.find_element(By.NAME, 'title').send_keys(post_title)
-        self.driver.find_element(By.NAME, 'content').send_keys(post_content)
-        self.driver.find_element(By.NAME, 'author').send_keys(post_author)
+        self.driver.find_element(By.NAME, 'title').send_keys('Test Post')
+        self.driver.find_element(By.NAME, 'content').send_keys('This is a test post content.')
         self.driver.find_element(By.XPATH, '//button[text()="Create Post"]').click()
-        time.sleep(1)  # Wait for the post to be created
+        time.sleep(1)  # Wait for the redirection to main page
 
-        # Verify success message
-        self.assertIn("Post created successfully", self.driver.page_source)
+        # Verify that the new post is displayed on the Main Blog Page
+        self.assertIn('Test Post', self.driver.page_source)
 
     def test_view_blog_posts(self):
-        # Test viewing blog posts after logging in
-        self.login("admin", "pass123")
+        # Functionalities 4: View Blog Posts
+        self.login("user1", "password1")
 
         # Verify that the Main Blog Page shows posts
         posts = self.driver.find_elements(By.TAG_NAME, 'li')
         self.assertGreater(len(posts), 0, "No blog posts found.")
 
     def test_edit_existing_post(self):
-        # Test editing an existing post
-        self.login("admin", "pass123")
-
-        # Navigate to a post and edit it
+        # Functionalities 5: Edit an Existing Post
+        self.login("user1", "password1")
         self.driver.find_element(By.LINK_TEXT, 'First Post').click()
-        time.sleep(1)  # Wait for the post page to load
-        self.driver.find_element(By.LINK_TEXT, 'Edit Post').click()
-        time.sleep(1)  # Wait for the edit page to load
+        time.sleep(1)  # Wait for the view post page to load
 
-        new_content = "Updated content for the first post."
-        content_field = self.driver.find_element(By.NAME, 'content')
-        content_field.clear()
-        content_field.send_keys(new_content)
+        self.driver.find_element(By.LINK_TEXT, 'Edit').click()
+        time.sleep(1)  # Wait for the edit post page to load
+
+        self.driver.find_element(By.NAME, 'title').clear()
+        self.driver.find_element(By.NAME, 'title').send_keys('Updated First Post')
+        self.driver.find_element(By.NAME, 'content').clear()
+        self.driver.find_element(By.NAME, 'content').send_keys('Updated content of the first post.')
         self.driver.find_element(By.XPATH, '//button[text()="Update Post"]').click()
-        time.sleep(1)  # Wait for the post to be updated
+        time.sleep(1)  # Wait for the redirection to main page
 
-        # Verify success message
-        self.assertIn("Post updated successfully", self.driver.page_source)
+        # Verify that the updated post is displayed on the Main Blog Page
+        self.assertIn('Updated First Post', self.driver.page_source)
 
     def test_delete_blog_post(self):
-        # Test deleting a blog post
-        self.fail("Delete functionality not implemented")
+        # Functionalities 6: Delete a Blog Post
+        self.login("user1", "password1")
+        self.driver.find_element(By.LINK_TEXT, 'First Post').click()
+        time.sleep(1)  # Wait for the view post page to load
+
+        self.driver.find_element(By.LINK_TEXT, 'Delete').click()
+        time.sleep(1)  # Wait for the redirection to main page
+
+        # Verify that the post is no longer displayed on the Main Blog Page
+        self.assertNotIn('First Post', self.driver.page_source)
 
     def test_navigation(self):
-        # Test navigation from View Post Page to Main Blog Page
-        self.login("admin", "pass123")
-
-        # Navigate to a post and then back to main
+        # Functionalities 7: Navigation
+        self.login("user1", "password1")
         self.driver.find_element(By.LINK_TEXT, 'First Post').click()
-        time.sleep(1)  # Wait for the post page to load
-        self.driver.find_element(By.LINK_TEXT, 'Back to Main').click()
-        time.sleep(1)  # Wait for the main page to load
+        time.sleep(1)  # Wait for the view post page to load
 
-        # Verify that the Main Blog Page is displayed
-        self.assertIn("Main Blog Page", self.driver.page_source)
+        self.driver.find_element(By.LINK_TEXT, 'Back to Main').click()
+        time.sleep(1)  # Wait for the redirection to main page
+
+        # Verify that the Main Blog Page has loaded
+        self.assertIn("Main Blog", self.driver.title)
 
     def test_user_logout(self):
-        # Test logging out
-        self.fail("Logout functionality not implemented")
+        # Functionalities 8: User Logout
+        self.login("user1", "password1")
+
+        # Click the Logout button
+        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
+        time.sleep(1)  # Wait for the redirection to login page
+
+        # Verify that the user is redirected to the Login Page
+        self.assertIn("Login", self.driver.title)
 
 if __name__ == '__main__':
     unittest.main()

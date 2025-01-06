@@ -4,17 +4,24 @@ class BlogPost:
         self.content = content
         self.author = author
 
-    def create_post(self, title: str, content: str, author: str) -> bool:
-        # Creation logic already handled in main.py
-        return True
+    def save(self):
+        with open('posts.txt', 'a') as f:
+            f.write(f'{self.title}|{self.content}|{self.author}\n')
 
-    def edit_post(self, content: str) -> bool:
-        self.content = content
-        return True
+    @staticmethod
+    def load(post_id: int):
+        with open('posts.txt', 'r') as f:
+            for idx, line in enumerate(f):
+                if idx == post_id:
+                    post_data = line.strip().split('|')
+                    return BlogPost(post_data[0], post_data[1], post_data[2])
+        return None
 
-    def delete_post(self, title: str) -> bool:
-        # Deletion logic handled in main.py
-        return True
-
-    def view_post(self) -> str:
-        return f"{self.title}: {self.content} by {self.author}"
+    @staticmethod
+    def delete(post_id: int):
+        with open('posts.txt', 'r') as f:
+            lines = f.readlines()
+        with open('posts.txt', 'w') as f:
+            for idx, line in enumerate(lines):
+                if idx != post_id:
+                    f.write(line)

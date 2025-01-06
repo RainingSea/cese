@@ -8,38 +8,29 @@
 "Logic Analysis": [
     [
         "main.py",
-        "Contains the main application logic, including the Flask app setup and routing for login, registration, and story creation."
+        "Contains the main application logic, including user registration, login, and story management functionalities."
     ],
     [
         "templates/login.html",
-        "HTML template for the login page, containing the form for user authentication."
+        "HTML template for user login, containing fields for username and password."
     ],
     [
-        "templates/registration.html",
-        "HTML template for the registration page, containing the form for new user account creation."
+        "templates/register.html",
+        "HTML template for user registration, containing fields for username, password, and email."
     ],
     [
         "templates/story_creation.html",
-        "HTML template for the story creation page, containing the form for entering story title and content."
-    ],
-    [
-        "users.txt",
-        "Text file for storing user data, including usernames, passwords, and emails."
-    ],
-    [
-        "stories.txt",
-        "Text file for storing user stories, including titles, content, and associated user IDs."
+        "HTML template for story creation, containing fields for story title and content, along with a 'Save Story' button."
     ]
 ],
 "Task list": 
 {
-    'T0':'|Set up Flask application and routing for login, registration, and story creation.|related files:["main.py"]',
-    'T1':'|Implement user registration functionality, including saving user data to users.txt.|related files:["main.py", "users.txt"]',
-    'T2':'|Implement user login functionality, including authentication and session management.|related files:["main.py", "users.txt"]',
-    'T3':'|Create HTML templates for login, registration, and story creation pages.|related files:["templates/login.html", "templates/registration.html", "templates/story_creation.html"]',
-    'T4':'|Implement story creation functionality, including saving stories to stories.txt.|related files:["main.py", "stories.txt"]',
-    'T5':'|Implement story editing functionality on the story creation page.|related files:["main.py", "stories.txt"]'
+    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
+    'T1':'|Implement user registration functionality including input validation and saving user data.|related files:["main.py", "templates/register.html"]',
+    'T2':'|Implement user login functionality and session management.|related files:["main.py", "templates/login.html"]',
+    'T3':'|Develop story creation functionality including input validation and saving story data.|related files:["main.py", "templates/story_creation.html"]',
+    'T4':'|Create data storage logic for users and stories using local text files.|related files:["main.py"]'
 },
 "Full API spec": "",
-"Shared Knowledge": "`main.py` contains the main application logic and routing for the web application."
+"Shared Knowledge": "The application will utilize local text files for data storage, with 'users.txt' for user data and 'stories.txt' for story data."
 }

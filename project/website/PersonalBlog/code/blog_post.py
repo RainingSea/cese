@@ -4,17 +4,13 @@ class BlogPost:
         self.content = content
         self.author = author
 
-    def create_post(self, title: str, content: str, author: str) -> bool:
-        # Creation logic is handled in main.py
-        return True
+    def save(self):
+        pass  # Not needed for file-based storage
 
-    def edit_post(self, content: str) -> bool:
-        self.content = content
-        return True
+    @classmethod
+    def load(cls, post_id: int):
+        pass  # Not needed for file-based storage
 
-    def delete_post(self, title: str) -> bool:
-        # Deletion logic is not implemented
-        return False
-
-    def view_post(self, title: str) -> str:
-        return self.content
+    @classmethod
+    def delete(cls, post_id: int):
+        pass  # Not needed for file-based storage

@@ -1,43 +1,89 @@
-from flask import Flask, render_template, request, redirect, session
-import os
+from flask import Flask, render_template, request, redirect, url_for, session
 import json
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-class User:
-    def __init__(self, username: str, password: str):
-        self.username = username
-        self.password = password
+class UserManager:
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self.users = self.load_users()
 
-    def save(self):
-        with open('users.txt', 'a') as file:
-            file.write(f"{self.username}|{self.password}\n")
+    def register(self, username: str, password: str) -> bool:
+        if username in self.users:
+            return False
+        self.users[username] = password
+        self.save_users()
+        return True
 
-    @staticmethod
-    def load(username: str):
-        users = User.load_all()
-        return next((user for user in users if user.username == username), None)
+    def login(self, username: str, password: str) -> bool:
+        return self.users.get(username) == password
 
-    @staticmethod
-    def load_all():
-        users = []
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                for line in file:
-                    username, password = line.strip().split('|')
-                    users.append(User(username, password))
-        return users
+    def load_users(self) -> dict:
+        try:
+            with open(self.file_path, 'r') as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return {}
+
+    def save_users(self):
+        with open(self.file_path, 'w') as file:
+            json.dump(self.users, file)
+
+class ProjectManager:
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self.projects = self.load_projects()
+
+    def create_project(self, name: str, description: str, freelancer: str) -> bool:
+        self.projects.append({'name': name, 'description': description, 'freelancer': freelancer})
+        self.save_projects()
+        return True
+
+    def load_projects(self) -> list:
+        try:
+            with open(self.file_path, 'r') as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return []
+
+    def save_projects(self):
+        with open(self.file_path, 'w') as file:
+            json.dump(self.projects, file)
+
+class FreelancerManager:
+    def __init__(self, file_path: str):
+        self.file_path = file_path
+        self.freelancers = self.load_freelancers()
+
+    def add_freelancer(self, name: str, details: str) -> bool:
+        self.freelancers.append({'name': name, 'details': details})
+        self.save_freelancers()
+        return True
+
+    def load_freelancers(self) -> list:
+        try:
+            with open(self.file_path, 'r') as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return []
+
+    def save_freelancers(self):
+        with open(self.file_path, 'w') as file:
+            json.dump(self.freelancers, file)
+
+user_manager = UserManager('users.txt')
+project_manager = ProjectManager('projects.txt')
+freelancer_manager = FreelancerManager('freelancers.txt')
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User.load(username)
-        if user and user.password == password:
+        if user_manager.login(username, password):
             session['username'] = username
-            return redirect('/home')
+            return redirect(url_for('home'))
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -45,14 +91,31 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        new_user = User(username, password)
-        new_user.save()
-        return redirect('/')
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
     return render_template('registration.html')
 
 @app.route('/home')
 def home():
     return render_template('home.html')
 
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
+
+@app.route('/project_management', methods=['GET', 'POST'])
+def project_management():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        freelancer = request.form['freelancer']
+        project_manager.create_project(name, description, freelancer)
+    return render_template('project_management.html', projects=project_manager.projects)
+
+@app.route('/freelancer_profile/<name>')
+def freelancer_profile(name):
+    freelancer = next((f for f in freelancer_manager.freelancers if f['name'] == name), None)
+    return render_template('freelancer_profile.html', freelancer=freelancer)
+
 if __name__ == '__main__':
-    app.run(port=8091, debug=False)
+    app.run(port=8166, debug=False)

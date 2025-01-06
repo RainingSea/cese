@@ -1,10 +1,9 @@
 @echo off
-@REM python start_by_file.py --category website --name DailyHealthTips.md
-python start_by_file.py --category website --name DailyJournalApp.md
-python start_by_file.py --category website --name DigitalStorytellingPlatform.md
-python start_by_file.py --category website --name FreelancerMarketplace.md
-python start_by_file.py --category website --name GreenLivingGuide.md
-python start_by_file.py --category website --name NoteTakingApp.md
+@REM python start_by_file.py --category website --name DailyJournalApp.md
+@REM python start_by_file.py --category website --name DigitalStorytellingPlatform.md
+@REM python start_by_file.py --category website --name FreelancerMarketplace.md
+@REM python start_by_file.py --category website --name GreenLivingGuide.md
+@REM python start_by_file.py --category website --name NoteTakingApp.md
 python start_by_file.py --category website --name OnlineVintageMarket.md
 python start_by_file.py --category website --name ParentingAdiviceForum.md
 python start_by_file.py --category website --name PersonalBlog.md
@@ -14,6 +13,7 @@ python start_by_file.py --category website --name TaskManager.md
 @REM python start_by_file.py --category website --name OnlineShoppingCenter.md
 @REM python start_by_file.py --category website --name RecipeHub.md
 @REM python start_by_file.py --category website --name PeerTutoringNetwork.md
+@REM python start_by_file.py --category website --name DailyHealthTips.md
 
 @REM python start_by_file.py --category website --name CharitableGivingPlatform.md
 @REM python start_by_file.py --category website --name Headlinr.md

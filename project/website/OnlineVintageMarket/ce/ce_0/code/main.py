@@ -1,54 +1,79 @@
 from flask import Flask, render_template, request, redirect, session
-from user_manager import UserManager
-from item_manager import ItemManager
+from user import User
+from item import Item
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Set a secret key for session management
+app.secret_key = 'your_secret_key'
+users = []
+items = []
 
-user_manager = UserManager()
-item_manager = ItemManager()
+def load_users():
+    global users
+    try:
+        with open('users.txt', 'r') as file:
+            users = [User(*line.strip().split('|')) for line in file.readlines()]
+    except FileNotFoundError:
+        users = []
+
+def load_items():
+    global items
+    try:
+        with open('items.txt', 'r') as file:
+            items = [Item(*line.strip().split('|')) for line in file.readlines()]
+    except FileNotFoundError:
+        items = []
 
 @app.route('/')
-def login():
+def login_page():
     return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.register(username, password):
-            return redirect('/')
-    return render_template('register.html')
-
-@app.route('/home')
-def home():
-    items = item_manager.load_items()
-    return render_template('home.html', items=items)
-
 @app.route('/login', methods=['POST'])
-def do_login():
+def login():
     username = request.form['username']
     password = request.form['password']
-    if user_manager.login(username, password):
+    user = User(username, password)
+    if user.login():
         session['username'] = username
         return redirect('/home')
     return redirect('/')
 
-@app.route('/listing', methods=['GET', 'POST'])
-def listing():
-    if request.method == 'POST':
-        name = request.form['name']
-        description = request.form['description']
-        price = float(request.form['price'])
-        item_manager.add_item(name, description, price)
-        return redirect('/home')
-    return render_template('listing.html')
+@app.route('/register')
+def register_page():
+    return render_template('register.html')
 
-@app.route('/item/<item_name>')
-def item_details(item_name):
-    item = item_manager.search_item(item_name)
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form['username']
+    password = request.form['password']
+    user = User(username, password)
+    if user.register():
+        return redirect('/')
+    return redirect('/register')
+
+@app.route('/home')
+def home_page():
+    load_items()
+    return render_template('home.html', items=items)
+
+@app.route('/item/<name>')
+def item_details(name):
+    item = next((item for item in items if item.name == name), None)
     return render_template('item_details.html', item=item)
 
+@app.route('/listing')
+def listing_page():
+    return render_template('listing.html')
+
+@app.route('/listing', methods=['POST'])
+def create_listing():
+    name = request.form['name']
+    description = request.form['description']
+    price = float(request.form['price'])
+    item = Item(name, description, price)
+    item.save()
+    return redirect('/home')
+
 if __name__ == '__main__':
-    app.run(port=8100, debug=False)
+    load_users()
+    load_items()
+    app.run(port=8178, debug=False)

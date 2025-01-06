@@ -1,31 +1,38 @@
 [CONTENT]
-"Implementation approach": "We will use Flask as the web framework to create the PersonalBlog application. Flask is lightweight and allows for easy routing and handling of requests. For the front end, we will use HTML to create the necessary templates for the user interface. All user data and blog posts will be stored in local text files, ensuring simplicity and ease of access without a SQL database.",
-"UI design":"- The application will have a Login Page for user authentication, a Registration Page for new users, a Main Blog Page to display blog posts, a New Post Page for creating posts, a View Post Page for reading posts, and an Edit Post Page for modifying existing posts. Each page will have a consistent layout with navigation options.",
-"Data Storage":"Data will be stored in local text files. The following files will be used: 'users.txt' for storing user information (username, password, email), and 'posts.txt' for storing blog posts (title, content, author). Each entry will be stored in a structured format to facilitate easy retrieval and management.",
+"Implementation approach": "We will use Flask as the web framework for the PersonalBlog application, which allows for easy routing and handling of requests. The application will be structured to handle user authentication, blog post management, and file-based data storage. The UI will be created using HTML templates served by Flask.",
+"UI design":"- The application will consist of several HTML pages: Login Page, Registration Page, Main Blog Page, New Post Page, View Post Page, and Edit Post Page. Each page will have a consistent layout with navigation options to enhance user experience.",
+"Data Storage":"Data will be stored in local text files. User data will be stored in 'users.txt' and blog posts will be stored in 'posts.txt'. Each user will have their own unique identifier in the file, and each blog post will be associated with the user who created it.",
 "File list": ["main.py", "templates/login.html", "templates/register.html", "templates/main.html", "templates/new_post.html", "templates/view_post.html", "templates/edit_post.html", "users.txt", "posts.txt"],
 "Data structures and interfaces": "
 classDiagram
-    class Main {
-        -Flask app
-        +main() str
-    }
     class User {
         -username: str
         -password: str
         -email: str
-        +register(username: str, password: str, email: str) bool
-        +login(username: str, password: str) bool
+        +__init__(username: str, password: str, email: str)
+        +save() void
+        +load(username: str) User
     }
     class BlogPost {
         -title: str
         -content: str
         -author: str
-        +create_post(title: str, content: str, author: str) bool
-        +edit_post(title: str, content: str) bool
-        +delete_post(title: str) bool
-        +view_post(title: str) str
+        +__init__(title: str, content: str, author: str)
+        +save() void
+        +load(post_id: int) BlogPost
+        +delete(post_id: int) void
     }
-    Main --> User
-    Main --> BlogPost
+    class BlogApp {
+        -users: list[User]
+        -posts: list[BlogPost]
+        +register(username: str, password: str, email: str) str
+        +login(username: str, password: str) bool
+        +create_post(title: str, content: str, author: str) void
+        +edit_post(post_id: int, title: str, content: str) void
+        +delete_post(post_id: int) void
+        +get_posts(author: str) list[BlogPost]
+    }
+    User --> BlogApp
+    BlogPost --> BlogApp
 ",
 [/CONTENT]

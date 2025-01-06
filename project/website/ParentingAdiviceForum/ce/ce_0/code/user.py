@@ -8,4 +8,9 @@ class User:
             file.write(f"{self.username}|{self.password}\n")
 
     def delete(self):
-        pass  # Implementation for user deletion can be added later
+        users = []
+        with open('users.txt', 'r') as file:
+            users = [line.strip() for line in file if line.strip().split('|')[0] != self.username]
+        with open('users.txt', 'w') as file:
+            for user in users:
+                file.write(user + '\n')

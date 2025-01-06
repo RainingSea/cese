@@ -1,22 +1,49 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import json
-from user import User
-from job import Job
-from data_storage import DataStorage
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-data_storage = DataStorage()
 
-@app.route('/', methods=['GET', 'POST'])
+class User:
+    def __init__(self, username: str, password: str, email: str):
+        self.username = username
+        self.password = password
+        self.email = email
+
+    def save(self):
+        with open('users.txt', 'a') as f:
+            f.write(json.dumps(self.__dict__) + '\n')
+
+    @staticmethod
+    def load(username: str):
+        with open('users.txt', 'r') as f:
+            for line in f:
+                user_data = json.loads(line.strip())
+                if user_data['username'] == username:
+                    return User(**user_data)
+        return None
+
+class Job:
+    def __init__(self, title: str, company: str, description: str):
+        self.title = title
+        self.company = company
+        self.description = description
+
+    def save(self):
+        with open('jobs.txt', 'a') as f:
+            f.write(json.dumps(self.__dict__) + '\n')
+
+    @staticmethod
+    def load_all():
+        jobs = []
+        with open('jobs.txt', 'r') as f:
+            for line in f:
+                job_data = json.loads(line.strip())
+                jobs.append(Job(**job_data))
+        return jobs
+
+@app.route('/')
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User(username, password)
-        if user.login(username, password):
-            session['username'] = username
-            return redirect(url_for('home'))
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -26,14 +53,17 @@ def register():
         password = request.form['password']
         email = request.form['email']
         user = User(username, password, email)
-        if user.register(username, password, email):
-            return redirect(url_for('login'))
+        user.save()
+        return redirect(url_for('login'))
     return render_template('registration.html')
 
 @app.route('/home')
 def home():
-    jobs = data_storage.load_jobs()
-    return render_template('home.html', jobs=jobs)
+    return render_template('home.html', jobs=Job.load_all())
+
+@app.route('/browse_jobs')
+def browse_jobs():
+    return render_template('browse_jobs.html', jobs=Job.load_all())
 
 @app.route('/post_job', methods=['GET', 'POST'])
 def post_job():
@@ -42,15 +72,13 @@ def post_job():
         company = request.form['company']
         description = request.form['description']
         job = Job(title, company, description)
-        job.post_job(title, company, description)
+        job.save()
         return redirect(url_for('home'))
-    return render_template('job_posting.html')
+    return render_template('post_job.html')
 
 @app.route('/profile')
 def profile():
-    username = session.get('username')
-    user_info = data_storage.load_users()
-    return render_template('profile.html', user=user_info.get(username))
+    return render_template('profile.html')
 
 if __name__ == '__main__':
-    app.run(port=8110, debug=False)
+    app.run(port=8191, debug=False)

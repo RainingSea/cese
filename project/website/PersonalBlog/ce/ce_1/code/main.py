@@ -1,32 +1,29 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, session
 from user import User
 from blog_post import BlogPost
+import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+users = []
+posts = []
 
-# Load users and posts from files
 def load_users():
-    users = {}
-    with open('users.txt', 'r') as file:
-        for line in file:
-            username, password, email = line.strip().split('|')
-            users[username] = User(username, password, email)
-    return users
+    if os.path.exists('users.txt'):
+        with open('users.txt', 'r') as f:
+            for line in f:
+                username, password, email = line.strip().split('|')
+                users.append(User(username, password, email))
 
 def load_posts():
-    posts = {}
-    with open('posts.txt', 'r') as file:
-        for line in file:
-            title, content, author = line.strip().split('|')
-            posts[title] = BlogPost(title, content, author)
-    return posts
-
-users = load_users()
-posts = load_posts()
+    if os.path.exists('posts.txt'):
+        with open('posts.txt', 'r') as f:
+            for line in f:
+                title, content, author = line.strip().split('|')
+                posts.append(BlogPost(title, content, author))
 
 @app.route('/')
-def login_page():
+def login():
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -35,49 +32,64 @@ def register():
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
-        if username in users:
-            flash('Username already exists.')
-        else:
-            users[username] = User(username, password, email)
-            with open('users.txt', 'a') as file:
-                file.write(f"{username}|{password}|{email}\n")
-            flash('Registration successful. Please log in.')
-            return redirect(url_for('login_page'))
+        user = User(username, password, email)
+        users.append(user)
+        user.save()
+        return redirect(url_for('login'))
     return render_template('register.html')
 
 @app.route('/main', methods=['GET'])
-def main_page():
-    return render_template('main.html', posts=posts.values())
+def main():
+    return render_template('main.html', posts=posts)
 
 @app.route('/new_post', methods=['GET', 'POST'])
 def new_post():
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
-        author = request.form['author']
-        posts[title] = BlogPost(title, content, author)
-        with open('posts.txt', 'a') as file:
-            file.write(f"{title}|{content}|{author}\n")
-        flash('Post created successfully.')
-        return redirect(url_for('main_page'))
+        author = session.get('username')
+        post = BlogPost(title, content, author)
+        posts.append(post)
+        post.save()
+        return redirect(url_for('main'))
     return render_template('new_post.html')
 
-@app.route('/view_post/<title>', methods=['GET'])
-def view_post(title):
-    post = posts.get(title)
+@app.route('/view_post/<int:post_id>', methods=['GET'])
+def view_post(post_id):
+    post = posts[post_id]
     return render_template('view_post.html', post=post)
 
-@app.route('/edit_post/<title>', methods=['GET', 'POST'])
-def edit_post(title):
-    post = posts.get(title)
+@app.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
+def edit_post(post_id):
+    post = posts[post_id]
     if request.method == 'POST':
+        post.title = request.form['title']
         post.content = request.form['content']
-        with open('posts.txt', 'w') as file:
-            for p in posts.values():
-                file.write(f"{p.title}|{p.content}|{p.author}\n")
-        flash('Post updated successfully.')
-        return redirect(url_for('view_post', title=post.title))
+        post.save()
+        return redirect(url_for('main'))
     return render_template('edit_post.html', post=post)
 
+@app.route('/delete_post/<int:post_id>', methods=['GET'])
+def delete_post(post_id):
+    posts.pop(post_id)
+    return redirect(url_for('main'))
+
+@app.route('/login', methods=['POST'])
+def do_login():
+    username = request.form['username']
+    password = request.form['password']
+    for user in users:
+        if user.username == username and user.password == password:
+            session['username'] = username
+            return redirect(url_for('main'))
+    return redirect(url_for('login'))
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
 if __name__ == '__main__':
-    app.run(port=8107, debug=False)
+    load_users()
+    load_posts()
+    app.run(port=8187, debug=False)

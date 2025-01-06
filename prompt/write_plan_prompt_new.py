@@ -32,10 +32,10 @@ architecture:
 ],
 "Task list": 
 {{
-    'T0':'|Initialize the game window.|related files:["game.py"]',
-    'T1':'|complete the moving logic |related files:[main.py,game.py]',
-    'T2':'|complete the scoring logic |related files:[main.py]',
-    'T3':'|complete the storage |related files:[main.py,game.py]',
+    'T0':'|Initialize the game window,
+    'T1':'|complete the moving logic,
+    'T2':'|determine the data structure,
+    'T3':'|complete the storage,
     ...
 }},
 "Shared Knowledge": "`game.py` contains functions shared across the project.",
@@ -48,7 +48,6 @@ architecture:
 - Task list: typing.Dict[str]  # Break down the project development into many subtasks(in a dictionary format), each sub-task completes a portion of closely related requirements:
 (1)its name(T0,T1...)
 (2)the functionalities that need to be completed for this task.
-(3)related files.
 use | to seperate thesse part as example. must no circles in the dependency tasks. related files must from file list in architecture.
 You can break down the work into several tasks to tackle more challenging functionalities.
 The decomposed tasks only include development-related tasks; higher-level work such as testing, security, and maintenance is not required for now.

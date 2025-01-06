@@ -1,8 +1,8 @@
 [CONTENT]
-"Implementation approach": "We will use Flask as the web framework to create the Digital Storytelling Platform. Flask is lightweight and suitable for building web applications quickly. For the user interface, we will use HTML templates to create the necessary pages. The application will handle user authentication and story management using local text files for data storage, ensuring simplicity and ease of use.",
-"UI design":"- The application will have the following pages: 1. Login Page: A form for users to enter their username and password. 2. Registration Page: A form for new users to create an account with username, password, and email. 3. Story Creation Page: A form for users to enter the story title and content, with options to save and edit their stories.",
-"Data Storage":"Data will be stored in local text files. User data will be stored in 'users.txt' and stories will be stored in 'stories.txt'. Each user will have their own section in the 'users.txt' file, and stories will be stored with a unique identifier for each user. This structured data storage will facilitate easy data retrieval and management through simple file manipulations in Python, ensuring the application remains light and efficient without the need for a SQL database.",
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/story_creation.html", "users.txt", "stories.txt"],
+"Implementation approach": "We will use Flask as the web framework to develop the Digital Storytelling Platform. Flask is lightweight and suitable for creating simple web applications. The application will handle user registration, login, and story creation functionalities. For data storage, we will use local text files to store user information and stories, ensuring that we do not require a SQL database.",
+"UI design":"- The application will have a login page with fields for username and password. Upon successful login, users will be redirected to the Story Creation Page, which will have fields for story title and content, along with a 'Save Story' button. A registration page will allow new users to create an account.",
+"Data Storage":"Data will be stored in local text files. User data will be stored in 'users.txt' and stories will be stored in 'stories.txt'. Each user will have a unique line in 'users.txt', and each story will be stored with a title and content in 'stories.txt'.",
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/story_creation.html", "users.txt", "stories.txt"],
 "Data structures and interfaces": "
 classDiagram
     class User {
@@ -11,26 +11,25 @@ classDiagram
         -email: str
         +__init__(username: str, password: str, email: str)
         +save() void
-        +load(username: str) User
     }
     class Story {
         -title: str
         -content: str
-        -user_id: str
-        +__init__(title: str, content: str, user_id: str)
+        +__init__(title: str, content: str)
         +save() void
-        +load(user_id: str) list
     }
-    class Auth {
-        +login(username: str, password: str) bool
+    class UserManager {
+        -users_file: str
         +register(username: str, password: str, email: str) bool
+        +login(username: str, password: str) bool
     }
-    class App {
-        +run() void
+    class StoryManager {
+        -stories_file: str
+        +create_story(title: str, content: str) void
+        +edit_story(title: str, new_content: str) void
     }
-    User --> Auth
-    Story --> Auth
-    App --> Auth
-    App --> Story
+    User --> UserManager
+    Story --> StoryManager
+    UserManager --> StoryManager
 ",
 [/CONTENT]

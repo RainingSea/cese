@@ -1,41 +1,38 @@
 class NoteManager:
-    def __init__(self, username: str):
-        self.filename = f'notes_{username}.txt'
-        self.load_notes()
-
-    def load_notes(self):
-        self.notes = []
-        try:
-            with open(self.filename, 'r') as file:
-                for line in file:
-                    self.notes.append(line.strip())
-        except FileNotFoundError:
-            pass
+    def __init__(self, notes_file: str):
+        self.notes_file = notes_file
+        self.notes = self.load_notes()
 
     def add_note(self, title: str, content: str) -> None:
-        timestamp = '2023-10-01 12:00'  # Placeholder for actual timestamp
-        self.notes.append(f"{title}|{content}|{timestamp}")
-        with open(self.filename, 'a') as file:
-            file.write(f"{title}|{content}|{timestamp}\n")
+        self.notes[title] = content
+        with open(self.notes_file, 'a') as f:
+            f.write(f"{title}|{content}\n")
 
-    def edit_note(self, old_title: str, new_title: str, new_content: str) -> None:
-        for index, note in enumerate(self.notes):
-            if note.split('|')[0] == old_title:
-                self.notes[index] = f"{new_title}|{new_content}|timestamp"
-                self.save_notes()
-                break
+    def edit_note(self, title: str, new_content: str) -> None:
+        if title in self.notes:
+            self.notes[title] = new_content
+            self.save_notes()
 
     def delete_note(self, title: str) -> None:
-        self.notes = [note for note in self.notes if note.split('|')[0] != title]
-        self.save_notes()
+        if title in self.notes:
+            del self.notes[title]
+            self.save_notes()
 
     def search_notes(self, query: str) -> list:
-        return [note for note in self.notes if query in note.split('|')[0]]
+        return [title for title in self.notes if query.lower() in title.lower()]
 
-    def get_all_notes(self) -> list:
-        return self.notes
+    def load_notes(self) -> dict:
+        notes = {}
+        try:
+            with open(self.notes_file, 'r') as f:
+                for line in f:
+                    title, content = line.strip().split('|')
+                    notes[title] = content
+        except FileNotFoundError:
+            pass
+        return notes
 
     def save_notes(self) -> None:
-        with open(self.filename, 'w') as file:
-            for note in self.notes:
-                file.write(f"{note}\n")
+        with open(self.notes_file, 'w') as f:
+            for title, content in self.notes.items():
+                f.write(f"{title}|{content}\n")

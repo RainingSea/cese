@@ -42,7 +42,7 @@ def create_ce_document(project_dir, task_plan, log):
 
     # _______________ generate disturbed plan/ arch / prd of counter example ______________
     # generate 2(default) error(disturbed, whatever) task plan
-    ce_plans = ce_generate(task_plan, log)
+    ce_plans = ce_generate(task_plan, 3, log)
     ce_project_paths = []
     # make a directory for each counter example, and create prd, arch, task plan.
     for i in range(len(ce_plans)):
@@ -126,8 +126,8 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
         Here is the entire codebase for a project: {code_base}.
         Here are the unit test codes for this project: {unit_test_code}.
         These are all the unit test results (Only failed tests have detailed information):{test_results}
-        
-        Please analyze the test results one by one with related code. For each failed or error unit test, analyze step by step to identify the reasons.
+        Please analyze the test results one by one with related code. For each failed or error unit test, step by step to identify the reasons.
+        If test code like "self.fail(XXX functionality not implemented)" occurs, it suggests a problem with the project code, not the test code.
         """
         messages.append(format_prompt(PROMPT_FOR_TEST_ANA, values))
         unit_test_result_analysis = chat_to_LLM(messages)
@@ -155,6 +155,7 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
         print("\n###################################")
 
         if "[CODE]" not in relevance:
+            log.info("GOOD PATH GOOD PATH" + str(project_dirs[i]))
             continue
 
         # 3. summarize the code feedback
@@ -167,17 +168,17 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
                 "role": "user",
                 "content": """Summarize the above mentioned unit test analysis. You only need to summarize the content in the project identified from the unit test result. You need to do 2 jobs:
                 ### 1. summarize test pass cases
-                Identify all passed test cases (marked as "ok") and output their full names (e.g., test_XX_XX). For each passed case, find the corresponding project code in the codebase (not the test code) mentioned in previous conversations. Analyze the implementation thought of the project code related to the test case, express it in pseudocode format. Focus only on the project code, not the test code.
+                Identify all passed test cases (test_XX_XX, marked as "ok"). For each passed case, find the corresponding project code in the codebase (not the test code) mentioned in previous conversations, understand the full implementation thought of the project code related to the test case, then express it in pseudocode format(pseudocode should capture all parts of the code, not just function body). Focus only on the project code, not the test code.
 
                 ### 2. summarize test failed or error cases
-                You need to summarize all previously mentioned failed or error test cases along with their error analyses.
-                then, you need to provide guidance on how to write better code (not related to testing, needs to be concise and summarative). The guidance you provide should adhere to the following aspects:
-                (1) Be concise and general in nature.
+                Summarize all previously mentioned failed or error test cases along with their error analyses.
+                then, you need to provide guidance on how to write better code (not related to testing, needs to be concise and summarative). The guidance should adhere to the following aspects:
+                (1) Be concise and general.
                 (2) Must offer insights based on issues revealed by unit tests, highlighting points to watch for when developing the project again.
-                (3) Ideally, provide guidance at the level of pseudo-code or a planning framework, rather than addressing simple code-related issues. 
-                (4) any guidance on the test is not needed, because it will not be useful for my future project code construction.
+                (3) Provide guidance at the level of planning, rather than addressing simple code-related issues. 
+                (4) any guidance on the test is not needed.
                 (5) Only guidance related to the code is needed, without analyzing higher-level aspects such as project management, development models, etc.
-                Attention: The issues or error must be exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded. 
+                Attention: only consider failure or error exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded. 
                 Besides, the deficiencies of testcode.py (test code) do not need to be summarized. only analyze issues that are relevant to the project's own code.""",
             }
         )
@@ -199,20 +200,21 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
                 all_summaries
                 + "the "
                 + str(k)
-                + "th summary "
+                + "th result "
                 + f"|(problem){all_unit_test_results[k]['output']}:(solution){all_code_feedbacks[k]}|\n"
             )
 
         # means it is counter example model
         PROMPT_FOR_SUMMARY_MERGE = """# instruction
-I have multiple implementations of the same project, and I conducted respective unit tests, obtained results, and identified improvement methods for each project. Now, you should summarize all my results. Here's what you need to do:
-1.Summarize all test points: identify how many test_XXX_XXX (like this format) test points exist. but this part do need to outptut.
+I have multiple implementations of the same project, and I conducted respective unit tests, obtained results, analysis, guidance for each project. Now, you should summarize all my results. Here's what you need to do:
+1.Summarize all test points: identify how many test_XXX_XXX (like this format) test points exist in all my result, may not need to outptut.
 2.Prepare the output, two parts:
-(2-1) For test points that passed, summarize the solution in pseudocode format. Present the information as (Test Point + Pseudocode). the pseudocode has been given in input summary, use them. During the output, label this part as good and referable.
-(2-2) For test points that failed or error, collect all the solutions related to this failure or error from all the given summaries. Then analyze them and present them as (Test Point + Failure/Error Analysis + Improvement Guidance). if there are different solutions for one testcase, you should record them all.There is no need to output the list of failed or error test cases again at the end.
-3.Remove duplicate content: Eliminate any duplicate parts from the above steps. duplicate means the summaries with the same solution to the same problem.
+(2-1) For test points that passed, summarize the solutions from all results. Present the information as (Test Point + Pseudocode). the pseudocode has been given in input summary, use them. During the output, label this part as good and referable.
+(2-2) For test points that failed or error, collect analysis and guidances related to this failure or error from all given results in the "#context". Then analyze and summarize them, present as (Test Point + Failure/Error Analysis(summarized from all results) + Improvement Guidance(textural,pseudocode,etc. summarized from all results)). if there are different analysis or guidance for one testcase, you should record them all.
 
-Attention! keep the original content of the summary as much as possible, and don't lose information.
+Attention! There is no need to output the list test cases again at the end. must consider all results in "context", don't omit. 
+try best to make a good summary while keeping the original content of the summary as much as possible, don't lose information.
+
 # context
 The content you need to summarize is as follows: {summaries}."""
         summary_merge_values = {"summaries": all_summaries}
@@ -236,7 +238,11 @@ The content you need to summarize is as follows: {summaries}."""
 
 # _______________ useful functions _______________
 # _______________ useful functions _______________
-def ce_generate(task_plan, log):
+def ce_generate(
+    task_plan,
+    ce_number,
+    log,
+):
     # transfer the task plan(dict str) to a dict in python
     dict_task_plan = ast.literal_eval(task_plan)
 
@@ -244,7 +250,6 @@ def ce_generate(task_plan, log):
     task_list_dict = extract_task_list(task_plan)
 
     # assign the number of c.e.
-    ce_number = 2
     ce_result = []
     for i in range(ce_number):
         # avoid affecting the original plan.

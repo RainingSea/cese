@@ -8,43 +8,43 @@
 "Logic Analysis": [
     [
         "main.py",
-        "The main file of the application, responsible for initializing the Flask app and routing. Contains main function and handles user authentication and blog post management."
+        "Contains the main application logic, including routing for all pages and handling user authentication and blog post management."
     ],
     [
         "templates/login.html",
-        "HTML template for the Login Page, includes form for username and password input."
+        "HTML template for user login, includes form for username and password."
     ],
     [
         "templates/register.html",
-        "HTML template for the Registration Page, includes form for username, password, and email input."
+        "HTML template for user registration, includes form for username, password, and email."
     ],
     [
         "templates/main.html",
-        "HTML template for the Main Blog Page, displays list of blog posts and options to create or view posts."
+        "HTML template for the main blog page, displays list of blog posts and options to create or view posts."
     ],
     [
         "templates/new_post.html",
-        "HTML template for the New Post Page, includes form for creating a new blog post."
+        "HTML template for creating a new blog post, includes form for title and content."
     ],
     [
         "templates/view_post.html",
-        "HTML template for the View Post Page, displays the full content of a selected blog post."
+        "HTML template for viewing a specific blog post, displays full content and options to edit or delete."
     ],
     [
         "templates/edit_post.html",
-        "HTML template for the Edit Post Page, includes form for editing an existing blog post."
+        "HTML template for editing an existing blog post, includes form for modifying title and content."
     ]
 ],
 "Task list": 
 {
-    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
-    'T1':'|Implement user registration functionality and create registration page.|related files:["main.py", "templates/register.html"]',
-    'T2':'|Implement user login functionality and create login page.|related files:["main.py", "templates/login.html"]',
-    'T3':'|Create main blog page to display posts and navigation options.|related files:["main.py", "templates/main.html"]',
-    'T4':'|Implement blog post creation, viewing, editing, and deletion functionalities.|related files:["main.py", "templates/new_post.html", "templates/view_post.html", "templates/edit_post.html"]',
-    'T5':'|Implement navigation and back button functionality across pages.|related files:["templates/main.html", "templates/view_post.html", "templates/edit_post.html", "templates/new_post.html"]',
-    'T6':'|Implement user feedback messages for actions (login, registration, post actions).|related files:["main.py"]'
+    'T0':'|Set up Flask application and routing for all pages',
+    'T1':'|Implement user registration functionality and create registration page',
+    'T2':'|Implement user login functionality and create login page',
+    'T3':'|Create main blog page to display posts and navigation options',
+    'T4':'|Implement create, edit, and delete blog post functionalities',
+    'T5':'|Create HTML templates for all pages',
+    'T6':'|Implement user logout functionality'
 },
 "Full API spec": "",
-"Shared Knowledge": "`main.py` contains functions shared across the project."
+"Shared Knowledge": "The application will use local text files for data storage, with 'users.txt' for user data and 'posts.txt' for blog posts."
 }

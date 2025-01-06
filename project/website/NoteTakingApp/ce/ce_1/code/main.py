@@ -1,12 +1,12 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from user_manager import UserManager
 from note_manager import NoteManager
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'your_secret_key'  # Change this to a random secret key
 
 user_manager = UserManager('users.txt')
-note_manager = None
+note_manager = NoteManager('notes.txt')
 
 @app.route('/')
 def login():
@@ -23,10 +23,8 @@ def register():
 
 @app.route('/dashboard')
 def dashboard():
-    global note_manager
     if 'username' in session:
-        note_manager = NoteManager(session['username'])
-        notes = note_manager.get_all_notes()
+        notes = note_manager.load_notes()
         return render_template('dashboard.html', notes=notes)
     return redirect(url_for('login'))
 
@@ -39,11 +37,6 @@ def do_login():
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
-
 @app.route('/add_note', methods=['GET', 'POST'])
 def add_note():
     if request.method == 'POST':
@@ -53,18 +46,18 @@ def add_note():
         return redirect(url_for('dashboard'))
     return render_template('add_note.html')
 
-@app.route('/view_note/<title>', methods=['GET'])
+@app.route('/view_note/<title>', methods=['GET', 'POST'])
 def view_note(title):
-    note = note_manager.get_all_notes()
-    for n in note:
-        if n.split('|')[0] == title:
-            return render_template('view_note.html', note=n)
-    return redirect(url_for('dashboard'))
-
-@app.route('/delete_note/<title>', methods=['POST'])
-def delete_note(title):
-    note_manager.delete_note(title)
-    return redirect(url_for('dashboard'))
+    if request.method == 'POST':
+        if 'delete' in request.form:
+            note_manager.delete_note(title)
+            return redirect(url_for('dashboard'))
+        elif 'edit' in request.form:
+            new_content = request.form['content']
+            note_manager.edit_note(title, new_content)
+            return redirect(url_for('dashboard'))
+    note = note_manager.load_notes().get(title)
+    return render_template('view_note.html', title=title, content=note)
 
 @app.route('/search_note', methods=['GET', 'POST'])
 def search_note():
@@ -75,4 +68,4 @@ def search_note():
     return render_template('search_note.html', results=[])
 
 if __name__ == '__main__':
-    app.run(port=8098, debug=False)
+    app.run(port=8175, debug=False)

@@ -8,55 +8,42 @@
 "Logic Analysis": [
     [
         "main.py",
-        "Contains main function and initializes the Flask app. Responsible for routing and handling user sessions."
+        "Contains the main function and initializes the application. Manages instances of UserManager, ProjectManager, and FreelancerManager."
     ],
     [
         "templates/login.html",
-        "HTML template for the login page, includes form for username and password."
+        "Handles user login functionality with a form for username and password."
     ],
     [
         "templates/registration.html",
-        "HTML template for the registration page, includes form for creating a new account."
+        "Handles user registration functionality with a form for creating a new account."
     ],
     [
         "templates/home.html",
-        "HTML template for the home page, displays welcome message and search options."
+        "Displays the home page with a welcome message and search options for freelancers."
     ],
     [
-        "templates/freelancer_profile.html",
-        "HTML template for displaying freelancer details."
+        "templates/profile.html",
+        "Allows users to edit their profile details."
     ],
     [
         "templates/project_management.html",
-        "HTML template for managing projects, includes form for creating new projects."
+        "Manages project creation and listing functionalities."
     ],
     [
-        "templates/profile_management.html",
-        "HTML template for editing user profile details."
-    ],
-    [
-        "users.txt",
-        "Text file for storing user credentials."
-    ],
-    [
-        "freelancers.txt",
-        "Text file for storing freelancer profiles."
-    ],
-    [
-        "projects.txt",
-        "Text file for storing project details."
+        "templates/freelancer_profile.html",
+        "Displays detailed information about a selected freelancer."
     ]
 ],
 "Task list": 
 {
-    'T0':'|Set up Flask application and routing.|related files:["main.py"]',
-    'T1':'|Implement login functionality and session management.|related files:["main.py", "templates/login.html"]',
-    'T2':'|Implement registration functionality and user account creation.|related files:["main.py", "templates/registration.html"]',
-    'T3':'|Create home page with welcome message and search options.|related files:["main.py", "templates/home.html"]',
-    'T4':'|Implement search functionality for freelancers and display results.|related files:["main.py", "templates/home.html", "templates/freelancer_profile.html"]',
-    'T5':'|Implement project management page and functionality to create new projects.|related files:["main.py", "templates/project_management.html"]',
-    'T6':'|Implement profile management page and functionality to update user details.|related files:["main.py", "templates/profile_management.html"]'
+    'T0':'|Set up Flask application and initialize main components.|related files:["main.py"]',
+    'T1':'|Implement user login functionality and create login page.|related files:["main.py", "templates/login.html"]',
+    'T2':'|Implement user registration functionality and create registration page.|related files:["main.py", "templates/registration.html"]',
+    'T3':'|Create home page with welcome message and search functionality.|related files:["main.py", "templates/home.html"]',
+    'T4':'|Implement profile management functionality and create profile page.|related files:["main.py", "templates/profile.html"]',
+    'T5':'|Implement project management functionality and create project management page.|related files:["main.py", "templates/project_management.html"]',
+    'T6':'|Implement freelancer profile display functionality and create freelancer profile page.|related files:["main.py", "templates/freelancer_profile.html"]'
 },
-"Full API spec": "",
-"Shared Knowledge": "`main.py` contains the main application logic and routing for the web application."
+"Shared Knowledge": "`main.py` contains the main application logic and initializes all managers for user, project, and freelancer handling."
 }

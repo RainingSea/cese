@@ -4,17 +4,13 @@ class BlogPost:
         self.content = content
         self.author = author
 
-    def create_post(self, title: str, content: str, author: str) -> bool:
-        # Post creation logic is handled in main.py
-        return True
+    def save(self):
+        pass  # Not needed for this implementation
 
-    def edit_post(self, title: str, content: str) -> bool:
-        self.content = content
-        return True
+    @staticmethod
+    def load(post_id: int):
+        pass  # Not needed for this implementation
 
-    def delete_post(self, title: str) -> bool:
-        # Deletion logic is handled in main.py
-        return True
-
-    def view_post(self, title: str) -> str:
-        return self.content
+    @staticmethod
+    def delete(post_id: int):
+        pass  # Not needed for this implementation

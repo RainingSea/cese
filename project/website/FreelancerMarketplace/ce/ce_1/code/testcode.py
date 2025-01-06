@@ -7,14 +7,14 @@ import subprocess
 class TestFreelancerMarketplace(unittest.TestCase):
 
     def setUp(self):
-        # Start the application
+        # Initialize the webdriver and open the login page
         self.process = subprocess.Popen(['python', 'main.py'])
-        time.sleep(1)  # Give the server time to start
+        time.sleep(1)  # Wait for the server to start
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8092/')  # Open the login page
+        self.driver.get('http://localhost:8167/') 
 
     def tearDown(self):
-        # Close the web driver session and stop the application
+        # Close the web driver session
         self.driver.quit()
         self.process.terminate()
 
@@ -27,10 +27,10 @@ class TestFreelancerMarketplace(unittest.TestCase):
 
     def test_user_login(self):
         # Functionalities 1: Test user login functionality
-        self.login("admin", "adminpass")
+        self.login("user1", "password1")
 
         # Verify that the Home Page has loaded
-        self.assertIn("Welcome to the Freelancer Marketplace", self.driver.page_source)
+        self.assertIn("Home", self.driver.title)
 
     def test_navigate_to_registration(self):
         # Functionalities 2: Test navigation to the Registration Page
@@ -38,7 +38,7 @@ class TestFreelancerMarketplace(unittest.TestCase):
         time.sleep(1)  # Wait for the next page to load
 
         # Verify that the Registration Page has loaded
-        self.assertIn("Registration", self.driver.title)
+        self.assertIn("Register", self.driver.title)
 
     def test_user_registration(self):
         # Functionalities 3: Test user registration functionality
@@ -59,59 +59,38 @@ class TestFreelancerMarketplace(unittest.TestCase):
 
     def test_access_home_page_after_login(self):
         # Functionalities 4: Test accessing home page after login
-        self.login("admin", "adminpass")
+        self.login("user1", "password1")
 
         # Verify that the Home Page has loaded
-        self.assertIn("Welcome to the Freelancer Marketplace", self.driver.page_source)
+        self.assertIn("Home", self.driver.title)
 
-    def test_manage_projects(self):
+    def test_searching_for_freelancers(self):
+        # Functionalities 5: Test searching for freelancers
+        self.fail("Not implemented")
+
+    def test_viewing_freelancer_profiles(self):
+        # Functionalities 6: Test viewing freelancer profiles
+        self.fail("Not implemented")
+
+    def test_managing_projects(self):
         # Functionalities 7: Test managing projects
-        self.login("admin", "adminpass")
-        self.driver.find_element(By.LINK_TEXT, 'Manage Projects').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.fail("Not implemented")
 
-        # Verify that the Project Management Page has loaded
-        self.assertIn("Project Management", self.driver.title)
-
-    def test_create_new_project(self):
+    def test_creating_a_new_project(self):
         # Functionalities 8: Test creating a new project
-        self.login("admin", "adminpass")
-        self.driver.find_element(By.LINK_TEXT, 'Manage Projects').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.fail("Not implemented")
 
-        project_name = "New Project"
-        description = "This is a new project."
-        freelancer = "John Doe"
-
-        # Fill out the new project form
-        self.driver.find_element(By.NAME, 'project_name').send_keys(project_name)
-        self.driver.find_element(By.NAME, 'description').send_keys(description)
-        self.driver.find_element(By.NAME, 'freelancer').send_keys(freelancer)
-        self.driver.find_element(By.XPATH, '//button[text()="Create Project"]').click()
-        time.sleep(1)  # Wait for the project to be created
-
-        # Verify that the user is redirected to the Home Page
-        self.assertIn("Welcome to the Freelancer Marketplace", self.driver.page_source)
+    def test_viewing_project_lists(self):
+        # Functionalities 9: Test viewing project lists
+        self.fail("Not implemented")
 
     def test_profile_management(self):
         # Functionalities 10: Test profile management
-        self.login("admin", "adminpass")
-        self.driver.find_element(By.LINK_TEXT, 'Manage Profile').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.fail("Not implemented")
 
-        # Verify that the Profile Management Page has loaded
-        self.assertIn("Profile Management", self.driver.title)
-
-        # Update profile details
-        self.driver.find_element(By.NAME, 'username').clear()
-        self.driver.find_element(By.NAME, 'username').send_keys("updated_user")
-        self.driver.find_element(By.NAME, 'password').clear()
-        self.driver.find_element(By.NAME, 'password').send_keys("updated_pass")
-        self.driver.find_element(By.XPATH, '//button[text()="Update Profile"]').click()
-        time.sleep(1)  # Wait for the profile to be updated
-
-        # Verify that the user is redirected to the Home Page
-        self.assertIn("Welcome to the Freelancer Marketplace", self.driver.page_source)
+    def test_updating_the_user_profile(self):
+        # Functionalities 11: Test updating the user profile
+        self.fail("Not implemented")
 
 if __name__ == '__main__':
     unittest.main()

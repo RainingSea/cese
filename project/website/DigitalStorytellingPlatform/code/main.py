@@ -1,43 +1,43 @@
 from flask import Flask, render_template, request, redirect, session
-from user import User
-from story import Story
-from auth import Auth
+from user_manager import UserManager
+from story_manager import StoryManager
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'your_secret_key'  # Change this to a random secret key
 
-auth = Auth()
+user_manager = UserManager('users.txt')
+story_manager = StoryManager('stories.txt')
 
 @app.route('/', methods=['GET', 'POST'])
-def login_page():
+def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if auth.login(username, password):
+        if user_manager.login(username, password):
             session['username'] = username
-            return redirect('/story_creation')
+            return redirect('/create_story')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
-def register_page():
+def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
-        if auth.register(username, password, email):
+        if user_manager.register(username, password, email):
             return redirect('/')
-    return render_template('registration.html')
+    return render_template('register.html')
 
-@app.route('/story_creation', methods=['GET', 'POST'])
-def story_creation_page():
+@app.route('/create_story', methods=['GET', 'POST'])
+def create_story():
+    if 'username' not in session:
+        return redirect('/')
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
-        user_id = session['username']
-        story = Story(title, content, user_id)
-        story.save()
-        return redirect('/story_creation')
+        story_manager.create_story(title, content)
+        return redirect('/create_story')
     return render_template('story_creation.html')
 
 if __name__ == '__main__':
-    app.run(port=8090, debug=False)
+    app.run(port=8165, debug=False)
