@@ -169,7 +169,7 @@ UNIT TEST FEEDBACK:
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 3. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
 4. You must import the third-party libraries used in your code
-5. If you import a Class, you must import it firstly.
+
 6. Determine the order of writing the files based on your understanding of the project.
 7. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
 8. Only write code result, do not output any other content in the start or in the end.

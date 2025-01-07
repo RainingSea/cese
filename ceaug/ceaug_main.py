@@ -243,17 +243,11 @@ def ce_generate(
     ce_number,
     log,
 ):
-    # transfer the task plan(dict str) to a dict in python
-    dict_task_plan = ast.literal_eval(task_plan)
-
-    # extract the task list, use re match
-    # task_list_dict = extract_task_list(task_plan)
-
-    # assign the number of c.e.
+    
     ce_result = []
     for i in range(ce_number):
         # avoid affecting the original plan.
-        new_task_plan = dict_task_plan.copy()
+        new_task_plan = task_plan
         # task_list_dict_copy = task_list_dict.copy()
         # # disturbing, get counter example task list
         # ce = disturbing(task_list_dict_copy, log)
