@@ -56,15 +56,7 @@ def start_project():
     Team.projec_catogory = category
     Team.project_name = project_name
 
-    # projdir = (
-    #     "D:/Project/CE/CE/project/"
-    #     + category
-    #     + "/"
-    #     + project_name
-    #     + "_"
-    #     + formatted_time
-    #     + "/"
-    # )
+    # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name+ "_"+ formatted_time + "/"
     projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
     Team.set_projdir(projdir)
     Team.set_log()

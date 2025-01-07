@@ -33,10 +33,10 @@ user1|user123
 ## ATTENTION
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
-3. Follow task: YOU MUST write Comprehensive codes to complete task, Must write each file list in the logic analysis of Task Plan, do not omit any file.
+3. Follow task: YOU MUST write Comprehensive codes to complete task of each file in task list.
 4. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
 5. You must import the third-party libraries used in your code
-6. If you import a Class, you must import it firstly.
+6. If you use a Class not in your file, you must ensure you import it firstly.
 7. Determine the order of writing the files based on your understanding of the project.
 8. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
 9. Only write code result, do not output any other content in the start or in the end.
@@ -231,10 +231,10 @@ user1|user123
 ## ATTENTION
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
-3. Follow task: YOU MUST write Comprehensive codes to complete task, Must write every file listed in the logic analysis of Task Plan, do not omit any file.
+3. Follow task: YOU MUST write Comprehensive codes to complete task of each file in task list.
 4. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
 5. You must import the third-party libraries used in your code
-6. If you import a Class, you must import it firstly.
+6. If you use a Class not in your file, you must ensure you import it firstly.
 7. Determine the order of writing the files based on your understanding of the project.
 8. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
 9. Only write code result, do not output any other content in the start or in the end.
@@ -242,7 +242,7 @@ user1|user123
 (Different groups of data are distinguished by line breaks.
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
-Your code of handling data must be consistent with rule in which you define the data.
+Your code of handling data must be consistent with rule in which you define the data.)
 11. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
@@ -262,7 +262,7 @@ Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 
 # Regarding the Experience and Lessons
-In this section, a number of successful and failed experiences accumulated from past implementations of this project are provided. You should study the test pass functionality along with the accompanying pseudocode or logic to implement corresponding features in your project. Additionally, pay attention to the failures or error test, carefully review their analyses and improvement guidance, and apply these insights to write better and robust code.
+In this section, a number of successful and failed experiences accumulated from past implementations of this project are provided. You should study the test pass functionality along with the accompanying pseudocode or logic to implement corresponding features in your project. Additionally, some features were previously implemented unsuccessfully, pay attention to these function failures or error test, carefully review their analyses and improvement guidance, and when you writing these functionality code, apply these insights to write better and robust code.
 """
 
 CODING_P = """

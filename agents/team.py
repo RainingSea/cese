@@ -79,7 +79,7 @@ class Team(BaseModel):
             # self.roles["Reviewer"].target = self.roles["Project Manager"]
             # self.roles["Reviewer"].go()
             Team.active_role(self.roles["Project Manager"].profile)
-            
+
         self.roles["Programmer"].go()
         code_base_dir = os.path.join(Team.project_dir, "code")
         port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
@@ -122,7 +122,7 @@ class Team(BaseModel):
             # Read files from an existing project, then proceed with development.
             # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
             Team.incremental_base_dir = os.path.normpath(
-                "D:\Project\CE\CE\project\website\RecipeHub"
+                "D:\Project\CE\CE\project\website\\NoteTakingApp"
             )
             self.roles["Product Manager"].go_inter()
             self.roles["Architect"].go_inter()
@@ -141,6 +141,12 @@ class Team(BaseModel):
             # self.roles["Reviewer"].go()
             Team.active_role(self.roles["Project Manager"].profile)
 
+        # |--------- simplest coding process ---------|
+        # |
+        # self.roles["Programmer"].go()
+        # return
+        # |
+        # |--------- simplest coding process ---------|
         # set code dir
         ce_projects_paths = create_ce_document(
             Team.project_dir, Team.all_messages[3].content, Team.log
@@ -186,6 +192,9 @@ class Team(BaseModel):
         self.roles["Architect"].go_inter()
         self.roles["Project Manager"].go_inter()
         if ce_feedback:
+            if ce_feedback == "CodeIsGood":
+                print("Dev execute END")
+                return
             # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
             Team.log.info("### ceaug feedback\n" + str(ce_feedback))
             # use feedback from counter example to augment coding
