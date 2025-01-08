@@ -1,5 +1,5 @@
 ### CESE 说明文档
-#### 在 utils / essay.ipynb 这个文件下，调一调总结的prompt，看改成extract会不会好一些
+#### 在 utils / essay.ipynb 这个文件下(最后Prompt for Sumary部分)，调一调总结的prompt，看改成extract会不会好一些
 
 ## 主要更改：
 （1）保留了RTADev的代码，但全部注释掉了，不敢删
