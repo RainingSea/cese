@@ -42,7 +42,7 @@ def create_ce_document(project_dir, task_plan, log):
 
     # _______________ generate disturbed plan/ arch / prd of counter example ______________
     # generate 2(default) error(disturbed, whatever) task plan
-    ce_plans = ce_generate(task_plan, 3, log)
+    ce_plans = ce_generate(task_plan, 5, log)
     ce_project_paths = []
     # make a directory for each counter example, and create prd, arch, task plan.
     for i in range(len(ce_plans)):
@@ -156,7 +156,8 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
 
         if "[CODE]" not in relevance:
             log.info("GOOD PATH GOOD PATH" + str(project_dirs[i]))
-            return max_score, "CodeIsGood"
+            continue
+            # return max_score, "CodeIsGood"
 
         # 3. summarize the code feedback
         # m_3, llm's response(whether from code)
@@ -210,11 +211,14 @@ I have multiple implementations of the same project, and I conducted respective 
 1.Summarize all test points: identify how many test_XXX_XXX (like this format) test points exist in all my result, may not need to outptut.
 2.Prepare the output, two parts:
 (2-1) For test points that passed, summarize the solutions from all results. Present the information as (Test Point + Pseudocode). the pseudocode has been given in input summary, use them. During the output, label this part as good and referable.
-(2-2) For test points that failed or error, collect analysis and guidances related to this failure or error from all given results in the "#context". Then analyze and summarize them, present as (Test Point + Failure/Error Analysis(summarized from all results) + Improvement Guidance(textural,pseudocode,etc. summarized from all results)). if there are different analysis or guidance for one testcase, you should record them all. don't summarize guidance for testcode.
+(2-2) For test points that failed or error, collect analysis and guidances related to this failure or error from all given results in the "#context". Then analyze and summarize them, present as (Test Point + Failure/Error Analysis(summarized from all results) + Improvement Guidance(textural,pseudocode,etc. summarized from all results)). 
 
-Attention! There is no need to output the list test cases again at the end. must consider all results in "context", don't omit. 
-try best to make a good summary while keeping the original content of the given result as much as possible, don't lose information.
-
+# Attention
+There is no need to output the list test cases again at the end. must consider all results in "context", don't omit. 
+# Attention
+try best to make a good summary while keeping the original content of the given result as much as possible, don't lose information. 
+# Attention
+if there are different analysis or guidance for one testcase, you should record them all. don't summarize guidance for testcode.
 # context
 The content you need to summarize is as follows: {summaries}."""
         summary_merge_values = {"summaries": all_summaries}
@@ -243,7 +247,7 @@ def ce_generate(
     ce_number,
     log,
 ):
-    
+
     ce_result = []
     for i in range(ce_number):
         # avoid affecting the original plan.
