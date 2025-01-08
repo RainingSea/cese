@@ -13,7 +13,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from agents.role import Role
 from utils.log import Log
-from ceaug.ceaug_main import ceaug, create_ce_document
+from ceaug.ceaug_main import ceaug, create_ce_document, feedback_split
 from utils.edit_txt import add_newline_to_txt_files, update_flask_port
 
 
@@ -93,7 +93,7 @@ class Team(BaseModel):
                 ce_projects_paths,
                 Team.projec_catogory,
                 Team.project_name,
-                Team.all_messages[0].content,
+                "self_evo",
                 Team.log,
             )
             # use feedback to regenate
@@ -172,7 +172,7 @@ class Team(BaseModel):
             ce_projects_paths,
             Team.projec_catogory,
             Team.project_name,
-            Team.all_messages[0].content,
+            "ite_fdback",
             Team.log,
         )
 
@@ -200,7 +200,29 @@ class Team(BaseModel):
             # use feedback from counter example to augment coding
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
-            self.roles["C_Programmer"].go(ce_feedback)
+
+            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
+            # process pass feedback
+            init = True
+            if pass_feedback:
+                for passfd in pass_feedback:
+                    if init:
+                        self.roles["C_Programmer"].go(passfd, "0")
+                        init = False
+                    else:
+                        self.roles["C_Programmer"].go(passfd, "1")
+            # process no pass feedback
+            if no_pass_feedback:
+                for n_passfd in no_pass_feedback:
+                    if init:
+                        self.roles["C_Programmer"].go(n_passfd, "0")
+                        init = False
+                    else:
+                        self.roles["C_Programmer"].go(n_passfd, "2")
+            # write only once
+            self.roles["C_Programmer"].message_to_file(
+                self.roles["C_Programmer"].own_message.content
+            )
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()

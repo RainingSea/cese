@@ -18,9 +18,9 @@ from utils.read import read_dir
 # custom lib
 from prompt.write_code_prompt import (
     CODING_SYS,
-    CODING,
     CODING_C,
-    CODING_P,
+    CODING_ITE_C1,
+    CODING_ITE_C2,
     RECODNIG,
 )
 
@@ -47,7 +47,7 @@ class C_Programmer(Role):
     code_base: dict[str, str] = Field(default_factory=dict, validate_default=True)
     trigger_task: str = "T7"
 
-    def go(self, ce_feedback):
+    def go(self, ce_feedback, flag):
         # print(self.trigger_task)
         print(self.profile + " " + self.name + " Coding...")
         Team.log.info(self.profile + " " + self.name + " Coding...")
@@ -55,6 +55,8 @@ class C_Programmer(Role):
         # ---------- get the information needed from SCR ----------
         architecture = self.getArchiture().content
         task_plan = self.getProjectPlan().content
+
+        exist_code = self.own_message.content
 
         # --------------- decompose and assign tasks to programmer
 
@@ -65,14 +67,32 @@ class C_Programmer(Role):
         # ---------- constructing prompt to LLM ----------
         system_prompt = SystemMessage(content=CODING_SYS)
         # use counter prompt
-        user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
-        user_prompt_msg = user_prompt_template.invoke(
-            {
-                "architecture": architecture,
-                "task_plan": task_plan,
-                "ce_feedback": ce_feedback,
-            }
-        )
+        if flag == "0":
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
+            user_prompt_msg = user_prompt_template.invoke(
+                {
+                    "architecture": architecture,
+                    "task_plan": task_plan,
+                    "ce_feedback": ce_feedback,
+                }
+            )
+        elif flag == "1":
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_ITE_C1)
+            user_prompt_msg = user_prompt_template.invoke(
+                {
+                    "exist_code": exist_code,
+                    "ce_feedback": ce_feedback,
+                }
+            )
+        elif flag == "2":
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_ITE_C2)
+            user_prompt_msg = user_prompt_template.invoke(
+                {
+                    "exist_code": exist_code,
+                    "ce_feedback": ce_feedback,
+                }
+            )
+
         user_prompt = user_prompt_msg.to_messages()[0]
         # prompt LLM
         Team.log.info(system_prompt.content + "\n" + user_prompt.content)
@@ -84,9 +104,10 @@ class C_Programmer(Role):
         for i in range(1, len(code_result_split)):
             file_name, file_content = self.match(code_result_split[i])
             self.code_base[file_name] = file_content
-        self.message_to_file(code_result)
+        # self.message_to_file(code_result)
 
         code_msg = Message(sender=self.profile, content=code_result)
+        self.own_message = code_msg
 
         # Team.all_messages.append(code_msg)
 
@@ -185,263 +206,7 @@ class C_Programmer(Role):
             )
             Team.log.info(update_codes_content)
 
-    def execute_and_feedback(self, architecture, task_plan, raw_codes):
-
-        Team.log.info("Begin Check for Programmer")
-
-        align_result = raw_codes
-
-        all_roles = Team.get_active_roles()
-
-        Team.log.info("role involved in Code Alignment Checking: " + str(all_roles))
-
-        # ------------ check roles to align ----------------
-        print("[1] Roles go to Check")
-        Team.log.info("[1] Roles go to Check")
-
-        align_talk_turn = 1
-        MAX_ALIGN_TURN = Team.align_check_num
-
-        while align_talk_turn <= MAX_ALIGN_TURN:
-
-            align_roles = []
-            code_check_msg = []
-
-            print("Begin the " + str(align_talk_turn) + " turn Alignment")
-            Team.log.info("Begin the " + str(align_talk_turn) + " turn Alignment")
-            # roles participating in the alignment to align check
-            for i in range(len(all_roles)):
-                align_participant_msg = (
-                    ChatPromptTemplate.from_template(
-                        self.team.roles[all_roles[i]].review_prompt["Programmer"]
-                    )
-                    .invoke(
-                        {
-                            "participant_content": self.team.roles[
-                                all_roles[i]
-                            ].own_message.content,
-                            "role_content": align_result,
-                        }
-                    )
-                    .to_messages()[0]
-                )
-                # align prompt
-                Team.log.info(
-                    self.team.roles[all_roles[i]].profile
-                    + " Code Alignment prompt: "
-                    + align_participant_msg.content
-                )
-                # record align check result
-                participant_check = self.team.roles[all_roles[i]].llm.invoke(
-                    align_participant_msg
-                )
-                print(
-                    "Code Alignment | "
-                    + self.team.roles[all_roles[i]].profile
-                    + " | check result is : \n"
-                    + participant_check
-                )
-                Team.log.info(
-                    "Code Alignment | "
-                    + self.team.roles[all_roles[i]].profile
-                    + " | check result is : \n"
-                    + participant_check
-                )
-
-                participant_check_msg = Message(
-                    sender=self.team.roles[all_roles[i]].profile,
-                    content=participant_check,
-                )
-                # role reporting problem will be list in align roles, participant in MAD process
-                if "[NOTMATCH]" in participant_check:
-                    align_roles.append(self.team.roles[all_roles[i]].profile)
-                    code_check_msg.append(participant_check_msg)
-                elif "[MATCH]" in participant_check:
-                    pass
-                else:
-                    align_roles.append(self.team.roles[all_roles[i]].profile)
-                    code_check_msg.append(participant_check_msg)
-
-            # After Check, We get { align_roles & check_result }
-            print("After Checking, Group Roles are: " + str(align_roles))
-            Team.log.info("After Checking, Group Roles are: " + str(align_roles))
-
-            # [1] if all roles no problem, align finished
-            if len(align_roles) == 0:
-                if align_talk_turn == 1:
-                    # if all roles check result is GOOD, then return
-                    Team.log.info("All roles no problem in Checking, No Align")
-                    return False, align_result
-                else:
-                    Team.log.info(
-                        "After Align, All roles no problem in Checking, No Align"
-                    )
-                    return True, align_result
-
-            # [2] at least one role misalign, enter MAD-S / MAD-M
-
-            sup_turn = 1
-            MAX_SUP_TURN = Team.mad_num
-
-            raw_complement_suggestion = []
-            for _r in code_check_msg:
-                raw_complement_suggestion.append(_r)
-
-            # ---------- MAD ----------
-            while sup_turn <= MAX_SUP_TURN:
-                print("\nBegin the " + str(sup_turn) + " turn Supplement(MAD) ")
-                Team.log.info("\nBegin the " + str(sup_turn) + " turn Supplement(MAD) ")
-                # MAD-S / MAD-M
-                # whether to supplement role's own messages based on messages from other roles.
-                Team.log.info("### SUPPLEMENTING STAGE ###")
-
-                # MAD-S / special case where there is only one role
-                if len(align_roles) <= 1:
-                    Team.log.info("Only one roles in Align, no MAD")
-                    break
-                # MAD-M
-                else:
-                    _raw_complement_suggestion = []
-                    for j in range(len(align_roles)):
-                        # extract other's message
-                        other_suggestion = []
-                        self_suggestion = None
-                        for msg in raw_complement_suggestion:
-                            if msg.sender != self.team.roles[align_roles[j]].profile:
-                                other_suggestion.append(msg)
-                            else:
-                                self_suggestion = msg
-
-                        # supplement one's own check result based on others' check result
-                        complement_align_participant_msg = (
-                            ChatPromptTemplate.from_template(COMPLEMENT)
-                            .invoke(
-                                {
-                                    "participant_role": self.team.roles[
-                                        align_roles[j]
-                                    ].profile,
-                                    "role_action": self.action,
-                                    "participant_action": self.team.roles[
-                                        align_roles[j]
-                                    ].action,
-                                    "participant_content": self.team.roles[
-                                        align_roles[j]
-                                    ].own_message.content,
-                                    "role_content": align_result,
-                                    "participant_review": self_suggestion.content,
-                                    "other_review": self.read_suggestion(
-                                        other_suggestion
-                                    ),
-                                }
-                            )
-                            .to_messages()[0]
-                        )
-                        # supplement prompt
-                        Team.log.info(
-                            self.team.roles[align_roles[j]].profile
-                            + " complement self's review result prompt\n"
-                            + complement_align_participant_msg.content
-                        )
-                        # record supplement thinking result
-                        complement_align_participant_suggestion = self.team.roles[
-                            align_roles[j]
-                        ].llm.invoke(complement_align_participant_msg)
-                        print(
-                            align_roles[j]
-                            + " SUP: "
-                            + complement_align_participant_suggestion
-                        )
-                        Team.log.info(
-                            "complement result is \n"
-                            + complement_align_participant_suggestion
-                        )
-
-                        # Since the result is not necessarily a complement suggestion, use a temp_review.
-                        # This way, the SUMMARY doesn’t need to be written twice.
-                        if "[NOT_NEED]" in complement_align_participant_suggestion:
-                            _temp_review = self_suggestion
-                        else:
-                            _temp_review = Message(
-                                sender=self.team.roles[align_roles[j]].profile,
-                                content=complement_align_participant_suggestion,
-                            )
-                        _raw_complement_suggestion.append(_temp_review)
-                    raw_complement_suggestion = []
-                    for _r in _raw_complement_suggestion:
-                        raw_complement_suggestion.append(_r)
-                    sup_turn = sup_turn + 1
-
-            flag_suggestion = []
-            complement_suggestion = []
-            # complement_suggestion_string = ""
-            for i in range(len(raw_complement_suggestion)):
-                if "[NOTMATCH]" in raw_complement_suggestion[i].content:
-                    flag_suggestion.append("BAD")
-                    complement_suggestion.append(raw_complement_suggestion[i])
-                elif "[MATCH]" in raw_complement_suggestion[i].content:
-                    flag_suggestion.append("GOOD")
-                else:
-                    flag_suggestion.append("BAD")
-                    complement_suggestion.append(raw_complement_suggestion[i])
-
-            # ---------- MASTER or CODE decide whether to approve it. ----------
-            # Logically, if roles reache this step, it means all NOTMATCH, so they should not pass.
-            # will correct here after releasing.
-            Team.log.info("flag " + str(flag_suggestion))
-            PASS = True
-            for i in range(len(flag_suggestion)):
-                if flag_suggestion[i] != "GOOD":
-                    PASS = False
-                    break
-
-            # decide whether to modify or end the alignment based on the results from the Agents (which may include humans).
-            if PASS == False:
-                align_TF = True
-                # extract the not align check result
-                user_prompt_template_1 = ChatPromptTemplate.from_template(RETHINK)
-                code_review_user_msg_1 = user_prompt_template_1.invoke(
-                    {"result": self.read_suggestion(complement_suggestion)}
-                )
-                code_review_user_prompt_1 = code_review_user_msg_1.to_messages()[0]
-                Team.log.info(
-                    "prompt to Extract Code Review: "
-                    + code_review_user_prompt_1.content
-                )
-                p_result = self.llm.invoke(code_review_user_prompt_1)
-                Team.log.info("Code Review Extract Result: " + p_result)
-                print(self.profile + " " + self.name + " Recoding...")
-                Team.log.info(self.profile + " " + self.name + " Recoding...")
-                # system_prompt = SystemMessage(content=RECODING_SYS)
-                user_prompt_template = ChatPromptTemplate.from_template(RECODNIG)
-                code_review_user_msg = user_prompt_template.invoke(
-                    {
-                        "review_result": p_result,
-                        "code": align_result,
-                    }
-                )
-                code_review_user_prompt = code_review_user_msg.to_messages()[0]
-                # prompt LLM and regenerate aligned result
-                Team.log.info(code_review_user_prompt.content)
-                recode_result = self.llm.invoke(
-                    code_review_user_prompt,
-                )
-                Team.log.info("Regenerated Code is: \n" + recode_result)
-                align_result = recode_result
-                align_talk_turn = align_talk_turn + 1
-            else:
-                pass
-                # print("all Align, alignment finished")
-                # Team.log.info("Everyone Reaches an agreement, Align is Done")
-                # if align_talk_turn == 1:
-                #     align_TF = False
-                #     return align_TF, align_result
-                # else:
-                #     align_TF = True
-                #     return align_TF, align_result
-
-        # Code — no consistent result is reached after MAX align, force return.
-        Team.log.info("Align is upon MAX, return")
-        return True, align_result
+    
 
     def match(self, code_text):
         """

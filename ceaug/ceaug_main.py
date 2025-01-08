@@ -86,7 +86,7 @@ def create_ce_document(project_dir, task_plan, log):
     return ce_project_paths
 
 
-def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log):
+def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
 
     max_score = -1.0
     code_feedback_selected = ""
@@ -193,7 +193,7 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
         all_code_feedbacks.append(code_feedback)
         all_unit_test_results.append(unit_test_result)
 
-    if len(project_dirs) > 1 and len(all_code_feedbacks) > 1:
+    if flag == "ite_fdback":
         sum_messages = []
         all_summaries = ""
         for k in range(len(all_code_feedbacks)):
@@ -207,18 +207,32 @@ def ceaug(base_dir, project_dirs, project_category, project_name, user_req, log)
 
         # means it is counter example model
         PROMPT_FOR_SUMMARY_MERGE = """# instruction
-I have multiple implementations of the same project, and I conducted respective unit tests, obtained results, analysis, guidance for each project. Now, you should summarize all my results. Here's what you need to do:
-1.Summarize all test points: identify how many test_XXX_XXX (like this format) test points exist in all my result, may not need to outptut.
-2.Prepare the output, two parts:
-(2-1) For test points that passed, summarize the solutions from all results. Present the information as (Test Point + Pseudocode). the pseudocode has been given in input summary, use them. During the output, label this part as good and referable.
-(2-2) For test points that failed or error, collect analysis and guidances related to this failure or error from all given results in the "#context". Then analyze and summarize them, present as (Test Point + Failure/Error Analysis(summarized from all results) + Improvement Guidance(textural,pseudocode,etc. summarized from all results)). 
+I have multiple implementations of the same project, each of which has undergone unit testing. For each implementation, I have obtained test results, analyzed them, and developed improvement recommendations. Now, I need you to help me summarize all these findings and insights.
+1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, may not need to outptut.
 
-# Attention
-There is no need to output the list test cases again at the end. must consider all results in "context", don't omit. 
-# Attention
-try best to make a good summary while keeping the original content of the given result as much as possible, don't lose information. 
-# Attention
-if there are different analysis or guidance for one testcase, you should record them all. don't summarize guidance for testcode.
+2.Prepare the output, divided into two parts:
+### Part 1: Passed Test Cases
+Summarize solutions for all test cases that passed. Use the pseudocode provided in the input to represent the solutions; do not generate new pseudocode. Present each case in the format:
+1. |Case|:**Case Name**
+Followed by the pseudocode which represent the successful implementation for this function.
+
+### Failed or Error Test Cases
+Collect the analysis and guidance related to each failure or error. Summarize this information and present it in the format:
+1. |Case|:**Case Name**
+Followed by:
+Failure/Error Analysis (summarized from all results)
+Improvement Guidance (textual, pseudocode, etc., summarized from all results)
+Ensure that if there are differing analyses or guidance for a single test case, all are recorded. 
+Note: Case Name is the test case name with the test_ prefix removed (e.g., test_navigate_to_registration becomes navigate_to_registration).
+Note: Do not summarize guidance specifically for the test code itself.
+
+Attention: There is no need to output the list test cases again at the end. must consider all results in "context", don't omit. 
+try best to make a good summary while keeping the original content of the given result as much as possible, don't lose information.
+
+
+Constraint:The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
+Format: You Must add a |Case| before the Case Name for differentiation. like <case>: test_a_function, must use two "|".
+
 # context
 The content you need to summarize is as follows: {summaries}."""
         summary_merge_values = {"summaries": all_summaries}
@@ -261,6 +275,54 @@ def ce_generate(
         ce_result.append((new_task_plan))
 
     return ce_result
+
+
+def feedback_split(feedback):
+    # 提取所有通过的测试结果
+    passed_test_cases = re.search(
+        r"(?<=### Passed Test Cases)(.*?)(?=### Failed or Error Test Cases|$)",
+        feedback,
+        re.DOTALL,
+    )
+    if passed_test_cases:
+        pattern = r"\|Case\|:.*?(?=\n\d+\.\s\|Case\|:|\Z)"
+        pass_case_blocks = re.findall(
+            pattern, passed_test_cases.group(0).strip(), re.DOTALL
+        )
+        pass_feedback = process_array(pass_case_blocks)
+    else:
+        pass_feedback = None
+
+    # 提取没有通过测试的结果
+    failed_or_error_test_cases = re.search(
+        r"(?<=### Failed or Error Test Cases)(.*)", feedback, re.DOTALL
+    )
+    if failed_or_error_test_cases:
+        pattern = r"\|Case\|:.*?(?=\n\d+\.\s\|Case\|:|\Z)"
+        no_pass_case_blocks = re.findall(
+            pattern, failed_or_error_test_cases.group(0).strip(), re.DOTALL
+        )
+        no_pass_feedback = process_array(no_pass_case_blocks)
+    else:
+        no_pass_feedback = None
+    return pass_feedback, no_pass_feedback
+
+
+def process_array(arr):
+    n = len(arr)
+    if n > 8:
+        # 每个新数组元素包含原数组的 1/4 个元素（取下界）
+        chunk_size = n // 4
+        new_array = [arr[i * chunk_size : (i + 1) * chunk_size] for i in range(4)]
+        # 如果还有剩余元素，新建一个额外的元素
+        remaining = arr[4 * chunk_size :]
+        if remaining:
+            new_array.append(remaining)
+    else:
+        # 每个新数组元素包含原数组的 2 个元素，最后一个可能是 1 个
+        chunk_size = 2
+        new_array = [arr[i : i + chunk_size] for i in range(0, n, chunk_size)]
+    return ["".join(chunk) for chunk in new_array]
 
 
 def extract_task_list(task_plan):
