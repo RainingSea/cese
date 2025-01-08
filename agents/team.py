@@ -110,6 +110,7 @@ class Team(BaseModel):
 
         return
 
+    # sampling run
     def run(self):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
@@ -174,9 +175,7 @@ class Team(BaseModel):
             Team.all_messages[0].content,
             Team.log,
         )
-        # use feedback to regenate
-        # self.roles["C_Programmer"].go(ce_feedback)
-        # pass all the ce_project, execute unit test, analyze, and select the most valuable one
+
         # |_____________________________________________________________|
         # |                      Attention!                             |
         # | ceaug() execute unit test, which                            |
