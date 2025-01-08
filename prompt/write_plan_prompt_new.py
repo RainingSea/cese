@@ -12,7 +12,8 @@ architecture:
 -----
 
 ## format example
-{{
+[CONTENT]
+
 "Required packages": [
     "flask==1.1.2",
     "bcrypt==3.2.0"
@@ -23,11 +24,11 @@ architecture:
 "Logic Analysis": [
     [
         "game.py",
-        "The main file of the game, responsible for initializing the game window.... Contains Game class and ... functions"
+        "Contains Game class and ... functions"
     ],
     [
         "main.py",
-        "Contains main function and the main frame, import Game, Logic..."
+        "Contains main function, from game import Game"
     ]
 ],
 "Task list": [
@@ -35,7 +36,8 @@ architecture:
     "main.py"
 ],
 "Shared Knowledge": "`game.py` contains functions shared across the project.",
-}}
+
+[/CONTENT]
 
 ## nodes: "<node>: <type>  # <instruction>"
 - Required packages: typing.List[str]  # Provide required packages in requirements.txt format.
@@ -47,9 +49,8 @@ architecture:
 
 ## constraint
 Language: Please use the same language as Human INPUT.
-Format: output like format example, nothing else.
+Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
 If you are doing website development, please do not encrypt the account password for the login function.
-Related and simple tasks should be combined into one task to reduce the overall number of tasks(no more than 7) during you making "Task List".
 
 ## action
 Follow instructions of nodes, generate output and make sure it follows the format example.

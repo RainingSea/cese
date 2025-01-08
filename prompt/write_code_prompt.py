@@ -169,7 +169,7 @@ UNIT TEST FEEDBACK:
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 3. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
 4. You must import the third-party libraries used in your code
-5. If you import a Class, you must import it firstly.
+
 6. Determine the order of writing the files based on your understanding of the project.
 7. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
 8. Only write code result, do not output any other content in the start or in the end.
@@ -262,7 +262,10 @@ Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 
 # Regarding the Experience and Lessons
-In this section, a number of successful and failed experiences accumulated from past implementations of this project are provided. You should study the test pass functionality along with the accompanying pseudocode or logic to implement corresponding features in your project. Additionally, some features were previously implemented unsuccessfully, pay attention to these function failures or error test, carefully review their analyses and improvement guidance, and when you writing these functionality code, apply these insights to write better and robust code.
+In this section, a number of successful and failed experiences accumulated from past implementations of this project are provided. 
+Pay attention to all these functions.
+For the test pass functionality, you should refer the accompanying pseudocode or logic to implement corresponding features in your project. 
+Additionally, some features were previously implemented unsuccessfully, pay attention to these function failures or error test, carefully review their analyses and improvement guidance, and when you writing these functionality code, apply these insights to write better and robust code.
 """
 
 CODING_P = """

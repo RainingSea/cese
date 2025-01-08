@@ -122,7 +122,7 @@ class Team(BaseModel):
             # Read files from an existing project, then proceed with development.
             # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
             Team.incremental_base_dir = os.path.normpath(
-                "D:\Project\CE\CE\project\website\\NoteTakingApp"
+                "D:\Project\CE\CE\project\website\PersonalBlog"
             )
             self.roles["Product Manager"].go_inter()
             self.roles["Architect"].go_inter()
@@ -143,7 +143,8 @@ class Team(BaseModel):
 
         # |--------- simplest coding process ---------|
         # |
-        # self.roles["Programmer"].go()
+
+        # self.roles["C_Programmer"].go(feedback)
         # return
         # |
         # |--------- simplest coding process ---------|
