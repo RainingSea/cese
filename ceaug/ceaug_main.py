@@ -42,7 +42,7 @@ def create_ce_document(project_dir, task_plan, log):
 
     # _______________ generate disturbed plan/ arch / prd of counter example ______________
     # generate 2(default) error(disturbed, whatever) task plan
-    ce_plans = ce_generate(task_plan, 3, log)
+    ce_plans = ce_generate(task_plan, 5, log)
     ce_project_paths = []
     # make a directory for each counter example, and create prd, arch, task plan.
     for i in range(len(ce_plans)):
@@ -364,7 +364,8 @@ def edit_task(d, log):
         return None
     # seed
     seed_value = int(time.time())
-    with open("D:\Project\CE\CE\seed.txt", "a") as file:
+    # "D:\Project\CE\CE\seed.txt"
+    with open("D:\\algorithm\\agent\\cese\\seed.txt", "a") as file:
         file.write(str(datetime.now()) + " " + str(seed_value))
     random.seed(seed_value)
     #
