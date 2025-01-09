@@ -1,7 +1,7 @@
 import shutil
 
 from openai import OpenAI
-from utils.read import read_codebase
+from utils.read import read_codebase,read_file
 from ceaug.auto_test import *
 from utils.read import read_file_2_line
 import re, random
@@ -119,20 +119,28 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
 
     max_score = -1.0
     code_feedback_selected = ""
-    all_code_feedbacks = []
     all_unit_test_results = []
+    all_code_feedbacks = []
+    all_task_plan_feedbacks = []
+    all_architecture_feedbacks = []
+
     for i in range(len(project_dirs)):
         print("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
         log.info("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
 
         project_dir = project_dirs[i]
+        
+        # 抽取代码，架构，计划
         code_base = read_codebase(os.path.join(project_dir, "code"))
+        architecture = read_file(project_dir, "architect.md")
+        task_plan = read_file(project_dir, "task plan.md")
         # 编写测试代码testcode.py
         test_code = autogen(project_dir, project_category, project_name)
 
         # 运行测试代码
         print("workdir before test: " + str(Path.cwd()))
         unit_test_result = runUnitTest(project_dir, project_category)
+        
         log.info("unit_test_result" + str(unit_test_result))
         # 切回来目录
         os.chdir(base_dir)
@@ -274,7 +282,14 @@ The content you need to summarize is as follows: {summaries}."""
         log.info("summaried summaries:\n" + summaries_summary)
 
         # placeholder for arch feedback, plan feedback
-        feedback_result = {"arch": "Nothing", "plan": "Nothing", "code": summaries_summary}
+        
+        
+        
+        feedback_result = {
+            "arch": "Nothing",
+            "plan": "Nothing",
+            "code": summaries_summary,
+        }
         return max_score, feedback_result
 
     if code_feedback_selected:
@@ -532,6 +547,123 @@ def edit_task(d, log):
 
     return d
 
+
+REFINE_ARCHITECTURE_PROMPT = """
+### Instructions:
+You are a software architect reviewing a Python project. 
+Below are the details about the implementation, UI, data storage, 
+file list, and data structures. 
+Based on the architecture details, the context of unit testing results, 
+the unit test code, the unit test result analysis, and the codebase, 
+please provide improvement suggestions in the following areas:
+
+### Architecture Details:
+{architecture}
+
+### Request:
+
+1. **Overall Evaluation:**
+   - Strengths: What works well in terms of **implementation**, **UI**, and **data structures**?
+   - Weaknesses: What needs improvement in these areas?
+
+2. **Specific Problems:**
+   - Identify weaknesses and explain:
+     - Problem: Describe the issue (e.g., missing features like login, registration).
+     - Suggestions: Propose actionable solutions.
+     - Problem: Describe the issue (e.g., missing files like main.py).
+     - Suggestions: Propose actionable solutions.
+
+3. **Architecture Enhancements:**
+   - Implementation: Is Flask appropriate for this project?
+   - UI Design: How can UI be improved to meet functional requirements?
+   - Data Storage: Have the local text files covered all the necessary data? If not, make sure to add the required data.
+
+### Attention
+1. This is only a small project, we don't consider too much about scalability.
+2. We don't use any database.
+3. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
+---------------------------
+### Output Example:
+
+1. **Overall Evaluation:**
+   - **Strengths:**
+     - Simple architecture suitable for small-scale projects.
+     - Text file storage works well at this scale.
+   - **Weaknesses:**
+     - UI lacks filtering and sorting features.
+     - Text files lack organization, making scaling difficult.
+
+2. **Specific Problem Areas:**
+   - **Problem 1:** UI lacks filtering and sorting features.
+     - **Suggestions:** Add basic filtering and sorting functionalities.
+
+3. **Architecture Enhancements:**
+   - **Implementation:** Flask is suitable, but separate models and views for better clarity.
+   - **UI Design:** Add filtering, searching, and sorting.
+   - **Data Storage:** Add users.txt to store user accounts
+   - **Data Structures:** Ensure classes focus on single responsibilities.
+
+"""
+
+REFINE_TASK_PLAN_PROMPT = """
+### Task Plan Review:
+
+You are an experienced software architect tasked with reviewing a Python web application task plan. 
+The task plan outlines packages, logic, file structure, and tasks. 
+Based on the task plan details, the context of unit testing results, 
+the unit test code, the unit test result analysis, and the codebase, 
+provide feedback on:
+
+### Task Plan:
+{task_plan}
+
+### Request:
+1. **Overall Evaluation:**
+   - Does the task list cover key areas like user authentication, data storage, UI, and project management?
+   - Are the tasks clear, actionable, and appropriately detailed for team understanding?
+
+2. **Specific Areas for Improvement:**
+   - **Missing Features:** Are there any basic features in test_xxx_xxx (e.g., login, registration) not implemented?
+   - **Unclear Tasks:** Are any tasks vague or lacking detail (e.g., edge cases, assumptions)?
+   - **Task Breakdown:** Are tasks appropriately sized and clear in their scope?
+   - **Dependencies:** Are task dependencies well identified to avoid delays?
+
+3. **Suggested Enhancements:**
+   - **Prioritization:** Which tasks should be completed first for better workflow?
+   - **Clarity:** Are any tasks lacking clarity and in need of more details or smaller sub-tasks?
+   - **Feature Clarification:** Are there any features that need further elaboration?
+   - **Task Grouping:** Should tasks be grouped for better clarity or workflow?
+   - **Additional Considerations:** Are there any aspects (e.g., UI flow) not addressed in the plan?
+
+### Attention
+1. Provide **task plan-level feedback** with a focus on **task clarity**, and **workflow**.
+2. This is only a small project, we don't consider too much about scalability.
+3. We don't use any database.
+4. We don't use hash or security check.
+5. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
+
+----------------------
+
+### Example Output:
+
+**1. Overall Evaluation:**
+- **Strengths:** Covers key areas like user authentication, UI, and project management. UI components are well-defined.
+- **Weaknesses:** Lacks details on handling edge cases and data validation.
+
+**2. Specific Areas for Improvement:**
+- **Missing Features:** Add tasks for login and registration.
+- **Unclear Tasks:** `project_management.html` and `freelancer_profile.html` need more details on features (e.g., project editing, profile editing).
+- **Task Breakdown:** Break down larger tasks like `profile_management.html` into smaller subtasks.
+- **Dependencies:** Prioritize user login and registration first.
+
+**3. Suggested Enhancements:**
+- **Prioritization:** Implement authentication first to handle user data.
+- **Clarity:** Add more details on form validation for login/registration.
+- **Feature Clarification:** Specify editable fields for freelancer profile.
+- **Task Grouping:** Group UI tasks for consistency.
+- **Additional Considerations:** Consider optimizing the data in text file for correctness.
+
+"""
 
 # _______________ useful functions _______________
 # _______________ useful functions _______________
