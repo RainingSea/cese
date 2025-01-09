@@ -38,7 +38,6 @@ class C_Programmer(Role):
     name: str = "Clorinde"
     profile: str = "C_Programmer"
     llm: object
-    llm_review: object
     system_msg: str = CODING_SYS
     own_message: Message = None
     team: Team = None
@@ -55,8 +54,6 @@ class C_Programmer(Role):
         # ---------- get the information needed from SCR ----------
         architecture = self.getArchiture().content
         task_plan = self.getProjectPlan().content
-
-        exist_code = self.own_message.content
 
         # --------------- decompose and assign tasks to programmer
 
@@ -77,6 +74,7 @@ class C_Programmer(Role):
                 }
             )
         elif flag == "1":
+            exist_code = self.own_message.content
             user_prompt_template = ChatPromptTemplate.from_template(CODING_ITE_C1)
             user_prompt_msg = user_prompt_template.invoke(
                 {
@@ -85,6 +83,7 @@ class C_Programmer(Role):
                 }
             )
         elif flag == "2":
+            exist_code = self.own_message.content
             user_prompt_template = ChatPromptTemplate.from_template(CODING_ITE_C2)
             user_prompt_msg = user_prompt_template.invoke(
                 {
@@ -205,8 +204,6 @@ class C_Programmer(Role):
                 + "\n```"
             )
             Team.log.info(update_codes_content)
-
-    
 
     def match(self, code_text):
         """

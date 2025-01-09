@@ -22,17 +22,17 @@ import argparse
 
 def start_project():
     # _________ from run ___________
-    # category = "website"
-    # name = "DailyHealthTips.md"
+    category = "website"
+    name = "DailyHealthTips.md"
     # _________ from run ___________
 
     # __________ from shell __________
-    parser = argparse.ArgumentParser(description="original Requirement")
-    parser.add_argument("--category", type=str, help="gui")
-    parser.add_argument("--name", type=str, help="DailyHealthTips.md")
-    args = parser.parse_args()
-    category = args.category
-    name = args.name
+    # parser = argparse.ArgumentParser(description="original Requirement")
+    # parser.add_argument("--category", type=str, help="gui")
+    # parser.add_argument("--name", type=str, help="DailyHealthTips.md")
+    # args = parser.parse_args()
+    # category = args.category
+    # name = args.name
     # __________ from shell __________
 
     # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
@@ -56,7 +56,15 @@ def start_project():
     Team.projec_catogory = category
     Team.project_name = project_name
 
-    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name+ "_"+ formatted_time + "/"
+    projdir = (
+        "D:/Project/CE/CE/project/"
+        + category
+        + "/"
+        + project_name
+        + "_"
+        + formatted_time
+        + "/"
+    )
     # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
     Team.set_projdir(projdir)
     Team.set_log()
@@ -68,25 +76,28 @@ def start_project():
     # config for framework
     config = model_config()
 
+    # normal temperature model
     model = GPT(config["llm_4o"])
-    model_review = GPT(config["llm_4o"])
-    programmer_config = create_config_copy_with_new_temperature(
+
+    # sampling model with changed temperature
+    sample_model_config = create_config_copy_with_new_temperature(
         config["llm_4o"], config["llm_4o"]["programmer_temperature"]
     )
-    programmer_model = GPT(programmer_config)
+    sample_model = GPT(sample_model_config)
     # launch project
     team.set_origin_req(project_name, origin_req)
 
     # 创建不同的角色
-    product_manager = Product_Manager(llm=model, llm_review=model_review, team=team)
-    architect = Architect(llm=model, llm_review=model_review, team=team)
-    projct_manager = Project_Manager(llm=model, llm_review=model_review, team=team)
-    programmer = Programmer(llm=programmer_model, llm_review=model_review, team=team)
-    code_tester = Code_Tester(llm=model, llm_review=model_review, team=team)
+    product_manager = Product_Manager(llm=model, llm_sample=sample_model, team=team)
+    architect = Architect(llm=model, llm_sample=sample_model, team=team)
+    projct_manager = Project_Manager(llm=model, llm_sample=sample_model, team=team)
+    programmer = Programmer(llm=sample_model, team=team)
+    code_tester = Code_Tester(llm=model, team=team)
     reviewer = Reviewer(target=projct_manager, team=team)
     searcher = Searcher(llm=model, team=team)
+
     # this is a normal programmer, don't need to change temperature
-    c_programmer = C_Programmer(llm=model, llm_review=model_review, team=team)
+    c_programmer = C_Programmer(llm=model, team=team)
 
     team.hire_roles(
         product_manager,

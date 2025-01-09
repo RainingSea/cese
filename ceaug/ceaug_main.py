@@ -32,6 +32,35 @@ def format_prompt(template, values):
     return {"role": "user", "content": result}
 
 
+def make_ce_dirs(project_dir, ce_nums):
+    """
+    make ce dirs and copy no sampling docuement
+    """
+    ce_project_paths = []
+    # make dir for the whole counter examples
+    if not os.path.exists(os.path.join(project_dir, "ce")):
+        os.makedirs(os.path.join(project_dir, "ce"))
+    ce_project_path = os.path.join(project_dir, "ce")
+    for i in range(ce_nums):
+        ce_path = os.path.join(ce_project_path, f"ce_{i}")
+        os.makedirs(ce_path)
+        ce_project_paths.append(ce_path)
+
+        src_dir = project_dir
+        dst_dir = ce_path
+        src_file = os.path.join(src_dir, "prd.md")
+        dst_file = os.path.join(dst_dir, "prd.md")
+
+        try:
+            shutil.copy2(src_file, dst_file)  # 使用 copy2() 以保留文件元数据
+            print(f"文件 prd 复制完成")
+        except IOError as e:
+            print(f"无法复制文件 prd: {e}")
+        except:
+            print(f"复制文件 prd 时发生未知错误")
+    return ce_project_paths
+
+
 def create_ce_document(project_dir, task_plan, log):
 
     ce_project_path = ""
@@ -42,7 +71,7 @@ def create_ce_document(project_dir, task_plan, log):
 
     # _______________ generate disturbed plan/ arch / prd of counter example ______________
     # generate 2(default) error(disturbed, whatever) task plan
-    ce_plans = ce_generate(task_plan, 5, log)
+    ce_plans = ce_generate(task_plan, 1, log)
     ce_project_paths = []
     # make a directory for each counter example, and create prd, arch, task plan.
     for i in range(len(ce_plans)):
@@ -211,7 +240,7 @@ I have multiple implementations of the same project, each of which has undergone
 1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, may not need to outptut.
 
 2.Prepare the output, divided into two parts:
-### Part 1: Passed Test Cases
+### Passed Test Cases
 Summarize solutions for all test cases that passed. Use the pseudocode provided in the input to represent the solutions; do not generate new pseudocode. Present each case in the format:
 1. |Case|:**Case Name**
 Followed by the pseudocode which represent the successful implementation for this function.
@@ -243,7 +272,10 @@ The content you need to summarize is as follows: {summaries}."""
         log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
         summaries_summary = chat_to_LLM(sum_messages)
         log.info("summaried summaries:\n" + summaries_summary)
-        return max_score, summaries_summary
+
+        # placeholder for arch feedback, plan feedback
+        feedback_result = {"arch": "Nothing", "plan": "Nothing", "code": summaries_summary}
+        return max_score, feedback_result
 
     if code_feedback_selected:
         print("final selected:\n" + code_feedback_selected)
@@ -285,6 +317,7 @@ def feedback_split(feedback):
         re.DOTALL,
     )
     if passed_test_cases:
+        print(passed_test_cases)
         pattern = r"\|Case\|:.*?(?=\n\d+\.\s\|Case\|:|\Z)"
         pass_case_blocks = re.findall(
             pattern, passed_test_cases.group(0).strip(), re.DOTALL
@@ -298,6 +331,7 @@ def feedback_split(feedback):
         r"(?<=### Failed or Error Test Cases)(.*)", feedback, re.DOTALL
     )
     if failed_or_error_test_cases:
+        print(failed_or_error_test_cases)
         pattern = r"\|Case\|:.*?(?=\n\d+\.\s\|Case\|:|\Z)"
         no_pass_case_blocks = re.findall(
             pattern, failed_or_error_test_cases.group(0).strip(), re.DOTALL
@@ -305,6 +339,7 @@ def feedback_split(feedback):
         no_pass_feedback = process_array(no_pass_case_blocks)
     else:
         no_pass_feedback = None
+
     return pass_feedback, no_pass_feedback
 
 
