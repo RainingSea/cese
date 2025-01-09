@@ -83,3 +83,27 @@ def read_codebase(codebase_path):
                     # Handle unreadable files
                     content.append(f"{indent}  --- FILE: {file} (ERROR: {e}) ---\n")
     return "".join(content)
+
+
+def read_file(path, filename):
+    """
+    Walk the path and read filename
+    Args:
+        path: repo path
+
+    Returns:
+        str: Content of filename if found, otherwise an error message.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"The specified path '{path}' does not exist.")
+
+    for root, _, files in os.walk(path):
+        if filename in files:
+            file_path = os.path.join(root, filename)
+            try:
+                with open(file_path, "r", encoding="utf-8") as file:
+                    return file.read()
+            except Exception as e:
+                raise RuntimeError(f"Error reading file '{file_path}': {e}")
+
+    raise FileNotFoundError(f"No {filename} file found in the specified path.")
