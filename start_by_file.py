@@ -22,17 +22,17 @@ import argparse
 
 def start_project():
     # _________ from run ___________
-    category = "website"
-    name = "DailyHealthTips.md"
+    # category = "website"
+    # name = "DailyHealthTips.md"
     # _________ from run ___________
 
     # __________ from shell __________
-    # parser = argparse.ArgumentParser(description="original Requirement")
-    # parser.add_argument("--category", type=str, help="gui")
-    # parser.add_argument("--name", type=str, help="DailyHealthTips.md")
-    # args = parser.parse_args()
-    # category = args.category
-    # name = args.name
+    parser = argparse.ArgumentParser(description="original Requirement")
+    parser.add_argument("--category", type=str, help="gui")
+    parser.add_argument("--name", type=str, help="DailyHealthTips.md")
+    args = parser.parse_args()
+    category = args.category
+    name = args.name
     # __________ from shell __________
 
     # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
