@@ -31,6 +31,7 @@ functional requirements
 ## constraint
 Language: Please use the same language as Human INPUT.
 Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+If you are doing website development, please do not encrypt the account password for the login function.
 
 # Attention
 1. If a feature of software requires a GUI, you also need to carefully consider the UI components that this feature will require and its relationship to the main UI in Architecture.
@@ -73,6 +74,7 @@ functional requirements
 ## constraint
 Language: Please use the same language as Human INPUT.
 Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+If you are doing website development, please do not encrypt the account password for the login function.
 
 ## Attention
 1. If a feature of software requires a GUI, you also need to carefully consider the UI components that this feature will require and its relationship to the main UI in Architecture.

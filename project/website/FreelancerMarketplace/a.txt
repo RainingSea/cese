@@ -1,0 +1,399 @@
+*** main.py
+```python
+from flask import Flask, render_template, request, redirect, url_for, session
+from werkzeug.utils import secure_filename
+import os
+
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Required for session management
+
+class User:
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
+
+    def save(self):
+        with open('users.txt', 'a') as file:
+            file.write(f"{self.username}|{self.password}\n")
+
+    @staticmethod
+    def load_users():
+        users = {}
+        try:
+            with open('users.txt', 'r') as file:
+                for line in file:
+                    username, password = line.strip().split('|')
+                    users[username] = password
+        except FileNotFoundError:
+            pass  # Handle case where the file does not exist
+        return users
+
+    @staticmethod
+    def find_user(username: str):
+        users = User.load_users()
+        if username in users:
+            return User(username, users[username])
+        return None
+
+class Freelancer:
+    def __init__(self, name: str, skills: str):
+        self.name = name
+        self.skills = skills
+
+    def save(self):
+        with open('freelancers.txt', 'a') as file:
+            file.write(f"{self.name}|{self.skills}\n")
+
+    @staticmethod
+    def load_freelancers():
+        freelancers = []
+        try:
+            with open('freelancers.txt', 'r') as file:
+                for line in file:
+                    name, skills = line.strip().split('|')
+                    freelancers.append(Freelancer(name, skills))
+        except FileNotFoundError:
+            pass  # Handle case where the file does not exist
+        return freelancers
+
+    @staticmethod
+    def find_freelancer(name: str):
+        freelancers = Freelancer.load_freelancers()
+        for freelancer in freelancers:
+            if freelancer.name == name:
+                return freelancer
+        return None
+
+    @staticmethod
+    def search_freelancers_by_skill(skill: str):
+        freelancers = Freelancer.load_freelancers()
+        return [freelancer for freelancer in freelancers if skill.lower() in freelancer.skills.lower()]
+
+class Project:
+    def __init__(self, name: str, description: str, assigned_freelancer: str):
+        self.name = name
+        self.description = description
+        self.assigned_freelancer = assigned_freelancer
+
+    def save(self):
+        with open('projects.txt', 'a') as file:
+            file.write(f"{self.name}|{self.description}|{self.assigned_freelancer}\n")
+
+    @staticmethod
+    def load_projects():
+        projects = []
+        try:
+            with open('projects.txt', 'r') as file:
+                for line in file:
+                    name, description, assigned_freelancer = line.strip().split('|')
+                    projects.append(Project(name, description, assigned_freelancer))
+        except FileNotFoundError:
+            pass  # Handle case where the file does not exist
+        return projects
+
+    @staticmethod
+    def find_project(name: str):
+        projects = Project.load_projects()
+        for project in projects:
+            if project.name == name:
+                return project
+        return None
+
+class Application:
+    def __init__(self):
+        self.users = User.load_users()
+        self.freelancers = Freelancer.load_freelancers()
+        self.projects = Project.load_projects()
+
+    def register_user(self, username: str, password: str):
+        if username in self.users:
+            return False
+        user = User(username, password)
+        user.save()
+        self.users[username] = password
+        return True
+
+    def login(self, username: str, password: str):
+        user = User.find_user(username)
+        if user and user.password == password:
+            return True
+        return False
+
+    def search_freelancer(self, name: str):
+        return Freelancer.find_freelancer(name)
+
+    def search_freelancers_by_skill(self, skill: str):
+        return Freelancer.search_freelancers_by_skill(skill)
+
+    def create_project(self, name: str, description: str, freelancer: str):
+        project = Project(name, description, freelancer)
+        project.save()
+        self.projects.append(project)
+
+    def update_profile(self, username: str, new_username: str, new_password: str):
+        users = User.load_users()
+        if username in users:
+            del users[username]
+            new_user = User(new_username, new_password)
+            new_user.save()
+            return True
+        return False
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        app_instance = Application()
+        if app_instance.login(username, password):
+            session['username'] = username
+            return redirect(url_for('home'))
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        app_instance = Application()
+        if app_instance.register_user(username, password):
+            return redirect(url_for('login'))
+    return render_template('registration.html')
+
+@app.route('/home')
+def home():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    return render_template('home.html')
+
+@app.route('/manage_projects', methods=['GET', 'POST'])
+def project_management():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    app_instance = Application()
+    if request.method == 'POST':
+        project_name = request.form['project_name']
+        project_description = request.form['project_description']
+        assigned_freelancer = request.form['assigned_freelancer']
+        app_instance.create_project(project_name, project_description, assigned_freelancer)
+        return redirect(url_for('project_management'))
+    freelancers = app_instance.freelancers
+    return render_template('project_management.html', freelancers=freelancers)
+
+@app.route('/search_freelancers', methods=['GET', 'POST'])
+def search_freelancers():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    app_instance = Application()
+    if request.method == 'POST':
+        skill = request.form['skill']
+        freelancers = app_instance.search_freelancers_by_skill(skill)
+        return render_template('search_results.html', freelancers=freelancers)
+    return render_template('search_freelancers.html')
+
+@app.route('/update_profile', methods=['GET', 'POST'])
+def update_profile():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    app_instance = Application()
+    if request.method == 'POST':
+        username = session['username']
+        new_username = request.form['new_username']
+        new_password = request.form['new_password']
+        if app_instance.update_profile(username, new_username, new_password):
+            session['username'] = new_username
+            return redirect(url_for('home'))
+    return render_template('update_profile.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+*** templates/login.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+    <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+</body>
+</html>
+```
+
+*** templates/registration.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <h1>Register</h1>
+    <form method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+</body>
+</html>
+```
+
+*** templates/home.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to the Home Page</h1>
+    <p>Search for freelancers or manage your projects.</p>
+    <a href="{{ url_for('project_management') }}">Manage Projects</a>
+    <a href="{{ url_for('search_freelancers') }}">Search Freelancers</a>
+    <a href="{{ url_for('update_profile') }}">Update Profile</a>
+</body>
+</html>
+```
+
+*** templates/project_management.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+</head>
+<body>
+    <h1>Project Management</h1>
+    <form method="POST">
+        <label for="project_name">Project Name:</label>
+        <input type="text" id="project_name" name="project_name" required>
+        <br>
+        <label for="project_description">Project Description:</label>
+        <input type="text" id="project_description" name="project_description" required>
+        <br>
+        <label for="assigned_freelancer">Assign Freelancer:</label>
+        <select id="assigned_freelancer" name="assigned_freelancer" required>
+            {% for freelancer in freelancers %}
+                <option value="{{ freelancer.name }}">{{ freelancer.name }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <button type="submit">Create Project</button>
+    </form>
+    <p>Here you can manage your projects.</p>
+</body>
+</html>
+```
+
+*** templates/search_freelancers.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Freelancers</title>
+</head>
+<body>
+    <h1>Search Freelancers</h1>
+    <form method="POST">
+        <label for="skill">Enter Skill:</label>
+        <input type="text" id="skill" name="skill" required>
+        <br>
+        <button type="submit">Search</button>
+    </form>
+</body>
+</html>
+```
+
+*** templates/search_results.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+    <ul>
+        {% for freelancer in freelancers %}
+            <li>{{ freelancer.name }} - Skills: {{ freelancer.skills }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('search_freelancers') }}">Search Again</a>
+</body>
+</html>
+```
+
+*** templates/update_profile.html
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Profile</title>
+</head>
+<body>
+    <h1>Update Profile</h1>
+    <form method="POST">
+        <label for="new_username">New Username:</label>
+        <input type="text" id="new_username" name="new_username" required>
+        <br>
+        <label for="new_password">New Password:</label>
+        <input type="password" id="new_password" name="new_password" required>
+        <br>
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>
+```
+
+*** users.txt
+```txt
+admin|admin123
+user1|user123
+user2|password456
+```
+
+*** freelancers.txt
+```txt
+John Doe|Python, JavaScript
+Jane Smith|Java, C++
+Alice Johnson|Ruby, PHP
+Bob Brown|C#, HTML, CSS
+```
+
+*** projects.txt
+```txt
+Project A|Description of Project A|John Doe
+Project B|Description of Project B|Jane Smith
+Project C|Description of Project C|Alice Johnson
+``

@@ -1,8 +1,8 @@
 @echo off
-@REM python start_by_file.py --category website --name DailyJournalApp.md
-@REM python start_by_file.py --category website --name DigitalStorytellingPlatform.md
-@REM python start_by_file.py --category website --name FreelancerMarketplace.md
-@REM python start_by_file.py --category website --name GreenLivingGuide.md
+python start_by_file.py --category website --name DailyJournalApp.md
+python start_by_file.py --category website --name DigitalStorytellingPlatform.md
+python start_by_file.py --category website --name FreelancerMarketplace.md
+python start_by_file.py --category website --name GreenLivingGuide.md
 python start_by_file.py --category website --name NoteTakingApp.md
 @REM python start_by_file.py --category website --name OnlineVintageMarket.md
 @REM python start_by_file.py --category website --name ParentingAdiviceForum.md
