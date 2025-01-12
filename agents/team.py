@@ -81,9 +81,11 @@ class Team(BaseModel):
             Team.active_role(self.roles["Project Manager"].profile)
 
         self.roles["Programmer"].go()
+        # codebase dir
         code_base_dir = os.path.join(Team.project_dir, "code")
         port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
+        # 这个2就是重复测试的次数
         for j in range(2):
             # set code dir
             ce_projects_paths = [Team.project_dir]
@@ -102,11 +104,29 @@ class Team(BaseModel):
                 return
             else:
                 print(ce_feedback)
-                self.roles["Code Tester"].unit_test_feedback = ce_feedback
-                self.roles["Code Tester"].go()
-                port = update_flask_port(
-                    os.path.join(code_base_dir, "main.py"), str(port)
-                )
+
+                pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
+                if no_pass_feedback:
+                    Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
+                # 测试就不需要处理通过的单元测试反馈了，只需要处理出错的
+                init = True
+                if no_pass_feedback:
+                    # 迭代式的取出切片后的反馈，然后交给code tester来修改
+                    for n_passfd in no_pass_feedback:
+                        self.roles["Code Tester"].unit_test_feedback = n_passfd
+                        if init:
+                            self.roles["Code Tester"].go()
+                            init = False
+                        else:
+                            self.roles["Code Tester"].go()
+
+                # port = update_flask_port(
+                #     os.path.join(code_base_dir, "main.py"), str(port)
+                # )
+        # 每个测试流程结束后写入一次本地文件
+        self.team.roles["Programmer"].message_to_file(
+            self.roles["Programmer"].own_message.content
+        )
 
         return
 
@@ -115,15 +135,15 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        # inter_launch = True
-        inter_launch = False
+        inter_launch = True
+        # inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:
             # Read files from an existing project, then proceed with development.
             # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
             Team.incremental_base_dir = os.path.normpath(
-                "D:\Project\CE\CE\project\website\OnlineVintageMarket_20250108022049"
+                "D:\Project\CE\CE\project\website\\NoteTakingApp"
             )
             self.roles["Product Manager"].go_inter()
             self.roles["Architect"].go_inter()
@@ -138,61 +158,175 @@ class Team(BaseModel):
             # self.roles["Project Manager"].go()
             # Team.active_role(self.roles["Project Manager"].profile)
         # make ce dirs and copy the prd to each dir
-        ce_projects_paths = make_ce_dirs(Team.project_dir, 2)
+        # ce_projects_paths = make_ce_dirs(Team.project_dir, 2)
 
-        # generate sampling architect
-        for j in range(len(ce_projects_paths)):
-            print(f"\ngenerate the architect of {j}th counter project\n")
-            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
-            Team.project_dir = ce_projects_paths[j]
+        # # generate sampling architect
+        # for j in range(len(ce_projects_paths)):
+        #     print(f"\ngenerate the architect of {j}th counter project\n")
+        #     Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
+        #     Team.project_dir = ce_projects_paths[j]
 
-            self.roles["Product Manager"].go_inter()
-            # sample architect generate
-            self.roles["Architect"].go_in_sample()
-            # sample task plan generate
-            self.roles["Project Manager"].go_in_sample()
-            # temporarily change project dir to a ce folder
+        #     self.roles["Product Manager"].go_inter()
+        #     # sample architect generate
+        #     self.roles["Architect"].go_in_sample()
+        #     # sample task plan generate
+        #     self.roles["Project Manager"].go_in_sample()
+        #     # temporarily change project dir to a ce folder
 
-            self.roles["Programmer"].go_in_sample()
-            self.roles["Programmer"].code_base.clear()
-            code_base_dir = os.path.join(Team.project_dir, "code")
-            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        #     self.roles["Programmer"].go_in_sample()
+        #     self.roles["Programmer"].code_base.clear()
+        #     code_base_dir = os.path.join(Team.project_dir, "code")
+        #     port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
-        # |--------- simplest coding process ---------|
-        # |
-        # self.roles["C_Programmer"].go(feedback)
-        # return
-        # |
-        # |--------- simplest coding process ---------|
+        # # |--------- simplest coding process ---------|
+        # # |
+        # # self.roles["C_Programmer"].go(feedback)
+        # # return
+        # # |
+        # # |--------- simplest coding process ---------|
 
-        # execute unit test
-        ce_score, ce_feedbacks = ceaug(
-            previous_work_dir,
-            ce_projects_paths,
-            Team.projec_catogory,
-            Team.project_name,
-            "ite_fdback",
-            Team.log,
-        )
+        # # execute unit test
+        # ce_score, ce_feedbacks = ceaug(
+        #     previous_work_dir,
+        #     ce_projects_paths,
+        #     Team.projec_catogory,
+        #     Team.project_name,
+        #     "ite_fdback",
+        #     Team.log,
+        # )
 
-        # |_____________________________________________________________|
-        # |                      Attention!                             |
-        # | ceaug() execute unit test, which                            |
-        # | requires switching work dir to the test code's project dir "|
-        # |                   Must switch back!                         |
-        # |_____________________________________________________________|
-        # |
+        # # |_____________________________________________________________|
+        # # |                      Attention!                             |
+        # # | ceaug() execute unit test, which                            |
+        # # | requires switching work dir to the test code's project dir "|
+        # # |                   Must switch back!                         |
+        # # |_____________________________________________________________|
+        # # |
 
-        os.chdir(previous_work_dir)
-        Team.project_dir = pervious_project_dir
-        Team.incremental_base_dir = pervious_project_dir
+        # os.chdir(previous_work_dir)
+        # Team.project_dir = pervious_project_dir
+        # Team.incremental_base_dir = pervious_project_dir
 
         # _______________ use feedback to generate document _______________
-        self.roles["Product Manager"].go_inter()
-        self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
-        self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
+        # self.roles["Product Manager"].go_inter()
+        # self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
+        # self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
 
-        ce_feedback = ce_feedbacks["code"]
+        ce_feedback = """### Passed Test Cases
+1. |Case|:**registration**
+   ```plaintext
+   DEFINE register_route with GET and POST methods:
+       IF POST method is used:
+           GET username and password from the registration form
+           CALL NoteTakingApp's register method with username and password
+           IF registration is successful:
+               REDIRECT to the login page
+       RENDER registration template
+   ```
+
+2. |Case|:**user_login**
+   ```plaintext
+   Function do_login(username, password):
+       If user_manager.login(username, password) is True:
+           session['username'] = username
+           Redirect to dashboard
+       Else:
+           Redirect to login page
+   ```
+
+3. |Case|:**user_registration**
+   ```plaintext
+   Function register():
+       If request.method is POST:
+           username = request.form['username']
+           password = request.form['password']
+           If user_manager.register(username, password) is True:
+               Redirect to login
+       Render registration template
+   ```
+
+4. |Case|:**view_notes_on_dashboard**
+   ```plaintext
+   Function dashboard():
+       If 'username' not in session:
+           Redirect to login
+       notes = note_manager.get_notes(session['username'])
+       Render dashboard template with notes
+   ```
+
+5. |Case|:**add_new_note**
+   ```plaintext
+   Function add_note():
+       If 'username' not in session:
+           Redirect to login
+       If request.method is POST:
+           title = request.form['title']
+           content = request.form['content']
+           note_manager.add_note(session['username'], title, content)
+           Redirect to dashboard
+       Render add note template
+   ```
+
+6. |Case|:**view_note_details**
+   ```plaintext
+   Function view_note(title):
+       If 'username' not in session:
+           Redirect to login
+       If request.method is POST:
+           new_content = request.form['content']
+           note_manager.edit_note(session['username'], title, new_content)
+           Redirect to dashboard
+       note_details = note_manager.get_note_details(session['username'], title)
+       Render view note template with note_details
+   ```
+
+7. |Case|:**edit_note**
+   ```plaintext
+   Function view_note(title):
+       ... (previous code)
+       If request.method is POST:
+           # Edit content logic
+           note_manager.edit_note(session['username'], title, new_content)
+           Save changes and redirect to dashboard
+   ```
+
+8. |Case|:**logout**
+   ```plaintext
+   Function logout():
+       session.pop('username', None)
+       Redirect to login
+   ```
+
+### Failed or Error Test Cases
+1. |Case|:**add_new_note**
+   - **Error Analysis**: The test failed because it could not locate the "Add Note" link, likely due to an authentication failure resulting from a failed login process.
+   - **Improvement Guidance**: Ensure that user sessions are effectively managed. Each user login must result in setting the session correctly, and all routes should verify user authentication before rendering views or options that depend on user data.
+
+2. |Case|:**delete_note**
+   - **Error Analysis**: The test intentionally fails as the delete functionality is not implemented in the project.
+   - **Improvement Guidance**: Ensure that any essential functionality (like deleting notes) is not only defined in the business logic but also has a user-facing feature within the application. Plan routes and UI elements for every feature you expose in your backend logic.
+
+3. |Case|:**edit_note**
+   - **Error Analysis**: This error occurred because the test could not find the "First Note" link, suggesting that the notes are not being loaded correctly for the logged-in user.
+   - **Improvement Guidance**: Double-check the implementation of user-related features, such as adding and retrieving notes. Ensure that notes are consistently associated with the correct user account and accessible through the dashboard.
+
+4. |Case|:**login**
+   - **Error Analysis**: The test fails because it results in a 404 error when attempting to validate the dashboard title, indicating issues with user authentication.
+   - **Improvement Guidance**: Always provide intuitive navigation options on each page. For example, all major functionalities should be easily accessible from the dashboard.
+
+5. |Case|:**view_notes_on_dashboard**
+   - **Error Analysis**: The test failed because no notes were found associated with the logged-in user.
+   - **Improvement Guidance**: Maintain consistency in your UI elements. When adding new features or functionalities, ensure UI links are added where they logically belong to allow for seamless user experience.
+
+6. |Case|:**view_note_details**
+   - **Error Analysis**: Similar to `edit_note`, the inability to find "First Note" indicates issues with loading notes for the user.
+   - **Improvement Guidance**: After implementing new functionalities or UI changes, conduct unit tests or integration tests specifically against all interfaces to validate they perform as expected.
+
+7. |Case|:**search_for_note**
+   - **Error Analysis**: The test fails to find the "Search Notes" link, likely due to the user not being properly logged in.
+   - **Improvement Guidance**: Regular checks of your UI against your functional requirements will help in catching issues early.
+        """
+        # ce_feedback = ce_feedbacks["code"]
         if ce_feedback:
             if ce_feedback == "CodeIsGood":
                 print("Dev execute END")

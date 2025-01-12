@@ -132,6 +132,7 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
 
         # 抽取代码，架构，计划
         code_base = read_codebase(os.path.join(project_dir, "code"))
+        log.info("read tested code:\n" + code_base)
         architecture = read_file(project_dir, "architect.md")
         task_plan = read_file(project_dir, "task plan.md")
 
@@ -145,7 +146,7 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
 
         # 切回来目录
         os.chdir(base_dir)
-        print("\n --------- Unit Test Result is ----------")
+        # print("\n --------- Unit Test Result is ----------")
         # print(unit_test_result["output"])
         print()
         # _________________ ask LLM to get feedback ________________
@@ -232,13 +233,63 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
             print("Code Feedback")
             print(code_feedback)
             log.info(code_feedback)
-            feedback_result = {
-                "arch": "Nothing",
-                "plan": "Nothing",
-                "code": code_feedback,
-            }
-            return max_score, feedback_result
 
+            sum_messages = []
+            all_summaries = ""
+            str_unit_test_result = str(unit_test_result)
+            # 这里沿用之前的代码，但是就不需要组合所有结果了，直接把单次测试的结果拿来用就可以
+            all_summaries = (
+                all_summaries
+                + " project result:\n"
+                + f"test result is {str_unit_test_result}: analysis&guidance is {code_feedback} \n\n"
+            )
+
+            # 稍微改了下prompt，这些prompt把总结部分去掉了，主要是修改格式，改成适合迭代开发的格式，如果不迭代开发（弱一点的baseline，那就直接返回code_feedback就可以了
+            PROMPT_FOR_SUMMARY_MERGE = """I have conducted unit tests on a project and obtained the results. Please help me format them according to the following requirements.
+1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, may not need to outptut.
+
+2.Prepare the output, divided into two parts: Passed Test Cases and Failed or Error Test Cases, with following description:
+### Passed Test Cases
+Summarize solutions for test cases that passed. Use the pseudocode provided in the input to represent the solutions; do not generate new pseudocode. Present each case in the format:
+1. |Case|:**Case Name**
+Followed by the pseudocode which represent the successful implementation for this function.
+
+### Failed or Error Test Cases
+Collect the analysis and guidance related to each failure or error. present it in the format:
+For each error or failure, extract all related analyses and guidance from all the content. If there are duplicates, please remove them.
+Then, combine them and output them in the following format:
+1. |Case|:**Case Name**
+Followed by:
+Failure/Error Analysis1
+Improvement Guidance1 (textual, pseudocode, etc.)
+
+# Notes:
+Case Name is the test case name with the test_ prefix removed (e.g., test_navigate_to_registration becomes navigate_to_registration).
+Do not summarize guidance specifically for the test code itself.
+There is no need to output the list test cases again at the end. 
+
+# Attention
+must consider all results in "context", don't omit. don't lose information.
+The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
+
+# Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
+
+# context
+The content you need to analyze and format is as follows: {summaries}.\n"""
+            summary_merge_values = {"summaries": all_summaries}
+            sum_messages.append(
+                format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
+            )
+            print(sum_messages[0]["content"])
+            # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+            code_summaries_summary = chat_to_LLM(sum_messages)
+            print("Code Feedback is")
+            print(code_summaries_summary)
+            log.info("Code Feedback is\n" + code_summaries_summary)
+
+            return max_score, code_summaries_summary
+
+        # baseline的代码到这里就不需要了，以下是采样才需要的，因为baseline不好改architecture和plan，也就不生成feedback了
         # prompt llm to get architecture feedback
         architecture_messages.append(
             {

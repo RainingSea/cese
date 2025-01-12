@@ -64,7 +64,7 @@ Adhere strictly to the task requirements and implement them fully; do not includ
 """
 
 
-# write with counter
+# 第一次生成代码时的prompt，需要加design和plan，后续根据反馈改的就不需要加了
 CODING_C = """
 # Context
 
@@ -136,7 +136,7 @@ For the test pass functionality, you should refer the accompanying pseudocode or
 Additionally, some features were previously implemented unsuccessfully, pay attention to these function failures or error test, carefully review their analyses and improvement guidance, and when you writing these functionality code, apply these insights to write better and robust code.
 """
 
-# write with counter
+# positive feedback generating prompt
 CODING_ITE_C1 = """
 # Context
 
@@ -198,17 +198,15 @@ Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 
 # Regarding the Experience and Lessons
-In this section, a number of l and failed experiences accumulated from past implementations of this project are provided. 
+In this section, a number of successful experiences accumulated from past implementations of this project are provided. 
 Pay attention to all these functions.
-For the test pass functionality, you should refer the accompanying pseudocode or logic to implement corresponding features in your project. 
-Additionally, some features were previously implemented unsuccessfully, pay attention to these function failures or error test, carefully review their analyses and improvement guidance, and when you writing these functionality code, apply these insights to write better and robust code.
-
-# Regarding the Experience and Lessons
-In this section, a number of successfu experiences accumulated from past implementations of this project are provided. 
-Pay attention to all these functions.
-For these functions, you need to check whether your code includes them. If it does, you should verify that the logic in your code matches the pseudocode provided. If there are inconsistencies, you need to modify your functions according to the corresponding pseudocode. If they are consistent, no changes are necessary
+For these functions, you need to check whether your code includes them. 
+If included, you should verify that the logic in your code matches the pseudocode provided, and if there are inconsistencies, you need to modify your functions according to the corresponding pseudocode.
+If not included, you should add them based on these psedocode.
+Refine the existing code based on these experiences. You still need to output all of the code files.
 """
 
+# negative feedback generating prompt
 CODING_ITE_C2 = """
 # Context
 
@@ -274,8 +272,10 @@ In this section, a number of failed experiences accumulated from past implementa
 Pay attention to all these functions.
 These features were previously implemented unsuccessfully, carefully review their analyses and improvement guidance.
 Apply these insights to refine Your Existing code, especially the implementation of these functions.
+Refine the existing code based on these experiences. You still need to output all of the code files.
 """
 
+# -------- not need any more
 CODING_P = """
 # Context
 ## Design

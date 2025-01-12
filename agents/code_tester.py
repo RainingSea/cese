@@ -57,7 +57,7 @@ class Code_Tester(Role):
         self.team.roles["Programmer"].update_own_message(
             Message(sender="Programmer", content=fix_code_result)
         )
-        self.team.roles["Programmer"].message_to_file(fix_code_result)
+        
 
     # def go(self):
     #     self.codebase_dir = os.path.join(Team.project_dir, "code")

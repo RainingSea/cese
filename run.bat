@@ -4,11 +4,12 @@ python start_by_file.py --category website --name DigitalStorytellingPlatform.md
 python start_by_file.py --category website --name FreelancerMarketplace.md
 python start_by_file.py --category website --name GreenLivingGuide.md
 python start_by_file.py --category website --name NoteTakingApp.md
-@REM python start_by_file.py --category website --name OnlineVintageMarket.md
-@REM python start_by_file.py --category website --name ParentingAdiviceForum.md
-@REM python start_by_file.py --category website --name PersonalBlog.md
-@REM python start_by_file.py --category website --name RemoteJobBoard.md
-@REM python start_by_file.py --category website --name TaskManager.md
+python start_by_file.py --category website --name OnlineVintageMarket.md
+python start_by_file.py --category website --name ParentingAdiviceForum.md
+python start_by_file.py --category website --name PersonalBlog.md
+python start_by_file.py --category website --name RemoteJobBoard.md
+python start_by_file.py --category website --name TaskManager.md
+
 @REM python start_by_file.py --category website --name VirtualBookPublishing.md
 @REM python start_by_file.py --category website --name OnlineShoppingCenter.md
 @REM python start_by_file.py --category website --name RecipeHub.md

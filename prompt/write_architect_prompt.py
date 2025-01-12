@@ -31,7 +31,7 @@ functional requirements
 ## constraint
 Language: Please use the same language as Human INPUT.
 Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
-If you are doing website development, please do not encrypt the account password for the login function.
+If you are doing website development, do not encrypt the account password for the login function.
 
 # Attention
 1. If a feature of software requires a GUI, you also need to carefully consider the UI components that this feature will require and its relationship to the main UI in Architecture.
@@ -74,7 +74,7 @@ functional requirements
 ## constraint
 Language: Please use the same language as Human INPUT.
 Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
-If you are doing website development, please do not encrypt the account password for the login function.
+If you are doing website development, do not encrypt the account password for the login function.
 
 ## Attention
 1. If a feature of software requires a GUI, you also need to carefully consider the UI components that this feature will require and its relationship to the main UI in Architecture.
@@ -83,10 +83,11 @@ If you are doing website development, please do not encrypt the account password
 4. Organize related functionalities into a single Python file to avoid creating too many files.
 5. do not output ```plaintext or other ``` in the start and the end, output directly.
 
-## Attention
-In "lessons and experience" section, there is a summary and feedback from previous work on this project. When you generate, you need to take these insight into consideration. 
-for example, if they are suggestions, you should adopt them. If they are error warnings, you need to avoid them.
+## Additional Notes
+In "lessons and experience" section, there is a summary and feedback from previous work on this project. 
+When you generate, you need to take these insight into consideration, for example, if they are suggestions, you should adopt them. If they are error warnings, you need to avoid them.
+However, your main task remains to generate a corresponding architecture based on "original_requirement" and "functional requirements".
  
 ## action
-Follow instructions of nodes and Attention, generate output and make sure it follows the format example.
+Follow instructions of nodes and Attention, refer Additional Notes, generate output and make sure it follows the format example.
 """
