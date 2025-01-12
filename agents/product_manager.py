@@ -27,7 +27,7 @@ class Product_Manager(Role):
     profile: str = "Product Manager"
     team: Team = None
     llm: object
-    llm_review: object
+    llm_sample: object
     system_msg: str = WRITE_PRD_SYS
     own_message: Message = None
     review_prompt: dict[str, str] = {
