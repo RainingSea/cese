@@ -23,12 +23,14 @@ log还没有同步
 ## 重要
 有几个关键的路径需要设置好
 
-|      文件名         |      变量名(所属函数)     |  说明 |
-| start_by_file.py   | project_description_path | 数据集的目录 |
-|                    |         projdir          | 项目目录，需用绝对路径 |
-|                    |        category          | 项目种类，帮助创建，最重要的是帮助找测试用例 |
-|                    |          name            | 项目名，帮助创建，最重要的是帮助找测试用例 |
-| ceaug/auto_test.py | testcase_path(autogen)   | 测试用例目录路径 |  
+| 文件名               | 变量名(所属函数)           | 说明                               |
+|----------------------|----------------------------|------------------------------------|
+| start_by_file.py      | project_description_path   | 数据集的目录                       |
+|                      | projdir                    | 项目目录，需用绝对路径             |
+|                      | category                   | 项目种类，帮助创建，最重要的是帮助找测试用例 |
+|                      | name                       | 项目名，帮助创建，最重要的是帮助找测试用例 |
+| ceaug/auto_test.py    | testcase_path(autogen)     | 测试用例目录路径                   |
+
 
 
 (1)发现一些共性错误，例如route login
