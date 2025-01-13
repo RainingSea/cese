@@ -114,7 +114,27 @@ def run_test_code(file_path):
     except subprocess.CalledProcessError as e:
         return f"Error during execution: {e.stderr}"
 
+def remove_time_sleep_after_popen(test_code):
+    """
+    删除 subprocess.Popen 后紧接的以 time.sleep 开头的行。
+
+    :param test_code: 输入的代码字符串
+    :return: 更新后的代码字符串
+    """
+    # 正则模式：匹配 subprocess.Popen(...) 后面紧接的以 time.sleep(...) 开头的行
+    # 这里我们使用 \s* 来允许 space 和注释
+    pattern = r"(subprocess\.Popen\(.*?\)\s*\n)\s*time\.sleep\(.*?\)\s*(#.*)?\n"
+
+    # 使用 re.sub 替换匹配的内容，去掉 time.sleep 的行
+    updated_code = re.sub(pattern, r"\1", test_code)
+    return updated_code
+
 def autogen():
+    """
+    一定要绝对路径
+    Returns:
+
+    """
     project_categories = ['website']
     codebase_path = 'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\'
     for project_category in project_categories:
@@ -151,6 +171,7 @@ def autogen():
 
                     # 调用OpenAI API获取测试代码
                     test_code = call_openai_api(prompt=prompt, model='gpt-4o')
+                    test_code = remove_time_sleep_after_popen(test_code)
                     print(f"Test code:\n{test_code}")
 
                     # 保存生成的测试代码并运行测试
