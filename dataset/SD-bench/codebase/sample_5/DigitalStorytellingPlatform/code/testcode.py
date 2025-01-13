@@ -97,7 +97,7 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
         time.sleep(1)  # Wait for saving the story
 
         # Verify that the story is saved in the text file
-        with open('D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\website\\DigitalStorytellingPlatform\\code\\stories.txt', 'r') as file:
+        with open('/dataset/SD-bench/codebase/sample_5\\DigitalStorytellingPlatform\\code\\stories.txt', 'r') as file:
             stories = file.read()
             self.assertIn(story_title, stories)
 
@@ -119,7 +119,7 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
         time.sleep(1)  # Wait for saving the story
 
         # Verify that the story is updated in the text file
-        with open('D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\website\\DigitalStorytellingPlatform\\code\\stories.txt', 'r') as file:
+        with open('/dataset/SD-bench/codebase/sample_5\\DigitalStorytellingPlatform\\code\\stories.txt', 'r') as file:
             stories = file.read()
             self.assertIn(new_content, stories)
 
