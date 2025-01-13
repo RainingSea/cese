@@ -52,6 +52,7 @@ If you are doing website development, be sure to route the root path (/). If the
 If you are doing website development, please do not encrypt the account password for the login function.
 If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
 If you are doing Website Development, do not follow the rules of Website and Game development.
+
 # GUI tkinter Development Rule
 If you are doing GUI tkinter Development, do not follow the rules of Website and Game development.
 # Game Development Rule

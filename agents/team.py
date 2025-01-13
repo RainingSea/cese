@@ -80,6 +80,7 @@ class Team(BaseModel):
             # self.roles["Reviewer"].go()
             Team.active_role(self.roles["Project Manager"].profile)
 
+        # generate code
         self.roles["Programmer"].go()
         # codebase dir
         code_base_dir = os.path.join(Team.project_dir, "code")
@@ -135,8 +136,8 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        inter_launch = True
-        # inter_launch = False
+        # inter_launch = True
+        inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:
@@ -151,32 +152,26 @@ class Team(BaseModel):
         else:
             self.roles["Product Manager"].go()
             Team.active_role(self.roles["Product Manager"].profile)
-
-            # self.roles["Architect"].go()
-            # Team.active_role(self.roles["Architect"].profile)
-
-            # self.roles["Project Manager"].go()
-            # Team.active_role(self.roles["Project Manager"].profile)
         # make ce dirs and copy the prd to each dir
-        # ce_projects_paths = make_ce_dirs(Team.project_dir, 2)
+        ce_projects_paths = make_ce_dirs(Team.project_dir, 5)
 
-        # # generate sampling architect
-        # for j in range(len(ce_projects_paths)):
-        #     print(f"\ngenerate the architect of {j}th counter project\n")
-        #     Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
-        #     Team.project_dir = ce_projects_paths[j]
+        # generate sampling architect
+        for j in range(len(ce_projects_paths)):
+            print(f"\ngenerate the architect of {j}th counter project\n")
+            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
+            Team.project_dir = ce_projects_paths[j]
 
-        #     self.roles["Product Manager"].go_inter()
-        #     # sample architect generate
-        #     self.roles["Architect"].go_in_sample()
-        #     # sample task plan generate
-        #     self.roles["Project Manager"].go_in_sample()
-        #     # temporarily change project dir to a ce folder
+            self.roles["Product Manager"].go_inter()
+            # sample architect generate
+            self.roles["Architect"].go_in_sample()
+            # sample task plan generate
+            self.roles["Project Manager"].go_in_sample()
+            # temporarily change project dir to a ce folder
 
-        #     self.roles["Programmer"].go_in_sample()
-        #     self.roles["Programmer"].code_base.clear()
-        #     code_base_dir = os.path.join(Team.project_dir, "code")
-        #     port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+            self.roles["Programmer"].go_in_sample()
+            self.roles["Programmer"].code_base.clear()
+            code_base_dir = os.path.join(Team.project_dir, "code")
+            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         # # |--------- simplest coding process ---------|
         # # |
@@ -185,148 +180,150 @@ class Team(BaseModel):
         # # |
         # # |--------- simplest coding process ---------|
 
-        # # execute unit test
-        # ce_score, ce_feedbacks = ceaug(
-        #     previous_work_dir,
-        #     ce_projects_paths,
-        #     Team.projec_catogory,
-        #     Team.project_name,
-        #     "ite_fdback",
-        #     Team.log,
-        # )
+        # execute unit test
+        ce_score, ce_feedbacks = ceaug(
+            previous_work_dir,
+            ce_projects_paths,
+            Team.projec_catogory,
+            Team.project_name,
+            "ite_fdback",
+            Team.log,
+        )
 
-        # # |_____________________________________________________________|
-        # # |                      Attention!                             |
-        # # | ceaug() execute unit test, which                            |
-        # # | requires switching work dir to the test code's project dir "|
-        # # |                   Must switch back!                         |
-        # # |_____________________________________________________________|
-        # # |
+        # |_____________________________________________________________|
+        # |                      Attention!                             |
+        # | ceaug() execute unit test, which                            |
+        # | requires switching work dir to the test code's project dir "|
+        # |                   Must switch back!                         |
+        # |_____________________________________________________________|
+        # |
 
-        # os.chdir(previous_work_dir)
-        # Team.project_dir = pervious_project_dir
-        # Team.incremental_base_dir = pervious_project_dir
+        os.chdir(previous_work_dir)
+        Team.project_dir = pervious_project_dir
+        Team.incremental_base_dir = pervious_project_dir
 
         # _______________ use feedback to generate document _______________
-        # self.roles["Product Manager"].go_inter()
-        # self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
-        # self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
+        self.roles["Product Manager"].go_inter()
+        self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
+        self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
+
+        ce_feedback = ce_feedbacks["code"]
+        if ce_feedback:
+            if ce_feedback == "CodeIsGood":
+                print("Dev execute END")
+                return
+            # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
+            Team.log.info("### ceaug feedback\n" + str(ce_feedback))
+            # use feedback from counter example to augment coding
+            Team.log.info("begin CE Coding")
+            # C_programmer temperature is 0.2
+
+            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
+            if pass_feedback:
+                Team.log.info("Pass Feedback:\n" + str(pass_feedback))
+            if no_pass_feedback:
+                Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
+            # process pass feedback
+            init = True
+            if pass_feedback:
+                for passfd in pass_feedback:
+                    if init:
+                        self.roles["C_Programmer"].go(passfd, "0")
+                        init = False
+                    else:
+                        self.roles["C_Programmer"].go(passfd, "1")
+            # process no pass feedback
+            if no_pass_feedback:
+                for n_passfd in no_pass_feedback:
+                    if init:
+                        self.roles["C_Programmer"].go(n_passfd, "0")
+                        init = False
+                    else:
+                        self.roles["C_Programmer"].go(n_passfd, "2")
+            # write only once
+            self.roles["C_Programmer"].message_to_file(
+                self.roles["C_Programmer"].own_message.content
+            )
+        else:
+            Team.log.info("No CE, Normal Coding")
+            self.roles["Programmer"].code_base.clear()
+            self.roles["Programmer"].go()
+
+        code_base_dir = os.path.join(Team.project_dir, "code")
+        port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+
+        print("Dev execute END")
+        return
+
+    def run_inter(self):
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
+
+        inter_launch = True
+
+        # _______________ generate PRD, Architect, Task Plan _______________
+        if inter_launch:
+            # Read files from an existing project, then proceed with development.
+            # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
+            Team.incremental_base_dir = os.path.normpath(
+                # "D:\Project\CE\CE\project\website\PersonalBlog_20250112143843"
+                # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\{}"
+                # pervious_project_dir
+            )
+            self.roles["Product Manager"].go_inter()
+            self.roles["Architect"].go_inter()
+            self.roles["Project Manager"].go_inter()
 
         ce_feedback = """### Passed Test Cases
-1. |Case|:**registration**
-   ```plaintext
-   DEFINE register_route with GET and POST methods:
-       IF POST method is used:
-           GET username and password from the registration form
-           CALL NoteTakingApp's register method with username and password
-           IF registration is successful:
-               REDIRECT to the login page
-       RENDER registration template
-   ```
-
-2. |Case|:**user_login**
-   ```plaintext
-   Function do_login(username, password):
-       If user_manager.login(username, password) is True:
-           session['username'] = username
-           Redirect to dashboard
-       Else:
-           Redirect to login page
-   ```
-
-3. |Case|:**user_registration**
-   ```plaintext
-   Function register():
-       If request.method is POST:
-           username = request.form['username']
-           password = request.form['password']
-           If user_manager.register(username, password) is True:
-               Redirect to login
-       Render registration template
-   ```
-
-4. |Case|:**view_notes_on_dashboard**
-   ```plaintext
-   Function dashboard():
-       If 'username' not in session:
-           Redirect to login
-       notes = note_manager.get_notes(session['username'])
-       Render dashboard template with notes
-   ```
-
-5. |Case|:**add_new_note**
-   ```plaintext
-   Function add_note():
-       If 'username' not in session:
-           Redirect to login
-       If request.method is POST:
-           title = request.form['title']
-           content = request.form['content']
-           note_manager.add_note(session['username'], title, content)
-           Redirect to dashboard
-       Render add note template
-   ```
-
-6. |Case|:**view_note_details**
-   ```plaintext
-   Function view_note(title):
-       If 'username' not in session:
-           Redirect to login
-       If request.method is POST:
-           new_content = request.form['content']
-           note_manager.edit_note(session['username'], title, new_content)
-           Redirect to dashboard
-       note_details = note_manager.get_note_details(session['username'], title)
-       Render view note template with note_details
-   ```
-
-7. |Case|:**edit_note**
-   ```plaintext
-   Function view_note(title):
-       ... (previous code)
-       If request.method is POST:
-           # Edit content logic
-           note_manager.edit_note(session['username'], title, new_content)
-           Save changes and redirect to dashboard
-   ```
-
-8. |Case|:**logout**
-   ```plaintext
-   Function logout():
-       session.pop('username', None)
-       Redirect to login
-   ```
+There were no test cases that passed successfully.
 
 ### Failed or Error Test Cases
-1. |Case|:**add_new_note**
-   - **Error Analysis**: The test failed because it could not locate the "Add Note" link, likely due to an authentication failure resulting from a failed login process.
-   - **Improvement Guidance**: Ensure that user sessions are effectively managed. Each user login must result in setting the session correctly, and all routes should verify user authentication before rendering views or options that depend on user data.
 
-2. |Case|:**delete_note**
-   - **Error Analysis**: The test intentionally fails as the delete functionality is not implemented in the project.
-   - **Improvement Guidance**: Ensure that any essential functionality (like deleting notes) is not only defined in the business logic but also has a user-facing feature within the application. Plan routes and UI elements for every feature you expose in your backend logic.
+1. |Case|:**create_new_blog_post**
+   - **Error**: `NoSuchElementException` for "Create New Post" link.
+   - **Analysis**: The test fails to find the link, likely due to unsuccessful login, which prevents access to the main page.
 
-3. |Case|:**edit_note**
-   - **Error Analysis**: This error occurred because the test could not find the "First Note" link, suggesting that the notes are not being loaded correctly for the logged-in user.
-   - **Improvement Guidance**: Double-check the implementation of user-related features, such as adding and retrieving notes. Ensure that notes are consistently associated with the correct user account and accessible through the dashboard.
+2. |Case|:**delete_blog_post**
+   - **Error**: `NoSuchElementException` for delete button.
+   - **Analysis**: Similar to the previous test, the absence of the delete button may stem from a failed login or because posts aren't displayed.
 
-4. |Case|:**login**
-   - **Error Analysis**: The test fails because it results in a 404 error when attempting to validate the dashboard title, indicating issues with user authentication.
-   - **Improvement Guidance**: Always provide intuitive navigation options on each page. For example, all major functionalities should be easily accessible from the dashboard.
+3. |Case|:**edit_existing_post**
+   - **Error**: `NoSuchElementException` for "First Post" link.
+   - **Analysis**: Test cannot locate the post link due to login failure or due to no posts being displayed.
 
-5. |Case|:**view_notes_on_dashboard**
-   - **Error Analysis**: The test failed because no notes were found associated with the logged-in user.
-   - **Improvement Guidance**: Maintain consistency in your UI elements. When adding new features or functionalities, ensure UI links are added where they logically belong to allow for seamless user experience.
+4. |Case|:**user_login**
+   - **Failure**: The user was not directed to the main page. Assertion error indicating "Main Blog Page" is not found, showing a 404 error instead.
+   - **Analysis**: This points to issues in the login flow leading to improper redirection.
 
-6. |Case|:**view_note_details**
-   - **Error Analysis**: Similar to `edit_note`, the inability to find "First Note" indicates issues with loading notes for the user.
-   - **Improvement Guidance**: After implementing new functionalities or UI changes, conduct unit tests or integration tests specifically against all interfaces to validate they perform as expected.
+5. |Case|:**user_registration**
+   - **Failure**: The content for registration success was not found on the page, indicating that the registration process failed.
+   - **Analysis**: This may be due to duplicate username checks or issues in user creation functionality.
 
-7. |Case|:**search_for_note**
-   - **Error Analysis**: The test fails to find the "Search Notes" link, likely due to the user not being properly logged in.
-   - **Improvement Guidance**: Regular checks of your UI against your functional requirements will help in catching issues early.
+6. |Case|:**view_blog_posts**
+   - **Failure**: The test found no posts available to display.
+   - **Analysis**: Likely indicates that the create post functionality is not working correctly or hasn't been triggered prior.
+
+### Guidance to Resolve Issues
+1. **Ensure Robust Authentication**:
+   - Implement thorough checks in the registration and login mechanisms. Make sure that errors (e.g., username already in use) are handled gracefully and provide clear messaging to the user, which can also facilitate debugging during development.
+
+2. **Validation of Post Operations**:
+   - Before conducting tests related to posts (create, edit, delete), ensure that the functionality for creating a post is working correctly. This prevents subsequent tests from failing due to dependent operations that haven't been successfully implemented.
+
+3. **Manage Routes and Responses**:
+   - Clearly define the routes and their expected behaviors post-login. Ensure that routing logic in the Flask app leads users to the correct pages based on their authentication state. Any failure in routing should yield appropriate responses rather than exposing a 404 error.
+
+4. **Perform Data Persistence Checks**:
+   - Regularly verify that data (users and posts) is being saved correctly and that retrieval operations work as intended (i.e., posts being available after being created). Consider implementing unit tests for these functionalities as well.
+
+5. **Maintain Clear Communication in the Application**:
+   - Ensure that for every operation (registration, login, post creation, etc.), the application provides feedback to the user, such as success or failure messages. This aids both user experience and debugging.
+
+6. **Log Important Events**:
+   - Introduce logging mechanisms to trace important actions and errors within the application. Observing logs can provide insight into where failures occur during operational testing or debugging sessions. 
+
+By addressing these areas during the development process, you can create a more robust application that minimizes issues reflected in unit tests and enhances overall code stability.
         """
-        # ce_feedback = ce_feedbacks["code"]
         if ce_feedback:
             if ce_feedback == "CodeIsGood":
                 print("Dev execute END")

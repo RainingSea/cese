@@ -115,10 +115,10 @@ def run_test_code(file_path):
         return f"Error during execution: {e.stderr}"
 
 def autogen():
-    project_categories = ['gui']
-    codebase_path = './codebase'
+    project_categories = ['website']
+    codebase_path = 'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\'
     for project_category in project_categories:
-        codebase_parent_path = f'./codebase/{project_category}/'
+        codebase_parent_path = f'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase/{project_category}/'
         # 检查这个路径下的所有文件夹
         if os.path.isdir(codebase_parent_path):
             for project_name in os.listdir(codebase_parent_path):
@@ -130,9 +130,8 @@ def autogen():
                     print(f"Processing Project: {project_category}/{project_name}")
 
                     # 确保代码库和测试用例路径正确
-                    codebase_path = f'./codebase/{project_category}/{project_name}/'
-                    testcase_path = f'./testcase/{project_category}/TestCases_{project_name}.md'
-
+                    codebase_path = f'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase/{project_category}/{project_name}/code/'
+                    testcase_path = f'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\testcase/{project_category}/TestCases_{project_name}.md'
                     # 读取代码库和测试用例文件
                     codebase = read_codebase(codebase_path)
                     print(f"Codebase :\n{codebase}")
@@ -176,13 +175,13 @@ def clear_imports():
         if module.startswith('testcode'):
             del sys.modules[module]
 def runUnitTest():
-    project_categories = ['gui']
-    codebase_path = 'D:\\algorithm\\agent\\AltDev\\dataset\\SD-bench\\codebase'
+    project_categories = ['website']
+    codebase_path = 'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase'
     # category,project_name,passed,failed,errors,total
-    meta_data_path = "D:\\algorithm\\agent\\AltDev\\dataset\\SD-bench\\altdev_metadata.csv"
+    meta_data_path = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\metadata.csv"
 
     for project_category in project_categories:
-        codebase_parent_path = f'D:\\algorithm\\agent\\AltDev\\dataset\\SD-bench\\codebase\\{project_category}\\'
+        codebase_parent_path = f'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\{project_category}\\'
 
         # 检查这个路径下的所有文件夹
         if os.path.isdir(codebase_parent_path):
@@ -197,7 +196,7 @@ def runUnitTest():
                     print(f"Project {project_name} already exists in results, skipping...")
                     continue
 
-                project_path = os.path.join(codebase_parent_path, project_name)
+                project_path = os.path.join(codebase_parent_path, project_name, 'code')
                 os.chdir(project_path)
                 print(f"CURRENT DIR {project_path}")
 
@@ -249,8 +248,8 @@ def runUnitTest():
                 suite = None  # 清空 TestSuite 对象
 
 if __name__ == '__main__':
-    autogen()
-    # runUnitTest()
+    # autogen()
+    runUnitTest()
 
 # ### 目前只支持单个codebase的自动测试
 # # 只需要在下面填写codebase的类别和名称即可
