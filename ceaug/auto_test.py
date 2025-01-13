@@ -145,7 +145,8 @@ def autogen(project_path, category, project_name):
         # 换成绝对路径
         # 后期这里要更换，就是不刷数据集的情况下：在命令行里提供是否包含测试用例的参数，如果包含，就按类似这种方法提取；如果不包含，就生成测试用例，并且返回测试用例路径
         testcase_path = os.path.join(
-            "D:/Project/CE/CE/dataset/SD-bench/testcase",
+            "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\testcase",
+            # "D:/Project/CE/CE/dataset/SD-bench/testcase",
             category,
             f"TestCases_{project_name}.md",
         )
@@ -215,22 +216,33 @@ def runUnitTest(project_path, category):
     project_path = os.path.join(project_path, "code")
     os.chdir(project_path)
     print(f"CURRENT DIR1 {project_path}")
-    # 在加载测试前清理模块缓存
+
+    # Clear module cache before loading tests
     clear_imports()
-    # 加载测试文件 (testcode.py)
+
+    # Load the test files (testcode.py)
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    # 自动加载 testcode.py 文件中的测试用例
+    # Automatically load test cases from the testcode.py file
     suite.addTests(loader.discover("."))
-    output_stream = io.StringIO()
 
-    # 创建 TextTestRunner 实例，运行测试用例并输出结果
+    # Create a StringIO stream to capture both stdout and stderr
+    output_stream = io.StringIO()
+    error_stream = io.StringIO()
+
+    # Redirect stderr to capture errors
+    sys.stderr = error_stream
+
+    # Create a TextTestRunner instance to run the tests and capture the output
     runner = unittest.TextTestRunner(stream=output_stream, verbosity=2)
     result = runner.run(suite)
 
+    # Get the captured output and errors
     test_output = output_stream.getvalue()
+    error_output = error_stream.getvalue()
+
     if project_category == "website":
-        # filter out some unimportant and repetitive output.
+        # Filter out some unimportant and repetitive output
         print("#### strip ####")
         test_output = web_text_strip(test_output)
         print(test_output)
@@ -239,6 +251,10 @@ def runUnitTest(project_path, category):
     passed = int(result.testsRun - len(result.failures) - len(result.errors))
     failed = len(result.failures)
     errors = len(result.errors)
+
+    # Combine both stdout and stderr outputs
+    combined_output = test_output + "\n" + error_output
+
     info = {
         "category": project_category,
         "project_name": project_name,
@@ -246,13 +262,16 @@ def runUnitTest(project_path, category):
         "failed": failed,
         "errors": errors,
         "total": total,
-        "output": test_output,
+        "output": combined_output,
     }
+
     print(f"Total tests run: {total}")
     print(f"Passed: {passed}")
     print(f"Failed: {failed}")
     print(f"Errors: {errors}")
+    print(f"output: {combined_output}")
     print(f"----------------[END {project_name}]---------------------")
+    # print(info)
     # print(info)
 
     # 使用 pd.concat() 合并新的数据行

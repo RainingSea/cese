@@ -10,6 +10,7 @@ from openai import OpenAI
 import time
 import math
 from datetime import datetime
+from utils import utils
 
 
 def chat_to_LLM(messages):
@@ -138,7 +139,7 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
 
         # 编写测试代码testcode.py
         test_code = autogen(project_dir, project_category, project_name)
-
+        test_code = utils.remove_time_sleep_after_popen(test_code)
         # 运行测试代码
         print("workdir before test: " + str(Path.cwd()))
         unit_test_result = runUnitTest(project_dir, project_category)
@@ -667,7 +668,8 @@ def edit_task(d, log):
         return None
     # seed
     seed_value = int(time.time())
-    with open("D:\Project\CE\CE\seed.txt", "a") as file:
+    # "D:\Project\CE\CE\seed.txt"
+    with open("D:\\algorithm\\agent\\cese\\seed.txt", "a") as file:
         file.write(str(datetime.now()) + " " + str(seed_value))
     random.seed(seed_value)
     #
