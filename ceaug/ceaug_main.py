@@ -829,7 +829,8 @@ please provide improvement suggestions in the following areas:
 1. This is only a small project, we don't consider too much about scalability.
 2. We don't use any database.
 3. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
-4. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
+4. do not give advice with hash or security check in authentication.
+5. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
 ---------------------------
 ### Output Example:
 
@@ -887,7 +888,7 @@ provide feedback on:
 1. Provide **task plan-level feedback** with a focus on **task clarity**, and **workflow**.
 2. This is only a small project, we don't consider too much about scalability.
 3. We don't use any database.
-4. We don't use hash or security check.
+4. do not give advice with hash or security check in authentication.
 5. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
 4. guidance related to user experience, efficiency are not needed.
 

@@ -139,8 +139,8 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        inter_launch = True
-        # inter_launch = False
+        # inter_launch = True
+        inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:
@@ -156,25 +156,25 @@ class Team(BaseModel):
             self.roles["Product Manager"].go()
             Team.active_role(self.roles["Product Manager"].profile)
         # make ce dirs and copy the prd to each dir
-        # ce_projects_paths = make_ce_dirs(Team.project_dir, 2)
+        ce_projects_paths = make_ce_dirs(Team.project_dir, 5)
 
         # generate sampling architect
-        # for j in range(len(ce_projects_paths)):
-        #     print(f"\ngenerate the architect of {j}th counter project\n")
-        #     Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
-        #     Team.project_dir = ce_projects_paths[j]
+        for j in range(len(ce_projects_paths)):
+            print(f"\ngenerate the architect of {j}th counter project\n")
+            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
+            Team.project_dir = ce_projects_paths[j]
 
-        #     self.roles["Product Manager"].go_inter()
-        #     # sample architect generate
-        #     self.roles["Architect"].go_in_sample()
-        #     # sample task plan generate
-        #     self.roles["Project Manager"].go_in_sample()
-        #     # temporarily change project dir to a ce folder
+            self.roles["Product Manager"].go_inter()
+            # sample architect generate
+            self.roles["Architect"].go_in_sample()
+            # sample task plan generate
+            self.roles["Project Manager"].go_in_sample()
+            # temporarily change project dir to a ce folder
 
-        #     self.roles["Programmer"].go_in_sample()
-        #     self.roles["Programmer"].code_base.clear()
-        #     code_base_dir = os.path.join(Team.project_dir, "code")
-        #     port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+            self.roles["Programmer"].go_in_sample()
+            self.roles["Programmer"].code_base.clear()
+            code_base_dir = os.path.join(Team.project_dir, "code")
+            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         # # |--------- simplest coding process ---------|
         # # |
@@ -184,10 +184,10 @@ class Team(BaseModel):
         # # |--------- simplest coding process ---------|
 
         # execute unit test
-        ce_projects_paths = [
-            "D:\Project\CE\CE\project\website\DailyJournalApp_20250113204908\ce\ce_0",
-            "D:\Project\CE\CE\project\website\DailyJournalApp_20250113204908\ce\ce_1",
-        ]
+        # ce_projects_paths = [
+        #     "D:\Project\CE\CE\project\website\DailyJournalApp_20250113204908\ce\ce_0",
+        #     "D:\Project\CE\CE\project\website\DailyJournalApp_20250113204908\ce\ce_1",
+        # ]
         ce_score, ce_feedbacks = ceaug(
             previous_work_dir,
             ce_projects_paths,

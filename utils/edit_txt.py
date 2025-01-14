@@ -27,14 +27,17 @@ def add_newline_to_txt_files(directory):
 
 def read_port():
     # "D:\Project\CE\CE\port.txt"
-    with open("D:\\algorithm\\agent\\cese\\port.txt", "r") as file:
+    # "D:\\algorithm\\agent\\cese\\port.txt"
+
+    with open("D:\Project\CE\CE\port.txt", "r") as file:
         port_number = file.read()
     return int(port_number)
 
 
 def write_port(port):
+    # "D:\\algorithm\\agent\\cese\\port.txt"
     try:
-        with open("D:\\algorithm\\agent\\cese\\port.txt", "w") as file:
+        with open("D:\Project\CE\CE\port.txt", "w") as file:
             file.write(str(port))
     except Exception as e:
         print(e)

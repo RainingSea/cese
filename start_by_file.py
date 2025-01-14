@@ -37,8 +37,8 @@ def start_project():
 
     # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
     project_description_path = (
-        f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
-        # f"D:\Project\CE\CE\dataset\SD-bench\dataset\{category}/{name}"
+        # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
+        f"D:\Project\CE\CE\dataset\SD-bench\dataset\{category}/{name}"
     )
     # framework execution start time
     start_time = datetime.now()
@@ -58,8 +58,8 @@ def start_project():
     Team.project_name = project_name
 
     # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name+ "_"+ formatted_time + "/"
-    # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
-    projdir = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\" + project_name + "\\"
+    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
+    # projdir = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\" + project_name + "\\"
     Team.set_projdir(projdir)
     Team.set_log()
 
@@ -85,7 +85,7 @@ def start_project():
     product_manager = Product_Manager(llm=model, llm_sample=sample_model, team=team)
     architect = Architect(llm=model, llm_sample=sample_model, team=team)
     projct_manager = Project_Manager(llm=model, llm_sample=sample_model, team=team)
-    programmer = Programmer(llm=model, team=team)
+    programmer = Programmer(llm=model, llm_sample=sample_model, team=team)
     code_tester = Code_Tester(llm=model, team=team)
     reviewer = Reviewer(target=projct_manager, team=team)
     searcher = Searcher(llm=model, team=team)
