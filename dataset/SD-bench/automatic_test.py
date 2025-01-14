@@ -32,6 +32,7 @@ def read_codebase(codebase_path):
                     content.append(f"{indent}  --- FILE: {file} (ERROR: {e}) ---\n")
     return "".join(content)
 
+
 ### reletive path: testcase
 def read_md_file(file_path):
     try:
@@ -41,12 +42,13 @@ def read_md_file(file_path):
         return f"Error: The file '{file_path}' was not found."
     except Exception as e:
         return f"Error: Could not read the file '{file_path}'. Reason: {e}"
-    
+
+
 ### gpt api
 def call_openai_api(prompt, model):
     client = OpenAI(
-    api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",
-    base_url= "https://api.chatanywhere.tech"
+        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",
+        base_url="https://api.chatanywhere.tech"
     )
     try:
         response = client.chat.completions.create(
@@ -58,7 +60,8 @@ def call_openai_api(prompt, model):
         return response.choices[0].message.content
     except Exception as e:
         return f"Error: {e}"
-    
+
+
 def extract_python_code(llm_response):
     """
     Extract Python code blocks from LLM response.
@@ -72,6 +75,7 @@ def extract_python_code(llm_response):
     # Use regex to extract code blocks between ```python and ```
     code_blocks = re.findall(r"```python\n(.*?)```", llm_response, re.DOTALL)
     return "\n\n".join(code_blocks)
+
 
 def save_test_code(codebase_path, llm_response):
     """
@@ -96,6 +100,7 @@ def save_test_code(codebase_path, llm_response):
         file.write(python_code)
     return testcode_path
 
+
 def run_test_code(file_path):
     """
     Runs the Python script at the given file path and captures the output.
@@ -114,7 +119,29 @@ def run_test_code(file_path):
     except subprocess.CalledProcessError as e:
         return f"Error during execution: {e.stderr}"
 
+
+def remove_time_sleep_after_popen(test_code):
+    """
+    删除 subprocess.Popen 后紧接的以 time.sleep 开头的行。
+
+    :param test_code: 输入的代码字符串
+    :return: 更新后的代码字符串
+    """
+    # 正则模式：匹配 subprocess.Popen(...) 后面紧接的以 time.sleep(...) 开头的行
+    # 这里我们使用 \s* 来允许 space 和注释
+    pattern = r"(subprocess\.Popen\(.*?\)\s*\n)\s*time\.sleep\(.*?\)\s*(#.*)?\n"
+
+    # 使用 re.sub 替换匹配的内容，去掉 time.sleep 的行
+    updated_code = re.sub(pattern, r"\1", test_code)
+    return updated_code
+
+
 def autogen():
+    """
+    一定要绝对路径
+    Returns:
+
+    """
     project_categories = ['website']
     codebase_path = 'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\'
     for project_category in project_categories:
@@ -151,20 +178,25 @@ def autogen():
 
                     # 调用OpenAI API获取测试代码
                     test_code = call_openai_api(prompt=prompt, model='gpt-4o')
+                    test_code = remove_time_sleep_after_popen(test_code)
                     print(f"Test code:\n{test_code}")
 
                     # 保存生成的测试代码并运行测试
                     testcode_path = save_test_code(codebase_path=codebase_path, llm_response=test_code)
                     # run_test_code(testcode_path)
+
+
 def write_results_to_csv(results, filename='test_results.csv'):
     # 使用 pandas 将结果写入 CSV 文件
     df = pd.DataFrame(results)
     df.to_csv(filename, index=False)
 
+
 def read_results_from_csv(filename='test_results.csv'):
     # 使用 pandas 从 CSV 文件读取数据
     df = pd.read_csv(filename)
     return df
+
 
 def clear_imports():
     """
@@ -174,6 +206,8 @@ def clear_imports():
     for module in list(sys.modules.keys()):
         if module.startswith('testcode'):
             del sys.modules[module]
+
+
 def runUnitTest():
     project_categories = ['website']
     codebase_path = 'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase'
@@ -220,7 +254,7 @@ def runUnitTest():
                 errors = len(result.errors)
 
                 info = {
-                    "category":project_category,
+                    "category": project_category,
                     "project_name": project_name,
                     "passed": passed,
                     "failed": failed,
@@ -246,6 +280,7 @@ def runUnitTest():
                 suite._tests.clear()  # 清除测试套件中的测试用例
                 loader = None  # 清除测试加载器对象
                 suite = None  # 清空 TestSuite 对象
+
 
 if __name__ == '__main__':
     # autogen()
