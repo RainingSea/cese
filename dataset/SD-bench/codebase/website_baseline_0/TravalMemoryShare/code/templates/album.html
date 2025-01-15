@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Albums</title>
+</head>
+<body>
+    <h1>Your Albums</h1>
+    <form method="POST" action="/album">
+        <input type="text" name="title" placeholder="Album Title" required>
+        <input type="text" name="photos" placeholder="Photo URLs (comma separated)" required>
+        <label>
+            <input type="checkbox" name="is_public"> Public
+        </label>
+        <button type="submit">Create Album</button>
+    </form>
+    <h2>Existing Albums</h2>
+    <ul>
+        {% for album in albums %}
+            <li>{{ album.title }} - {{ album.is_public }}</li>
+            <a href="{{ url_for('customize_album', album_title=album.title) }}">Customize</a>
+            <a href="{{ url_for('share_album', album_title=album.title) }}">Share</a>
+            <form method="POST" action="{{ url_for('follow_user', username=album.title) }}">
+                <button type="submit">Follow</button>
+            </form>
+            <form method="POST" action="{{ url_for('interact_with_user', username=album.title) }}">
+                <button type="submit">Interact</button>
+            </form>
+        {% endfor %}
+    </ul>
+    <a href="/explore_albums">Explore Shared Albums</a>
+    <a href="/logout">Logout</a>
+</body>
+</html>

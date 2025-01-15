@@ -85,7 +85,7 @@ def start_project():
     product_manager = Product_Manager(llm=model, llm_sample=sample_model, team=team)
     architect = Architect(llm=model, llm_sample=sample_model, team=team)
     projct_manager = Project_Manager(llm=model, llm_sample=sample_model, team=team)
-    programmer = Programmer(llm=sample_model, team=team)
+    programmer = Programmer(llm=model, llm_sample=sample_model, team=team)
     code_tester = Code_Tester(llm=model, team=team)
     reviewer = Reviewer(target=projct_manager, team=team)
     searcher = Searcher(llm=model, team=team)
@@ -106,7 +106,8 @@ def start_project():
     #
     #
     # ------------------- launch project ------------------------
-    team.run()
+    # team.run()
+    team.run_self_evo()
     # ------------------- launch project ------------------------
     #
     #

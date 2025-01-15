@@ -37,6 +37,7 @@ class Programmer(Role):
     name: str = "Clorinde"
     profile: str = "Programmer"
     llm: object
+    llm_sample: object
     system_msg: str = CODING_SYS
     own_message: Message = None
     team: Team = None
@@ -80,8 +81,8 @@ class Programmer(Role):
         return
 
     def go_in_sample(self):
-        print(self.profile + " " + self.name + " Temperature Coding...")
-        Team.log.info(self.profile + " " + self.name + " Temperature Coding...")
+        print(self.profile + " " + self.name + " Coding...")
+        Team.log.info(self.profile + " " + self.name + " Coding...")
 
         # ---------- get the information needed from SCR ----------
         architecture = self.getArchiture().content
@@ -98,7 +99,7 @@ class Programmer(Role):
         user_prompt = user_prompt_msg.to_messages()[0]
         # prompt LLM
         Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-        code_result = self.llm.invoke(system_prompt, user_prompt)
+        code_result = self.llm_sample.invoke(system_prompt, user_prompt)
         Team.log.info("\n" + code_result)
         # ________ store in self code dict ________
         Team.log.info("Compare Code")

@@ -119,7 +119,6 @@ def run_test_code(file_path):
     except subprocess.CalledProcessError as e:
         return f"Error during execution: {e.stderr}"
 
-
 def remove_time_sleep_after_popen(test_code):
     """
     删除 subprocess.Popen 后紧接的以 time.sleep 开头的行。
@@ -135,7 +134,6 @@ def remove_time_sleep_after_popen(test_code):
     updated_code = re.sub(pattern, r"\1", test_code)
     return updated_code
 
-
 def autogen():
     """
     一定要绝对路径
@@ -149,8 +147,9 @@ def autogen():
         # 检查这个路径下的所有文件夹
         if os.path.isdir(codebase_parent_path):
             for project_name in os.listdir(codebase_parent_path):
-                project_path = os.path.join(codebase_parent_path, project_name)
+                project_path = os.path.join(codebase_parent_path, project_name, 'code')
                 if os.path.exists(os.path.join(project_path, 'testcode.py')):
+                    # os.remove(os.path.join(project_path, 'testcode.py'))
                     continue
                 # 只处理文件夹
                 if os.path.isdir(project_path):

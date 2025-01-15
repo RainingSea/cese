@@ -7,9 +7,10 @@ from utils.read import read_file_2_line
 import re, random
 import ast
 from openai import OpenAI
-import time
+import time, os
 import math
 from datetime import datetime
+from pathlib import Path
 from utils import utils
 
 
@@ -125,7 +126,15 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
     all_task_plan_feedbacks = []
     all_architecture_feedbacks = []
 
+    # ____________________ make a dir to store test result ___________________
+
     for i in range(len(project_dirs)):
+
+        if not os.path.exists(os.path.join(project_dirs[i], "test_result")):
+            # like, DailyJournalApp/sample_unit_test_result
+            os.makedirs(os.path.join(project_dirs[i], "test_result"))
+        unit_test_result_dir = os.path.join(project_dirs[i], "test_result")
+
         print("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
         log.info("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
 
@@ -143,7 +152,7 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
         # 运行测试代码
         print("workdir before test: " + str(Path.cwd()))
         unit_test_result = runUnitTest(project_dir, project_category)
-        log.info(unit_test_result["output"])
+        log.info("unit_test_result_is\n" + unit_test_result["output"])
 
         # 切回来目录
         os.chdir(base_dir)
@@ -202,6 +211,16 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
 
         if "[CODE]" not in relevance:
             log.info("CodeIsGood" + project_dirs[i])
+            path = Path(project_dirs[i])
+            if flag == "ite_feedback":
+                # project/daily/ce/ce1
+                parent_absolute = path.parents[1].resolve()
+            elif flag == "self_evo":
+                # parent dir is now
+                parent_absolute = project_dirs[i]
+            # write good projects
+            with open(os.path.join(parent_absolute, "pass_project.txt")) as file:
+                file.write(log.info("CodeIsGood" + project_dirs[i]) + "\n")
             continue
 
         # input("input to summarize")
@@ -277,16 +296,32 @@ The output should retain the section titles "### Passed Test Cases" and "### Fai
 
 # context
 The content you need to analyze and format is as follows: {summaries}.\n"""
+
             summary_merge_values = {"summaries": all_summaries}
             sum_messages.append(
                 format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
             )
             print(sum_messages[0]["content"])
+            log.info(sum_messages[0]["content"])
             # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
             code_summaries_summary = chat_to_LLM(sum_messages)
             print("Code Feedback is")
             print(code_summaries_summary)
             log.info("Code Feedback is\n" + code_summaries_summary)
+            with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+                content = (
+                    "#_#unit_test_result#_#\n"
+                    + str(unit_test_result)
+                    + "\n#_#unit_test_result_analysis#_#\n"
+                    + unit_test_result_analysis
+                    + "\n#_#relevance#_#\n"
+                    + relevance
+                    + "\n#_#code_feedback#_#\n"
+                    + code_feedback
+                    + "\n#_#code_feedback_summary#_#\n"
+                    + code_summaries_summary
+                )
+                file.write(content)
 
             return max_score, code_summaries_summary
 
@@ -322,6 +357,23 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
         print("Plan Feedback")
         print(task_plan_feedback)
         log.info("Plan Feedback\n" + task_plan_feedback)
+
+        with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+            content = (
+                "#_#unit_test_result#_#\n"
+                + str(unit_test_result)
+                + "\n#_#unit_test_result_analysis#_#\n"
+                + unit_test_result_analysis
+                + "\n#_#relevance#_#\n"
+                + relevance
+                + "\n#_#code_feedback#_#\n"
+                + code_feedback
+                + "\n#_#architecture_feedback#_#\n"
+                + architecture_feedback
+                + "\n#_#task_plan_feedback#_#\n"
+                + task_plan_feedback
+            )
+            file.write(content)
 
         all_code_feedbacks.append(code_feedback)
         all_architecture_feedbacks.append(architecture_feedback)
@@ -777,7 +829,8 @@ please provide improvement suggestions in the following areas:
 1. This is only a small project, we don't consider too much about scalability.
 2. We don't use any database.
 3. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
-4. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
+4. do not give advice with hash or security check in authentication.
+5. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
 ---------------------------
 ### Output Example:
 
@@ -835,7 +888,7 @@ provide feedback on:
 1. Provide **task plan-level feedback** with a focus on **task clarity**, and **workflow**.
 2. This is only a small project, we don't consider too much about scalability.
 3. We don't use any database.
-4. We don't use hash or security check.
+4. do not give advice with hash or security check in authentication.
 5. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
 4. guidance related to user experience, efficiency are not needed.
 

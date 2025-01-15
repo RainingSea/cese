@@ -7,7 +7,7 @@ Attention 4: The test code needs to be directly executable and only need to cove
 Attention 5: You will implement the test.py and finish it follows in the strictly defined format.
 Attention 6: You should run codebase code yourself, testing one feature per run. so you need to run the command "python main.py"
 Attention 6: Chrome WebDriver is already installed and the path is in the environment variable, so there is no need to specify its path in the test code. And 'WebDriver' object has no attribute 'find_element_by_id'
-Attention 7: Access to the login page is available at http://localhost:xxxx or http://localhost:xxxx/login.
+Attention 7: Access to the login page is available at http://localhost:xxxx.
 Attention 8: You must utilize the username and password from Data Storage to construct a login method within the test class. 
 Attention 9: Access to All pages, except for the login and registration pages, requires logging in from the login page and then proceeding by clicking the corresponding buttons on the page to navigate to the desired page.
 Attention 10: After logging in, you will be redirected to other pages and will not stay on the login page.
@@ -34,7 +34,7 @@ class TestDailyJournalApp(unittest.TestCase):
         self.process = subprocess.Popen(['python', 'main.py'])  # 修改为实际路径
         time.sleep(5)  # 等待 Web 应用完全启动
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:5000/login')
+        self.driver.get('http://localhost:5000/')
 
     def tearDown(self):
         # Close the web driver session

@@ -32,6 +32,7 @@ class Code_Tester(Role):
     def go(self):
         self.codebase_dir = os.path.join(Team.project_dir, "code")
 
+        # 没有从codebase里读取
         code = self.getCode().content
         unit_test_feedback = self.unit_test_feedback
 
