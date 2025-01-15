@@ -117,6 +117,203 @@ def create_ce_document(project_dir, task_plan, log):
     return ce_project_paths
 
 
+def ceaug_vice(base_dir, project_dirs, project_category, project_name, flag, log):
+    max_score = -1.0
+    code_feedback_selected = ""
+    all_unit_test_results = []
+    all_code_feedbacks = []
+    all_task_plan_feedbacks = []
+    all_architecture_feedbacks = []
+
+    # 还没有通过的逻辑
+
+    for i in range(len(project_dirs)):
+
+        _path = os.path.join(project_dirs[i], "test_result", "result.txt")
+        all_feedbacks = read_feedback(_path)
+
+        code_feedback = all_feedbacks["#_#code_feedback#_#"]
+        architecture_feedback = all_feedbacks["#_#architecture_feedback#_#"]
+        task_plan_feedback = all_feedbacks["#_#task_plan_feedback#_#"]
+        unit_test_result = all_feedbacks["#_#unit_test_result#_#"]
+
+        log.info("read feedbacks from " + project_dirs[i])
+        log.info("unit_test_result\n" + unit_test_result + "\n")
+        log.info("code_feedback\n" + code_feedback + "\n")
+        log.info("architecture_feedback\n" + architecture_feedback + "\n")
+        log.info("task_plan_feedback\n" + task_plan_feedback + "\n")
+
+        print("read feedbacks from " + project_dirs[i])
+        print("unit_test_result\n" + unit_test_result + "\n")
+        print("code_feedback\n" + code_feedback + "\n")
+        print("architecture_feedback\n" + architecture_feedback + "\n")
+        print("task_plan_feedback\n" + task_plan_feedback + "\n")
+
+        # 直接读取出测试结果
+        all_code_feedbacks.append(code_feedback)
+        all_architecture_feedbacks.append(architecture_feedback)
+        all_task_plan_feedbacks.append(task_plan_feedback)
+
+        all_unit_test_results.append(unit_test_result)
+
+    if flag == "ite_fdback":
+        sum_messages = []
+        all_summaries = ""
+        for k in range(len(all_code_feedbacks)):
+            all_summaries = (
+                all_summaries
+                + "### the "
+                + str(k + 1)
+                + "th"
+                + " project result:\n"
+                + f"test result is {all_unit_test_results[k]}: analysis&guidance is {all_code_feedbacks[k]} \n\n"
+            )
+
+        # means it is counter example model
+        PROMPT_FOR_SUMMARY_MERGE = """# instruction
+I have multiple implementations of the same project, each of which has undergone unit testing. For each implementation, I have obtained test results, analyzed them, and developed improvement recommendations. Now, you should extract and compile all my contents with the following requirements:
+
+1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, may not need to outptut.
+
+2.Prepare the output, divided into two parts: Passed Test Cases and Failed or Error Test Cases, with following description:
+### Passed Test Cases
+Summarize solutions for all test cases that passed. Use the pseudocode provided in the input to represent the solutions; do not generate new pseudocode. Present each case in the format:
+1. |Case|:**Case Name**
+Followed by the pseudocode which represent the successful implementation for this function.
+
+### Failed or Error Test Cases
+Collect the analysis and guidance related to each failure or error. present it in the format:
+For each error or failure, extract all related analyses and guidance from allthe content. If there are duplicates, please remove them.
+Then, combine them and output them in the following format:
+1. |Case|:**Case Name**
+Followed by:
+Failure/Error Analysis1
+Improvement Guidance1 (textual, pseudocode, etc.)
+Failure/Error Analysis2
+Improvement Guidance2 (textual, pseudocode, etc.)
+Each pair above represents content extracted from different projects (after deduplication).
+Ensure that if there are differing analyses or guidance for a single test case, all are recorded. 
+
+# Notes:
+For ### Passed Test Cases, you need to "summarize"; for ### Failed or Error Test Cases, you need to "extract".
+Case Name is the test case name with the test_ prefix removed (e.g., test_navigate_to_registration becomes navigate_to_registration).
+Do not summarize guidance specifically for the test code itself.
+There is no need to output the list test cases again at the end. 
+
+# Attention
+must consider all results in "context", don't omit. don't lose information.
+The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
+
+# Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
+
+# context
+The content you need to summarize is as follows: {summaries}.\n"""
+        summary_merge_values = {"summaries": all_summaries}
+        sum_messages.append(
+            format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
+        )
+        print(sum_messages[0]["content"])
+        log.info("code summary prompt is\n" + sum_messages[0]["content"])
+        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        code_summaries_summary = chat_to_LLM(sum_messages)
+        print("Code Feedback is")
+        print(code_summaries_summary)
+        log.info("Code Feedback is\n" + code_summaries_summary)
+
+        # summary the architecture feedback
+        arch_sum_messages = []
+        arch_all_summaries = ""
+        for g in range(len(all_architecture_feedbacks)):
+            arch_all_summaries = (
+                arch_all_summaries
+                + "### the "
+                + str(g + 1)
+                + "th"
+                + " project result:\n"
+                + f"{all_architecture_feedbacks[g]}\n\n"
+            )
+
+        PROMPT_FOR_ARCHITECT_MERGE = """You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of architecture-related feedback for a software development project and produce a concise, unified summary.
+## Instructions:
+1. Combine Similar Feedback:Identify and merge duplicate or overlapping suggestions while retaining their key points. For example, if multiple feedback items suggest improving navigation in the UI, consolidate them into a single suggestion.
+2. Retain Unique Feedback:Preserve suggestions that address distinct issues, even if they apply to different aspects of the project. Ensure no unique feedback is omitted.
+3.Structure the Output:
+Overall Evaluation
+Specific Problems and Suggestions
+Architecture Enhancements
+
+Attention:Use bullet points for readability, and provide actionable suggestions where applicable.
+Ensure Clarity and Precision.
+Use concise language to convey the ideas clearly and avoid redundancy.
+the content you need to summarize is:{summaries}.
+        """
+        arch_summary_merge_values = {"summaries": arch_all_summaries}
+        arch_sum_messages.append(
+            format_prompt(PROMPT_FOR_ARCHITECT_MERGE, arch_summary_merge_values)
+        )
+        print(arch_sum_messages[0]["content"])
+        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        arch_summaries_summary = chat_to_LLM(arch_sum_messages)
+        print("Archtecture Summary")
+        print(arch_summaries_summary)
+        log.info("Archtecture Summary\n" + arch_summaries_summary)
+
+        # plan summary
+        plan_sum_messages = []
+        plan_all_summaries = ""
+        for i in range(len(all_task_plan_feedbacks)):
+            plan_all_summaries = (
+                plan_all_summaries
+                + "### the "
+                + str(i + 1)
+                + "th"
+                + " project result:\n"
+                + f"{all_task_plan_feedbacks[g]}\n\n"
+            )
+
+        PROMPT_FOR_PLAN_MERGE = """You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of task-related feedback for a software development project and produce a concise, unified summary.You will receive multiple feedback reports, each containing various suggestions, including areas for improvement and potential enhancements. Your task is to extract suggestions that are useful for generating new plans and meet the following requirements:
+1.Categorize Suggestions: Group the suggestions into the following categories:
+Specific Areas for Improvement
+Suggested Enhancements
+2.Merge Similar Suggestions: Combine identical or highly similar suggestions into a single statement, using clear and concise language.
+3.Retain Unique Suggestions: Keep unique suggestions that appear in only one feedback report but are valuable for improvement. Highlight their source where applicable.
+4.Organized Output: Structure the output clearly and logically by category and priority (if mentioned), making it easy for planners to incorporate into new plans.
+output example:
+### Specific Areas for Improvement:  
+- Add logout functionality and error reporting for failed login/registration attempts.  
+- Clarify task descriptions for edge cases, including invalid input, duplicate registrations, and empty feedback submissions.  
+- Break down complex tasks (e.g., FeedbackManager implementation) into subtasks focusing on validation and file handling.  
+
+### Suggested Enhancements:  
+- Prioritize user authentication tasks, followed by feedback submission and navigation.  
+- Specify expected behaviors after user actions, such as feedback confirmation messages.  
+- Implement basic form validations to prevent invalid or empty submissions.  
+Use this format to summarize the feedback provided, ensuring the suggestions are actionable for creating improved new plans.
+
+the content you need to summarize is:{summaries}. follow the example, output you summary.
+        """
+        plan_summary_merge_values = {"summaries": plan_all_summaries}
+        plan_sum_messages.append(
+            format_prompt(PROMPT_FOR_PLAN_MERGE, plan_summary_merge_values)
+        )
+        print(plan_sum_messages[0]["content"])
+        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        plan_summaries_summary = chat_to_LLM(plan_sum_messages)
+        print("Plan Summary")
+        print(plan_summaries_summary)
+        log.info("Plan Summary\n" + plan_summaries_summary)
+
+        # get respective feedback: architecture suggestion, task plan suggestion, code suggestion
+        # return 3 feedback
+
+        feedback_result = {
+            "arch": arch_summaries_summary,
+            "plan": plan_summaries_summary,
+            "code": code_summaries_summary,
+        }
+        return max_score, feedback_result
+
+
 def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
 
     max_score = -1.0
@@ -198,7 +395,7 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
         messages.append(
             {
                 "role": "user",
-                "content": "Do you think the error or failure is caused by errors in the project's code or poorly written test cases? If it is a code error, please include a [CODE] at the end of your output. If not, you don't need to add anything. Thank you.",
+                "content": "Do you think the error or failure is caused by errors in the project's code or poorly written test cases? If it is a code error, please include a [CODEERROR] at the end of your output. If not, you don't need to add anything. Thank you. the label is [CODEERROR], do not output wrongly.",
             }
         )
 
@@ -209,18 +406,18 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
         log.info("2-| unit test result analysis and code relevance |")
         log.info(relevance)
 
-        if "[CODE]" not in relevance:
-            log.info("CodeIsGood" + project_dirs[i])
-            path = Path(project_dirs[i])
+        if "[CODEERROR]" not in relevance:
+            log.info("CodeIsGood " + project_dirs[i])
+            _path = Path(project_dirs[i])
             if flag == "ite_feedback":
                 # project/daily/ce/ce1
-                parent_absolute = path.parents[1].resolve()
+                parent_absolute = _path.parents[1].resolve()
             elif flag == "self_evo":
                 # parent dir is now
                 parent_absolute = project_dirs[i]
             # write good projects
-            with open(os.path.join(parent_absolute, "pass_project.txt")) as file:
-                file.write(log.info("CodeIsGood" + project_dirs[i]) + "\n")
+            with open(os.path.join(parent_absolute, "pass_project.txt"), "w") as file:
+                file.write("CodeIsGood " + project_dirs[i] + "\n")
             continue
 
         # input("input to summarize")
@@ -915,5 +1112,56 @@ provide feedback on:
 
 """
 
+import chardet
+
+
+def read_feedback(file_path):
+
+    markers = [
+        "#_#unit_test_result#_#",
+        "#_#unit_test_result_analysis#_#",
+        "#_#relevance#_#",
+        "#_#architecture_feedback#_#",
+        "#_#code_feedback#_#",
+        "#_#task_plan_feedback#_#",
+    ]
+
+    encoding_type = ""
+    with open(file_path, "rb") as file:
+        raw_data = file.read()
+        encoding_type = chardet.detect(raw_data)["encoding"]
+
+    with open(file_path, mode="r", encoding=encoding_type) as file:
+        content = file.read()
+        # print(content)
+
+    results = {}
+    for marker in markers:
+        start_index = content.find(marker)
+        if start_index == -1:
+            results[marker] = "No content found."
+            continue
+
+        # Find the end of this section by looking for the next marker or EOF
+        end_index = len(content)
+        for other_marker in markers:
+            if other_marker == marker:
+                continue
+            index = content.find(other_marker, start_index + len(marker))
+            if 0 < index < end_index:
+                end_index = index
+
+        # Extract the relevant part
+        extracted_content = content[start_index + len(marker) : end_index].strip()
+        results[marker] = extracted_content
+
+    return results
+
+
 if __name__ == "__main__":
-    ceaug()
+    # ceaug()
+    print(
+        read_feedback(
+            "D:\Project\CE\CE\project\website\FreelancerMarketplace\ce\ce_0\test_result\result.txt"
+        )
+    )

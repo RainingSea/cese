@@ -13,7 +13,13 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 from agents.role import Role
 from utils.log import Log
-from ceaug.ceaug_main import ceaug, create_ce_document, feedback_split, make_ce_dirs
+from ceaug.ceaug_main import (
+    ceaug,
+    ceaug_vice,
+    create_ce_document,
+    feedback_split,
+    make_ce_dirs,
+)
 from utils.edit_txt import add_newline_to_txt_files, update_flask_port
 
 
@@ -147,7 +153,7 @@ class Team(BaseModel):
             # Read files from an existing project, then proceed with development.
             # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
             Team.incremental_base_dir = os.path.normpath(
-                "D:\Project\CE\CE\project\website\DailyJournalApp_20250113204908"
+                "D:\Project\CE\CE\project\website\FreelancerMarketplace"
             )
             self.roles["Product Manager"].go_inter()
             # self.roles["Architect"].go_inter()
@@ -155,6 +161,7 @@ class Team(BaseModel):
         else:
             self.roles["Product Manager"].go()
             Team.active_role(self.roles["Product Manager"].profile)
+
         # make ce dirs and copy the prd to each dir
         ce_projects_paths = make_ce_dirs(Team.project_dir, 5)
 
@@ -184,9 +191,13 @@ class Team(BaseModel):
         # # |--------- simplest coding process ---------|
 
         # execute unit test
+
         # ce_projects_paths = [
-        #     "D:\Project\CE\CE\project\website\DailyJournalApp_20250113204908\ce\ce_0",
-        #     "D:\Project\CE\CE\project\website\DailyJournalApp_20250113204908\ce\ce_1",
+        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_0",
+        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_1",
+        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_2",
+        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_3",
+        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_4",
         # ]
         ce_score, ce_feedbacks = ceaug(
             previous_work_dir,
@@ -239,6 +250,9 @@ class Team(BaseModel):
                         init = False
                     else:
                         self.roles["C_Programmer"].go(passfd, "1")
+                    self.roles["C_Programmer"].message_to_file(
+                        self.roles["C_Programmer"].own_message.content
+                    )
             # process no pass feedback
             if no_pass_feedback:
                 for n_passfd in no_pass_feedback:
@@ -247,10 +261,10 @@ class Team(BaseModel):
                         init = False
                     else:
                         self.roles["C_Programmer"].go(n_passfd, "2")
-            # write only once
-            self.roles["C_Programmer"].message_to_file(
-                self.roles["C_Programmer"].own_message.content
-            )
+                    # write only once
+                    self.roles["C_Programmer"].message_to_file(
+                        self.roles["C_Programmer"].own_message.content
+                    )
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()
