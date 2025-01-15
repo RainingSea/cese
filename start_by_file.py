@@ -23,7 +23,7 @@ import argparse
 def start_project():
     # _________ from run ___________
     # category = "website"
-    # name = "DailyHealthTips.md"
+    # name = "RemoteJobBoard.md"
     # _________ from run ___________
 
     # __________ from shell __________
@@ -106,8 +106,8 @@ def start_project():
     #
     #
     # ------------------- launch project ------------------------
-    # team.run()
-    team.run_self_evo()
+    team.run()
+    # team.run_self_evo()
     # ------------------- launch project ------------------------
     #
     #
