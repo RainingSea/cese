@@ -32,6 +32,7 @@ def read_codebase(codebase_path):
                     content.append(f"{indent}  --- FILE: {file} (ERROR: {e}) ---\n")
     return "".join(content)
 
+
 ### reletive path: testcase
 def read_md_file(file_path):
     try:
@@ -41,12 +42,13 @@ def read_md_file(file_path):
         return f"Error: The file '{file_path}' was not found."
     except Exception as e:
         return f"Error: Could not read the file '{file_path}'. Reason: {e}"
-    
+
+
 ### gpt api
 def call_openai_api(prompt, model):
     client = OpenAI(
-    api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",
-    base_url= "https://api.chatanywhere.tech"
+        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",
+        base_url="https://api.chatanywhere.tech"
     )
     try:
         response = client.chat.completions.create(
@@ -58,7 +60,8 @@ def call_openai_api(prompt, model):
         return response.choices[0].message.content
     except Exception as e:
         return f"Error: {e}"
-    
+
+
 def extract_python_code(llm_response):
     """
     Extract Python code blocks from LLM response.
@@ -72,6 +75,7 @@ def extract_python_code(llm_response):
     # Use regex to extract code blocks between ```python and ```
     code_blocks = re.findall(r"```python\n(.*?)```", llm_response, re.DOTALL)
     return "\n\n".join(code_blocks)
+
 
 def save_test_code(codebase_path, llm_response):
     """
@@ -95,6 +99,7 @@ def save_test_code(codebase_path, llm_response):
     with open(testcode_path, "w", encoding="utf-8") as file:
         file.write(python_code)
     return testcode_path
+
 
 def run_test_code(file_path):
     """
@@ -142,8 +147,9 @@ def autogen():
         # 检查这个路径下的所有文件夹
         if os.path.isdir(codebase_parent_path):
             for project_name in os.listdir(codebase_parent_path):
-                project_path = os.path.join(codebase_parent_path, project_name)
+                project_path = os.path.join(codebase_parent_path, project_name, 'code')
                 if os.path.exists(os.path.join(project_path, 'testcode.py')):
+                    # os.remove(os.path.join(project_path, 'testcode.py'))
                     continue
                 # 只处理文件夹
                 if os.path.isdir(project_path):
@@ -177,15 +183,19 @@ def autogen():
                     # 保存生成的测试代码并运行测试
                     testcode_path = save_test_code(codebase_path=codebase_path, llm_response=test_code)
                     # run_test_code(testcode_path)
+
+
 def write_results_to_csv(results, filename='test_results.csv'):
     # 使用 pandas 将结果写入 CSV 文件
     df = pd.DataFrame(results)
     df.to_csv(filename, index=False)
 
+
 def read_results_from_csv(filename='test_results.csv'):
     # 使用 pandas 从 CSV 文件读取数据
     df = pd.read_csv(filename)
     return df
+
 
 def clear_imports():
     """
@@ -195,6 +205,8 @@ def clear_imports():
     for module in list(sys.modules.keys()):
         if module.startswith('testcode'):
             del sys.modules[module]
+
+
 def runUnitTest():
     project_categories = ['website']
     codebase_path = 'D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase'
@@ -241,7 +253,7 @@ def runUnitTest():
                 errors = len(result.errors)
 
                 info = {
-                    "category":project_category,
+                    "category": project_category,
                     "project_name": project_name,
                     "passed": passed,
                     "failed": failed,
@@ -267,6 +279,7 @@ def runUnitTest():
                 suite._tests.clear()  # 清除测试套件中的测试用例
                 loader = None  # 清除测试加载器对象
                 suite = None  # 清空 TestSuite 对象
+
 
 if __name__ == '__main__':
     # autogen()

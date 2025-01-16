@@ -29,7 +29,7 @@ def read_port():
     # "D:\Project\CE\CE\port.txt"
     # "D:\\algorithm\\agent\\cese\\port.txt"
 
-    with open("D:\Project\CE\CE\port.txt", "r") as file:
+    with open("D:\\algorithm\\agent\\cese\\port.txt", "r") as file:
         port_number = file.read()
     return int(port_number)
 
@@ -37,7 +37,7 @@ def read_port():
 def write_port(port):
     # "D:\\algorithm\\agent\\cese\\port.txt"
     try:
-        with open("D:\Project\CE\CE\port.txt", "w") as file:
+        with open("D:\\algorithm\\agent\\cese\\port.txt", "w") as file:
             file.write(str(port))
     except Exception as e:
         print(e)
