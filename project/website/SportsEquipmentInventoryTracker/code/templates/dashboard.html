@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Dashboard</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Equipment Dashboard</h2>
+        <form method="GET" action="/dashboard">
+            <div class="form-group">
+                <label for="search">Search Equipment:</label>
+                <input type="text" class="form-control" id="search" name="search" placeholder="Search by name">
+            </div>
+            <div class="form-group">
+                <label for="condition">Filter by Condition:</label>
+                <select class="form-control" id="condition" name="condition">
+                    <option value="">All</option>
+                    <option value="New">New</option>
+                    <option value="Used">Used</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter/Search</button>
+        </form>
+        <form method="POST">
+            <h3>Add Equipment</h3>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="number" class="form-control" id="quantity" name="quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="condition">Condition:</label>
+                <input type="text" class="form-control" id="condition" name="condition" required>
+            </div>
+            <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+            </div>
+            <button type="submit" class="btn btn-primary" name="add_equipment">Add Equipment</button>
+        </form>
+        <h3>Current Equipment</h3>
+        <ul class="list-group">
+            {% for item in equipment %}
+                <li class="list-group-item">
+                    <a href="/equipment/{{ item.name }}">{{ item.name }}</a> - Quantity: {{ item.quantity }} - Condition: {{ item.condition }} - Location: {{ item.location }}
+                    <form method="POST" action="/update_equipment" style="display:inline;">
+                        <input type="hidden" name="name" value="{{ item.name }}">
+                        <input type="number" name="quantity" value="{{ item.quantity }}" required>
+                        <input type="text" name="condition" value="{{ item.condition }}" required>
+                        <input type="text" name="location" value="{{ item.location }}" required>
+                        <button type="submit" class="btn btn-warning btn-sm">Update</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        <h3>Set Maintenance Alert</h3>
+        <form method="POST" action="/set_alert">
+            <div class="form-group">
+                <label for="equipment_name">Equipment Name:</label>
+                <input type="text" class="form-control" id="equipment_name" name="equipment_name" required>
+            </div>
+            <div class="form-group">
+                <label for="alert_message">Alert Message:</label>
+                <input type="text" class="form-control" id="alert_message" name="alert_message" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Set Alert</button>
+        </form>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+</body>
+</html>

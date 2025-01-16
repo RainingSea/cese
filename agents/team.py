@@ -145,15 +145,15 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        # inter_launch = True
-        inter_launch = False
+        inter_launch = True
+        # inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:
             # Read files from an existing project, then proceed with development.
             # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
             Team.incremental_base_dir = os.path.normpath(
-                "D:\Project\CE\CE\project\website\FreelancerMarketplace"
+                "D:\Project\CE\CE\project\website\VirtualBookPublishing_"
             )
             self.roles["Product Manager"].go_inter()
             # self.roles["Architect"].go_inter()
@@ -163,25 +163,25 @@ class Team(BaseModel):
             Team.active_role(self.roles["Product Manager"].profile)
 
         # make ce dirs and copy the prd to each dir
-        ce_projects_paths = make_ce_dirs(Team.project_dir, 5)
+        # ce_projects_paths = make_ce_dirs(Team.project_dir, 5)
 
         # generate sampling architect
-        for j in range(len(ce_projects_paths)):
-            print(f"\ngenerate the architect of {j}th counter project\n")
-            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
-            Team.project_dir = ce_projects_paths[j]
+        # for j in range(len(ce_projects_paths)):
+        #     print(f"\ngenerate the architect of {j}th counter project\n")
+        #     Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
+        #     Team.project_dir = ce_projects_paths[j]
 
-            self.roles["Product Manager"].go_inter()
-            # sample architect generate
-            self.roles["Architect"].go_in_sample()
-            # sample task plan generate
-            self.roles["Project Manager"].go_in_sample()
-            # temporarily change project dir to a ce folder
+        #     self.roles["Product Manager"].go_inter()
+        #     # sample architect generate
+        #     self.roles["Architect"].go_in_sample()
+        #     # sample task plan generate
+        #     self.roles["Project Manager"].go_in_sample()
+        #     # temporarily change project dir to a ce folder
 
-            self.roles["Programmer"].go_in_sample()
-            self.roles["Programmer"].code_base.clear()
-            code_base_dir = os.path.join(Team.project_dir, "code")
-            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        #     self.roles["Programmer"].go_in_sample()
+        #     self.roles["Programmer"].code_base.clear()
+        #     code_base_dir = os.path.join(Team.project_dir, "code")
+        #     port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         # # |--------- simplest coding process ---------|
         # # |
@@ -192,13 +192,10 @@ class Team(BaseModel):
 
         # execute unit test
 
-        # ce_projects_paths = [
-        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_0",
-        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_1",
-        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_2",
-        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_3",
-        #     "D:\Project\CE\CE\project\website\RemoteJobBoard\ce\ce_4",
-        # ]
+        ce_projects_paths = [
+            "D:\Project\CE\CE\project\website\VirtualBookPublishing_\ce\ce_0",
+            "D:\Project\CE\CE\project\website\VirtualBookPublishing_\ce\ce_1",
+        ]
         ce_score, ce_feedbacks = ceaug(
             previous_work_dir,
             ce_projects_paths,

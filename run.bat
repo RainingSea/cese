@@ -17,17 +17,17 @@
 @REM python start_by_file.py --category website --name DailyHealthTips.md
 @REM python start_by_file.py --category website --name EcoFriendlyLivingTips.md
 @REM python start_by_file.py --category website --name Headlinr.md
-python start_by_file.py --category website --name MedicalInfoTracker.md
-python start_by_file.py --category website --name MedicalTestResultTracker.md
-python start_by_file.py --category website --name MovieRecommendationSystem.md
-python start_by_file.py --category website --name NewsReader.md
-python start_by_file.py --category website --name OfficeTaskFeedback.md
-python start_by_file.py --category website --name OnlineLibraryManagementSystem.md
-python start_by_file.py --category website --name OnlineShoppingCenter.md
-python start_by_file.py --category website --name PeerTutoringNetwork.md
-python start_by_file.py --category website --name QuickSearch.md
-python start_by_file.py --category website --name RecipeHub.md
-python start_by_file.py --category website --name ShopPal.md
+@REM python start_by_file.py --category website --name MedicalInfoTracker.md
+@REM python start_by_file.py --category website --name MedicalTestResultTracker.md
+@REM python start_by_file.py --category website --name MovieRecommendationSystem.md
+@REM python start_by_file.py --category website --name NewsReader.md
+@REM python start_by_file.py --category website --name OfficeTaskFeedback.md
+@REM python start_by_file.py --category website --name OnlineLibraryManagementSystem.md
+@REM python start_by_file.py --category website --name OnlineShoppingCenter.md
+@REM python start_by_file.py --category website --name PeerTutoringNetwork.md
+@REM python start_by_file.py --category website --name QuickSearch.md
+@REM python start_by_file.py --category website --name RecipeHub.md
+@REM python start_by_file.py --category website --name ShopPal.md
 @REM python start_by_file.py --category website --name SocialLearn.md
 @REM python start_by_file.py --category website --name SocialShare.md
 @REM python start_by_file.py --category website --name SportsEquipmentInventoryTracker.md
@@ -38,5 +38,5 @@ python start_by_file.py --category website --name ShopPal.md
 @REM python start_by_file.py --category website --name TripSaver.md
 @REM python start_by_file.py --category website --name VehicleMaintenanceTracker.md
 @REM python start_by_file.py --category website --name VirtualBookPublishing.md
-@REM python start_by_file.py --category website --name WhishListTracker.md
+python start_by_file.py --category website --name WhishListTracker.md
 pause

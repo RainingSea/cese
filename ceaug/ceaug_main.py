@@ -592,9 +592,8 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
             )
 
         # means it is counter example model
-        PROMPT_FOR_SUMMARY_MERGE = """# instruction
-I have multiple implementations of the same project, each of which has undergone unit testing. For each implementation, I have obtained test results, analyzed them, and developed improvement recommendations. Now, you should extract and compile all my contents with the following requirements:
-
+        PROMPT_FOR_SUMMARY_MERGE = """I have multiple implementations of the same project, each of which has undergone unit testing. For each implementation, I have obtained test results, analyzed them, and developed improvement recommendations. Now, you should extract and compile all my contents with the following requirements:
+        
 1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, may not need to outptut.
 
 2.Prepare the output, divided into two parts: Passed Test Cases and Failed or Error Test Cases, with following description:
@@ -605,19 +604,25 @@ Followed by the pseudocode which represent the successful implementation for thi
 
 ### Failed or Error Test Cases
 Collect the analysis and guidance related to each failure or error. present it in the format:
-For each error or failure, extract all related analyses and guidance from allthe content. If there are duplicates, please remove them.
-Then, combine them and output them in the following format:
+For each error or failure, extract all related analyses and guidance from all the content. If there are duplicates, please remove them.
+Then, organize them and output them in the following format:
 1. |Case|:**Case Name**
-Followed by:
 Failure/Error Analysis1
 Improvement Guidance1 (textual, pseudocode, etc.)
 Failure/Error Analysis2
 Improvement Guidance2 (textual, pseudocode, etc.)
-Each pair above represents content extracted from different projects (after deduplication).
-Ensure that if there are differing analyses or guidance for a single test case, all are recorded. 
+
+Each (Analysis, Guidance) pair above represents content extracted from different projects.
+Ensure that if there are differing analyses or guidance for a single same test case, all of them are recorded, but only one "|Case|" symbol is needed.
+example:
+1. |Case|:**add_number**
+Error Analysis1: not implemented.
+Improvement Guidance1: implement this function in a.py.
+Failure Analysis2: add number does not consider the float number.
+Improvement Guidance2: consider the float type in implementation.
 
 # Notes:
-For ### Passed Test Cases, you need to "summarize"; for ### Failed or Error Test Cases, you need to "extract".
+remember for ### Failed or Error Test Cases, you need to "extract".
 Case Name is the test case name with the test_ prefix removed (e.g., test_navigate_to_registration becomes navigate_to_registration).
 Do not summarize guidance specifically for the test code itself.
 There is no need to output the list test cases again at the end. 
@@ -629,13 +634,13 @@ The output should retain the section titles "### Passed Test Cases" and "### Fai
 # Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
 
 # context
-The content you need to summarize is as follows: {summaries}.\n"""
+The content you need to summarize is as follows:\n {summaries}."""
         summary_merge_values = {"summaries": all_summaries}
         sum_messages.append(
             format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
         )
         print(sum_messages[0]["content"])
-        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
         code_summaries_summary = chat_to_LLM(sum_messages)
         print("Code Feedback is")
         print(code_summaries_summary)
@@ -673,7 +678,9 @@ the content you need to summarize is:{summaries}.
             format_prompt(PROMPT_FOR_ARCHITECT_MERGE, arch_summary_merge_values)
         )
         print(arch_sum_messages[0]["content"])
-        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        log.info(
+            "prompt for architecture summaries summary:\n" + sum_messages[0]["content"]
+        )
         arch_summaries_summary = chat_to_LLM(arch_sum_messages)
         print("Archtecture Summary")
         print(arch_summaries_summary)
@@ -718,7 +725,7 @@ the content you need to summarize is:{summaries}. follow the example, output you
             format_prompt(PROMPT_FOR_PLAN_MERGE, plan_summary_merge_values)
         )
         print(plan_sum_messages[0]["content"])
-        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        log.info("prompt for plan summaries summary:\n" + sum_messages[0]["content"])
         plan_summaries_summary = chat_to_LLM(plan_sum_messages)
         print("Plan Summary")
         print(plan_summaries_summary)
