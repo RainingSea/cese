@@ -18,7 +18,7 @@ def generate_commands(folder_path, category):
 
 # 使用示例
 folder_path = (
-    "D:\Project\CE\CE\dataset\SD-bench\dataset\website"  # 替换为你的文件夹路径
+    "D:\Project\CE\CE\dataset\SD-bench\dataset\gui"  # 替换为你的文件夹路径
 )
-category = "website"  # 你想要设置的category值
+category = "gui"  # 你想要设置的category值
 generate_commands(folder_path, category)

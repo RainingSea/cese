@@ -1,5 +1,4 @@
 [CONTENT]
-
 "Required packages": [
     "flask==1.1.2"
 ],
@@ -9,19 +8,19 @@
 "Logic Analysis": [
     [
         "main.py",
-        "Contains the main application logic, initializes UserManager and EquipmentManager, and handles routing."
-    ],
-    [
-        "templates/registration.html",
-        "Contains the HTML form for user registration."
+        "Contains the main function and initializes UserManager and EquipmentManager."
     ],
     [
         "templates/login.html",
-        "Contains the HTML form for user login."
+        "Contains the login form with field validation and user feedback."
+    ],
+    [
+        "templates/registration.html",
+        "Contains the registration form with field validation and user feedback."
     ],
     [
         "templates/dashboard.html",
-        "Contains the HTML interface for equipment management, including adding, updating, viewing, searching, and filtering equipment."
+        "Contains the dashboard layout for equipment management, including forms for adding/updating equipment, search, and filter functionalities."
     ],
     [
         "users.txt",
@@ -29,17 +28,17 @@
     ],
     [
         "equipment.txt",
-        "Stores equipment data."
+        "Stores equipment details."
     ]
 ],
 "Task list": [
-    "main.py",
+    "users.txt",
+    "equipment.txt",
     "templates/registration.html",
     "templates/login.html",
-    "templates/dashboard.html",
-    "users.txt",
-    "equipment.txt"
+    "main.py",
+    "templates/dashboard.html"
 ],
-"Shared Knowledge": "`main.py` contains the core application logic and routing, while `users.txt` and `equipment.txt` are used for data storage.",
+"Shared Knowledge": "`main.py` initializes the application and manages user and equipment functionalities, while `users.txt` and `equipment.txt` are used for data storage.",
 
 [/CONTENT]

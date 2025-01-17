@@ -25,11 +25,14 @@ def add_newline_to_txt_files(directory):
                     print(f"Error processing file {file_path}: {e}")
 
 
-def read_port():
-    # "D:\Project\CE\CE\port.txt"
-    # "D:\\algorithm\\agent\\cese\\port.txt"
+# "D:\Project\CE\CE\port.txt"
+# "D:\\algorithm\\agent\\cese\\port.txt"
+port_dir = "./port.txt"
 
-    with open("D:\\algorithm\\agent\\cese\\port.txt", "r") as file:
+
+def read_port():
+
+    with open(port_dir, "r") as file:
         port_number = file.read()
     return int(port_number)
 
@@ -37,7 +40,7 @@ def read_port():
 def write_port(port):
     # "D:\\algorithm\\agent\\cese\\port.txt"
     try:
-        with open("D:\\algorithm\\agent\\cese\\port.txt", "w") as file:
+        with open(port_dir, "w") as file:
             file.write(str(port))
     except Exception as e:
         print(e)

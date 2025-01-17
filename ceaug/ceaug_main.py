@@ -245,6 +245,7 @@ Architecture Enhancements
 Attention:Use bullet points for readability, and provide actionable suggestions where applicable.
 Ensure Clarity and Precision.
 Use concise language to convey the ideas clearly and avoid redundancy.
+remove any password bcrypt feedback in the final summary.
 the content you need to summarize is:{summaries}.
         """
         arch_summary_merge_values = {"summaries": arch_all_summaries}
@@ -252,7 +253,7 @@ the content you need to summarize is:{summaries}.
             format_prompt(PROMPT_FOR_ARCHITECT_MERGE, arch_summary_merge_values)
         )
         print(arch_sum_messages[0]["content"])
-        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        log.info("prompt for summaries summary:\n" + arch_sum_messages[0]["content"])
         arch_summaries_summary = chat_to_LLM(arch_sum_messages)
         print("Archtecture Summary")
         print(arch_summaries_summary)
@@ -289,6 +290,7 @@ output example:
 - Specify expected behaviors after user actions, such as feedback confirmation messages.  
 - Implement basic form validations to prevent invalid or empty submissions.  
 Use this format to summarize the feedback provided, ensuring the suggestions are actionable for creating improved new plans.
+remove any password bcrypt feedback in the final summary.
 
 the content you need to summarize is:{summaries}. follow the example, output you summary.
         """
@@ -297,7 +299,7 @@ the content you need to summarize is:{summaries}. follow the example, output you
             format_prompt(PROMPT_FOR_PLAN_MERGE, plan_summary_merge_values)
         )
         print(plan_sum_messages[0]["content"])
-        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        log.info("prompt for summaries summary:\n" + plan_sum_messages[0]["content"])
         plan_summaries_summary = chat_to_LLM(plan_sum_messages)
         print("Plan Summary")
         print(plan_summaries_summary)
@@ -392,38 +394,38 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
         task_plan_messages = messages.copy()
 
         # m_2, ask llm to decide if the issues is from code
-        messages.append(
-            {
-                "role": "user",
-                "content": "Do you think the error or failure is caused by errors in the project's code or poorly written test cases? If it is a code error, please include a [CODEERROR] at the end of your output. If not, you don't need to add anything. Thank you. the label is [CODEERROR], do not output wrongly.",
-            }
-        )
+        # messages.append(
+        #     {
+        #         "role": "user",
+        #         "content": "Do you think the error or failure is caused by errors in the project's code or poorly written test cases? If it is a code error, please include a [CODEERROR] at the end of your output. If not, you don't need to add anything. Thank you. the label is [CODEERROR], do not output wrongly.",
+        #     }
+        # )
 
-        relevance = chat_to_LLM(messages)
-        print("2-| unit test result analysis and code relevance |")
-        print(relevance)
-        print("\n###################################")
-        log.info("2-| unit test result analysis and code relevance |")
-        log.info(relevance)
+        # relevance = chat_to_LLM(messages)
+        # print("2-| unit test result analysis and code relevance |")
+        # print(relevance)
+        # print("\n###################################")
+        # log.info("2-| unit test result analysis and code relevance |")
+        # log.info(relevance)
 
-        if "[CODEERROR]" not in relevance:
-            log.info("CodeIsGood " + project_dirs[i])
-            _path = Path(project_dirs[i])
-            if flag == "ite_feedback":
-                # project/daily/ce/ce1
-                parent_absolute = _path.parents[1].resolve()
-            elif flag == "self_evo":
-                # parent dir is now
-                parent_absolute = project_dirs[i]
-            # write good projects
-            with open(os.path.join(parent_absolute, "pass_project.txt"), "w") as file:
-                file.write("CodeIsGood " + project_dirs[i] + "\n")
-            continue
+        # if "[CODEERROR]" not in relevance:
+        #     log.info("CodeIsGood " + project_dirs[i])
+        #     _path = Path(project_dirs[i])
+        #     if flag == "ite_feedback":
+        #         # project/daily/ce/ce1
+        #         parent_absolute = _path.parents[1].resolve()
+        #     elif flag == "self_evo":
+        #         # parent dir is now
+        #         parent_absolute = project_dirs[i]
+        #     # write good projects
+        #     with open(os.path.join(parent_absolute, "pass_project.txt"), "w") as file:
+        #         file.write("CodeIsGood " + project_dirs[i] + "\n")
+        #     continue
 
         # input("input to summarize")
         # 3. summarize the code feedback
         # m_3, llm's response(whether from code)
-        messages.append({"role": "assistant", "content": relevance})
+        # messages.append({"role": "assistant", "content": relevance})
 
         # m_4, ask llm to summarize the unit test result
         messages.append(
@@ -561,8 +563,6 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
                 + str(unit_test_result)
                 + "\n#_#unit_test_result_analysis#_#\n"
                 + unit_test_result_analysis
-                + "\n#_#relevance#_#\n"
-                + relevance
                 + "\n#_#code_feedback#_#\n"
                 + code_feedback
                 + "\n#_#architecture_feedback#_#\n"
@@ -604,7 +604,7 @@ Followed by the pseudocode which represent the successful implementation for thi
 
 ### Failed or Error Test Cases
 Collect the analysis and guidance related to each failure or error. present it in the format:
-For each error or failure, extract all related analyses and guidance from all the content. If there are duplicates, please remove them.
+For each error or failure, extract all related analyses and guidance from all the content.
 Then, organize them and output them in the following format:
 1. |Case|:**Case Name**
 Failure/Error Analysis1
@@ -679,7 +679,8 @@ the content you need to summarize is:{summaries}.
         )
         print(arch_sum_messages[0]["content"])
         log.info(
-            "prompt for architecture summaries summary:\n" + sum_messages[0]["content"]
+            "prompt for architecture summaries summary:\n"
+            + arch_sum_messages[0]["content"]
         )
         arch_summaries_summary = chat_to_LLM(arch_sum_messages)
         print("Archtecture Summary")

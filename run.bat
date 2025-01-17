@@ -38,5 +38,5 @@
 @REM python start_by_file.py --category website --name TripSaver.md
 @REM python start_by_file.py --category website --name VehicleMaintenanceTracker.md
 @REM python start_by_file.py --category website --name VirtualBookPublishing.md
-python start_by_file.py --category website --name WhishListTracker.md
+@REM python start_by_file.py --category website --name WhishListTracker.md
 pause

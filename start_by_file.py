@@ -22,23 +22,23 @@ import argparse
 
 def start_project():
     # _________ from run ___________
-    category = "website"
-    name = "VirtualBookPublishing.md"
+    # category = "website"
+    # name = "BookWormSearch.md"
     # _________ from run ___________
 
     # __________ from shell __________
-    # parser = argparse.ArgumentParser(description="original Requirement")
-    # parser.add_argument("--category", type=str, help="gui")
-    # parser.add_argument("--name", type=str, help="DailyHealthTips.md")
-    # args = parser.parse_args()
-    # category = args.category
-    # name = args.name
+    parser = argparse.ArgumentParser(description="original Requirement")
+    parser.add_argument("--category", type=str, help="gui")
+    parser.add_argument("--name", type=str, help="DailyHealthTips.md")
+    args = parser.parse_args()
+    category = args.category
+    name = args.name
     # __________ from shell __________
 
     # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
     project_description_path = (
-        f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
-        # f"D:\Project\CE\CE\dataset\SD-bench\dataset\{category}/{name}"
+        # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
+        f"D:\Project\CE\CE\dataset\SD-bench\dataset\{category}/{name}"
     )
     # framework execution start time
     start_time = datetime.now()
@@ -57,9 +57,9 @@ def start_project():
     Team.projec_catogory = category
     Team.project_name = project_name
 
-    # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name+ "_"+ formatted_time + "/"
+    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name+ "_"+ formatted_time + "/"
     # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
-    projdir = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\" + project_name + "\\"
+    # projdir = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\" + project_name + "\\"
     Team.set_projdir(projdir)
     Team.set_log()
 
