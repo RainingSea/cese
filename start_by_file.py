@@ -30,9 +30,13 @@ def start_project():
     parser = argparse.ArgumentParser(description="original Requirement")
     parser.add_argument("--category", type=str, help="gui")
     parser.add_argument("--name", type=str, help="DailyHealthTips.md")
+    parser.add_argument("--seq", type=str, help="1")
     args = parser.parse_args()
     category = args.category
     name = args.name
+    # game and gui specification
+    seq = args.seq
+
     # __________ from shell __________
 
     # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
@@ -57,7 +61,17 @@ def start_project():
     Team.projec_catogory = category
     Team.project_name = project_name
 
-    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name+ "_"+ formatted_time + "/"
+    projdir = (
+        "D:/Project/CE/CE/project/"
+        + category
+        + "/"
+        + project_name
+        + "_"
+        + formatted_time
+        + "/"
+    )
+    if seq == "666":
+        projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "_code/"
     # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
     # projdir = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\" + project_name + "\\"
     Team.set_projdir(projdir)
@@ -106,7 +120,8 @@ def start_project():
     #
     #
     # ------------------- launch project ------------------------
-    team.run()
+    # team.run()
+    team.run_vice(seq)
     # team.run_self_evo()
     # ------------------- launch project ------------------------
     #

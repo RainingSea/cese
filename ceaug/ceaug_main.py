@@ -348,6 +348,9 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
         # 编写测试代码testcode.py
         test_code = autogen(project_dir, project_category, project_name)
         test_code = utils.remove_time_sleep_after_popen(test_code)
+        # continue
+    
+    
         # 运行测试代码
         print("workdir before test: " + str(Path.cwd()))
         unit_test_result = runUnitTest(project_dir, project_category)
@@ -392,40 +395,6 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
         # for Architecture feedback and Task Plan feedback
         architecture_messages = messages.copy()
         task_plan_messages = messages.copy()
-
-        # m_2, ask llm to decide if the issues is from code
-        # messages.append(
-        #     {
-        #         "role": "user",
-        #         "content": "Do you think the error or failure is caused by errors in the project's code or poorly written test cases? If it is a code error, please include a [CODEERROR] at the end of your output. If not, you don't need to add anything. Thank you. the label is [CODEERROR], do not output wrongly.",
-        #     }
-        # )
-
-        # relevance = chat_to_LLM(messages)
-        # print("2-| unit test result analysis and code relevance |")
-        # print(relevance)
-        # print("\n###################################")
-        # log.info("2-| unit test result analysis and code relevance |")
-        # log.info(relevance)
-
-        # if "[CODEERROR]" not in relevance:
-        #     log.info("CodeIsGood " + project_dirs[i])
-        #     _path = Path(project_dirs[i])
-        #     if flag == "ite_feedback":
-        #         # project/daily/ce/ce1
-        #         parent_absolute = _path.parents[1].resolve()
-        #     elif flag == "self_evo":
-        #         # parent dir is now
-        #         parent_absolute = project_dirs[i]
-        #     # write good projects
-        #     with open(os.path.join(parent_absolute, "pass_project.txt"), "w") as file:
-        #         file.write("CodeIsGood " + project_dirs[i] + "\n")
-        #     continue
-
-        # input("input to summarize")
-        # 3. summarize the code feedback
-        # m_3, llm's response(whether from code)
-        # messages.append({"role": "assistant", "content": relevance})
 
         # m_4, ask llm to summarize the unit test result
         messages.append(

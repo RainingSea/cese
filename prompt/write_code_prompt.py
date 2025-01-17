@@ -44,7 +44,8 @@ user1|user123
 (Different groups of data are distinguished by line breaks.
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
-Your code of handling data must be consistent with rule in which you define the data.
+Your code of handling data must be consistent with rule in which you define the data.)
+if you still use json, you must change the file extension to .json.
 11. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
@@ -112,6 +113,7 @@ user1|user123
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
+if you still use json, you must change the file extension to .json.
 11. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
@@ -180,6 +182,7 @@ user1|user123
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
+if you still use json, you must change the file extension to .json.
 9. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
@@ -250,6 +253,7 @@ user1|user123
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
+if you still use json, you must change the file extension to .json.
 9. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule

@@ -186,9 +186,10 @@ class Team(BaseModel):
             ce_projects_paths,
             Team.projec_catogory,
             Team.project_name,
-            "ite_fdback",
+            "ite_fdbackQAQ",
             Team.log,
         )
+        return
 
         # |_____________________________________________________________|
         # |                      Attention!                             |
@@ -259,7 +260,7 @@ class Team(BaseModel):
         return
 
     # generate unit test or use feedback exist
-    def run_vice(self):
+    def run_vice(self, seq):
 
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
@@ -275,7 +276,8 @@ class Team(BaseModel):
             #     "D:\Project\CE\CE\project\website\MedicalTestResultTracker"
             # )
             Team.incremental_base_dir = os.path.join(
-                "D:\Project\CE\CE\project\game",
+                "D:\Project\CE\CE\project",
+                Team.projec_catogory,
                 Team.project_name,
             )
             self.roles["Product Manager"].go_inter()
@@ -285,28 +287,55 @@ class Team(BaseModel):
             self.roles["Product Manager"].go()
             Team.active_role(self.roles["Product Manager"].profile)
 
-        ce_projects_paths = [
-            "D:\Project\CE\CE\project\game\DodgeFallingObjects\ce\ce_0",
-            "D:\Project\CE\CE\project\game\DodgeFallingObjects\ce\ce_1",
-        ]
-        # for i in range(2):
+        # ___________________ one to one test and get result _________________
+
+        ce_projects_paths = []
+
+        _path = os.path.join(
+            "D:\Project\CE\CE\project",
+            Team.projec_catogory,
+            Team.project_name,
+            "ce",
+            f"ce_{seq}",
+        )
+        ce_projects_paths.append(_path)
+
+        ce_score, ce_feedbacks = ceaug(
+            previous_work_dir,
+            ce_projects_paths,
+            Team.projec_catogory,
+            Team.project_name,
+            "ite_fdbackQAQ",
+            Team.log,
+        )
+        return
+
+        # ___________________ one to one test and get result _________________
+
+        # ___________________ read feedbacks ___________________
+        # 属于vice的部分 -- 路径格式
+        # 这部分可以拿来读取已经测试过的unit test result
+
+        # ce_projects_paths = []
+        # for i in range(5):
         #     ce_projects_paths.append(
         #         os.path.join(
-        #             "D:\Project\CE\CE\project\game",
+        #             "D:\Project\CE\CE\project",
+        #             Team.projec_catogory,
         #             Team.project_name,
         #             "ce",
         #             f"ce_{i}",
         #         )
         #     )
-
-        ce_score, ce_feedbacks = ceaug_vice(
-            previous_work_dir,
-            ce_projects_paths,
-            Team.projec_catogory,
-            Team.project_name,
-            "ite_fdback",
-            Team.log,
-        )
+        # ce_score, ce_feedbacks = ceaug_vice(
+        #     previous_work_dir,
+        #     ce_projects_paths,
+        #     Team.projec_catogory,
+        #     Team.project_name,
+        #     "ite_fdback",
+        #     Team.log,
+        # )
+        # ___________________ read feedbacks ___________________
 
         # |_____________________________________________________________|
         # |                      Attention!                             |
