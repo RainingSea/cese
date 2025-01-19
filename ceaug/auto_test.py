@@ -127,7 +127,7 @@ def run_test_code(file_path):
         return f"Error during execution: {e.stderr}"
 
 
-def autogen(project_path, category, project_name):
+def autogen(project_path, category, project_name, _testcase_path):
     """
     the path to the code should be passed as an argument (Team.project_dir).
     example: ./project/game/wordlinkpuzzle/
@@ -144,9 +144,10 @@ def autogen(project_path, category, project_name):
         codebase_path = os.path.join(project_path, "code")
         # 换成绝对路径
         # 后期这里要更换，就是不刷数据集的情况下：在命令行里提供是否包含测试用例的参数，如果包含，就按类似这种方法提取；如果不包含，就生成测试用例，并且返回测试用例路径
+        testcase_path = _testcase_path
         testcase_path = os.path.join(
             # "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\testcase",
-            "D:/Project/CE/CE/dataset/SD-bench/testcase",
+            _testcase_path,
             category,
             f"TestCases_{project_name}.md",
         )

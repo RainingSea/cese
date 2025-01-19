@@ -37,42 +37,51 @@ def start_project():
     # game and gui specification
     seq = args.seq
 
+    match = re.match(r"^(.*)\.md$", name)
+    if match:
+        project_name = match.group(1)
+        print(project_name)
     # __________ from shell __________
 
     # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
-        f"D:\Project\CE\CE\dataset\SD-bench\dataset\{category}/{name}"
+        f"D:\\Project\\CE\\CE\\dataset\\SD-bench\\dataset\\{category}\\{name}"
     )
+
+    explore_num = 5
+    test_cases_dir = "D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase"
+
+    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
+
+    # web项目实际上还要配一个port.txt路径
+    # 但是我改成相对路径了，暂时可以使用，不用再配了
+
     # framework execution start time
     start_time = datetime.now()
     formatted_time = start_time.strftime("%Y%m%d%H%M%S")
 
-    match = re.match(r"^(.*)\.md$", name)
-    if match:
-        project_name = match.group(1)
-        print(project_name)
     ### 读取project_description_path中的md文件内容至project_description
     with open(project_description_path, "r", encoding="utf-8") as file:
         project_description = file.read()
     origin_req = project_description
     # Build Agent's Team
     team = Team()
+    team.explore_num = explore_num
+    team.test_cases_dir = test_cases_dir
     Team.projec_catogory = category
     Team.project_name = project_name
 
-    projdir = (
-        "D:/Project/CE/CE/project/"
-        + category
-        + "/"
-        + project_name
-        + "_"
-        + formatted_time
-        + "/"
-    )
-    if seq == "666":
-        projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "_code/"
-    # projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
+    # projdir = (
+    #     "D:/Project/CE/CE/project/"
+    #     + category
+    #     + "/"
+    #     + project_name
+    #     + "_"
+    #     + formatted_time
+    #     + "/"
+    # )
+
     # projdir = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\" + project_name + "\\"
     Team.set_projdir(projdir)
     Team.set_log()
@@ -117,11 +126,21 @@ def start_project():
         searcher,
         c_programmer,
     )
+
+    # 设置探索次数
     #
     #
+    # team.run()现在暂时只生成代码和testcode，测试以及根据测试的反馈重新生成都被分别拆开来
     # ------------------- launch project ------------------------
-    # team.run()
-    team.run_vice(seq)
+
+    # team.run_web()
+    
+    
+    if not seq:
+        team.run()
+    else:
+        team.run_vice(seq)
+
     # team.run_self_evo()
     # ------------------- launch project ------------------------
     #

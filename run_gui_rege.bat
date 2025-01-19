@@ -1,8 +1,8 @@
 @echo off
 @REM python start_by_file.py --category gui --name AgeCalculator.md --seq 666
 @REM python start_by_file.py --category gui --name BMICalculator.md --seq 666
-python start_by_file.py --category gui --name BookNote.md
-python start_by_file.py --category gui --name BookshelfManager.md
+python start_by_file.py --category gui --name BookNote.md --seq 
+python start_by_file.py --category gui --name BookshelfManager.md --seq 666
 @REM python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq 666
 @REM python start_by_file.py --category gui --name CalculationAssistant.md --seq 666
 @REM python start_by_file.py --category gui --name CountdownTimer.md --seq 666

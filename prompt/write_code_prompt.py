@@ -45,8 +45,8 @@ user1|user123
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
-if you still use json, you must change the file extension to .json.
-11. You need to write some pre-stored data to facilitate testing.
+11. if you generate json data, you must change the file extension to .json.
+12. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
 If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
@@ -113,8 +113,8 @@ user1|user123
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
-if you still use json, you must change the file extension to .json.
-11. You need to write some pre-stored data to facilitate testing.
+11. if you generate json data, you must change the file extension to .json.
+12. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
 If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
@@ -182,8 +182,8 @@ user1|user123
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
-if you still use json, you must change the file extension to .json.
-9. You need to write some pre-stored data to facilitate testing.
+9. if you generate json data, you must change the file extension to .json.
+10. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
 If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
@@ -253,8 +253,8 @@ user1|user123
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
-if you still use json, you must change the file extension to .json.
-9. You need to write some pre-stored data to facilitate testing.
+9. if you generate json data, you must change the file extension to .json.
+10. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
 If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).

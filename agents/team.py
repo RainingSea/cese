@@ -15,6 +15,7 @@ from agents.role import Role
 from utils.log import Log
 from ceaug.ceaug_main import (
     ceaug,
+    test_code_generate,
     ceaug_vice,
     create_ce_document,
     feedback_split,
@@ -35,6 +36,8 @@ class Team(BaseModel):
     project_name: str = ""
     # origin requirement from user
     origin_requirement: str = ""
+    explore_num: int = 0
+    test_cases_dir: str = 0
 
     # the number of align checking
     align_check_num: ClassVar[int] = 2
@@ -99,6 +102,7 @@ class Team(BaseModel):
             # execute unit test
             ce_score, ce_feedback = ceaug(
                 previous_work_dir,
+                self.test_cases_dir,
                 ce_projects_paths,
                 Team.projec_catogory,
                 Team.project_name,
@@ -140,17 +144,16 @@ class Team(BaseModel):
 
         return
 
-    # sampling run
-    def run(self):
+    # 跑实验web特调版run()方法
+    def run_web(self):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        # inter_launch = True
         inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:
-
+            # 以下代码暂时用不到了不用管
             Team.incremental_base_dir = os.path.join(
                 "D:\Project\Datasets\SD-bench\codebase\采样需要", Team.project_name
             )
@@ -161,7 +164,131 @@ class Team(BaseModel):
             Team.active_role(self.roles["Product Manager"].profile)
 
         # make ce dirs and copy the prd to each dir
-        ce_projects_paths = make_ce_dirs(Team.project_dir, 5)
+        # 这里的数字就是探索的数量
+        ce_projects_paths = make_ce_dirs(Team.project_dir, self.explore_num)
+
+        # _________________________ [ EXPLORE ] ____________________________
+        # generate sampling architect
+
+        for j in range(len(ce_projects_paths)):
+            print(f"\ngenerate the architect of {j}th counter project\n")
+            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
+            Team.project_dir = ce_projects_paths[j]
+
+            self.roles["Product Manager"].go_inter()
+            # sample architect generate
+            self.roles["Architect"].go_in_sample()
+            # sample task plan generate
+            self.roles["Project Manager"].go_in_sample()
+            # temporarily change project dir to a ce folder
+
+            self.roles["Programmer"].go_in_sample()
+            self.roles["Programmer"].code_base.clear()
+            code_base_dir = os.path.join(Team.project_dir, "code")
+            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+
+        # generate feedbacks of explored projects above
+        ce_score, ce_feedbacks = ceaug(
+            previous_work_dir,
+            self.test_cases_dir,
+            ce_projects_paths,
+            Team.projec_catogory,
+            Team.project_name,
+            "ite_fdback",
+            Team.log,
+        )
+
+        # |_____________________________________________________________|
+        # |                      Attention!                             |
+        # | ceaug() execute unit test, which                            |
+        # | requires switching work dir to the test code's project dir "|
+        # |                   Must switch back!                         |
+        # |_____________________________________________________________|
+        # |
+
+        os.chdir(previous_work_dir)
+        Team.project_dir = pervious_project_dir
+        Team.incremental_base_dir = pervious_project_dir
+
+        # _________________________ [ REGENERATE ] ____________________________
+        # _______________ use feedback to generate document _______________
+
+        self.roles["Product Manager"].go_inter()
+        self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
+        self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
+
+        ce_feedback = ce_feedbacks["code"]
+        if ce_feedback:
+            if ce_feedback == "CodeIsGood":
+                print("Dev execute END")
+                return
+            Team.log.info("### ceaug feedback\n" + str(ce_feedback))
+            # use feedback from counter example to augment coding
+            Team.log.info("begin CE Coding")
+            # C_programmer temperature is 0.2
+
+            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
+            if pass_feedback:
+                Team.log.info("Pass Feedback:\n" + str(pass_feedback))
+            if no_pass_feedback:
+                Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
+            # process pass feedback
+            init = True
+            if pass_feedback:
+                for passfd in pass_feedback:
+                    if init:
+                        self.roles["C_Programmer"].go(passfd, "0")
+                        init = False
+                    else:
+                        self.roles["C_Programmer"].go(passfd, "1")
+                    self.roles["C_Programmer"].message_to_file(
+                        self.roles["C_Programmer"].own_message.content
+                    )
+            # process no pass feedback
+            if no_pass_feedback:
+                for n_passfd in no_pass_feedback:
+                    if init:
+                        self.roles["C_Programmer"].go(n_passfd, "0")
+                        init = False
+                    else:
+                        self.roles["C_Programmer"].go(n_passfd, "2")
+                    # write only once
+                    self.roles["C_Programmer"].message_to_file(
+                        self.roles["C_Programmer"].own_message.content
+                    )
+        else:
+            Team.log.info("No CE, Normal Coding")
+            self.roles["Programmer"].code_base.clear()
+            self.roles["Programmer"].go()
+
+        code_base_dir = os.path.join(Team.project_dir, "code")
+        port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+
+        print("Dev execute END")
+        return
+
+    # sampling run
+    def run(self):
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
+
+        inter_launch = False
+
+        # _______________ generate PRD, Architect, Task Plan _______________
+        if inter_launch:
+            # 以下代码暂时用不到了不用管
+            Team.incremental_base_dir = os.path.join(
+                "D:\Project\Datasets\SD-bench\codebase\采样需要", Team.project_name
+            )
+            self.roles["Product Manager"].go_inter()
+
+        else:
+            self.roles["Product Manager"].go()
+            Team.active_role(self.roles["Product Manager"].profile)
+
+        # make ce dirs and copy the prd to each dir
+        # 这里的数字就是探索的数量
+        ce_projects_paths = make_ce_dirs(Team.project_dir, self.explore_num)
 
         # generate sampling architect
         for j in range(len(ce_projects_paths)):
@@ -181,8 +308,11 @@ class Team(BaseModel):
             code_base_dir = os.path.join(Team.project_dir, "code")
             # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
-        ce_score, ce_feedbacks = ceaug(
+        # 对于game和gui，先只需要生成代码和testcode.py
+        # 因此这里的flag设置为ite_fdbackQAQ
+        ce_score, ce_feedbacks = test_code_generate(
             previous_work_dir,
+            self.test_cases_dir,
             ce_projects_paths,
             Team.projec_catogory,
             Team.project_name,
@@ -287,54 +417,59 @@ class Team(BaseModel):
             self.roles["Product Manager"].go()
             Team.active_role(self.roles["Product Manager"].profile)
 
+        ce_score = 0
+        ce_feedbacks = ""
+
         # ___________________ one to one test and get result _________________
+        if seq != "666":
+            ce_projects_paths = []
 
-        ce_projects_paths = []
+            _path = os.path.join(
+                "D:\Project\CE\CE\project",
+                Team.projec_catogory,
+                Team.project_name,
+                "ce",
+                f"ce_{seq}",
+            )
+            ce_projects_paths.append(_path)
 
-        _path = os.path.join(
-            "D:\Project\CE\CE\project",
-            Team.projec_catogory,
-            Team.project_name,
-            "ce",
-            f"ce_{seq}",
-        )
-        ce_projects_paths.append(_path)
-
-        ce_score, ce_feedbacks = ceaug(
-            previous_work_dir,
-            ce_projects_paths,
-            Team.projec_catogory,
-            Team.project_name,
-            "ite_fdbackQAQ",
-            Team.log,
-        )
-        return
+            # 只执行测试，flag是ite_fdbackQAQ，因此不会总结
+            ce_score, ce_feedbacks = ceaug(
+                previous_work_dir,
+                self.test_cases_dir,
+                ce_projects_paths,
+                Team.projec_catogory,
+                Team.project_name,
+                "ite_fdbackQAQ",
+                Team.log,
+            )
+            return
 
         # ___________________ one to one test and get result _________________
 
         # ___________________ read feedbacks ___________________
         # 属于vice的部分 -- 路径格式
         # 这部分可以拿来读取已经测试过的unit test result
-
-        # ce_projects_paths = []
-        # for i in range(5):
-        #     ce_projects_paths.append(
-        #         os.path.join(
-        #             "D:\Project\CE\CE\project",
-        #             Team.projec_catogory,
-        #             Team.project_name,
-        #             "ce",
-        #             f"ce_{i}",
-        #         )
-        #     )
-        # ce_score, ce_feedbacks = ceaug_vice(
-        #     previous_work_dir,
-        #     ce_projects_paths,
-        #     Team.projec_catogory,
-        #     Team.project_name,
-        #     "ite_fdback",
-        #     Team.log,
-        # )
+        if seq == "666":
+            ce_projects_paths = []
+            for i in range(5):
+                ce_projects_paths.append(
+                    os.path.join(
+                        "D:\Project\CE\CE\project",
+                        Team.projec_catogory,
+                        Team.project_name,
+                        "ce",
+                        f"ce_{i}",
+                    )
+                )
+            ce_score, ce_feedbacks = ceaug_vice(
+                previous_work_dir,
+                ce_projects_paths,
+                Team.projec_catogory,
+                Team.project_name,
+                "ite_fdback",
+                Team.log,
+            )
         # ___________________ read feedbacks ___________________
 
         # |_____________________________________________________________|

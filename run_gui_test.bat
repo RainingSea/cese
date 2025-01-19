@@ -1,8 +1,17 @@
 @echo off
 @REM python start_by_file.py --category gui --name AgeCalculator.md --seq 666
 @REM python start_by_file.py --category gui --name BMICalculator.md --seq 666
-python start_by_file.py --category gui --name BookNote.md
-python start_by_file.py --category gui --name BookshelfManager.md
+@REM python start_by_file.py --category gui --name BookNote.md --seq 0
+@REM python start_by_file.py --category gui --name BookNote.md --seq 1
+@REM python start_by_file.py --category gui --name BookNote.md --seq 2
+@REM python start_by_file.py --category gui --name BookNote.md --seq 3
+@REM python start_by_file.py --category gui --name BookNote.md --seq 4
+python start_by_file.py --category gui --name BookNote.md --seq 666
+@REM python start_by_file.py --category gui --name BookshelfManager.md --seq 0
+@REM python start_by_file.py --category gui --name BookshelfManager.md --seq 1
+@REM python start_by_file.py --category gui --name BookshelfManager.md --seq 2
+@REM python start_by_file.py --category gui --name BookshelfManager.md --seq 3
+@REM python start_by_file.py --category gui --name BookshelfManager.md --seq 4
 @REM python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq 666
 @REM python start_by_file.py --category gui --name CalculationAssistant.md --seq 666
 @REM python start_by_file.py --category gui --name CountdownTimer.md --seq 666

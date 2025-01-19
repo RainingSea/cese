@@ -117,6 +117,8 @@ def create_ce_document(project_dir, task_plan, log):
     return ce_project_paths
 
 
+# game和gui 特调版 ceaug方法，如若更改ceaug方法，请记得更改这部分代码中的对应部分
+# 这个直接读取已有的test的结果(result.txt)，然后总结反馈
 def ceaug_vice(base_dir, project_dirs, project_category, project_name, flag, log):
     max_score = -1.0
     code_feedback_selected = ""
@@ -306,7 +308,7 @@ the content you need to summarize is:{summaries}. follow the example, output you
         log.info("Plan Summary\n" + plan_summaries_summary)
 
         # get respective feedback: architecture suggestion, task plan suggestion, code suggestion
-        # return 3 feedback
+        # return 3 types feedback
 
         feedback_result = {
             "arch": arch_summaries_summary,
@@ -316,7 +318,20 @@ the content you need to summarize is:{summaries}. follow the example, output you
         return max_score, feedback_result
 
 
-def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
+def test_code_generate(
+    base_dir, testcase_dir, project_dirs, project_category, project_name, flag, log
+):
+    """
+    其实就是autogen，来不及改了
+
+    base_dir: 当前整个项目的根目录，例如"D:/Project/CE/CE/",
+    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase",
+    project_dirs: 需要被测试的文件的目录（需要是列表，即使只有一个项目）
+    project_category: 项目种类
+    project_name: 项目名字
+    flag: 决定ceaug的不同处理方式，如要不要测试等
+    log: 项目的log对象，用来记录
+    """
 
     max_score = -1.0
     code_feedback_selected = ""
@@ -346,11 +361,58 @@ def ceaug(base_dir, project_dirs, project_category, project_name, flag, log):
         task_plan = read_file(project_dir, "task plan.md")
 
         # 编写测试代码testcode.py
-        test_code = autogen(project_dir, project_category, project_name)
+        test_code = autogen(project_dir, project_category, project_name, testcase_dir)
         test_code = utils.remove_time_sleep_after_popen(test_code)
+    return max_score, "CodeIsGood"
+
+
+def ceaug(
+    base_dir, testcase_dir, project_dirs, project_category, project_name, flag, log
+):
+    """
+    base_dir: 当前整个项目的根目录，例如"D:/Project/CE/CE/",
+    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase",
+    project_dirs: 需要被测试的文件的目录（需要是列表，即使只有一个项目）
+    project_category: 项目种类
+    project_name: 项目名字
+    flag: 决定ceaug的不同处理方式，如要不要测试等
+    log: 项目的log对象，用来记录
+    """
+
+    max_score = -1.0
+    code_feedback_selected = ""
+    all_unit_test_results = []
+    all_code_feedbacks = []
+    all_task_plan_feedbacks = []
+    all_architecture_feedbacks = []
+
+    # ____________________ make a dir to store test result ___________________
+
+    for i in range(len(project_dirs)):
+
+        if not os.path.exists(os.path.join(project_dirs[i], "test_result")):
+            # like, DailyJournalApp/sample_unit_test_result
+            os.makedirs(os.path.join(project_dirs[i], "test_result"))
+        unit_test_result_dir = os.path.join(project_dirs[i], "test_result")
+
+        print("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
+        log.info("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
+
+        project_dir = project_dirs[i]
+
+        # 抽取代码，架构，计划
+        code_base = read_codebase(os.path.join(project_dir, "code"))
+        log.info("read tested code:\n" + code_base)
+        architecture = read_file(project_dir, "architect.md")
+        task_plan = read_file(project_dir, "task plan.md")
+
+        # 编写测试代码testcode.py
+        test_code = autogen(project_dir, project_category, project_name, testcase_dir)
+        test_code = utils.remove_time_sleep_after_popen(test_code)
+
+        # 如果只是生成测试代码，那么到这里就可以结束了
         # continue
-    
-    
+
         # 运行测试代码
         print("workdir before test: " + str(Path.cwd()))
         unit_test_result = runUnitTest(project_dir, project_category)
@@ -482,8 +544,6 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
                     + str(unit_test_result)
                     + "\n#_#unit_test_result_analysis#_#\n"
                     + unit_test_result_analysis
-                    + "\n#_#relevance#_#\n"
-                    + relevance
                     + "\n#_#code_feedback#_#\n"
                     + code_feedback
                     + "\n#_#code_feedback_summary#_#\n"
@@ -492,60 +552,62 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
                 file.write(content)
 
             return max_score, code_summaries_summary
-
-        # baseline的代码到这里就不需要了，以下是采样才需要的，因为baseline不好改architecture和plan，也就不生成feedback了
-        # prompt llm to get architecture feedback
-        architecture_messages.append(
-            {
-                "role": "user",
-                "content": REFINE_ARCHITECTURE_PROMPT.format(architecture=architecture),
-            }
-        )
-        architecture_feedback = chat_to_LLM(architecture_messages)
-
-        task_plan_messages.append(
-            {
-                "role": "user",
-                "content": REFINE_TASK_PLAN_PROMPT.format(task_plan=task_plan),
-            }
-        )
-        task_plan_feedback = chat_to_LLM(task_plan_messages)
-
-        # _______________ 根据单元测试得到的反馈 ______________
-        code_feedback = chat_to_LLM(messages)
-        code_feedback_selected = code_feedback
-        print("Code Feedback")
-        print(code_feedback)
-        log.info("Code Feedback\n" + code_feedback)
-        # input("input to get architecture feedback")
-        print("Architecture Feedback")
-        print(architecture_feedback)
-        log.info("Architecture Feedback\n" + architecture_feedback)
-        # input("input to get plan feedback")
-        print("Plan Feedback")
-        print(task_plan_feedback)
-        log.info("Plan Feedback\n" + task_plan_feedback)
-
-        with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
-            content = (
-                "#_#unit_test_result#_#\n"
-                + str(unit_test_result)
-                + "\n#_#unit_test_result_analysis#_#\n"
-                + unit_test_result_analysis
-                + "\n#_#code_feedback#_#\n"
-                + code_feedback
-                + "\n#_#architecture_feedback#_#\n"
-                + architecture_feedback
-                + "\n#_#task_plan_feedback#_#\n"
-                + task_plan_feedback
+        else:
+            # baseline的代码到这里就不需要了，以下是采样才需要的，因为baseline不好改architecture和plan，也就不生成feedback了
+            # prompt llm to get architecture feedback
+            architecture_messages.append(
+                {
+                    "role": "user",
+                    "content": REFINE_ARCHITECTURE_PROMPT.format(
+                        architecture=architecture
+                    ),
+                }
             )
-            file.write(content)
+            architecture_feedback = chat_to_LLM(architecture_messages)
 
-        all_code_feedbacks.append(code_feedback)
-        all_architecture_feedbacks.append(architecture_feedback)
-        all_task_plan_feedbacks.append(task_plan_feedback)
+            task_plan_messages.append(
+                {
+                    "role": "user",
+                    "content": REFINE_TASK_PLAN_PROMPT.format(task_plan=task_plan),
+                }
+            )
+            task_plan_feedback = chat_to_LLM(task_plan_messages)
 
-        all_unit_test_results.append(unit_test_result)
+            # _______________ 根据单元测试得到的反馈 ______________
+            code_feedback = chat_to_LLM(messages)
+            code_feedback_selected = code_feedback
+            print("Code Feedback")
+            print(code_feedback)
+            log.info("Code Feedback\n" + code_feedback)
+            # input("input to get architecture feedback")
+            print("Architecture Feedback")
+            print(architecture_feedback)
+            log.info("Architecture Feedback\n" + architecture_feedback)
+            # input("input to get plan feedback")
+            print("Plan Feedback")
+            print(task_plan_feedback)
+            log.info("Plan Feedback\n" + task_plan_feedback)
+
+            with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+                content = (
+                    "#_#unit_test_result#_#\n"
+                    + str(unit_test_result)
+                    + "\n#_#unit_test_result_analysis#_#\n"
+                    + unit_test_result_analysis
+                    + "\n#_#code_feedback#_#\n"
+                    + code_feedback
+                    + "\n#_#architecture_feedback#_#\n"
+                    + architecture_feedback
+                    + "\n#_#task_plan_feedback#_#\n"
+                    + task_plan_feedback
+                )
+                file.write(content)
+
+            all_code_feedbacks.append(code_feedback)
+            all_architecture_feedbacks.append(architecture_feedback)
+            all_task_plan_feedbacks.append(task_plan_feedback)
+
+            all_unit_test_results.append(unit_test_result)
 
     if flag == "ite_fdback":
         sum_messages = []
@@ -695,7 +757,9 @@ the content you need to summarize is:{summaries}. follow the example, output you
             format_prompt(PROMPT_FOR_PLAN_MERGE, plan_summary_merge_values)
         )
         print(plan_sum_messages[0]["content"])
-        log.info("prompt for plan summaries summary:\n" + sum_messages[0]["content"])
+        log.info(
+            "prompt for plan summaries summary:\n" + plan_sum_messages[0]["content"]
+        )
         plan_summaries_summary = chat_to_LLM(plan_sum_messages)
         print("Plan Summary")
         print(plan_summaries_summary)

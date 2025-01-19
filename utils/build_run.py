@@ -16,9 +16,10 @@ def generate_commands(folder_path, category):
     print(f"\nTotal files processed: {file_count}")
 
 
+
 # 使用示例
 folder_path = (
-    "D:\Project\CE\CE\dataset\SD-bench\dataset\gui"  # 替换为你的文件夹路径
+    "D:\Project\CE\CE\dataset\SD-bench\dataset\game"  # 替换为你的文件夹路径
 )
-category = "gui"  # 你想要设置的category值
+category = "game"  # 你想要设置的category值
 generate_commands(folder_path, category)
