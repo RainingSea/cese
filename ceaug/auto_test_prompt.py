@@ -31,7 +31,7 @@ Attention 10: After logging in, you will be redirected to other pages and will n
 Attention 11: For each Functionalities in Black Box Unit Test Cases, please generate a unit test function. If the functionality is not implemented in the codebase, generate a corresponding test point that returns a failure.Each unit test function corresponds to a Functionalities in Black Box Unit Test Cases.
 Attention 12: If a Functionalities has multiple test cases, you should write all of them inside one unit test function.
 Attention 13: self.driver.get('http://localhost:5000/') this line code in example could also be self.driver.get('http://localhost:5000/login').carefully check the code logic to determine which one is the correct one.
-Attention 14: Do not need add time.sleep() in setUp() function.
+Attention 14: Do not add time.sleep() in setUp() function.
 ### codebase
 {codebase}
 ### testcase

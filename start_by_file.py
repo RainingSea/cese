@@ -133,10 +133,11 @@ def start_project():
     # team.run()现在暂时只生成代码和testcode，测试以及根据测试的反馈重新生成都被分别拆开来
     # ------------------- launch project ------------------------
 
-    # team.run_web()
-    
-    
-    if not seq:
+    if category == "website":
+        print("WEBWEB")
+        team.run_web()
+
+    elif not seq:
         team.run()
     else:
         team.run_vice(seq)

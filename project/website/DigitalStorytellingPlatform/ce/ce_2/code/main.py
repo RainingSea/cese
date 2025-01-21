@@ -1,0 +1,34 @@
+from flask import Flask, render_template, request, redirect, url_for
+from UserManager import UserManager
+from StoryManager import StoryManager
+
+app = Flask(__name__)
+user_manager = UserManager('users.txt')
+story_manager = StoryManager('stories.txt')
+
+@app.route('/')
+def login():
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        if user_manager.register(username, password, email):
+            return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/story_creation', methods=['GET', 'POST'])
+def story_creation():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        author = request.form['author']
+        story_manager.create_story(title, content, author)
+        return redirect(url_for('login'))
+    return render_template('story_creation.html')
+
+if __name__ == '__main__':
+    app.run(port=8940, debug=False)

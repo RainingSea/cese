@@ -264,14 +264,14 @@ the content you need to summarize is:{summaries}.
         # plan summary
         plan_sum_messages = []
         plan_all_summaries = ""
-        for i in range(len(all_task_plan_feedbacks)):
+        for p in range(len(all_task_plan_feedbacks)):
             plan_all_summaries = (
                 plan_all_summaries
                 + "### the "
-                + str(i + 1)
+                + str(p + 1)
                 + "th"
                 + " project result:\n"
-                + f"{all_task_plan_feedbacks[g]}\n\n"
+                + f"{all_task_plan_feedbacks[p]}\n\n"
             )
 
         PROMPT_FOR_PLAN_MERGE = """You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of task-related feedback for a software development project and produce a concise, unified summary.You will receive multiple feedback reports, each containing various suggestions, including areas for improvement and potential enhancements. Your task is to extract suggestions that are useful for generating new plans and meet the following requirements:
@@ -721,14 +721,14 @@ the content you need to summarize is:{summaries}.
         # plan summary
         plan_sum_messages = []
         plan_all_summaries = ""
-        for i in range(len(all_task_plan_feedbacks)):
+        for p in range(len(all_task_plan_feedbacks)):
             plan_all_summaries = (
                 plan_all_summaries
                 + "### the "
-                + str(i + 1)
+                + str(p + 1)
                 + "th"
                 + " project result:\n"
-                + f"{all_task_plan_feedbacks[g]}\n\n"
+                + f"{all_task_plan_feedbacks[p]}\n\n"
             )
 
         PROMPT_FOR_PLAN_MERGE = """You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of task-related feedback for a software development project and produce a concise, unified summary.You will receive multiple feedback reports, each containing various suggestions, including areas for improvement and potential enhancements. Your task is to extract suggestions that are useful for generating new plans and meet the following requirements:
