@@ -12,7 +12,7 @@
 @REM python start_by_file.py --category website --name GreenLivingGuide.md
 @REM python start_by_file.py --category website --name Headlinr.md
 @REM python start_by_file.py --category website --name MedicalInfoTracker.md
-python start_by_file.py --category website --name MedicalTestResultTracker.md
+@REM python start_by_file.py --category website --name MedicalTestResultTracker.md
 @REM python start_by_file.py --category website --name MovieRecommendationSystem.md
 @REM python start_by_file.py --category website --name NewsReader.md
 @REM python start_by_file.py --category website --name NoteTakingApp.md
