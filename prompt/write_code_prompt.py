@@ -92,7 +92,6 @@ CODING_C = """
 
 *** a.txt
 ```txt
-### Example:
 admin|admin123
 user1|user123
 ```
@@ -163,7 +162,6 @@ CODING_ITE_C1 = """
 
 *** a.txt
 ```txt
-### Example:
 admin|admin123
 user1|user123
 ```
@@ -234,7 +232,6 @@ CODING_ITE_C2 = """
 
 *** a.txt
 ```txt
-### Example:
 admin|admin123
 user1|user123
 ```

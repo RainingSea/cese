@@ -14,13 +14,16 @@ def add_newline_to_txt_files(directory):
                 file_path = os.path.join(root, file)
                 try:
                     with open(file_path, "r+", encoding="utf-8") as f:
-                        content = f.read()
-                        # Check if the file is empty or already ends with a newline
-                        if content and not content.endswith("\n"):
-                            f.write("\n")
-                            print(f"Added newline to: {file_path}")
-                        else:
-                            print(f"No changes needed for: {file_path}")
+                        # 读取文件内容并移除多余的空行
+                        lines = [
+                            line.rstrip() for line in f.readlines() if line.strip()
+                        ]
+
+                        # 将处理后的内容写回文件
+                        f.seek(0)
+                        f.writelines(line + "\n" for line in lines)
+                        f.truncate()  # 清除多余内容
+                        print(f"Processed file: {file_path}")
                 except Exception as e:
                     print(f"Error processing file {file_path}: {e}")
 
@@ -91,4 +94,24 @@ def update_flask_port(file_path, port):
 
 
 if __name__ == "__main__":
-    update_flask_port()
+    add_newline_to_txt_files("D:\Project\CE\CE\project\website\Headlinr\code")
+    # directory = "D:\Project\Datasets\SD-bench\codebase\website"
+    # try:
+    #     # 获取目录的绝对路径
+    #     directory = os.path.abspath(directory)
+    #     print(f"Scanning directory: {directory}\n")
+
+    #     # 遍历目录，查找子目录
+    #     subdirectories = []
+    #     for root, dirs, _ in os.walk(directory):
+    #         for subdir in dirs:
+    #             abs_path = os.path.join(root, subdir)
+    #             add_newline_to_txt_files(abs_path)
+
+    #     # 输出结果
+    #     print("Subdirectories found:")
+    #     for subdir in subdirectories:
+    #         print(subdir)
+
+    # except Exception as e:
+    #     print(f"Error while reading directory: {e}")

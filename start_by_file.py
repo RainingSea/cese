@@ -135,6 +135,7 @@ def start_project():
 
     if category == "website":
         print("WEBWEB")
+        # team.run_vice(seq)
         team.run_web()
 
     elif not seq:

@@ -1,9 +1,9 @@
 @echo off
-python start_by_file.py --category game --name 2048.md --seq 0
-python start_by_file.py --category game --name 2048.md --seq 1
-python start_by_file.py --category game --name 2048.md --seq 2
-python start_by_file.py --category game --name 2048.md --seq 3
-python start_by_file.py --category game --name 2048.md --seq 4
+@REM python start_by_file.py --category game --name 2048.md --seq 0
+@REM python start_by_file.py --category game --name 2048.md --seq 1
+@REM python start_by_file.py --category game --name 2048.md --seq 2
+@REM python start_by_file.py --category game --name 2048.md --seq 3
+@REM python start_by_file.py --category game --name 2048.md --seq 4
 python start_by_file.py --category game --name Balls.md --seq 0
 python start_by_file.py --category game --name Balls.md --seq 1
 python start_by_file.py --category game --name Balls.md --seq 2

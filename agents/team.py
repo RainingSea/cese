@@ -256,6 +256,11 @@ class Team(BaseModel):
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
+
+            self.roles["C_Programmer"].check_data_format()
+            self.roles["C_Programmer"].message_to_file(
+                self.roles["C_Programmer"].own_message.content
+            )
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()
@@ -529,13 +534,18 @@ class Team(BaseModel):
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
+
+            self.roles["C_Programmer"].check_data_format()
+            self.roles["C_Programmer"].message_to_file(
+                self.roles["C_Programmer"].own_message.content
+            )
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()
             self.roles["Programmer"].go()
 
         code_base_dir = os.path.join(Team.project_dir, "code")
-        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         print("Dev execute END")
         return

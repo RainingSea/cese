@@ -110,59 +110,51 @@ class C_Programmer(Role):
 
         # Team.all_messages.append(code_msg)
 
-    # def go():
+    def check_data_format(self):
+        self_code = self.own_message.content
+        CHECKING_FORMAT = """The following is a generated code that requires your review. The requirements are as follows:  
+1. Check the text files to determine whether different pieces of data are separated by `|`, `,`, or another delimiter.  
+2. Search the code for the sections that handle these text files, and verify whether the delimiter used in the code matches the one used in the text files. If there is a mismatch, you need to modify the code to ensure the delimiter matches that of the text files. 
+The codes to review is:{code}.
+When providing the output, you only need to output the improved code with the following requirements:
+# Format Example 
+*** main.py
+```python
+...
+```
 
-    #     # --------------- get counter info -----------------
-    #     counter_reason, counter_code = self.read_counter()
-    #     # ---------- constructing prompt to LLM ----------
-    #     system_prompt = SystemMessage(content=CODING_SYS)
-    #     user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
-    #     user_prompt_msg = user_prompt_template.invoke(
-    #         {
-    #             "architecture": architecture,
-    #             "task_plan": task_plan,
-    #             "counter_reason": counter_reason,
-    #             "counter_code": counter_code,
-    #         }
-    #     )
-    #     user_prompt = user_prompt_msg.to_messages()[0]
+*** ui.py
+```python
+...
+```
 
-    #     # prompt LLM
-    #     Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-    #     code_result = self.llm.invoke(system_prompt, user_prompt)
-    #     # ---------- logging --------
-    #     Team.log.info("\n" + code_result)
+*** a.txt
+```txt
+...
+```
+# Instruction:
+1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
+2. Only write code result, do not output any other content in the start or in the end.
+3. If you encounter files that are similar to Python but have a `.txt` format, you can ignore them.
+        """
+        user_prompt_template = ChatPromptTemplate.from_template(CHECKING_FORMAT)
+        user_prompt_msg = user_prompt_template.invoke({"code": self_code})
 
-    #     # ---------- writing result to local ----------
-    #     # this is code before align
-    #     self.message_to_file(code_result)
+        user_prompt = user_prompt_msg.to_messages()[0]
+        system_prompt = SystemMessage(content=CODING_SYS)
+        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+        code_result = self.llm.invoke(system_prompt, user_prompt)
+        Team.log.info("\n" + code_result)
+        # ________ store in self code dict ________
+        self.compare_code(code_result)
+        code_result_split = code_result.split("*** ")
+        for i in range(1, len(code_result_split)):
+            file_name, file_content = self.match(code_result_split[i])
+            self.code_base[file_name] = file_content
+        # self.message_to_file(code_result)
 
-    #     align_TF = False
-    #     review_code_result = ""
-
-    #     # align for code
-    #     align_TF, review_code_result = self.execute_and_feedback(
-    #         architecture, task_plan, code_result
-    #     )
-
-    #     Team.log.info("is Align? : " + str(align_TF))
-
-    #     # ---------- adding result to SCR(before align) ----------
-    #     if align_TF == False:
-    #         # if no problem
-    #         code_msg = Message(sender=self.profile, content=code_result)
-    #         # self.message_to_file(code_msg.content)
-    #         Team.all_messages.append(code_msg)
-    #     else:
-    #         # if misalign happens and modify codes
-    #         code_msg = Message(sender=self.profile, content=review_code_result)
-    #         # self.message_to_file(code_msg.content)
-    #         self.message_to_file_review(review_code_result)
-    #         Team.all_messages.append(code_msg)
-
-    #     self.own_message = code_msg
-
-    # align process for code
+        code_msg = Message(sender=self.profile, content=code_result)
+        self.own_message = code_msg
 
     def read_code_base(self):
         # code could also include other types file, like txt.
