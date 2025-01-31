@@ -107,3 +107,33 @@ def read_file(path, filename):
                 raise RuntimeError(f"Error reading file '{file_path}': {e}")
 
     raise FileNotFoundError(f"No {filename} file found in the specified path.")
+
+
+import os
+import shutil
+
+
+def delete_code_folders(root_folder):
+    """
+    遍历root_folder下的所有直接子文件夹（视为项目），并在每个项目中查找名为'code'的文件夹，
+    如果存在，则删除它及其所有内容。
+
+    :param root_folder: 根文件夹路径，包含多个项目的总目录
+    """
+    # 获取根目录下的所有直接子文件夹（假设这些是项目文件夹）
+    for project_folder in os.scandir(root_folder):
+        if project_folder.is_dir():  # 确认是文件夹
+            code_folder_path = os.path.join(project_folder.path, "code")
+            if os.path.exists(code_folder_path) and os.path.isdir(code_folder_path):
+                print(f"Deleting folder: {code_folder_path}")
+                shutil.rmtree(code_folder_path)
+            else:
+                print(f"No 'code' folder found in {project_folder.path}")
+    print("Task completed.")
+
+
+if __name__ == "__main__":
+    # 设置你的根文件夹路径
+    root_folder_path = "D:\Project\CE\CE\project\game"
+
+    delete_code_folders(root_folder_path)

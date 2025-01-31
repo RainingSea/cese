@@ -33,7 +33,6 @@
 @REM python start_by_file.py --category gui --name CountdownTimer.md --seq 1
 @REM python start_by_file.py --category gui --name CountdownTimer.md --seq 2
 @REM python start_by_file.py --category gui --name CountdownTimer.md --seq 3
-@REM python start_by_file.py --category gui --name CountdownTimer.md --seq 4
 @REM python start_by_file.py --category gui --name DataSummarizer.md --seq 0
 @REM python start_by_file.py --category gui --name DataSummarizer.md --seq 1
 @REM python start_by_file.py --category gui --name DataSummarizer.md --seq 2
@@ -71,9 +70,9 @@
 @REM python start_by_file.py --category gui --name ExpenseSplitter.md --seq 4
 @REM python start_by_file.py --category gui --name FocusTime.md --seq 0
 @REM python start_by_file.py --category gui --name FocusTime.md --seq 1
-@REM python start_by_file.py --category gui --name FocusTime.md --seq 2
-@REM python start_by_file.py --category gui --name FocusTime.md --seq 3
-@REM python start_by_file.py --category gui --name FocusTime.md --seq 4
+python start_by_file.py --category gui --name FocusTime.md --seq 2
+python start_by_file.py --category gui --name FocusTime.md --seq 3
+python start_by_file.py --category gui --name FocusTime.md --seq 4
 @REM python start_by_file.py --category gui --name ImageEnhancer.md --seq 0
 @REM python start_by_file.py --category gui --name ImageEnhancer.md --seq 1
 @REM python start_by_file.py --category gui --name ImageEnhancer.md --seq 2

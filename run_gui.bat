@@ -1,42 +1,42 @@
 @echo off
-python start_by_file.py --category gui --name AgeCalculator.md
-python start_by_file.py --category gui --name BMICalculator.md
-python start_by_file.py --category gui --name BookNote.md
-python start_by_file.py --category gui --name BookshelfManager.md
-python start_by_file.py --category gui --name BusinessTaskScheduler.md
-python start_by_file.py --category gui --name CalculationAssistant.md
-python start_by_file.py --category gui --name CountdownTimer.md
-python start_by_file.py --category gui --name DataSummarizer.md
-python start_by_file.py --category gui --name DataVisualizer.md
-python start_by_file.py --category gui --name DayPlanner.md
-python start_by_file.py --category gui --name ExpenseCategorizer.md
-python start_by_file.py --category gui --name ExpenseComparator.md
-python start_by_file.py --category gui --name ExpensePlanner.md
-python start_by_file.py --category gui --name ExpenseSplitter.md
-python start_by_file.py --category gui --name FocusTime.md
-python start_by_file.py --category gui --name ImageEnhancer.md
-python start_by_file.py --category gui --name InvestmentTracker.md
-python start_by_file.py --category gui --name KnowledgeTracker.md
-python start_by_file.py --category gui --name MedicalHealthTracker.md
-python start_by_file.py --category gui --name NoteArchiver.md
-python start_by_file.py --category gui --name NotepadPlus.md
-python start_by_file.py --category gui --name OfficeStockManager.md
-python start_by_file.py --category gui --name PaintPal.md
+@REM python start_by_file.py --category gui --name AgeCalculator.md
+@REM python start_by_file.py --category gui --name BMICalculator.md
+@REM python start_by_file.py --category gui --name BookNote.md
+@REM python start_by_file.py --category gui --name BookshelfManager.md
+@REM python start_by_file.py --category gui --name BusinessTaskScheduler.md
+@REM python start_by_file.py --category gui --name CalculationAssistant.md
+@REM python start_by_file.py --category gui --name CountdownTimer.md
+@REM python start_by_file.py --category gui --name DataSummarizer.md
+@REM python start_by_file.py --category gui --name DataVisualizer.md
+@REM python start_by_file.py --category gui --name DayPlanner.md
+@REM python start_by_file.py --category gui --name ExpenseCategorizer.md
+@REM python start_by_file.py --category gui --name ExpenseComparator.md
+@REM python start_by_file.py --category gui --name ExpensePlanner.md
+@REM python start_by_file.py --category gui --name ExpenseSplitter.md
+@REM python start_by_file.py --category gui --name FocusTime.md
+@REM python start_by_file.py --category gui --name ImageEnhancer.md
+@REM python start_by_file.py --category gui --name InvestmentTracker.md
+@REM python start_by_file.py --category gui --name KnowledgeTracker.md
+@REM python start_by_file.py --category gui --name MedicalHealthTracker.md
+@REM python start_by_file.py --category gui --name NoteArchiver.md
+@REM python start_by_file.py --category gui --name NotepadPlus.md
+@REM python start_by_file.py --category gui --name OfficeStockManager.md
+@REM python start_by_file.py --category gui --name PaintPal.md
 python start_by_file.py --category gui --name PhotoStickerMaker.md
-python start_by_file.py --category gui --name QuickTimer.md
-python start_by_file.py --category gui --name RandomPasswordGenerator.md
-python start_by_file.py --category gui --name ScienceExperimentPlanner.md
-python start_by_file.py --category gui --name ScienceLibrary.md
-python start_by_file.py --category gui --name SecretNoteKeeper.md
-python start_by_file.py --category gui --name SecurePasswordVault.md
-python start_by_file.py --category gui --name ShapeMaster.md
-python start_by_file.py --category gui --name ShoppingPlanner.md
-python start_by_file.py --category gui --name SmartRecipt.md
-python start_by_file.py --category gui --name SportsEquipmentInventoryTracker.md
-python start_by_file.py --category gui --name TaskTracker.md
-python start_by_file.py --category gui --name TextSnippetOrganizer.md
-python start_by_file.py --category gui --name TimeConverter.md
-python start_by_file.py --category gui --name TimeSaver.md
-python start_by_file.py --category gui --name TimeTracker.md
-python start_by_file.py --category gui --name UnitConverter.md
+@REM python start_by_file.py --category gui --name QuickTimer.md
+@REM python start_by_file.py --category gui --name RandomPasswordGenerator.md
+@REM python start_by_file.py --category gui --name ScienceExperimentPlanner.md
+@REM python start_by_file.py --category gui --name ScienceLibrary.md
+@REM python start_by_file.py --category gui --name SecretNoteKeeper.md
+@REM python start_by_file.py --category gui --name SecurePasswordVault.md
+@REM python start_by_file.py --category gui --name ShapeMaster.md
+@REM python start_by_file.py --category gui --name ShoppingPlanner.md
+@REM python start_by_file.py --category gui --name SmartRecipt.md
+@REM python start_by_file.py --category gui --name SportsEquipmentInventoryTracker.md
+@REM python start_by_file.py --category gui --name TaskTracker.md
+@REM python start_by_file.py --category gui --name TextSnippetOrganizer.md
+@REM python start_by_file.py --category gui --name TimeConverter.md
+@REM python start_by_file.py --category gui --name TimeSaver.md
+@REM python start_by_file.py --category gui --name TimeTracker.md
+@REM python start_by_file.py --category gui --name UnitConverter.md
 pause

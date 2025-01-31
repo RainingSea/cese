@@ -491,8 +491,11 @@ class Team(BaseModel):
 
         # _______________ use feedback to generate document _______________
         self.roles["Product Manager"].go_inter()
-        self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
+        # self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
+        self.roles["Architect"].go()
         self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
+
+        # self.roles["Programmer"].go()
 
         ce_feedback = ce_feedbacks["code"]
         if ce_feedback:
@@ -545,7 +548,7 @@ class Team(BaseModel):
             self.roles["Programmer"].go()
 
         code_base_dir = os.path.join(Team.project_dir, "code")
-        port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         print("Dev execute END")
         return

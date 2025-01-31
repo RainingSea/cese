@@ -1,7 +1,7 @@
 @echo off
 @REM python start_by_file.py --category game --name 2048.md
 @REM python start_by_file.py --category game --name Balls.md
-@REM python start_by_file.py --category game --name BlockConnect.md
+python start_by_file.py --category game --name BlockConnect.md
 @REM python start_by_file.py --category game --name BoardGamePuzzleGenerator.md
 @REM python start_by_file.py --category game --name Bomberman.md
 @REM python start_by_file.py --category game --name Brick.md
