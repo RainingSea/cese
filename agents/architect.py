@@ -158,6 +158,49 @@ class Architect(Role):
         self.message_to_file(module_msg.content)
         return
 
+    # 迭代的探索生成
+    def go_in_sample_with_fdback(self, feedback):
+        print(self.profile + " " + self.name + " generate Architect with feedback")
+        Team.log.info(
+            self.profile + " " + self.name + " generate Architect with feedback"
+        )
+
+        # ---------- get the information needed from SCR ----------
+        functional_requirement = self.getPRD().content
+        original_requirement = self.getOriginRequirement().content
+        # ---------- constructing prompt to LLM ----------
+        # using message template from LangChain, the result is SYS Message & HUMAN Message.
+        user_prompt_template = ChatPromptTemplate.from_template(
+            WRITE_ARCHITECT_WITH_FDBACK
+        )
+        user_prompt_msg = user_prompt_template.invoke(
+            {
+                "original_requirement": original_requirement,
+                "functional_requirement": functional_requirement,
+                "ce_feedback": feedback,
+            }
+        )
+        user_prompt = user_prompt_msg.to_messages()[0]
+
+        system_prompt = SystemMessage(content=self.system_msg)
+
+        # ---------- prompt LLM ----------
+        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+        result = self.llm_sample.invoke(system_prompt, user_prompt)
+
+        # ------------ logging ----------
+        Team.log.info(self.profile + " " + self.name)
+        Team.log.info(result)
+
+        # ---------- adding result to SCR(before align) ----------
+        module_msg = Message(sender=self.profile, content=result)
+        self.own_message = module_msg
+        self.update_scr(module_msg)
+
+        # ---------- writing result to local ----------
+        self.message_to_file(module_msg.content)
+        return
+
     def update_scr(self, message):
         """
         update team's shared certificated repository, with generated architecture

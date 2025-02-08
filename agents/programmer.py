@@ -113,6 +113,42 @@ class Programmer(Role):
         code_msg = Message(sender=self.profile, content=code_result)
         Team.all_messages.append(code_msg)
         self.own_message = code_msg
+        return
+
+    def go_in_sample_with_fdback(self, ce_feedback):
+        print(self.profile + " " + self.name + " Coding with feedback...")
+        Team.log.info(self.profile + " " + self.name + " Coding with feedback...")
+
+        # ---------- get the information needed from SCR ----------
+        architecture = self.getArchiture().content
+        task_plan = self.getProjectPlan().content
+
+        system_prompt = SystemMessage(content=CODING_SYS)
+        user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
+        user_prompt_msg = user_prompt_template.invoke(
+            {
+                "architecture": architecture,
+                "task_plan": task_plan,
+                "ce_feedback": ce_feedback,
+            }
+        )
+        user_prompt = user_prompt_msg.to_messages()[0]
+        # prompt LLM
+        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+        code_result = self.llm_sample.invoke(system_prompt, user_prompt)
+        Team.log.info("\n" + code_result)
+        # ________ store in self code dict ________
+        Team.log.info("Compare Code")
+        self.compare_code(code_result)
+        code_result_split = code_result.split("*** ")
+        for i in range(1, len(code_result_split)):
+            file_name, file_content = self.match(code_result_split[i])
+            self.code_base[file_name] = file_content
+
+        self.message_to_file(code_result)
+        code_msg = Message(sender=self.profile, content=code_result)
+        Team.all_messages.append(code_msg)
+        self.own_message = code_msg
 
         return
 

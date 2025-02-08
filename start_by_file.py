@@ -10,7 +10,7 @@ from agents.team import Team
 
 # the __init__ of the agents folder has already imported the class, there's no need to write additional class import statements.
 from agents import *
-from model.model import Qwen, GPT
+from model.model import Qwen, GPT, GPT_topP
 
 from langchain_openai import ChatOpenAI
 
@@ -100,6 +100,7 @@ def start_project():
     sample_model_config = create_config_copy_with_new_temperature(
         config["llm_4o"], config["llm_4o"]["programmer_temperature"]
     )
+    # sample_model = GPT_topP(config["llm_4o"])
     sample_model = GPT(sample_model_config)
     # launch project
     team.set_origin_req(project_name, origin_req)
@@ -133,11 +134,40 @@ def start_project():
     # team.run()现在暂时只生成代码和testcode，测试以及根据测试的反馈重新生成都被分别拆开来
     # ------------------- launch project ------------------------
 
-    if category == "website":
-        print("WEBWEB")
-        # team.run_vice(seq)
-        team.run_web()
+    # ———————————————————————————— 纯生成版 ————————————————————————————————
+    # team.run_pure()
+    # end_time = datetime.now()
+    # execution_time = end_time - start_time
+    # total_seconds = execution_time.total_seconds()
+    # milliseconds = int((total_seconds % 1) * 1000)
+    # milliseconds_str = str(milliseconds // 10).zfill(2)
+    # formatted_time = f"{int(total_seconds)}.{milliseconds_str}"
+    # Team.log.info(
+    #     "\n-----------------\n"
+    #     + team.log_project_stat()
+    #     + "\n-------------------\n"
+    #     + "Execute time: "
+    #     + str(formatted_time)
+    #     + " Seconds"
+    #     + "\n-----------------"
+    # )
+    # # ------------------- Post Processing --------------------
+    # print(
+    #     "\n-----------------\n"
+    #     + team.log_project_stat()
+    #     + "\n-------------------\n"
+    #     + "Execute time: "
+    #     + str(formatted_time)
+    #     + " Seconds"
+    #     + "\n-----------------"
+    # )
+    # return
+    # ———————————————————————————— 纯生成版 ————————————————————————————————
 
+    if category == "website":
+        #     print("WEBWEB")
+        # team.run_vice(seq)
+        team.run_web_iterative()
     elif not seq:
         team.run()
     else:

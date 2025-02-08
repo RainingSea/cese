@@ -20,6 +20,7 @@ from ceaug.ceaug_main import (
     create_ce_document,
     feedback_split,
     make_ce_dirs,
+    read_feedback,
 )
 from utils.edit_txt import add_newline_to_txt_files, update_flask_port
 
@@ -272,6 +273,144 @@ class Team(BaseModel):
         print("Dev execute END")
         return
 
+    def run_web_iterative(self):
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
+
+        inter_launch = False
+
+        # _______________ generate PRD, Architect, Task Plan _______________
+        if inter_launch:
+            # 以下代码暂时用不到了不用管
+            Team.incremental_base_dir = os.path.join(
+                "D:\Project\Datasets\SD-bench\codebase\采样需要", Team.project_name
+            )
+            self.roles["Product Manager"].go_inter()
+
+        else:
+            Team.incremental_base_dir = Team.project_dir
+            self.roles["Product Manager"].go_inter()
+            Team.active_role(self.roles["Product Manager"].profile)
+
+        # make ce dirs and copy the prd to each dir
+        # 这里的数字就是探索的数量
+        ce_projects_paths = make_ce_dirs(Team.project_dir, self.explore_num)
+
+        # _________________________ [ EXPLORE ] ____________________________
+        # generate sampling architect
+
+        # 读取之前生成的反馈
+        _path = os.path.join(Team.project_dir, "feedback.txt")
+        pre_feedbacks = read_feedback(_path)
+
+        for j in range(len(ce_projects_paths)):
+            print(f"\ngenerate the architect of {j}th counter project\n")
+            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
+            Team.project_dir = ce_projects_paths[j]
+
+            self.roles["Product Manager"].go_inter()
+            # sample architect generate
+            self.roles["Architect"].go_in_sample_with_fdback(
+                pre_feedbacks["#_#architecture_feedback#_#"]
+            )
+            # sample task plan generate
+            self.roles["Project Manager"].go_in_sample_with_fdback(
+                pre_feedbacks["#_#task_plan_feedback#_#"]
+            )
+            # temporarily change project dir to a ce folder
+
+            self.roles["Programmer"].go_in_sample_with_fdback(
+                pre_feedbacks["#_#code_feedback#_#"]
+            )
+            self.roles["Programmer"].code_base.clear()
+            code_base_dir = os.path.join(Team.project_dir, "code")
+            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+
+        # generate feedbacks of explored projects above
+        ce_score, ce_feedbacks = ceaug(
+            previous_work_dir,
+            self.test_cases_dir,
+            ce_projects_paths,
+            Team.projec_catogory,
+            Team.project_name,
+            "ite_fdback",
+            Team.log,
+        )
+
+        # |_____________________________________________________________|
+        # |                      Attention!                             |
+        # | ceaug() execute unit test, which                            |
+        # | requires switching work dir to the test code's project dir "|
+        # |                   Must switch back!                         |
+        # |_____________________________________________________________|
+        # |
+
+        os.chdir(previous_work_dir)
+        Team.project_dir = pervious_project_dir
+        Team.incremental_base_dir = pervious_project_dir
+
+        # _________________________ [ REGENERATE ] ____________________________
+        # _______________ use feedback to generate document _______________
+
+        self.roles["Product Manager"].go_inter()
+        self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
+        self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
+
+        ce_feedback = ce_feedbacks["code"]
+        if ce_feedback:
+            if ce_feedback == "CodeIsGood":
+                print("Dev execute END")
+                return
+            Team.log.info("### ceaug feedback\n" + str(ce_feedback))
+            # use feedback from counter example to augment coding
+            Team.log.info("begin CE Coding")
+            # C_programmer temperature is 0.2
+
+            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
+            if pass_feedback:
+                Team.log.info("Pass Feedback:\n" + str(pass_feedback))
+            if no_pass_feedback:
+                Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
+            # process pass feedback
+            init = True
+            if pass_feedback:
+                for passfd in pass_feedback:
+                    if init:
+                        self.roles["C_Programmer"].go(passfd, "0")
+                        init = False
+                    else:
+                        self.roles["C_Programmer"].go(passfd, "1")
+                    self.roles["C_Programmer"].message_to_file(
+                        self.roles["C_Programmer"].own_message.content
+                    )
+            # process no pass feedback
+            if no_pass_feedback:
+                for n_passfd in no_pass_feedback:
+                    if init:
+                        self.roles["C_Programmer"].go(n_passfd, "0")
+                        init = False
+                    else:
+                        self.roles["C_Programmer"].go(n_passfd, "2")
+                    # write only once
+                    self.roles["C_Programmer"].message_to_file(
+                        self.roles["C_Programmer"].own_message.content
+                    )
+
+            self.roles["C_Programmer"].check_data_format()
+            self.roles["C_Programmer"].message_to_file(
+                self.roles["C_Programmer"].own_message.content
+            )
+        else:
+            Team.log.info("No CE, Normal Coding")
+            self.roles["Programmer"].code_base.clear()
+            self.roles["Programmer"].go()
+
+        code_base_dir = os.path.join(Team.project_dir, "code")
+        port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+
+        print("Dev execute END")
+        return
+
     # sampling run
     def run(self):
         previous_work_dir = Path.cwd()
@@ -326,73 +465,28 @@ class Team(BaseModel):
         )
         return
 
-        # |_____________________________________________________________|
-        # |                      Attention!                             |
-        # | ceaug() execute unit test, which                            |
-        # | requires switching work dir to the test code's project dir "|
-        # |                   Must switch back!                         |
-        # |_____________________________________________________________|
-        # |
+    def run_pure(self):
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
 
-        os.chdir(previous_work_dir)
-        Team.project_dir = pervious_project_dir
-        Team.incremental_base_dir = pervious_project_dir
+        inter_launch = True
 
-        # _______________ use feedback to generate document _______________
-        self.roles["Product Manager"].go_inter()
-        self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
-        self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
-
-        ce_feedback = ce_feedbacks["code"]
-        if ce_feedback:
-            if ce_feedback == "CodeIsGood":
-                print("Dev execute END")
-                return
-            # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
-            Team.log.info("### ceaug feedback\n" + str(ce_feedback))
-            # use feedback from counter example to augment coding
-            Team.log.info("begin CE Coding")
-            # C_programmer temperature is 0.2
-
-            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
-            if pass_feedback:
-                Team.log.info("Pass Feedback:\n" + str(pass_feedback))
-            if no_pass_feedback:
-                Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
-            # process pass feedback
-            init = True
-            if pass_feedback:
-                for passfd in pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(passfd, "1")
-                    self.roles["C_Programmer"].message_to_file(
-                        self.roles["C_Programmer"].own_message.content
-                    )
-            # process no pass feedback
-            if no_pass_feedback:
-                for n_passfd in no_pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(n_passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(n_passfd, "2")
-                    # write only once
-                    self.roles["C_Programmer"].message_to_file(
-                        self.roles["C_Programmer"].own_message.content
-                    )
-        else:
-            Team.log.info("No CE, Normal Coding")
-            self.roles["Programmer"].code_base.clear()
+        if inter_launch:
+            Team.incremental_base_dir = os.path.join(
+                "D:\Project\CE\CE\project",
+                Team.projec_catogory,
+                Team.project_name,
+            )
+            self.roles["Product Manager"].go_inter()
+            self.roles["Architect"].go()
+            self.roles["Project Manager"].go()
+            # generate code
             self.roles["Programmer"].go()
-
-        code_base_dir = os.path.join(Team.project_dir, "code")
-        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
-
-        print("Dev execute END")
-        return
+            code_base_dir = os.path.join(Team.project_dir, "code")
+            # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        else:
+            self.roles["Product Manager"].go()
+            Team.active_role(self.roles["Product Manager"].profile)
 
     # generate unit test or use feedback exist
     def run_vice(self, seq):
@@ -475,6 +569,20 @@ class Team(BaseModel):
                 "ite_fdback",
                 Team.log,
             )
+
+        # with open(os.path.join(Team.project_dir, "feedback.txt"), "w") as file:
+        #     content = (
+        #         "#_#code_feedback#_#\n"
+        #         + ce_feedbacks["code"]
+        #         + "\n\n#_#architecture_feedback#_#\n"
+        #         + ce_feedbacks["arch"]
+        #         + "\n\n#_#task_plan_feedback#_#\n"
+        #         + ce_feedbacks["plan"]
+        #     )
+        #     file.write(content)
+
+        # return
+
         # ___________________ read feedbacks ___________________
 
         # |_____________________________________________________________|
@@ -491,11 +599,10 @@ class Team(BaseModel):
 
         # _______________ use feedback to generate document _______________
         self.roles["Product Manager"].go_inter()
-        # self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
-        self.roles["Architect"].go()
+        self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
+        # self.roles["Architect"].go()
         self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
-
-        # self.roles["Programmer"].go()
+        # self.roles["Project Manager"].go()
 
         ce_feedback = ce_feedbacks["code"]
         if ce_feedback:

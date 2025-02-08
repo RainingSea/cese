@@ -1,0 +1,23 @@
+import pygame
+from game import Game
+
+def main():
+    pygame.init()
+    game = Game()
+    game.start_game()
+
+    # Main game loop
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            game.handle_input(event)
+
+        game.draw()
+        pygame.display.flip()
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()

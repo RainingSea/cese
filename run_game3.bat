@@ -1,6 +1,6 @@
 @echo off
-python start_by_file.py --category game --name 2048.md --seq 666
-python start_by_file.py --category game --name Balls.md --seq 666
+@REM python start_by_file.py --category game --name 2048.md --seq 666
+@REM python start_by_file.py --category game --name Balls.md --seq 666
 python start_by_file.py --category game --name BlockConnect.md --seq 666
 python start_by_file.py --category game --name BoardGamePuzzleGenerator.md --seq 666
 python start_by_file.py --category game --name Bomberman.md --seq 666

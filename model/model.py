@@ -21,8 +21,8 @@ class Qwen:
         responses = Generation.call(
             "qwen-max",
             messages=messages,
-            result_format="message",  
-            stream=False,  
+            result_format="message",
+            stream=False,
             # incremental_output=True,
         )
         return responses["output"]["choices"][0]["message"]["content"]
@@ -35,6 +35,51 @@ class GPT:
             model=config["model"],
             api_key=config["api_key"],
             base_url=config["base_url"],
+        )
+
+    # args is HumanMessage, SystemMessage (variable length)
+    def invoke(self, *args):
+        Team.log.info(
+            f"self.model.temperature-----------------{self.model.temperature}-------------------------------"
+        )
+        # messages = [system_msg, user_msg]
+        messages = [arg for arg in args]
+        output_parser = StrOutputParser()
+
+        chain = self.model
+        result = chain.invoke(messages)
+
+        Team.cost += result.response_metadata["token_usage"]["total_tokens"]
+        Team.log.info(
+            "following invoke cost: "
+            + str(result.response_metadata["token_usage"]["total_tokens"])
+            + " | all cost: "
+            + str(Team.cost)
+        )
+
+        return result.content
+
+    def invoke_MTurn(self, messages_list):
+        output_parser = StrOutputParser()
+        chain = self.model | output_parser
+        result = chain.invoke(messages_list)
+        return result
+
+    def invoke_json(self, system_msg, user_msg):
+        messages = [system_msg, user_msg]
+        output_parser = JsonOutputParser
+        chain = self.model | output_parser
+        result = chain.invoke(messages)
+        return result
+
+
+class GPT_topP:
+    def __init__(self, config: dict):
+        self.model = ChatOpenAI(
+            model=config["model"],
+            api_key=config["api_key"],
+            base_url=config["base_url"],
+            model_kwargs={"top_p": 0.85},
         )
 
     # args is HumanMessage, SystemMessage (variable length)

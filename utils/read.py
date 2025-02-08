@@ -132,8 +132,57 @@ def delete_code_folders(root_folder):
     print("Task completed.")
 
 
+# 改变ce目录名称
+def rename_ce_folders(root_folder):
+    """
+    遍历root_folder下的所有直接子文件夹（视为项目），并在每个项目中查找名为'ce'的文件夹，
+    如果存在，则将其重命名为'ce_old'。
+
+    :param root_folder: 根文件夹路径，包含多个项目的总目录
+    """
+    # 获取根目录下的所有直接子文件夹（假设这些是项目文件夹）
+    for project_folder in os.scandir(root_folder):
+        if project_folder.is_dir():  # 确认是文件夹
+            ce_folder_path = os.path.join(project_folder.path, "ce")
+            new_ce_folder_path = os.path.join(project_folder.path, "ce_old")
+
+            if os.path.exists(ce_folder_path) and os.path.isdir(ce_folder_path):
+                print(f"Renaming folder: {ce_folder_path} to {new_ce_folder_path}")
+                os.rename(ce_folder_path, new_ce_folder_path)
+            else:
+                print(f"No 'ce' folder found in {project_folder.path}")
+    print("Task completed.")
+
+
+def delete_files(root_folder):
+    """
+    遍历root_folder下的所有直接子文件夹（视为项目），并在每个项目中查找名为'architect.md'的文件，
+    如果存在，则删除它。
+
+    :param root_folder: 根文件夹路径，包含多个项目的总目录
+    """
+    # file = "log.log"
+    # file="architect.md"
+    file = "task plan.md"
+
+    # 获取根目录下的所有直接子文件夹（假设这些是项目文件夹）
+    for project_folder in os.scandir(root_folder):
+        if project_folder.is_dir():  # 确认是文件夹
+            architect_file_path = os.path.join(project_folder.path, file)
+            if os.path.exists(architect_file_path) and os.path.isfile(
+                architect_file_path
+            ):
+                print(f"Deleting file: {architect_file_path}")
+                os.remove(architect_file_path)
+            else:
+                print(f"No 'architect.md' file found in {project_folder.path}")
+    print("Task completed.")
+
+
 if __name__ == "__main__":
     # 设置你的根文件夹路径
-    root_folder_path = "D:\Project\CE\CE\project\game"
+    root_folder_path = "D:\Project\CE\CE\project\website"
 
-    delete_code_folders(root_folder_path)
+    # delete_files(root_folder_path)
+    rename_ce_folders(root_folder_path)
+    # delete_code_folders(root_folder_path)

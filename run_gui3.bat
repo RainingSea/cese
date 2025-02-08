@@ -13,7 +13,7 @@
 @REM python start_by_file.py --category gui --name ExpenseComparator.md --seq 666
 @REM python start_by_file.py --category gui --name ExpensePlanner.md --seq 666
 @REM python start_by_file.py --category gui --name ExpenseSplitter.md --seq 666
-python start_by_file.py --category gui --name FocusTime.md --seq 666
+@REM python start_by_file.py --category gui --name FocusTime.md --seq 666
 @REM python start_by_file.py --category gui --name ImageEnhancer.md --seq 666
 @REM python start_by_file.py --category gui --name InvestmentTracker.md --seq 666
 @REM python start_by_file.py --category gui --name KnowledgeTracker.md --seq 666
