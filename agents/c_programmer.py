@@ -113,9 +113,15 @@ class C_Programmer(Role):
     def check_data_format(self):
         self_code = self.own_message.content
         CHECKING_FORMAT = """The following is a generated code that requires your review. The requirements are as follows:  
-1. Check the text files to determine whether different pieces of data are separated by `|`, `,`, or another delimiter.  
-2. Search the code for the sections that handle these text files, and verify whether the delimiter used in the code matches the one used in the text files. If there is a mismatch, you need to modify the code to ensure the delimiter matches that of the text files. 
+1. Check the text files to know whether different pieces of data are separated by `|`, `,`, or another delimiter.  
+2. Search the code for the corresponding sections that handle these text files, and verify whether the delimiter used in the code matches the one used in the text files. If there is a mismatch, you need to modify the code to ensure the delimiter matches that of the text files. 
+
+For example, if txt file has content like: user|userpassword, and the code(suppose user.py) handle this data with code: name, password = line.strip().split(',').
+then you should change the code to: name, password = line.strip().split('|') to match the txt file. 
+Conversely, if the txt file uses "," and the code uses "|", then you also need to adjust the code to use commas ",".
+
 The codes to review is:{code}.
+
 When providing the output, you only need to output the improved code with the following requirements:
 # Format Example 
 *** main.py

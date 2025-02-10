@@ -163,15 +163,17 @@ def start_project():
     # )
     # return
     # ———————————————————————————— 纯生成版 ————————————————————————————————
-
-    if category == "website":
-        #     print("WEBWEB")
-        # team.run_vice(seq)
-        team.run_web_iterative()
-    elif not seq:
-        team.run()
-    else:
-        team.run_vice(seq)
+        
+    if not seq:
+        if category == "website":
+            #     print("WEBWEB")
+            # team.run_vice(seq)
+            # team.run_web_iterative()
+            team.run_web()
+        else:
+            team.run()
+    elif seq:
+        team.run_vice(seq)    
 
     # team.run_self_evo()
     # ------------------- launch project ------------------------

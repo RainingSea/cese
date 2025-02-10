@@ -17,6 +17,7 @@ from ceaug.ceaug_main import (
     ceaug,
     test_code_generate,
     ceaug_vice,
+    ceaug_vice_no_summary,
     create_ce_document,
     feedback_split,
     make_ce_dirs,
@@ -549,8 +550,12 @@ class Team(BaseModel):
         # ___________________ read feedbacks ___________________
         # 属于vice的部分 -- 路径格式
         # 这部分可以拿来读取已经测试过的unit test result
+
         if seq == "666":
             ce_projects_paths = []
+            # 更改反馈的次数
+
+            ce_index = 0
             for i in range(5):
                 ce_projects_paths.append(
                     os.path.join(
@@ -558,10 +563,12 @@ class Team(BaseModel):
                         Team.projec_catogory,
                         Team.project_name,
                         "ce",
-                        f"ce_{i}",
+                        f"ce_{ce_index}",
                     )
                 )
-            ce_score, ce_feedbacks = ceaug_vice(
+                ce_index = ce_index + 1
+
+            ce_score, ce_feedbacks = ceaug_vice_no_summary(
                 previous_work_dir,
                 ce_projects_paths,
                 Team.projec_catogory,
@@ -604,18 +611,19 @@ class Team(BaseModel):
         self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
         # self.roles["Project Manager"].go()
 
-        ce_feedback = ce_feedbacks["code"]
+        # ce_feedback = ce_feedbacks["code"]
+        
         if ce_feedback:
             if ce_feedback == "CodeIsGood":
                 print("Dev execute END")
                 return
             # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
-            Team.log.info("### ceaug feedback\n" + str(ce_feedback))
+            # Team.log.info("### ceaug feedback\n" + str(ce_feedback))
             # use feedback from counter example to augment coding
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
 
-            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
+            # pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
             if pass_feedback:
                 Team.log.info("Pass Feedback:\n" + str(pass_feedback))
             if no_pass_feedback:
@@ -645,17 +653,18 @@ class Team(BaseModel):
                         self.roles["C_Programmer"].own_message.content
                     )
 
-            self.roles["C_Programmer"].check_data_format()
-            self.roles["C_Programmer"].message_to_file(
-                self.roles["C_Programmer"].own_message.content
-            )
+            # self.roles["C_Programmer"].check_data_format()
+            # self.roles["C_Programmer"].message_to_file(
+            #     self.roles["C_Programmer"].own_message.content
+            # )
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()
             self.roles["Programmer"].go()
 
-        code_base_dir = os.path.join(Team.project_dir, "code")
-        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        if Team.projec_catogory == "website":
+            code_base_dir = os.path.join(Team.project_dir, "code")
+            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         print("Dev execute END")
         return

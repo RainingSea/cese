@@ -318,6 +318,135 @@ the content you need to summarize is:{summaries}. follow the example, output you
         return max_score, feedback_result
 
 
+def ceaug_vice_no_summary(
+    base_dir, project_dirs, project_category, project_name, flag, log
+):
+    max_score = -1.0
+    code_feedback_selected = ""
+    all_unit_test_results = []
+    all_code_feedbacks = []
+    all_task_plan_feedbacks = []
+    all_architecture_feedbacks = []
+
+    # 还没有通过的逻辑
+
+    for i in range(len(project_dirs)):
+
+        _path = os.path.join(project_dirs[i], "test_result", "result.txt")
+        all_feedbacks = read_feedback(_path)
+
+        code_feedback = all_feedbacks["#_#code_feedback#_#"]
+        architecture_feedback = all_feedbacks["#_#architecture_feedback#_#"]
+        task_plan_feedback = all_feedbacks["#_#task_plan_feedback#_#"]
+        unit_test_result = all_feedbacks["#_#unit_test_result#_#"]
+
+        log.info("read feedbacks from " + project_dirs[i])
+        log.info("unit_test_result\n" + unit_test_result + "\n")
+        log.info("code_feedback\n" + code_feedback + "\n")
+        log.info("architecture_feedback\n" + architecture_feedback + "\n")
+        log.info("task_plan_feedback\n" + task_plan_feedback + "\n")
+
+        print("read feedbacks from " + project_dirs[i])
+        print("unit_test_result\n" + unit_test_result + "\n")
+        print("code_feedback\n" + code_feedback + "\n")
+        print("architecture_feedback\n" + architecture_feedback + "\n")
+        print("task_plan_feedback\n" + task_plan_feedback + "\n")
+
+        # 直接读取出测试结果
+        all_code_feedbacks.append(code_feedback)
+        all_architecture_feedbacks.append(architecture_feedback)
+        all_task_plan_feedbacks.append(task_plan_feedback)
+
+        all_unit_test_results.append(unit_test_result)
+
+    if flag == "ite_fdback":
+        sum_messages = []
+        all_summaries = ""
+        all_pass_feedback = []
+        all_no_pass_feedback = []
+        for k in range(len(all_code_feedbacks)):
+            all_summaries = f"test result is {all_unit_test_results[k]}: analysis&guidance is {all_code_feedbacks[k]} \n\n"
+
+            # means it is counter example model
+            PROMPT_FOR_FORMAT = """
+# instruction
+I have obtained test result of one project. 
+Now, you need to format all my results according to the template I provided. The formatting rules are as follows:
+Present each case in the format:
+### Passed Test Cases
+1. |Case|:**Case Name**
+Followed by the pseudocode which represent the successful implementation for this function, if this case is a test successful case.
+
+### Failed or Error Test Cases
+2. |Case|:**Case Name**
+Followed by:
+Failure/Error Analysis1
+Improvement Guidance1 (textual, pseudocode, etc.). if this case is a test fail or error case.
+
+# Notes:
+Case Name is the test case name with the test_ prefix removed (e.g., test_navigate_to_registration becomes navigate_to_registration).
+Do not include guidance specifically for the test code itself.
+There is no need to output the list test cases again at the end. 
+
+# Attention
+must consider all results in "context", don't omit. don't lose information.
+The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
+
+# Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
+
+# context
+the project results you need to summarize is as follows: \n{summaries}.\n"""
+            summary_merge_values = {
+                "summaries": all_summaries,
+            }
+            sum_messages.append(format_prompt(PROMPT_FOR_FORMAT, summary_merge_values))
+            print(sum_messages[0]["content"])
+            log.info("code summary prompt is\n" + sum_messages[0]["content"])
+            # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+            code_summaries_summary = chat_to_LLM(sum_messages)
+            print("Code Feedback is")
+            print(code_summaries_summary)
+            log.info("the" + str(k) + "th Code Feedback is\n" + code_summaries_summary)
+            pass_feedback, no_pass_feedback = feedback_split(code_summaries_summary)
+            for fdback in pass_feedback:
+                all_pass_feedback.append(fdback)
+            for n_fdback in no_pass_feedback:
+                all_no_pass_feedback.append(n_fdback)
+
+        # summary the architecture feedback
+        arch_sum_messages = []
+        arch_all_summaries = ""
+        for g in range(len(all_architecture_feedbacks)):
+            arch_all_summaries = (
+                arch_all_summaries
+                + "### the "
+                + str(g + 1)
+                + "th"
+                + " project result:\n"
+                + f"{all_architecture_feedbacks[g]}\n\n"
+            )
+
+        plan_sum_messages = []
+        plan_all_summaries = ""
+        for p in range(len(all_task_plan_feedbacks)):
+            plan_all_summaries = (
+                plan_all_summaries
+                + "### the "
+                + str(p + 1)
+                + "th"
+                + " project result:\n"
+                + f"{all_task_plan_feedbacks[p]}\n\n"
+            )
+
+        feedback_result = {
+            "arch": arch_all_summaries,  # 不需要总结，直接返回拼接结果
+            "plan": plan_all_summaries,  # 不需要总结，直接返回拼接结果
+            "code1": all_pass_feedback,  # 这个要格式化，但是prompt里没有写总结
+            "code2": all_no_pass_feedback,
+        }
+        return max_score, feedback_result
+
+
 def test_code_generate(
     base_dir, testcase_dir, project_dirs, project_category, project_name, flag, log
 ):

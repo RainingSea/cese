@@ -63,6 +63,7 @@ If you are doing Game Development, do not follow the rules of Website and Game d
 # important rule
 Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
+If you are doing website development, do not encrypt the account password for the login function.
 """
 
 
@@ -130,6 +131,7 @@ If you are doing Game Development, do not follow the rules of Website and Game d
 # important rule
 Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
+If you are doing website development, do not encrypt the account password for the login function.
 
 # Regarding the Experience and Lessons
 In this section, a number of successful and failed experiences accumulated from past implementations of this project are provided. 
@@ -198,6 +200,7 @@ If you are doing Game Development, do not follow the rules of Website and Game d
 # important rule
 Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
+If you are doing website development, do not encrypt the account password for the login function.
 
 # Regarding the Experience and Lessons
 In this section, a number of successful experiences accumulated from past implementations of this project are provided. 
@@ -268,6 +271,7 @@ If you are doing Game Development, do not follow the rules of Website and Game d
 # important rule
 Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
+If you are doing website development, do not encrypt the account password for the login function.
 
 # Regarding the Experience and Lessons
 In this section, a number of failed experiences accumulated from past implementations of this project are provided. 
@@ -346,6 +350,7 @@ If you are doing Game Development, do not follow the rules of Website and Game d
 # important rule
 Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
+If you are doing website development, do not encrypt the account password for the login function.
 """
 
 
