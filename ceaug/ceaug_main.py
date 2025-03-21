@@ -360,11 +360,11 @@ def ceaug_vice_no_summary(
         all_unit_test_results.append(unit_test_result)
 
     if flag == "ite_fdback":
-        sum_messages = []
-        all_summaries = ""
         all_pass_feedback = []
         all_no_pass_feedback = []
         for k in range(len(all_code_feedbacks)):
+            all_summaries = ""
+            sum_messages = []
             all_summaries = f"test result is {all_unit_test_results[k]}: analysis&guidance is {all_code_feedbacks[k]} \n\n"
 
             # means it is counter example model
@@ -406,12 +406,23 @@ the project results you need to summarize is as follows: \n{summaries}.\n"""
             code_summaries_summary = chat_to_LLM(sum_messages)
             print("Code Feedback is")
             print(code_summaries_summary)
-            log.info("the" + str(k) + "th Code Feedback is\n" + code_summaries_summary)
+            log.info(
+                "the " + str(k + 1) + "th Code Feedback is\n" + code_summaries_summary
+            )
             pass_feedback, no_pass_feedback = feedback_split(code_summaries_summary)
-            for fdback in pass_feedback:
-                all_pass_feedback.append(fdback)
-            for n_fdback in no_pass_feedback:
-                all_no_pass_feedback.append(n_fdback)
+            log.info(pass_feedback)
+            log.info(no_pass_feedback)
+
+            all_pass_feedback.append(pass_feedback)
+            all_no_pass_feedback.append(no_pass_feedback)
+
+            # for fdback in pass_feedback:
+            #     all_pass_feedback.append(fdback)
+            # for n_fdback in no_pass_feedback:
+            #     all_no_pass_feedback.append(n_fdback)
+
+        log.info(all_pass_feedback)
+        log.info(all_no_pass_feedback)
 
         # summary the architecture feedback
         arch_sum_messages = []
@@ -422,7 +433,7 @@ the project results you need to summarize is as follows: \n{summaries}.\n"""
                 + "### the "
                 + str(g + 1)
                 + "th"
-                + " project result:\n"
+                + " project feedback:\n"
                 + f"{all_architecture_feedbacks[g]}\n\n"
             )
 
@@ -434,7 +445,7 @@ the project results you need to summarize is as follows: \n{summaries}.\n"""
                 + "### the "
                 + str(p + 1)
                 + "th"
-                + " project result:\n"
+                + " project feedback:\n"
                 + f"{all_task_plan_feedbacks[p]}\n\n"
             )
 
@@ -1224,7 +1235,7 @@ please provide improvement suggestions in the following areas:
 REFINE_TASK_PLAN_PROMPT = """
 ### Task Plan Review:
 
-You are an experienced software architect tasked with reviewing a Python web application task plan. 
+You are an experienced software architect tasked with reviewing a Python application task plan. 
 The task plan outlines packages, logic, file structure, and tasks. 
 Based on the task plan details, the context of unit testing results, 
 the unit test code, the unit test result analysis, and the codebase, 

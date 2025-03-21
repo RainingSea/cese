@@ -19,6 +19,7 @@ def chat_to_LLM(messages):
         messages=messages,
         model="gpt-4o-mini",
         top_p=0.1,
+        seed=42,
         # stream=True, # 这个开了要用chunk的调用方法
     )
     # print(response.choices[0].message.content, end="", flush=True)
@@ -37,7 +38,7 @@ def chat_to_LLM_langchain():
 
 
 if __name__ == "__main__":
-    # messages = [{"role": "user", "content": inputs}]
-    # print(chat_to_LLM(messages))
+    messages = [{"role": "user", "content": inputs}]
+    print(chat_to_LLM(messages))
 
-    chat_to_LLM_langchain()
+    # chat_to_LLM_langchain()

@@ -76,10 +76,11 @@ class GPT:
 class GPT_topP:
     def __init__(self, config: dict):
         self.model = ChatOpenAI(
+            temperature=config["temperature"],
             model=config["model"],
             api_key=config["api_key"],
             base_url=config["base_url"],
-            model_kwargs={"top_p": 0.85},
+            model_kwargs={"top_p": 0.4},
         )
 
     # args is HumanMessage, SystemMessage (variable length)

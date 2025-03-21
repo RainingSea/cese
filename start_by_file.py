@@ -7,8 +7,6 @@ import copy
 from utils.commen import read_yaml
 from agents.team import Team
 
-
-# the __init__ of the agents folder has already imported the class, there's no need to write additional class import statements.
 from agents import *
 from model.model import Qwen, GPT, GPT_topP
 
@@ -21,11 +19,6 @@ import argparse
 
 
 def start_project():
-    # _________ from run ___________
-    # category = "website"
-    # name = "BookWormSearch.md"
-    # _________ from run ___________
-
     # __________ from shell __________
     parser = argparse.ArgumentParser(description="original Requirement")
     parser.add_argument("--category", type=str, help="gui")
@@ -34,22 +27,25 @@ def start_project():
     args = parser.parse_args()
     category = args.category
     name = args.name
-    # game and gui specification
+
+    # specification for different running time
     seq = args.seq
 
     match = re.match(r"^(.*)\.md$", name)
+
     if match:
         project_name = match.group(1)
-        print(project_name)
+        print("|| Project Name: " + project_name + " ||")
     # __________ from shell __________
 
-    # project_description_path = f"./dataset/rSDE_Bench/inference/dataset/{category}/{name}"
+    # Project soft config
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
         f"D:\\Project\\CE\\CE\\dataset\\SD-bench\\dataset\\{category}\\{name}"
     )
 
-    explore_num = 5
+    explore_num = 3
+    
     test_cases_dir = "D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase"
 
     projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
@@ -72,17 +68,6 @@ def start_project():
     Team.projec_catogory = category
     Team.project_name = project_name
 
-    # projdir = (
-    #     "D:/Project/CE/CE/project/"
-    #     + category
-    #     + "/"
-    #     + project_name
-    #     + "_"
-    #     + formatted_time
-    #     + "/"
-    # )
-
-    # projdir = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\" + project_name + "\\"
     Team.set_projdir(projdir)
     Team.set_log()
 
@@ -100,8 +85,8 @@ def start_project():
     sample_model_config = create_config_copy_with_new_temperature(
         config["llm_4o"], config["llm_4o"]["programmer_temperature"]
     )
-    # sample_model = GPT_topP(config["llm_4o"])
-    sample_model = GPT(sample_model_config)
+    sample_model = GPT_topP(config["llm_4o"])
+    # sample_model = GPT(sample_model_config)
     # launch project
     team.set_origin_req(project_name, origin_req)
 
@@ -128,52 +113,14 @@ def start_project():
         c_programmer,
     )
 
-    # 设置探索次数
-    #
-    #
-    # team.run()现在暂时只生成代码和testcode，测试以及根据测试的反馈重新生成都被分别拆开来
-    # ------------------- launch project ------------------------
-
-    # ———————————————————————————— 纯生成版 ————————————————————————————————
-    # team.run_pure()
-    # end_time = datetime.now()
-    # execution_time = end_time - start_time
-    # total_seconds = execution_time.total_seconds()
-    # milliseconds = int((total_seconds % 1) * 1000)
-    # milliseconds_str = str(milliseconds // 10).zfill(2)
-    # formatted_time = f"{int(total_seconds)}.{milliseconds_str}"
-    # Team.log.info(
-    #     "\n-----------------\n"
-    #     + team.log_project_stat()
-    #     + "\n-------------------\n"
-    #     + "Execute time: "
-    #     + str(formatted_time)
-    #     + " Seconds"
-    #     + "\n-----------------"
-    # )
-    # # ------------------- Post Processing --------------------
-    # print(
-    #     "\n-----------------\n"
-    #     + team.log_project_stat()
-    #     + "\n-------------------\n"
-    #     + "Execute time: "
-    #     + str(formatted_time)
-    #     + " Seconds"
-    #     + "\n-----------------"
-    # )
-    # return
-    # ———————————————————————————— 纯生成版 ————————————————————————————————
-        
     if not seq:
         if category == "website":
-            #     print("WEBWEB")
-            # team.run_vice(seq)
-            # team.run_web_iterative()
             team.run_web()
         else:
             team.run()
     elif seq:
-        team.run_vice(seq)    
+        # team.run()
+        team.run_vice(seq)
 
     # team.run_self_evo()
     # ------------------- launch project ------------------------
