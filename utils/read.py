@@ -36,9 +36,9 @@ def read_file_2_line(file_path):
         # cleaned_text = "\n".join(line.strip() for line in cleaned_text.splitlines())
         # print(cleaned_text)
 
-        single_line_cleaned_text = cleaned_text.replace("\n", " ").replace("\r", "")
+        # single_line_cleaned_text = cleaned_text.replace("\n", " ").replace("\r", "")
+        single_line_cleaned_text = cleaned_text.replace("\r", "")
         return single_line_cleaned_text
-        print(single_line_cleaned_text)
 
 
 def list_files_with_absolute_paths(directory_path):

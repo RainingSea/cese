@@ -36,7 +36,7 @@ If you are doing website development, do not encrypt the account password for th
 # Attention
 1. If a feature of software requires a GUI, you also need to carefully consider the UI components that this feature will require and its relationship to the main UI in Architecture.
 2. Aim to achieve functional requirements, only require to implement a demo.
-3. If project requires data storage, follow the requirement of data storage, implement a simple storage.Do not use SQL database.
+3. If project requires data storage, follow the requirement of data storage, implement a simple storage. Do not use SQL database.
 4. Organize related functionalities into a single Python file to avoid creating too many files.
 5. do not output ```plaintext or other ``` in the start and the end, output directly.
 
@@ -87,7 +87,9 @@ If you are doing website development, do not encrypt the account password for th
 In "lessons and experience" section, there is a summary and feedback from previous work on this project. 
 When you generate, you need to take these insight into consideration, for example, if they are suggestions, you should adopt them. If they are error warnings, you need to avoid them.
 However, your main task remains to generate a corresponding architecture based on "original_requirement" and "functional requirements".
- 
+Even if there are suggestions regarding JSON or other complex data structures, please do not consider using JSON in your architectural design.
+Even if there are suggestions regarding data encryption, please do not consider data encryption in your architectural design.
+
 ## action
 Follow instructions of nodes and Attention, refer Additional Notes, generate output and make sure it follows the format example.
 """

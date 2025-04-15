@@ -38,20 +38,23 @@ def start_project():
         print("|| Project Name: " + project_name + " ||")
     # __________ from shell __________
 
-    # Project soft config
+    # ______________ project soft config ________________
+    #
+    # dataset dir
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
         f"D:\\Project\\CE\\CE\\dataset\\SD-bench\\dataset\\{category}\\{name}"
     )
-
-    explore_num = 3
-    
+    # test case dir
     test_cases_dir = "D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase"
 
+    # project dir
     projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
 
-    # web项目实际上还要配一个port.txt路径
-    # 但是我改成相对路径了，暂时可以使用，不用再配了
+    # exploration numbers
+    explore_num = 3
+    #
+    # ______________ project soft config ________________
 
     # framework execution start time
     start_time = datetime.now()
@@ -60,8 +63,9 @@ def start_project():
     ### 读取project_description_path中的md文件内容至project_description
     with open(project_description_path, "r", encoding="utf-8") as file:
         project_description = file.read()
-    origin_req = project_description
+
     # Build Agent's Team
+    origin_req = project_description
     team = Team()
     team.explore_num = explore_num
     team.test_cases_dir = test_cases_dir
@@ -71,22 +75,23 @@ def start_project():
     Team.set_projdir(projdir)
     Team.set_log()
 
-    # woRTA
-    Team.align_check_num = 0
-    Team.mad_num = 0
-
     # config for framework
     config = model_config()
 
-    # normal temperature model
+    # normal model
+    # config temperature only (fixed 0.2)
     model = GPT(config["llm_4o"])
 
-    # sampling model with changed temperature
-    sample_model_config = create_config_copy_with_new_temperature(
-        config["llm_4o"], config["llm_4o"]["programmer_temperature"]
-    )
-    sample_model = GPT_topP(config["llm_4o"])
+    # different sampling model with changed temperature
+    # model 1 (with no config for top P)
+    # sample_model_config = create_config_copy_with_new_temperature(
+    #     config["llm_4o"], config["llm_4o"]["programmer_temperature"]
+    # )
     # sample_model = GPT(sample_model_config)
+
+    # model 2 (config top p)
+    sample_model = GPT_topP(config["llm_4o"])
+
     # launch project
     team.set_origin_req(project_name, origin_req)
 
@@ -115,7 +120,10 @@ def start_project():
 
     if not seq:
         if category == "website":
-            team.run_web()
+            # team.run_web()
+            # K的实验，迭代生成
+            # team.run_web_iterative()
+            team.run_vice()
         else:
             team.run()
     elif seq:

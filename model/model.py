@@ -76,17 +76,17 @@ class GPT:
 class GPT_topP:
     def __init__(self, config: dict):
         self.model = ChatOpenAI(
-            temperature=config["temperature"],
+            temperature=0.4,
             model=config["model"],
             api_key=config["api_key"],
             base_url=config["base_url"],
-            model_kwargs={"top_p": 0.4},
+            model_kwargs={"top_p": 0.8},
         )
 
     # args is HumanMessage, SystemMessage (variable length)
     def invoke(self, *args):
         Team.log.info(
-            f"self.model.temperature-----------------{self.model.temperature}-------------------------------"
+            f"self.model.temperature --- {self.model.temperature} | top p --- {self.model.model_kwargs.get('top_p')} ---"
         )
         # messages = [system_msg, user_msg]
         messages = [arg for arg in args]

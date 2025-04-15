@@ -7,16 +7,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from prompt.write_prd_prompt import WRITE_PRD, WRITE_PRD_SYS
-from prompt.align_prompt import (
-    PRD_REVIEW_ARCHITECTURE,
-    PRD_REVIEW_PROJECT_PLAN,
-    PRD_REVIEW_CODE,
-)
+from prompt.meta_prompt import META_PROMPT
 
 from agents.role import Role
 from agents.team import Team
 from messages.message import Message
-from datetime import datetime, timedelta
 from utils.read import read_file_2_line
 
 from utils.commen import write_to_file
@@ -30,11 +25,6 @@ class Product_Manager(Role):
     llm_sample: object
     system_msg: str = WRITE_PRD_SYS
     own_message: Message = None
-    review_prompt: dict[str, str] = {
-        "Architect": PRD_REVIEW_ARCHITECTURE,
-        "Project Manager": PRD_REVIEW_PROJECT_PLAN,
-        "Programmer": PRD_REVIEW_CODE,
-    }
     action: str = "functional requirement document"
 
     def go(self):
@@ -44,7 +34,20 @@ class Product_Manager(Role):
         # ---------- get the information needed from SCR ----------
         original_requirement = self.getOriginRequirement().content
 
-        # ---------- LLM ----------
+        # ---------- use metaprompt to let LLM write prompt to generate PRD
+        meta_prompt_tplt = ChatPromptTemplate.from_template(META_PROMPT)
+        meta_prompt_prompt = meta_prompt_tplt.invoke(
+            {
+                "role_input": "original_requirement",
+                "role_output": "functional requirements",
+            }
+        )
+        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
+        result = self.llm.invoke(meta_prompt_msg)
+
+        Team.log(result)
+        return
+
         # ---------- constructing prompt to LLM ----------
         system_prompt = SystemMessage(content=WRITE_PRD_SYS)
         user_prompt_template = ChatPromptTemplate.from_template(WRITE_PRD)

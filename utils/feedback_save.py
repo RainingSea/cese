@@ -1,0 +1,102 @@
+import re
+import os
+import shutil
+import chardet
+
+
+def log_extract(dir):
+    encoding_type = ""
+    with open(os.path.join(dir, "log.log"), "rb") as file:
+        raw_data = file.read()
+        encoding_type = chardet.detect(raw_data)["encoding"]
+
+    with open(os.path.join(dir, "log.log"), mode="r", encoding=encoding_type) as file:
+        text = file.read()
+
+    # 正则表达式模式定义
+    # pattern_template = r"ITERATIVE_FEEDBACK #_#({tag})#_#(.*?)(?=2025|\Z)"
+    # tags = ["arch", "plan", "code"]
+
+    pattern_template = r"({tag})(.*?)(?=2025|\Z)"
+    tags = ["Archtecture Summary", "Plan Summary", "Code Feedback is"]
+
+    matches = {}
+
+    for tag in tags:
+        pattern = pattern_template.format(tag=tag)
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            matches[tag] = match.group(2).strip()
+
+    with open(
+        os.path.join(dir, "feedbacks_last_turn.txt"), "w", encoding="utf-8"
+    ) as file:
+        # 输出结果
+        for tag, content in matches.items():
+            if tag == "arch":
+                file.write(f"#_#architecture_feedback#_#\n{content}\n\n")
+            elif tag == "plan":
+                file.write(f"#_#task_plan_feedback#_#\n{content}\n\n")
+            elif tag == "code":
+                file.write(f"#_#code_feedback#_#\n{content}\n\n")
+
+
+def log_extract_2(dir):
+    encoding_type = ""
+    with open(os.path.join(dir, "log.log"), "rb") as file:
+        raw_data = file.read()
+        encoding_type = chardet.detect(raw_data)["encoding"]
+
+    with open(os.path.join(dir, "log.log"), mode="r", encoding=encoding_type) as file:
+        text = file.read()
+
+    # 正则表达式模式定义
+    # pattern_template = r"ITERATIVE_FEEDBACK #_#({tag})#_#(.*?)(?=2025|\Z)"
+    # tags = ["arch", "plan", "code"]
+
+    pattern_template = r"({tag})(.*?)(?=2025|\Z)"
+    tags = ["Archtecture Summary", "Plan Summary", "Code Feedback is"]
+
+    matches = {}
+
+    for tag in tags:
+        pattern = pattern_template.format(tag=tag)
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            matches[tag] = match.group(2).strip()
+
+    with open(
+        os.path.join(dir, "feedbacks_last_turn.txt"), "w", encoding="utf-8"
+    ) as file:
+        # 输出结果
+        for tag, content in matches.items():
+            if tag == "Archtecture Summary":
+                file.write(f"#_#architecture_feedback#_#\n{content}\n\n")
+            elif tag == "Plan Summary":
+                file.write(f"#_#task_plan_feedback#_#\n{content}\n\n")
+            elif tag == "Code Feedback is":
+                file.write(f"#_#code_feedback#_#\n{content}\n\n")
+
+
+def clean_dir(dir):
+    files_to_keep = ["prd.md", "feedbacks_last_turn.txt"]
+    try:
+        for item in os.listdir(dir):
+            item_path = os.path.join(dir, item)
+
+            if os.path.isfile(item_path) and item not in files_to_keep:
+                os.remove(item_path)
+            # 如果是子目录，则直接删除整个目录及其内容
+            elif os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+if __name__ == "__main__":
+    base_dir = "D:\Project\CE\CE\project\website"
+    for project_name in os.listdir(base_dir):
+        print(project_name)
+        project_path = os.path.join(base_dir, project_name)
+        # log_extract_2(project_path)
+        clean_dir(project_path)

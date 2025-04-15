@@ -20,11 +20,10 @@ from prompt.write_code_prompt import (
     CODING_SYS,
     CODING,
     CODING_C,
-    CODING_P,
-    RECODNIG,
+    CODING_C_FD,
 )
 
-from prompt.align_prompt import RETHINK, COMPLEMENT, ALIGN_WITH_WHO
+from prompt.align_prompt import ALIGN_WITH_WHO
 from agents.role import Role
 from agents.team import Team
 from agents.searcher import Searcher
@@ -115,7 +114,7 @@ class Programmer(Role):
         self.own_message = code_msg
         return
 
-    def go_in_sample_with_fdback(self, ce_feedback):
+    def go_in_sample_with_fdback(self, ce_feedback, flag):
         print(self.profile + " " + self.name + " Coding with feedback...")
         Team.log.info(self.profile + " " + self.name + " Coding with feedback...")
 
@@ -124,14 +123,26 @@ class Programmer(Role):
         task_plan = self.getProjectPlan().content
 
         system_prompt = SystemMessage(content=CODING_SYS)
-        user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
-        user_prompt_msg = user_prompt_template.invoke(
-            {
-                "architecture": architecture,
-                "task_plan": task_plan,
-                "ce_feedback": ce_feedback,
-            }
-        )
+
+        if flag == "0":
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
+            user_prompt_msg = user_prompt_template.invoke(
+                {
+                    "architecture": architecture,
+                    "task_plan": task_plan,
+                    "ce_feedback": ce_feedback,
+                }
+            )
+        elif flag == "1":
+            exist_code = self.own_message.content
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_C_FD)
+            user_prompt_msg = user_prompt_template.invoke(
+                {
+                    "exist_code": exist_code,
+                    "ce_feedback": ce_feedback,
+                }
+            )
+
         user_prompt = user_prompt_msg.to_messages()[0]
         # prompt LLM
         Team.log.info(system_prompt.content + "\n" + user_prompt.content)

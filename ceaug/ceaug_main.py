@@ -257,9 +257,9 @@ the content you need to summarize is:{summaries}.
         print(arch_sum_messages[0]["content"])
         log.info("prompt for summaries summary:\n" + arch_sum_messages[0]["content"])
         arch_summaries_summary = chat_to_LLM(arch_sum_messages)
-        print("Archtecture Summary")
+        print("Architecture Summary")
         print(arch_summaries_summary)
-        log.info("Archtecture Summary\n" + arch_summaries_summary)
+        log.info("Architecture Summary\n" + arch_summaries_summary)
 
         # plan summary
         plan_sum_messages = []
@@ -604,7 +604,21 @@ def ceaug(
                 "role": "user",
                 "content": """Summarize the above mentioned unit test analysis. You only need to summarize the content in the project identified from the unit test result. You need to do 2 jobs:
                 ### 1. summarize test pass cases
-                Identify all passed test cases (test_XX_XX, marked as "ok"). For each passed case, find the corresponding project code in the codebase (not the test code) mentioned in previous conversations, understand the full implementation thought of the project code related to the test case, then express it in pseudocode format(pseudocode should capture all parts of the code, not just function body). Focus only on the project code, not the test code.
+                Identify all passed test cases (test_XX_XX, marked as "ok"). For each passed case, find the corresponding project code in the codebase (not the test code) mentioned in previous conversations, understand the full implementation thought of the project code related to the test case, then express it in pseudocode format(pseudocode should capture all parts of the code, not just function body). Focus only on the project code, not the test code. 
+                Your presented pseudocode should contain full information from the actual code, rather than just repeat input and output.
+                Here is A GOOD EXAMPLE for a example funtion A:
+                FUNCTION A()
+                    IF CONDITION_A
+                        select DATA for A_1
+                        select DATA for A_2
+
+                        Process A_1 and A_2
+                        Analyze the processed result
+                        ENDIF
+                    ENDIF
+                    RENDER NOT IF LOGIC
+                ENDIF
+                
 
                 ### 2. summarize test failed or error cases
                 Summarize all previously mentioned failed or error test cases along with their error analyses. then, you need to provide guidance on how to solve these issues. The guidance should adhere to the following aspects:
@@ -772,6 +786,7 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
 Summarize solutions for all test cases that passed. Use the pseudocode provided in the input to represent the solutions; do not generate new pseudocode. Present each case in the format:
 1. |Case|:**Case Name**
 Followed by the pseudocode which represent the successful implementation for this function.
+keep the pseudocode long as you can, do not cut information.
 
 ### Failed or Error Test Cases
 Collect the analysis and guidance related to each failure or error. present it in the format:
@@ -842,7 +857,9 @@ Architecture Enhancements
 Attention:Use bullet points for readability, and provide actionable suggestions where applicable.
 Ensure Clarity and Precision.
 Use concise language to convey the ideas clearly and avoid redundancy.
-the content you need to summarize is:{summaries}.
+Result should be concise but also informative.
+the content you need to summarize is:\n{summaries}
+Mind: do not summary advice like using json or like enhancing data encryption in your final summary, it is too high level.
         """
         arch_summary_merge_values = {"summaries": arch_all_summaries}
         arch_sum_messages.append(
@@ -854,9 +871,9 @@ the content you need to summarize is:{summaries}.
             + arch_sum_messages[0]["content"]
         )
         arch_summaries_summary = chat_to_LLM(arch_sum_messages)
-        print("Archtecture Summary")
+        print("Architecture Summary")
         print(arch_summaries_summary)
-        log.info("Archtecture Summary\n" + arch_summaries_summary)
+        log.info("Architecture Summary\n" + arch_summaries_summary)
 
         # plan summary
         plan_sum_messages = []
@@ -890,7 +907,7 @@ output example:
 - Implement basic form validations to prevent invalid or empty submissions.  
 Use this format to summarize the feedback provided, ensuring the suggestions are actionable for creating improved new plans.
 
-the content you need to summarize is:{summaries}. follow the example, output you summary.
+the content you need to summarize is:\n{summaries}. \nfollow the example, output you summary.
         """
         plan_summary_merge_values = {"summaries": plan_all_summaries}
         plan_sum_messages.append(
@@ -976,6 +993,30 @@ def feedback_split(feedback):
             pattern, failed_or_error_test_cases.group(0).strip(), re.DOTALL
         )
         no_pass_feedback = process_array(no_pass_case_blocks)
+    else:
+        no_pass_feedback = None
+
+    return pass_feedback, no_pass_feedback
+
+
+def feedback_split_string(feedback):
+    # 提取所有通过的测试结果
+    passed_test_cases_match = re.search(
+        r"(?<=### Passed Test Cases)(.*?)(?=### Failed or Error Test Cases|$)",
+        feedback,
+        re.DOTALL,
+    )
+    if passed_test_cases_match:
+        pass_feedback = passed_test_cases_match.group(0).strip()
+    else:
+        pass_feedback = None
+
+    # 提取没有通过测试的结果
+    failed_or_error_test_cases_match = re.search(
+        r"(?<=### Failed or Error Test Cases)(.*)", feedback, re.DOTALL
+    )
+    if failed_or_error_test_cases_match:
+        no_pass_feedback = failed_or_error_test_cases_match.group(0).strip()
     else:
         no_pass_feedback = None
 
@@ -1203,12 +1244,6 @@ please provide improvement suggestions in the following areas:
    - UI Design: How can UI be improved to meet functional requirements?
    - Data Storage: Have the local text files covered all the necessary data? If not, make sure to add the required data.
 
-### Attention
-1. This is only a small project, we don't consider too much about scalability.
-2. We don't use any database.
-3. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
-4. do not give advice with hash or security check in authentication.
-5. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
 ---------------------------
 ### Output Example:
 
@@ -1230,6 +1265,13 @@ please provide improvement suggestions in the following areas:
    - **Data Storage:** Add users.txt to store user accounts
    - **Data Structures:** Ensure classes focus on single responsibilities.
 
+### Attention
+1. This is only a small project, we don't consider too much about scalability.
+2. We don't use any database.
+3. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
+4. do not give advice with hash or security check in authentication.
+5. do not use recommend json if this is a website project, we only use txt now.
+5. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
 """
 
 REFINE_TASK_PLAN_PROMPT = """
@@ -1303,8 +1345,8 @@ def read_feedback(file_path):
         "#_#unit_test_result_analysis#_#",
         "#_#relevance#_#",
         "#_#architecture_feedback#_#",
-        "#_#code_feedback#_#",
         "#_#task_plan_feedback#_#",
+        "#_#code_feedback#_#",
     ]
 
     encoding_type = ""
