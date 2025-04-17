@@ -1,3 +1,7 @@
+PROMPT_FOR_TESTCASE="""
+
+"""
+
 PROMPT_FOR_TEST_ANA = """
 Here is the entire codebase for a project: {code_base}.
 Here are the unit test codes for this project: {unit_test_code}.

@@ -18,10 +18,11 @@ from utils.edit_txt import add_newline_to_txt_files
 # custom lib
 from prompt.write_code_prompt import (
     CODING_SYS,
-    CODING,
     CODING_C,
-    CODING_C_FD,
+    CODING,
+    CODING_FD,
 )
+from prompt.meta_prompt import META_PROMPT
 
 from prompt.align_prompt import ALIGN_WITH_WHO
 from agents.role import Role
@@ -49,14 +50,14 @@ class Programmer(Role):
 
         # ---------- get the information needed from SCR ----------
         architecture = self.getArchiture().content
-        task_plan = self.getProjectPlan().content
+        functional_requirement = self.getPRD().content
 
         system_prompt = SystemMessage(content=CODING_SYS)
         user_prompt_template = ChatPromptTemplate.from_template(CODING)
         user_prompt_msg = user_prompt_template.invoke(
             {
+                "functional_requirements": functional_requirement,
                 "architecture": architecture,
-                "task_plan": task_plan,
             }
         )
         user_prompt = user_prompt_msg.to_messages()[0]
@@ -84,25 +85,26 @@ class Programmer(Role):
         Team.log.info(self.profile + " " + self.name + " Coding...")
 
         # ---------- get the information needed from SCR ----------
+        functional_requirement = self.getPRD().content
         architecture = self.getArchiture().content
-        task_plan = self.getProjectPlan().content
 
         system_prompt = SystemMessage(content=CODING_SYS)
         user_prompt_template = ChatPromptTemplate.from_template(CODING)
         user_prompt_msg = user_prompt_template.invoke(
             {
+                "functional_requirements": functional_requirement,
                 "architecture": architecture,
-                "task_plan": task_plan,
             }
         )
         user_prompt = user_prompt_msg.to_messages()[0]
         # prompt LLM
+
         Team.log.info(system_prompt.content + "\n" + user_prompt.content)
         code_result = self.llm_sample.invoke(system_prompt, user_prompt)
-        Team.log.info("\n" + code_result)
+        Team.log.info("Generated Code: \n" + code_result)
         # ________ store in self code dict ________
-        Team.log.info("Compare Code")
-        self.compare_code(code_result)
+        # Team.log.info("Compare Code")
+        # self.compare_code(code_result)
         code_result_split = code_result.split("*** ")
         for i in range(1, len(code_result_split)):
             file_name, file_content = self.match(code_result_split[i])
@@ -110,7 +112,7 @@ class Programmer(Role):
 
         self.message_to_file(code_result)
         code_msg = Message(sender=self.profile, content=code_result)
-        Team.all_messages.append(code_msg)
+        # Team.all_messages.append(code_msg)
         self.own_message = code_msg
         return
 
@@ -119,8 +121,8 @@ class Programmer(Role):
         Team.log.info(self.profile + " " + self.name + " Coding with feedback...")
 
         # ---------- get the information needed from SCR ----------
+        functional_requirement = self.getPRD().content
         architecture = self.getArchiture().content
-        task_plan = self.getProjectPlan().content
 
         system_prompt = SystemMessage(content=CODING_SYS)
 
@@ -129,13 +131,13 @@ class Programmer(Role):
             user_prompt_msg = user_prompt_template.invoke(
                 {
                     "architecture": architecture,
-                    "task_plan": task_plan,
+                    "functional_requirements": functional_requirement,
                     "ce_feedback": ce_feedback,
                 }
             )
         elif flag == "1":
             exist_code = self.own_message.content
-            user_prompt_template = ChatPromptTemplate.from_template(CODING_C_FD)
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_FD)
             user_prompt_msg = user_prompt_template.invoke(
                 {
                     "exist_code": exist_code,
@@ -270,6 +272,8 @@ class Programmer(Role):
                 super().save_file_overwrite(
                     os.path.join(code_base_dir, str(name)), str(code)
                 )
+        Team.log.info(" " + str(code_base_dir))
+        Team.log.info(" ")
         add_newline_to_txt_files(code_base_dir)
 
     def message_to_file_review(self, code_text):
@@ -322,37 +326,6 @@ class Programmer(Role):
     def update_own_message(self, msg: Message):
         self.own_message = msg
         Team.all_messages[4] = msg
-
-    def get_align_roles(self, self_content):
-        Team.log.info("Team's Active roles: " + Team.active_roles)
-        # if not the first role
-        if Team.active_roles:
-            system_prompt = SystemMessage(
-                content="You are a good software engineering expert"
-            )
-            user_prompt_template = ChatPromptTemplate.from_template(ALIGN_WITH_WHO)
-            user_prompt_msg = user_prompt_template.invoke(
-                {
-                    "role": self.profile,
-                    "other_rule_content": self.read_msg(Team.all_messages[1:]),
-                    "role_action": self.action,
-                    "role_content": self_content,
-                    "roles_list": Team.active_roles,
-                }
-            )
-            user_prompt = user_prompt_msg.to_messages()[0]
-            Team.log.info("search Align roles's prompt: " + user_prompt.content)
-            align_roles_llm_result = self.llm.invoke(system_prompt, user_prompt)
-            Team.log.info(
-                "LLM think Alignment Group Members: " + align_roles_llm_result
-            )
-            dict_obj = json.loads(align_roles_llm_result)
-            print("Format Group Members: " + str(dict_obj["roles"]))
-
-            roles_list = dict_obj["roles"]
-            return roles_list
-        else:
-            return "HUMAN"
 
     # programmer won't add self's message, no need to filter messages;
     def read_msg(self, messages):
@@ -415,34 +388,3 @@ class Programmer(Role):
         counter_reason = read_file_2_line(counter_reason_path)
 
         return counter_reason, counter_codes
-
-    def task_list_extract(self):
-        task_plan = self.getProjectPlan().content
-        task_dict = ast.literal_eval(task_plan)
-        task_list_content = task_dict["Task list"]
-
-        # # extract *task list* from Task Plan
-        # task_list_pattern = r'"Task list":\s*\{(.*?)\},'
-        # match = re.search(task_list_pattern, task_plan, re.DOTALL)
-
-        # if match:
-        #     # 提取任务列表
-        #     task_list_content = match.group(1).strip()
-        #     # 构造成 JSON 格式（可选）
-        #     task_list_content = "{" + task_list_content + "}"
-        # else:
-        #     print("Task list not found.")
-        #     return "Task list not found."
-        # # print(task_list_content)
-        # # transfer *task list*(string format) to a dict
-        # task_dict = ast.literal_eval(task_list_content)
-
-        # 打印结果
-        print(task_list_content)
-        print("Task Dictionary:")
-        _log_task = ""
-        for key, value in task_list_content.items():
-            print(f"Key: {key}, Value: {value}")
-            _log_task = _log_task + f"Key: {key}, Value: {value}" + "\n"
-        Team.log.info("Task Dictionary:\n" + _log_task)
-        return task_list_content

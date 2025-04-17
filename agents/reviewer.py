@@ -7,7 +7,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage
 
 # custom lib
-from prompt.write_code_prompt import CODING_SYS, CODING
 from agents.role import Role
 from agents.team import Team
 from messages.message import Message

@@ -8,8 +8,11 @@ from prompt.write_architect_prompt import (
     WRITE_ARCHITECT_SYS,
     WRITE_ARCHITECT,
     WRITE_ARCHITECT_WITH_FDBACK,
+    WRITE_ARCHITECT_FORMAT,
+    WRITE_ARCHITECT_PROMPT,
 )
-from prompt.align_prompt import ARCHITECTURE_REVIEW_PROJECT_PLAN, ARCHITECTURE_CODE
+from prompt.meta_prompt import META_PROMPT
+
 from agents.role import Role
 from agents.team import Team
 from messages.message import Message
@@ -26,73 +29,40 @@ class Architect(Role):
     system_msg: str = WRITE_ARCHITECT_SYS
     own_message: Message = None
     team: Team = None
-    review_prompt: dict[str, str] = {
-        "Project Manager": ARCHITECTURE_REVIEW_PROJECT_PLAN,
-        "Programmer": ARCHITECTURE_CODE,
-    }
     action: str = "Architecture"
 
-    def getMessage():
-        pass
-
-    def go(self):
-        print(self.profile + " " + self.name + " generate Architect......")
-        Team.log.info(
-            self.profile + " " + self.name + " generate System Architect......"
-        )
-
-        # ---------- get the information needed from SCR ----------
-        functional_requirement = self.getPRD().content
-        original_requirement = self.getOriginRequirement().content
-        # ---------- constructing prompt to LLM ----------
-        # using message template from LangChain, the result is SYS Message & HUMAN Message.
-        user_prompt_template = ChatPromptTemplate.from_template(WRITE_ARCHITECT)
-        user_prompt_msg = user_prompt_template.invoke(
-            {
-                "original_requirement": original_requirement,
-                "functional_requirement": functional_requirement,
-            }
-        )
-        user_prompt = user_prompt_msg.to_messages()[0]
-
-        system_prompt = SystemMessage(content=self.system_msg)
-
-        # ---------- prompt LLM ----------
-        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-        result = self.llm.invoke(system_prompt, user_prompt)
-
-        # ------------ logging ----------
-        Team.log.info(self.profile + " " + self.name)
-        Team.log.info(result)
-
-        # ---------- adding result to SCR(before align) ----------
-        module_msg = Message(sender=self.profile, content=result)
-        self.own_message = module_msg
-        self.update_scr(module_msg)
-
-        # ---------- writing result to local ----------
-        self.message_to_file(module_msg.content)
-
-        return
-
     def go_in_sample(self):
-        print(
-            self.profile + " " + self.name + " generate Architect variable temperature"
-        )
-        Team.log.info(
-            self.profile + " " + self.name + " generate Architect variable temperature"
-        )
+        # ---------- log info --------
+        print(self.profile + " " + self.name + " generate Architecture......")
+        Team.log.info(" ")
+        Team.log.info(self.profile + " " + self.name + " Writing Architecture...")
 
         # ---------- get the information needed from SCR ----------
-        functional_requirement = self.getPRD().content
         original_requirement = self.getOriginRequirement().content
+        functional_requirement = self.getPRD().content
+
+        # ---------- use metaprompt to let LLM write instruction
+        meta_prompt_tplt = ChatPromptTemplate.from_template(
+            WRITE_ARCHITECT_FORMAT + META_PROMPT
+        )
+
+        meta_prompt_prompt = meta_prompt_tplt.invoke(
+            {
+                "original_requirement": original_requirement,
+                "functional_requirement": functional_requirement,
+                "role_output": "Software Architecture Analysis",
+            }
+        )
+        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
+        prompt_instruction = self.llm_sample.invoke(meta_prompt_msg)
+
         # ---------- constructing prompt to LLM ----------
-        # using message template from LangChain, the result is SYS Message & HUMAN Message.
-        user_prompt_template = ChatPromptTemplate.from_template(WRITE_ARCHITECT)
+        user_prompt_template = ChatPromptTemplate.from_template(WRITE_ARCHITECT_PROMPT)
         user_prompt_msg = user_prompt_template.invoke(
             {
                 "original_requirement": original_requirement,
                 "functional_requirement": functional_requirement,
+                "instruction": prompt_instruction,
             }
         )
         user_prompt = user_prompt_msg.to_messages()[0]
@@ -100,12 +70,17 @@ class Architect(Role):
         system_prompt = SystemMessage(content=self.system_msg)
 
         # ---------- prompt LLM ----------
-        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+        Team.log.info(
+            "Prompt to generate architecture is: \n"
+            + system_prompt.content
+            + "\n"
+            + user_prompt.content
+        )
         result = self.llm_sample.invoke(system_prompt, user_prompt)
 
         # ------------ logging ----------
         Team.log.info(self.profile + " " + self.name)
-        Team.log.info(result)
+        Team.log.info("generated architecture:\n" + result)
 
         # ---------- adding result to SCR(before align) ----------
         module_msg = Message(sender=self.profile, content=result)
@@ -114,7 +89,109 @@ class Architect(Role):
 
         # ---------- writing result to local ----------
         self.message_to_file(module_msg.content)
+
         return
+
+    def go(self):
+        # ---------- log info --------
+        print(self.profile + " " + self.name + " generate Architecture......")
+        Team.log.info(self.profile + " " + self.name + " Writing Architecture...")
+
+        # ---------- get the information needed from SCR ----------
+        original_requirement = self.getOriginRequirement().content
+        functional_requirement = self.getPRD().content
+
+        # ---------- use metaprompt to let LLM write instruction
+        meta_prompt_tplt = ChatPromptTemplate.from_template(
+            WRITE_ARCHITECT_FORMAT + META_PROMPT
+        )
+
+        meta_prompt_prompt = meta_prompt_tplt.invoke(
+            {
+                "original_requirement": original_requirement,
+                "functional_requirement": functional_requirement,
+                "role_output": "Software Architecture Analysis",
+            }
+        )
+        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
+        prompt_instruction = self.llm.invoke(meta_prompt_msg)
+
+        # ---------- constructing prompt to LLM ----------
+        user_prompt_template = ChatPromptTemplate.from_template(WRITE_ARCHITECT_PROMPT)
+        user_prompt_msg = user_prompt_template.invoke(
+            {
+                "original_requirement": original_requirement,
+                "functional_requirement": functional_requirement,
+                "instruction": prompt_instruction,
+            }
+        )
+        user_prompt = user_prompt_msg.to_messages()[0]
+
+        system_prompt = SystemMessage(content=self.system_msg)
+
+        # ---------- prompt LLM ----------
+        Team.log.info(
+            "Prompt to generate Architecture is: \n"
+            + system_prompt.content
+            + "\n"
+            + user_prompt.content
+        )
+        result = self.llm.invoke(system_prompt, user_prompt)
+
+        # ------------ logging ----------
+        Team.log.info(self.profile + " " + self.name)
+        Team.log.info("Generated Architecture:\n" + result)
+
+        # ---------- adding result to SCR(before align) ----------
+        module_msg = Message(sender=self.profile, content=result)
+        self.own_message = module_msg
+        self.update_scr(module_msg)
+
+        # ---------- writing result to local ----------
+        self.message_to_file(module_msg.content)
+
+        return
+
+    # def go_in_sample(self):
+    #     print(
+    #         self.profile + " " + self.name + " generate Architect variable temperature"
+    #     )
+    #     Team.log.info(
+    #         self.profile + " " + self.name + " generate Architect variable temperature"
+    #     )
+
+    #     # ---------- get the information needed from SCR ----------
+    #     functional_requirement = self.getPRD().content
+    #     original_requirement = self.getOriginRequirement().content
+    #     # ---------- constructing prompt to LLM ----------
+    #     # using message template from LangChain, the result is SYS Message & HUMAN Message.
+    #     user_prompt_template = ChatPromptTemplate.from_template(WRITE_ARCHITECT)
+    #     user_prompt_msg = user_prompt_template.invoke(
+    #         {
+    #             "original_requirement": original_requirement,
+    #             "functional_requirement": functional_requirement,
+    #         }
+    #     )
+    #     user_prompt = user_prompt_msg.to_messages()[0]
+
+    #     system_prompt = SystemMessage(content=self.system_msg)
+
+    #     # ---------- prompt LLM ----------
+    #     Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+    #     result = self.llm_sample.invoke(system_prompt, user_prompt)
+
+    #     # ------------ logging ----------
+    #     Team.log.info(self.profile + " " + self.name)
+    #     Team.log.info(result)
+
+    #     # ---------- adding result to SCR(before align) ----------
+    #     module_msg = Message(sender=self.profile, content=result)
+    #     self.own_message = module_msg
+    #     self.update_scr(module_msg)
+
+    #     # ---------- writing result to local ----------
+    #     self.message_to_file(module_msg.content)
+    #     return
 
     def go_with_fdback(self, feedback):
         print(self.profile + " " + self.name + " generate Architect with feedback")
@@ -221,7 +298,7 @@ class Architect(Role):
         # ---------- writing Architecture to local ----------
         file_name = "architect.md"
 
-        Team.log.info(self.profile + " writting ARCHITECT")
+        Team.log.info(self.profile + " saving ARCHITECT")
         super().save_file_overwrite(
             os.path.join(Team.project_dir, file_name), msg_content
         )
@@ -246,3 +323,6 @@ class Architect(Role):
             Team.all_messages.append(module_msg)
         else:
             Team.all_messages[2] = module_msg
+
+    def getMessage():
+        pass

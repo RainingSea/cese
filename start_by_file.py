@@ -39,20 +39,26 @@ def start_project():
     # __________ from shell __________
 
     # ______________ project soft config ________________
-    #
+
     # dataset dir
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
-        f"D:\\Project\\CE\\CE\\dataset\\SD-bench\\dataset\\{category}\\{name}"
+        f"D:\Project\ATEdev\ATEDev_main\\dataset\\SD-bench\\dataset\\{category}\\{name}"
     )
     # test case dir
-    test_cases_dir = "D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase"
+    test_cases_dir = "D:\Project\ATEdev\ATEDev_main\\dataset\\SD-bench\\testcase"
 
     # project dir
-    projdir = "D:/Project/CE/CE/project/" + category + "/" + project_name + "/"
+    projdir = (
+        "D:\\Project\\ATEdev\\ATEDev_main\\project\\"
+        + category
+        + "\\"
+        + project_name
+        + "\\"
+    )
 
     # exploration numbers
-    explore_num = 3
+    explore_num = 2
     #
     # ______________ project soft config ________________
 
@@ -82,15 +88,17 @@ def start_project():
     # config temperature only (fixed 0.2)
     model = GPT(config["llm_4o"])
 
-    # different sampling model with changed temperature
-    # model 1 (with no config for top P)
+    # -------------- sample model ----------------
+    # [model 1] (with no config for top P)
     # sample_model_config = create_config_copy_with_new_temperature(
     #     config["llm_4o"], config["llm_4o"]["programmer_temperature"]
     # )
     # sample_model = GPT(sample_model_config)
 
-    # model 2 (config top p)
+    # [model 2] (config top p)
+    # 自己配温度和top p
     sample_model = GPT_topP(config["llm_4o"])
+    # --------------- sample model----------------
 
     # launch project
     team.set_origin_req(project_name, origin_req)
@@ -118,12 +126,12 @@ def start_project():
         c_programmer,
     )
 
+    # 正常情况 不测试gui和game，或者一些特殊情况
+    # 都走这个分支
+    # 类似于这种命令 python start_by_file.py --category website --name MovieRecommendationSystem.md （没有seq参数）
     if not seq:
         if category == "website":
-            # team.run_web()
-            # K的实验，迭代生成
-            # team.run_web_iterative()
-            team.run_vice()
+            team.run_web()
         else:
             team.run()
     elif seq:

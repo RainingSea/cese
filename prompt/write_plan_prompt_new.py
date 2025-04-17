@@ -8,7 +8,7 @@ functional requirement:
 {functional_requirement}
 
 architecture:
-{architecture}
+{software_architecture}
 -----
 
 ## format example
@@ -116,4 +116,64 @@ However, your main task remains to generate a corresponding code plan based on "
 
 ## action
 Follow instructions of nodes and Attention, generate output and make sure it follows the format example.
+"""
+
+
+WRITE_PLAN_FORMAT = """
+## Context
+functional requirement:
+{functional_requirement}
+
+architecture:
+{software_architecture}
+-----
+
+## format example
+[CONTENT]
+"Required packages": ,
+"Required Other language third-party packages":,
+"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,,
+"Task list": a list of filenames, prioritized by dependency order,
+"Shared Knowledge": ,
+
+[/CONTENT]
+
+## nodes: "<node>: <type>  # <instruction>"
+
+
+## constraint
+Language: Please use the same language as Human INPUT.
+Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+If you are doing website development, please do not encrypt the account password for the login function.
+"""
+
+WRITE_PLAN_PROMPT = """
+## Context
+functional requirement:
+{functional_requirement}
+
+architecture:
+{software_architecture}
+-----
+
+## format example
+[CONTENT]
+"Required packages": ,
+"Required Other language third-party packages":,
+"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,,
+"Task list": a list of filenames, prioritized by dependency order,
+"Shared Knowledge": ,
+
+[/CONTENT]
+
+## <instruction>
+{instruction}
+
+## constraint
+Language: Please use the same language as Human INPUT.
+Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+If you are doing website development, please do not encrypt the account password for the login function.
+
+## action
+Follow instructions, generate output and make sure it follows the format example.
 """

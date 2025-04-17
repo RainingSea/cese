@@ -53,14 +53,10 @@ class C_Programmer(Role):
 
         # ---------- get the information needed from SCR ----------
         architecture = self.getArchiture().content
-        task_plan = self.getProjectPlan().content
+        functional_requirement = self.getPRD().content
 
         # --------------- decompose and assign tasks to programmer
 
-        # task_dict = self.task_list_extract()
-
-        # --------------- get counter info -----------------
-        # counter_reason, counter_code = self.read_counter()
         # ---------- constructing prompt to LLM ----------
         system_prompt = SystemMessage(content=CODING_SYS)
         # use counter prompt
@@ -69,7 +65,7 @@ class C_Programmer(Role):
             user_prompt_msg = user_prompt_template.invoke(
                 {
                     "architecture": architecture,
-                    "task_plan": task_plan,
+                    "functional_requirements": functional_requirement,
                     "ce_feedback": ce_feedback,
                 }
             )
@@ -109,58 +105,6 @@ class C_Programmer(Role):
         self.own_message = code_msg
 
         # Team.all_messages.append(code_msg)
-
-    def check_data_format(self):
-        self_code = self.own_message.content
-        CHECKING_FORMAT = """The following is a generated code that requires your review. The requirements are as follows:  
-1. Check the text files to know whether different pieces of data are separated by `|`, `,`, or another delimiter.  
-2. Search the code for the corresponding sections that handle these text files, and verify whether the delimiter used in the code matches the one used in the text files. If there is a mismatch, you need to modify the code to ensure the delimiter matches that of the text files. 
-
-For example, if txt file has content like: user|userpassword, and the code(suppose user.py) handle this data with code: name, password = line.strip().split(',').
-then you should change the code to: name, password = line.strip().split('|') to match the txt file. 
-Conversely, if the txt file uses "," and the code uses "|", then you also need to adjust the code to use commas ",".
-
-The codes to review is:{code}.
-
-When providing the output, you only need to output the improved code with the following requirements:
-# Format Example 
-*** main.py
-```python
-...
-```
-
-*** ui.py
-```python
-...
-```
-
-*** a.txt
-```txt
-...
-```
-# Instruction:
-1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
-2. Only write code result, do not output any other content in the start or in the end.
-3. If you encounter files that are similar to Python but have a `.txt` format, you can ignore them.
-        """
-        user_prompt_template = ChatPromptTemplate.from_template(CHECKING_FORMAT)
-        user_prompt_msg = user_prompt_template.invoke({"code": self_code})
-
-        user_prompt = user_prompt_msg.to_messages()[0]
-        system_prompt = SystemMessage(content=CODING_SYS)
-        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
-        code_result = self.llm.invoke(system_prompt, user_prompt)
-        Team.log.info("\n" + code_result)
-        # ________ store in self code dict ________
-        self.compare_code(code_result)
-        code_result_split = code_result.split("*** ")
-        for i in range(1, len(code_result_split)):
-            file_name, file_content = self.match(code_result_split[i])
-            self.code_base[file_name] = file_content
-        # self.message_to_file(code_result)
-
-        code_msg = Message(sender=self.profile, content=code_result)
-        self.own_message = code_msg
 
     def read_code_base(self):
         # code could also include other types file, like txt.
@@ -389,36 +333,3 @@ When providing the output, you only need to output the improved code with the fo
 
     def go_inter(self):
         pass
-
-    def read_counter(self):
-        # input counter example path
-        counter_path = Path(
-            "D:\\02-Project\\02-Align\models\RTADev\Altdev\project\website\RecipeHub_20241220151721 counter"
-        )
-        counter_codes_path = [
-            "review_code/templates/browse_recipes.html",
-            "review_code/recipe_manager.py",
-        ]
-        counter_codes = ""
-        for ccp in counter_codes_path:
-            counter_codes += ccp.split("/")[-1]
-            counter_codes += read_file_2_line(counter_path / Path(ccp))
-            counter_codes += "\n"
-
-        counter_reason_path = counter_path / "counter_reason.txt"
-        counter_reason = read_file_2_line(counter_reason_path)
-
-        return counter_reason, counter_codes
-
-    def task_list_extract(self):
-        task_plan = self.getProjectPlan().content
-        task_dict = ast.literal_eval(task_plan)
-        task_list_content = task_dict["Task list"]
-        # print(task_list_content)
-        print("Task Dictionary:")
-        _log_task = ""
-        for key, value in task_list_content.items():
-            print(f"Key: {key}, Value: {value}")
-            _log_task = _log_task + f"Key: {key}, Value: {value}" + "\n"
-        Team.log.info("Task Dictionary:\n" + _log_task)
-        return task_list_content

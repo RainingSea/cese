@@ -60,6 +60,8 @@ class Team(BaseModel):
     def run_test(self):
 
         self.roles["Product Manager"].go()
+        self.roles["Architect"].go_in_sample()
+        self.roles["Programmer"].go_in_sample()
 
     def run_self_evo(self):
         previous_work_dir = Path.cwd()
@@ -167,7 +169,6 @@ class Team(BaseModel):
             Team.active_role(self.roles["Product Manager"].profile)
 
         # make ce dirs and copy the prd to each dir
-        # 这里的数字就是探索的数量
         ce_projects_paths = make_ce_dirs(Team.project_dir, self.explore_num)
 
         # _________________________ [ EXPLORE ] ____________________________
@@ -175,18 +176,16 @@ class Team(BaseModel):
 
         for j in range(len(ce_projects_paths)):
             print(f"\ngenerate the architect of {j}th counter project\n")
+            # temporarily change project dir to a ce folder
             Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
             Team.project_dir = ce_projects_paths[j]
 
             self.roles["Product Manager"].go_inter()
-            # sample architect generate
             self.roles["Architect"].go_in_sample()
-            # sample task plan generate
-            self.roles["Project Manager"].go_in_sample()
-            # temporarily change project dir to a ce folder
-
             self.roles["Programmer"].go_in_sample()
+            
             self.roles["Programmer"].code_base.clear()
+            
             code_base_dir = os.path.join(Team.project_dir, "code")
             port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
@@ -213,7 +212,8 @@ class Team(BaseModel):
         Team.project_dir = pervious_project_dir
         Team.incremental_base_dir = pervious_project_dir
 
-        # save feedback of this turn to a local txt file (formatted)
+        # save feedback of this turn to a log file (formatted)
+        # 这里最好是写入到一个txt中，但我不知道为什么写入txt，程序就会异常退出
         save = True
         if save:
             for key, value in ce_feedbacks.items():
@@ -233,20 +233,16 @@ class Team(BaseModel):
                 )
 
         # _________________________ [ REGENERATE ] ____________________________
-        # _______________ use feedback to generate document _______________
-
+        
         self.roles["Product Manager"].go_inter()
         self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
-        self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
 
         ce_feedback = ce_feedbacks["code"]
         if ce_feedback:
             if ce_feedback == "CodeIsGood":
                 print("Dev execute END")
                 return
-
-            # Team.log.info("### ceaug feedback\n" + str(ce_feedback))
-            # use feedback from counter example to augment coding
+            
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
 
@@ -279,11 +275,7 @@ class Team(BaseModel):
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
-
-            # self.roles["C_Programmer"].check_data_format()
-            # self.roles["C_Programmer"].message_to_file(
-            #     self.roles["C_Programmer"].own_message.content
-            # )
+                    
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()
@@ -493,8 +485,6 @@ class Team(BaseModel):
             self.roles["Product Manager"].go_inter()
             # sample architect generate
             self.roles["Architect"].go_in_sample()
-            # sample task plan generate
-            self.roles["Project Manager"].go_in_sample()
             # temporarily change project dir to a ce folder
 
             self.roles["Programmer"].go_in_sample()

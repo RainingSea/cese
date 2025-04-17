@@ -34,20 +34,6 @@ class Product_Manager(Role):
         # ---------- get the information needed from SCR ----------
         original_requirement = self.getOriginRequirement().content
 
-        # ---------- use metaprompt to let LLM write prompt to generate PRD
-        meta_prompt_tplt = ChatPromptTemplate.from_template(META_PROMPT)
-        meta_prompt_prompt = meta_prompt_tplt.invoke(
-            {
-                "role_input": "original_requirement",
-                "role_output": "functional requirements",
-            }
-        )
-        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
-        result = self.llm.invoke(meta_prompt_msg)
-
-        Team.log(result)
-        return
-
         # ---------- constructing prompt to LLM ----------
         system_prompt = SystemMessage(content=WRITE_PRD_SYS)
         user_prompt_template = ChatPromptTemplate.from_template(WRITE_PRD)
@@ -61,7 +47,7 @@ class Product_Manager(Role):
 
         # ---------- logging -----------
         Team.log.info(self.profile + " " + self.name)
-        Team.log.info(result)
+        Team.log.info("\n\n" + result)
 
         # ---------- adding result to SCR(before align) ----------
         prd_msg = Message(sender=self.profile, content=result)

@@ -17,7 +17,7 @@ from utils import utils
 def chat_to_LLM(messages):
 
     client = OpenAI(
-        api_key="sk-nF4KFp0FggnT6bfpH2JwYhRsFWnPpfohEAtERbHlMXCIdlki",  # 只需要填写key就可以了
+        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",  # 只需要填写key就可以了
         base_url="https://api.chatanywhere.tech",
     )
     response = client.chat.completions.create(
@@ -474,32 +474,20 @@ def test_code_generate(
     """
 
     max_score = -1.0
-    code_feedback_selected = ""
-    all_unit_test_results = []
-    all_code_feedbacks = []
-    all_task_plan_feedbacks = []
-    all_architecture_feedbacks = []
 
     # ____________________ make a dir to store test result ___________________
 
     for i in range(len(project_dirs)):
-
-        if not os.path.exists(os.path.join(project_dirs[i], "test_result")):
-            # like, DailyJournalApp/sample_unit_test_result
-            os.makedirs(os.path.join(project_dirs[i], "test_result"))
-        unit_test_result_dir = os.path.join(project_dirs[i], "test_result")
-
-        print("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
-        log.info("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
+        print(
+            "Ready Generate Auto Test Code # # # # # # # # # # # # " + project_dirs[i]
+        )
+        log.info(
+            "Ready Generate Auto Test Code # # # # # # # # # # # # " + project_dirs[i]
+        )
 
         project_dir = project_dirs[i]
-
-        # 抽取代码，架构，计划
         code_base = read_codebase(os.path.join(project_dir, "code"))
         log.info("read tested code:\n" + code_base)
-        architecture = read_file(project_dir, "architect.md")
-        task_plan = read_file(project_dir, "task plan.md")
-
         # 编写测试代码testcode.py
         test_code = autogen(project_dir, project_category, project_name, testcase_dir)
         test_code = utils.remove_time_sleep_after_popen(test_code)
@@ -523,7 +511,6 @@ def ceaug(
     code_feedback_selected = ""
     all_unit_test_results = []
     all_code_feedbacks = []
-    all_task_plan_feedbacks = []
     all_architecture_feedbacks = []
 
     # ____________________ make a dir to store test result ___________________
@@ -544,7 +531,6 @@ def ceaug(
         code_base = read_codebase(os.path.join(project_dir, "code"))
         log.info("read tested code:\n" + code_base)
         architecture = read_file(project_dir, "architect.md")
-        task_plan = read_file(project_dir, "task plan.md")
 
         # 编写测试代码testcode.py
         test_code = autogen(project_dir, project_category, project_name, testcase_dir)
@@ -560,8 +546,6 @@ def ceaug(
 
         # 切回来目录
         os.chdir(base_dir)
-        # print("\n --------- Unit Test Result is ----------")
-        # print(unit_test_result["output"])
         print()
         # _________________ ask LLM to get feedback ________________
         # 1. ask LLM to analyze the unit test results
@@ -584,7 +568,7 @@ def ceaug(
         unit_test_result_analysis = chat_to_LLM(messages)
 
         print("1-| unit test result analysis |")
-        log.info("1-| unit test result analysis |")
+        log.info("1-| General unit test result analysis |")
         print(unit_test_result_analysis)
         log.info(unit_test_result_analysis)
         # input("input to analyze code relevance")
@@ -596,7 +580,6 @@ def ceaug(
         messages.append({"role": "assistant", "content": unit_test_result_analysis})
         # for Architecture feedback and Task Plan feedback
         architecture_messages = messages.copy()
-        task_plan_messages = messages.copy()
 
         # m_4, ask llm to summarize the unit test result
         messages.append(
@@ -717,30 +700,19 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
                     ),
                 }
             )
+            log.info(architecture_messages)
             architecture_feedback = chat_to_LLM(architecture_messages)
 
-            task_plan_messages.append(
-                {
-                    "role": "user",
-                    "content": REFINE_TASK_PLAN_PROMPT.format(task_plan=task_plan),
-                }
-            )
-            task_plan_feedback = chat_to_LLM(task_plan_messages)
-
-            # _______________ 根据单元测试得到的反馈 ______________
             code_feedback = chat_to_LLM(messages)
+
             code_feedback_selected = code_feedback
             print("Code Feedback")
             print(code_feedback)
             log.info("Code Feedback\n" + code_feedback)
-            # input("input to get architecture feedback")
+
             print("Architecture Feedback")
             print(architecture_feedback)
             log.info("Architecture Feedback\n" + architecture_feedback)
-            # input("input to get plan feedback")
-            print("Plan Feedback")
-            print(task_plan_feedback)
-            log.info("Plan Feedback\n" + task_plan_feedback)
 
             with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
                 content = (
@@ -752,15 +724,11 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
                     + code_feedback
                     + "\n#_#architecture_feedback#_#\n"
                     + architecture_feedback
-                    + "\n#_#task_plan_feedback#_#\n"
-                    + task_plan_feedback
                 )
                 file.write(content)
 
             all_code_feedbacks.append(code_feedback)
             all_architecture_feedbacks.append(architecture_feedback)
-            all_task_plan_feedbacks.append(task_plan_feedback)
-
             all_unit_test_results.append(unit_test_result)
 
     if flag == "ite_fdback":
@@ -875,59 +843,10 @@ Mind: do not summary advice like using json or like enhancing data encryption in
         print(arch_summaries_summary)
         log.info("Architecture Summary\n" + arch_summaries_summary)
 
-        # plan summary
-        plan_sum_messages = []
-        plan_all_summaries = ""
-        for p in range(len(all_task_plan_feedbacks)):
-            plan_all_summaries = (
-                plan_all_summaries
-                + "### the "
-                + str(p + 1)
-                + "th"
-                + " project result:\n"
-                + f"{all_task_plan_feedbacks[p]}\n\n"
-            )
-
-        PROMPT_FOR_PLAN_MERGE = """You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of task-related feedback for a software development project and produce a concise, unified summary.You will receive multiple feedback reports, each containing various suggestions, including areas for improvement and potential enhancements. Your task is to extract suggestions that are useful for generating new plans and meet the following requirements:
-1.Categorize Suggestions: Group the suggestions into the following categories:
-Specific Areas for Improvement
-Suggested Enhancements
-2.Merge Similar Suggestions: Combine identical or highly similar suggestions into a single statement, using clear and concise language.
-3.Retain Unique Suggestions: Keep unique suggestions that appear in only one feedback report but are valuable for improvement. Highlight their source where applicable.
-4.Organized Output: Structure the output clearly and logically by category and priority (if mentioned), making it easy for planners to incorporate into new plans.
-output example:
-### Specific Areas for Improvement:  
-- Add logout functionality and error reporting for failed login/registration attempts.  
-- Clarify task descriptions for edge cases, including invalid input, duplicate registrations, and empty feedback submissions.  
-- Break down complex tasks (e.g., FeedbackManager implementation) into subtasks focusing on validation and file handling.  
-
-### Suggested Enhancements:  
-- Prioritize user authentication tasks, followed by feedback submission and navigation.  
-- Specify expected behaviors after user actions, such as feedback confirmation messages.  
-- Implement basic form validations to prevent invalid or empty submissions.  
-Use this format to summarize the feedback provided, ensuring the suggestions are actionable for creating improved new plans.
-
-the content you need to summarize is:\n{summaries}. \nfollow the example, output you summary.
-        """
-        plan_summary_merge_values = {"summaries": plan_all_summaries}
-        plan_sum_messages.append(
-            format_prompt(PROMPT_FOR_PLAN_MERGE, plan_summary_merge_values)
-        )
-        print(plan_sum_messages[0]["content"])
-        log.info(
-            "prompt for plan summaries summary:\n" + plan_sum_messages[0]["content"]
-        )
-        plan_summaries_summary = chat_to_LLM(plan_sum_messages)
-        print("Plan Summary")
-        print(plan_summaries_summary)
-        log.info("Plan Summary\n" + plan_summaries_summary)
-
-        # get respective feedback: architecture suggestion, task plan suggestion, code suggestion
-        # return 3 feedback
+        # get respective feedback: architecture suggestion, code suggestion
 
         feedback_result = {
             "arch": arch_summaries_summary,
-            "plan": plan_summaries_summary,
             "code": code_summaries_summary,
         }
         return max_score, feedback_result
@@ -935,10 +854,8 @@ the content you need to summarize is:\n{summaries}. \nfollow the example, output
     # if no code feedback generated
     if code_feedback_selected:
         print("final selected:\n" + code_feedback_selected)
-        # log.info("final selected:\n" + code_feedback_selected)
         return max_score, code_feedback_selected
     else:
-        # code has no problem, maybe other fact"
         return max_score, "CodeIsGood"
 
 

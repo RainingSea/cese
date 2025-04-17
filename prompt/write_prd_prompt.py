@@ -8,8 +8,6 @@ Note that software functional requirements just follow the Core Features part of
 
 
 WRITE_PRD = """
-# Context
-## system description
 {original_requirement}
 
 -----
@@ -33,7 +31,7 @@ general overview of the project
 Format: output wrapped inside [OUTPUT][/OUTPUT] like format example, nothing else.
 
 # Action
-follow Instruction, Carefully ouput only functional requrirement based on the original system description
+follow Instruction, Carefully output only functional requrirement based on the original system description
 Aim to achieve functional requirements, only require to implement demo.
 do not output ```plaintext or other ``` in the start and the end, output directly.
 """

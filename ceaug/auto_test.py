@@ -12,7 +12,23 @@ from ceaug.auto_test_prompt import (
     prompt_for_game_testing,
     prompt_for_gui_testing,
     prompt_for_web_testing,
+    PROMPT_FOR_TESTCASE,
 )
+
+
+def chat_to_LLM(messages):
+
+    client = OpenAI(
+        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",  # 只需要填写key就可以了
+        base_url="https://api.chatanywhere.tech",
+    )
+    response = client.chat.completions.create(
+        messages=messages,
+        model="gpt-4o-mini",
+        # stream=True, # 这个开了要用chunk的调用方法
+    )
+    # print(response.choices[0].message.content, end="", flush=True)
+    return response.choices[0].message.content
 
 
 ### reletive path: codebase
@@ -55,7 +71,7 @@ def read_md_file(file_path):
 ### gpt api
 def call_openai_api(prompt, model):
     client = OpenAI(
-        api_key="sk-nF4KFp0FggnT6bfpH2JwYhRsFWnPpfohEAtERbHlMXCIdlki",
+        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",
         base_url="https://api.chatanywhere.tech",
     )
     try:
@@ -140,10 +156,21 @@ def autogen(project_path, category, project_name, _testcase_path):
         return testcode
     # 只处理文件夹
     if os.path.isdir(project_path):
+        # 生成测试用例
+        # 读取需求文档，路径为project_path/prd.md
+        # prd = read_file_2_line()
+        # testcase_prompt = PROMPT_FOR_TESTCASE.replace("{prd}", prd)
+        # testcase_md = call_openai_api(prompt=testcase_prompt, model="gpt-4o-mini")
+        # testcase_path = os.path.join(project_path, f"TestCases_{project_name},md")
+        # with open(testcase_path, "w", encoding="utf-8") as file:
+        #     file.write(testcase_md)
+        # 调用模型，生成TestCases_{project_name}.md文件并保存
+
         # 确保代码库和测试用例路径正确
         codebase_path = os.path.join(project_path, "code")
         # 换成绝对路径
         # 后期这里要更换，就是不刷数据集的情况下：在命令行里提供是否包含测试用例的参数，如果包含，就按类似这种方法提取；如果不包含，就生成测试用例，并且返回测试用例路径
+
         testcase_path = _testcase_path
         testcase_path = os.path.join(
             # "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\testcase",
@@ -167,7 +194,7 @@ def autogen(project_path, category, project_name, _testcase_path):
         prompt = prompt.replace("{codebase}", codebase)
         prompt = prompt.replace("{testcase}", testcase)
         # 调用OpenAI API获取测试代码
-        test_code = call_openai_api(prompt=prompt, model="gpt-4o")
+        test_code = call_openai_api(prompt=prompt, model="gpt-4o-mini")
         print(f"Test code:\n{test_code}")
         # 保存生成的测试代码并运行测试
         testcode_path = save_test_code(

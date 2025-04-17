@@ -4,7 +4,6 @@ Aim to achieve functional requirements, only require to implement demo.
 If the original requirements have data storage requirements, you need to design a simple data storage method for the software. Do not use SQL datasets. Follow the data storage requirements in the software requirements(including data format, storage requirements, etc.).
 """
 
-
 WRITE_ARCHITECT = """
 ## Context
 original_requirement
@@ -92,4 +91,71 @@ Even if there are suggestions regarding data encryption, please do not consider 
 
 ## action
 Follow instructions of nodes and Attention, refer Additional Notes, generate output and make sure it follows the format example.
+"""
+
+WRITE_ARCHITECT_FORMAT = """
+##Context
+
+{original_requirement}
+
+## functional requirements
+{functional_requirement}
+-----
+## format example
+
+"Implementation approach": "",
+"UI design":"",
+"Data Storage":"If software requires a data storage, you should follow the rules: Data will be stored in local files. Different types of data will be stored in separate files. You should define the file by yourself in advance. Do not use SQL database."
+"File list":["main.py","game.py","templates/login.html","users.txt"], Always write a main.py here.
+"Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n    class Index {{\n        -KnowledgeBase knowledge_base\n        +create_index(data: dict)\n        +query_index(query: str) list\n    }}\n    class Ranking {{\n        +rank_results(results: list) list\n    }}\n    class Summary {{\n        +summarize_results(results: list) str\n    }}\n    class KnowledgeBase {{\n        +update(data: dict)\n        +fetch_data(query: str) dict\n    }}\n    Main --> SearchEngine\n    SearchEngine --> Index\n    SearchEngine --> Ranking\n    SearchEngine --> Summary\n    Index --> KnowledgeBase\n",
+
+## <instruction>
+
+
+## constraint
+Language: Please use the same language as Human INPUT.
+Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+If you are doing website development, do not encrypt the account password for the login function.
+
+# Attention
+1. If a feature of software requires a GUI, you also need to carefully consider the UI components that this feature will require and its relationship to the main UI in Architecture.
+2. Aim to achieve functional requirements, only require to implement a demo.
+3. If project requires data storage, follow the requirement of data storage, implement a simple storage. Do not use SQL database.
+4. Organize related functionalities into a single Python file to avoid creating too many files.
+5. do not output ```plaintext or other ``` in the start and the end, output directly.
+"""
+
+WRITE_ARCHITECT_PROMPT = """
+## Context
+{original_requirement}
+
+### functional requirements
+{functional_requirement}
+-----
+## format example
+
+"Implementation approach": "",
+"UI design":"",
+"Data Storage":"If software requires a data storage, you should follow the rules: Data will be stored in local files. Different types of data will be stored in separate files. You should define the file by yourself in advance. Do not use SQL database."
+"File list":["main.py","game.py","templates/login.html","users.txt"], Always write a main.py here.,
+"Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n    class Index {{\n        -KnowledgeBase knowledge_base\n        +create_index(data: dict)\n        +query_index(query: str) list\n    }}\n    class Ranking {{\n        +rank_results(results: list) list\n    }}\n    class Summary {{\n        +summarize_results(results: list) str\n    }}\n    class KnowledgeBase {{\n        +update(data: dict)\n        +fetch_data(query: str) dict\n    }}\n    Main --> SearchEngine\n    SearchEngine --> Index\n    SearchEngine --> Ranking\n    SearchEngine --> Summary\n    Index --> KnowledgeBase\n",
+
+## <instruction>
+{instruction}
+
+
+## constraint
+Language: Please use the same language as Human INPUT.
+Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+If you are doing website development, do not encrypt the account password for the login function.
+
+# Attention
+1. If a feature of software requires a GUI, you also need to carefully consider the UI components that this feature will require and its relationship to the main UI in Architecture.
+2. Aim to achieve functional requirements, only require to implement a demo.
+3. If project requires data storage, follow the requirement of data storage, implement a simple storage. Do not use SQL database.
+4. Organize related functionalities into a single Python file to avoid creating too many files.
+5. do not output ```plaintext or other ``` in the start and the end, output directly.
+
+## action
+Follow instructions of nodes and Attention, generate output and make sure it follows the format example.
 """
