@@ -151,28 +151,18 @@ class Team(BaseModel):
 
     # 跑实验web特调版run()方法
     def run_web(self):
+        # root work dir
         previous_work_dir = Path.cwd()
+        # root project dir
         pervious_project_dir = Team.project_dir
 
-        inter_launch = False
+        # Generate PRD, no exploration
+        self.roles["Product Manager"].go()
 
-        # _______________ generate PRD, Architect, Task Plan _______________
-        if inter_launch:
-            # 以下代码暂时用不到了不用管
-            Team.incremental_base_dir = os.path.join(
-                "D:\Project\Datasets\SD-bench\codebase\采样需要", Team.project_name
-            )
-            self.roles["Product Manager"].go_inter()
-
-        else:
-            self.roles["Product Manager"].go()
-            Team.active_role(self.roles["Product Manager"].profile)
-
-        # make ce dirs and copy the prd to each dir
+        # make ce dirs and copy the PRD to each dir
         ce_projects_paths = make_ce_dirs(Team.project_dir, self.explore_num)
 
         # _________________________ [ EXPLORE ] ____________________________
-        # generate sampling architect
 
         for j in range(len(ce_projects_paths)):
             print(f"\ngenerate the architect of {j}th counter project\n")
@@ -182,6 +172,7 @@ class Team(BaseModel):
 
             self.roles["Product Manager"].go_inter()
             self.roles["Architect"].go_in_sample()
+            self.roles["Project Manager"].go_in_sample()
             self.roles["Programmer"].go_in_sample()
 
             self.roles["Programmer"].code_base.clear()
@@ -255,7 +246,7 @@ class Team(BaseModel):
             init = True
 
             self.roles["C_Programmer"].go("init", "0")
-            
+
             if pass_feedback:
                 for passfd in pass_feedback:
                     self.roles["C_Programmer"].go(passfd, "1")

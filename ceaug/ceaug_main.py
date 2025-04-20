@@ -39,9 +39,10 @@ def make_ce_dirs(project_dir, ce_nums):
     make ce dirs and copy no sampling docuement
     """
     ce_project_paths = []
-    # make dir for the whole counter examples
+    # make dirs for exploration
     if not os.path.exists(os.path.join(project_dir, "ce")):
         os.makedirs(os.path.join(project_dir, "ce"))
+
     ce_project_path = os.path.join(project_dir, "ce")
     for i in range(ce_nums):
         ce_path = os.path.join(ce_project_path, f"ce_{i}")
@@ -530,6 +531,7 @@ def ceaug(
         # 抽取代码，架构，计划
         code_base = read_codebase(os.path.join(project_dir, "code"))
         log.info("read tested code:\n" + code_base)
+        architecture = read_file(project_dir, "architect.md")
         architecture = read_file(project_dir, "architect.md")
 
         # 编写测试代码testcode.py
