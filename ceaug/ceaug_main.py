@@ -17,7 +17,7 @@ from utils import utils
 def chat_to_LLM(messages):
 
     client = OpenAI(
-        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",  # 只需要填写key就可以了
+        api_key="sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA",  # 只需要填写key就可以了
         base_url="https://api.chatanywhere.tech",
     )
     response = client.chat.completions.create(
@@ -722,7 +722,7 @@ The content you need to analyze and format is as follows: {summaries}.\n"""
                     + unit_test_result_analysis
                     + "\n#_#code_feedback#_#\n"
                     + code_feedback
-                    + "\n#_#architecture_feedback#_#\n"
+                    + "\n\n\n#_#architecture_feedback#_#\n"
                     + architecture_feedback
                 )
                 file.write(content)
@@ -1170,6 +1170,7 @@ please provide improvement suggestions in the following areas:
      - Text file storage works well at this scale.
    - **Weaknesses:**
      - UI lacks filtering and sorting features.
+     - files arrangement is not perfect.
      - Text files lack organization, making scaling difficult.
 
 2. **Specific Problem Areas:**
@@ -1179,6 +1180,7 @@ please provide improvement suggestions in the following areas:
 3. **Architecture Enhancements:**
    - **Implementation:** Flask is suitable, but separate models and views for better clarity.
    - **UI Design:** Add filtering, searching, and sorting.
+   - **File list:** adjust files XXX.
    - **Data Storage:** Add users.txt to store user accounts
    - **Data Structures:** Ensure classes focus on single responsibilities.
 

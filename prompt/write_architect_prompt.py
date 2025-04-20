@@ -94,24 +94,23 @@ Follow instructions of nodes and Attention, refer Additional Notes, generate out
 """
 
 WRITE_ARCHITECT_FORMAT = """
-##Context
+[1] Context
 
 {original_requirement}
 
 ## functional requirements
 {functional_requirement}
 -----
-## format example
-
+[2] Format example
+[CONTENT]
 "Implementation approach": "",
 "UI design":"",
 "Data Storage":"If software requires a data storage, you should follow the rules: Data will be stored in local files. Different types of data will be stored in separate files. You should define the file by yourself in advance. Do not use SQL database."
-"File list":["main.py","game.py","templates/login.html","users.txt"], Always write a main.py here.
-"Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n    class Index {{\n        -KnowledgeBase knowledge_base\n        +create_index(data: dict)\n        +query_index(query: str) list\n    }}\n    class Ranking {{\n        +rank_results(results: list) list\n    }}\n    class Summary {{\n        +summarize_results(results: list) str\n    }}\n    class KnowledgeBase {{\n        +update(data: dict)\n        +fetch_data(query: str) dict\n    }}\n    Main --> SearchEngine\n    SearchEngine --> Index\n    SearchEngine --> Ranking\n    SearchEngine --> Summary\n    Index --> KnowledgeBase\n",
+"File list": ["main.py","game.py","templates/login.html","users.txt"] # Only need relative paths. ALWAYS write a main.py here.
+"Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n  ...,
+[/CONTENT]
 
-## <instruction>
-
-
+[3] <instruction>
 ## constraint
 Language: Please use the same language as Human INPUT.
 Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
@@ -126,21 +125,22 @@ If you are doing website development, do not encrypt the account password for th
 """
 
 WRITE_ARCHITECT_PROMPT = """
-## Context
+[1] Context
 {original_requirement}
 
 ### functional requirements
 {functional_requirement}
 -----
-## format example
-
+[2] Format example
+[CONTENT]
 "Implementation approach": "",
 "UI design":"",
 "Data Storage":"If software requires a data storage, you should follow the rules: Data will be stored in local files. Different types of data will be stored in separate files. You should define the file by yourself in advance. Do not use SQL database."
-"File list":["main.py","game.py","templates/login.html","users.txt"], Always write a main.py here.,
-"Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n    class Index {{\n        -KnowledgeBase knowledge_base\n        +create_index(data: dict)\n        +query_index(query: str) list\n    }}\n    class Ranking {{\n        +rank_results(results: list) list\n    }}\n    class Summary {{\n        +summarize_results(results: list) str\n    }}\n    class KnowledgeBase {{\n        +update(data: dict)\n        +fetch_data(query: str) dict\n    }}\n    Main --> SearchEngine\n    SearchEngine --> Index\n    SearchEngine --> Ranking\n    SearchEngine --> Summary\n    Index --> KnowledgeBase\n",
+"File list": ["main.py","game.py","templates/login.html","users.txt"] # Only need relative paths. ALWAYS write a main.py here.
+"Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n",
+[/CONTENT]
 
-## <instruction>
+[3] <instruction>
 {instruction}
 
 
@@ -156,6 +156,6 @@ If you are doing website development, do not encrypt the account password for th
 4. Organize related functionalities into a single Python file to avoid creating too many files.
 5. do not output ```plaintext or other ``` in the start and the end, output directly.
 
-## action
+[4] Action
 Follow instructions of nodes and Attention, generate output and make sure it follows the format example.
 """

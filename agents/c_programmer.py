@@ -66,7 +66,6 @@ class C_Programmer(Role):
                 {
                     "architecture": architecture,
                     "functional_requirements": functional_requirement,
-                    "ce_feedback": ce_feedback,
                 }
             )
         elif flag == "1":

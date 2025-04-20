@@ -58,7 +58,7 @@ def start_project():
     )
 
     # exploration numbers
-    explore_num = 2
+    explore_num = 3
     #
     # ______________ project soft config ________________
 
@@ -195,7 +195,7 @@ def create_config_copy_with_new_temperature(
 def model_config():
     # loading config for different models, include Qwen and GPT
     config = read_yaml("./0_config/config.yaml")
-    dashscope.api_key = config["Qwen"]["api_key"]
+    # dashscope.api_key = config["Qwen"]["api_key"]
     return config
 
 

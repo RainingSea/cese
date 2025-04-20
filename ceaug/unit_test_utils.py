@@ -53,7 +53,7 @@ def read_md_file(file_path):
 def chat_to_LLM(messages):
 
     client = OpenAI(
-        api_key="sk-nF4KFp0FggnT6bfpH2JwYhRsFWnPpfohEAtERbHlMXCIdlki",  # 只需要填写key就可以了
+        api_key="sk-JQiygLRku49PwPTtPTax1mcy97OFAlO4EagYvHWlCVBVTUmC",  # 只需要填写key就可以了
         base_url="https://api.chatanywhere.tech",
     )
     response = client.chat.completions.create(
@@ -68,7 +68,7 @@ def chat_to_LLM(messages):
 ### gpt api
 def call_openai_api(prompt, model):
     client = OpenAI(
-        api_key="sk-nF4KFp0FggnT6bfpH2JwYhRsFWnPpfohEAtERbHlMXCIdlki",
+        api_key="sk-JQiygLRku49PwPTtPTax1mcy97OFAlO4EagYvHWlCVBVTUmC",
         base_url="https://api.chatanywhere.tech",
     )
     try:

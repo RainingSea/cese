@@ -5,7 +5,7 @@ In addition to writing code, you may also need to complete the data files in the
 """
 
 CODING = """
-# Context
+[1] Context
 ## Functional Requirements
 {functional_requirements}
 
@@ -13,7 +13,7 @@ CODING = """
 {architecture}
 
 -----
-# Format Example 
+[2] Format Example 
 *** main.py
 ```python
 ...
@@ -30,7 +30,7 @@ admin|admin123
 user1|user123
 ```
 -----
-# Instruction: Based on the context, follow "Format example", write code.
+[3] Instruction: Based on the context, follow "Format example", write code.
 
 ## ATTENTION
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
@@ -68,6 +68,7 @@ If you are doing website development, do not encrypt the account password for th
 """
 
 CODING_FD = """
+[1] Context
 ## Existing Code
 {exist_code}
 
@@ -75,7 +76,7 @@ CODING_FD = """
 {ce_feedback}
 
 -----
-# Format Example 
+[2] Format Example 
 *** main.py
 ```python
 ...
@@ -92,7 +93,7 @@ admin|admin123
 user1|user123
 ```
 -----
-# Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
+[3] Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
 ## ATTENTION
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
@@ -127,7 +128,7 @@ Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
 
-# Regarding the Experience and Lessons
+[4] Regarding the Experience and Lessons
 In this section, a number of successful or failed experiences accumulated from past implementations of this project are provided. 
 Pay attention to all these functions.
 For the test pass functionality, you should refer the accompanying pseudocode or logic to implement corresponding features in your project. 
@@ -136,20 +137,15 @@ Additionally, some features were previously implemented unsuccessfully, pay atte
 
 # 第一次生成代码时的prompt，需要加design和plan，后续根据反馈改的就不需要加了
 CODING_C = """
-# Context
-
-# Context
+[1] Context
 ## Functional Requirements
 {functional_requirements}
 
 ## Design
 {architecture}
 
-## Experience and Lessons
-{ce_feedback}
-
 -----
-# Format Example 
+[2] Format Example 
 *** main.py
 ```python
 ...
@@ -166,7 +162,7 @@ admin|admin123
 user1|user123
 ```
 -----
-# Instruction: Based on the context, follow "Format example", write code.
+[3] Instruction: Based on the context, follow "Format example", write code.
 ## ATTENTION
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
@@ -200,19 +196,12 @@ If you are doing Game Development, do not follow the rules of Website and Game d
 Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
-
-# Regarding the Experience and Lessons
-In this section, a number of successful or failed experiences accumulated from past implementations of this project are provided. 
-Pay attention to all these functions.
-For the test pass functionality, you should refer the accompanying pseudocode or logic to implement corresponding features in your project. 
-Additionally, some features were previously implemented unsuccessfully, pay attention to these function failures or error test, carefully review their analyses and improvement guidance, and when you writing these functionality code, apply these insights to write better and robust code.
 """
 
 
 # positive feedback generating prompt
 CODING_ITE_C1 = """
-# Context
-
+[1] Context
 ## Existing Code
 {exist_code}
 
@@ -220,7 +209,7 @@ CODING_ITE_C1 = """
 {ce_feedback}
 
 -----
-# Format Example 
+[2] Format Example 
 *** main.py
 ```python
 ...
@@ -237,7 +226,7 @@ admin|admin123
 user1|user123
 ```
 -----
-# Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
+[3] Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
 ## ATTENTION
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
@@ -271,7 +260,7 @@ Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
 
-# Regarding the Experience and Lessons
+[4] Regarding the Experience and Lessons
 In this section, a number of successful experiences accumulated from past implementations of this project are provided. 
 Pay attention to all these functions.
 For these functions, you need to check whether your code includes them. 
@@ -282,7 +271,7 @@ Refine the existing code based on these experiences. You still need to output al
 
 # negative feedback generating prompt
 CODING_ITE_C2 = """
-# Context
+[1] Context
 
 ## Existing Code
 {exist_code}
@@ -291,7 +280,7 @@ CODING_ITE_C2 = """
 {ce_feedback}
 
 -----
-# Format Example 
+[2] Format Example 
 *** main.py
 ```python
 ...
@@ -308,7 +297,7 @@ admin|admin123
 user1|user123
 ```
 -----
-# Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
+[3] Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
 ## ATTENTION in Writing Code
 1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
 2. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
@@ -342,7 +331,7 @@ Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the 
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
 
-# Regarding the Experience and Lessons
+[4] Regarding the Experience and Lessons
 In this section, a number of failed experiences accumulated from past implementations of this project are provided. 
 Pay attention to all these functions.
 These features were previously implemented unsuccessfully, carefully review their analyses and improvement guidance.

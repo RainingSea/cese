@@ -19,7 +19,7 @@ from ceaug.auto_test_prompt import (
 def chat_to_LLM(messages):
 
     client = OpenAI(
-        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",  # 只需要填写key就可以了
+        api_key="sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA",  # 只需要填写key就可以了
         base_url="https://api.chatanywhere.tech",
     )
     response = client.chat.completions.create(

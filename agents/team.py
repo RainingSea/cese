@@ -183,9 +183,9 @@ class Team(BaseModel):
             self.roles["Product Manager"].go_inter()
             self.roles["Architect"].go_in_sample()
             self.roles["Programmer"].go_in_sample()
-            
+
             self.roles["Programmer"].code_base.clear()
-            
+
             code_base_dir = os.path.join(Team.project_dir, "code")
             port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
@@ -233,7 +233,7 @@ class Team(BaseModel):
                 )
 
         # _________________________ [ REGENERATE ] ____________________________
-        
+
         self.roles["Product Manager"].go_inter()
         self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
 
@@ -242,7 +242,7 @@ class Team(BaseModel):
             if ce_feedback == "CodeIsGood":
                 print("Dev execute END")
                 return
-            
+
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
 
@@ -253,29 +253,25 @@ class Team(BaseModel):
                 Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
             # process pass feedback
             init = True
+
+            self.roles["C_Programmer"].go("init", "0")
+            
             if pass_feedback:
                 for passfd in pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(passfd, "1")
+                    self.roles["C_Programmer"].go(passfd, "1")
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
             # process no pass feedback
             if no_pass_feedback:
                 for n_passfd in no_pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(n_passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(n_passfd, "2")
+
+                    self.roles["C_Programmer"].go(n_passfd, "2")
                     # write only once
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
-                    
+
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()
