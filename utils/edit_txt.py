@@ -30,7 +30,8 @@ def add_newline_to_txt_files(directory):
 
 # "D:\Project\CE\CE\port.txt"
 # "D:\\algorithm\\agent\\cese\\port.txt"
-port_dir = "./port.txt"
+# port_dir = "./port.txt"
+port_dir = "D:\Project\ATEdev\ATEDev_main\port.txt"
 
 
 def read_port():
@@ -94,24 +95,25 @@ def update_flask_port(file_path, port):
 
 
 if __name__ == "__main__":
-    add_newline_to_txt_files("D:\Project\CE\CE\project\website\Headlinr\code")
-    # directory = "D:\Project\Datasets\SD-bench\codebase\website"
-    # try:
-    #     # 获取目录的绝对路径
-    #     directory = os.path.abspath(directory)
-    #     print(f"Scanning directory: {directory}\n")
+    # add_newline_to_txt_files("D:\Project\CE\CE\project\website\Headlinr\code")
+    directory = "D:\Project\Datasets\SD-bench\codebase\website"
+    try:
+        # 获取目录的绝对路径
+        directory = os.path.abspath(directory)
 
-    #     # 遍历目录，查找子目录
-    #     subdirectories = []
-    #     for root, dirs, _ in os.walk(directory):
-    #         for subdir in dirs:
-    #             abs_path = os.path.join(root, subdir)
-    #             add_newline_to_txt_files(abs_path)
+        # 遍历目录，查找子目录
+        subdirs = [
+            name
+            for name in os.listdir(directory)
+            if os.path.isdir(os.path.join(directory, name))
+        ]
 
-    #     # 输出结果
-    #     print("Subdirectories found:")
-    #     for subdir in subdirectories:
-    #         print(subdir)
+        #     # 输出结果
+        print("Subdirectories found:")
 
-    # except Exception as e:
-    #     print(f"Error while reading directory: {e}")
+        for index, value in enumerate(subdirs):
+            print(str(index) + " " + os.path.join(directory, value))
+            update_flask_port(os.path.join(directory, value, "code", "main.py"), "")
+
+    except Exception as e:
+        print(f"Error while reading directory: {e}")
