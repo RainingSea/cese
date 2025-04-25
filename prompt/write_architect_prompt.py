@@ -111,6 +111,7 @@ WRITE_ARCHITECT_FORMAT = """
 [/CONTENT]
 
 [3] <instruction>
+
 ## constraint
 Language: Please use the same language as Human INPUT.
 Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
@@ -155,7 +156,57 @@ If you are doing website development, do not encrypt the account password for th
 3. If project requires data storage, follow the requirement of data storage, implement a simple storage. Do not use SQL database.
 4. Organize related functionalities into a single Python file to avoid creating too many files.
 5. do not output ```plaintext or other ``` in the start and the end, output directly.
+6. specially, do not use flask_wtf to build html files.
 
 [4] Action
 Follow instructions of nodes and Attention, generate output and make sure it follows the format example.
+"""
+
+
+WRITE_ARCHITECT_WITH_FDBACK_META = """
+[1] Context
+{original_requirement}
+
+### functional requirements
+{functional_requirement}
+
+## lessons and experience
+{ce_feedback}
+
+-----
+[2] Format example
+[CONTENT]
+"Implementation approach": "",
+"UI design":"",
+"Data Storage":"If software requires a data storage, you should follow the rules: Data will be stored in local files. Different types of data will be stored in separate files. You should define the file by yourself in advance. Do not use SQL database."
+"File list": ["main.py","game.py","templates/login.html","users.txt"] # Only need relative paths. ALWAYS write a main.py here.
+"Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n",
+[/CONTENT]
+
+
+[/CONTENT]
+[3] <instruction>
+{instruction}
+
+## constraint
+Language: Please use the same language as Human INPUT.
+Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+If you are doing website development, do not encrypt the account password for the login function.
+
+## Attention
+1. If a feature of software requires a GUI, you also need to carefully consider the UI components that this feature will require and its relationship to the main UI in Architecture.
+2. Aim to achieve functional requirements, only require to implement a demo.
+3. If project requires data storage, follow the requirement of data storage, implement a simple storage.Do not use SQL database.
+4. Organize related functionalities into a single Python file to avoid creating too many files.
+5. do not output ```plaintext or other ``` in the start and the end, output directly.
+
+## Additional Notes
+In "lessons and experience" section, there is a summary and feedback from previous work on this project. 
+When you generate, you need to take these insight into consideration, for example, if they are suggestions, you should adopt them. If they are error warnings, you need to avoid them.
+However, your main task remains to generate a corresponding architecture based on "original_requirement" and "functional requirements".
+Even if there are suggestions regarding JSON or other complex data structures, please do not consider using JSON in your architectural design.
+Even if there are suggestions regarding data encryption, please do not consider data encryption in your architectural design.
+
+## action
+Follow instructions of nodes and Attention, refer Additional Notes, generate output and make sure it follows the format example.
 """

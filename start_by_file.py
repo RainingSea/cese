@@ -129,14 +129,17 @@ def start_project():
     # 正常情况 不测试gui和game，或者一些特殊情况
     # 都走这个分支
     # 类似于这种命令 python start_by_file.py --category website --name MovieRecommendationSystem.md （没有seq参数）
-    if not seq:
-        if category == "website":
-            team.run_web()
-        else:
-            team.run()
-    elif seq:
-        # team.run()
-        team.run_vice(seq)
+
+    team.run_pure()
+    # if not seq:
+    #     if category == "website":
+    #         team.run_web()
+    #     elif category == "dev":
+    #         team.run_pure()
+    #     else:
+    #         team.run_before_test()
+    # elif seq:
+    #     team.run_vice(seq)
 
     # team.run_self_evo()
     # ------------------- launch project ------------------------

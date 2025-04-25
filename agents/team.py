@@ -227,6 +227,7 @@ class Team(BaseModel):
 
         self.roles["Product Manager"].go_inter()
         self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
+        self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
 
         ce_feedback = ce_feedbacks["code"]
         if ce_feedback:
@@ -440,80 +441,101 @@ class Team(BaseModel):
         print("Dev execute END")
         return
 
-    # sampling run
-    def run(self):
+    # 只生成测试代码
+    def run_before_test(self):
+        # root work dir
         previous_work_dir = Path.cwd()
+        # root project dir
         pervious_project_dir = Team.project_dir
 
-        inter_launch = False
+        # Generate PRD, no exploration
+        self.roles["Product Manager"].go()
 
-        # _______________ generate PRD, Architect, Task Plan _______________
-        if inter_launch:
-            # 以下代码暂时用不到了不用管
-            Team.incremental_base_dir = os.path.join(
-                "D:\Project\Datasets\SD-bench\codebase\采样需要", Team.project_name
-            )
-            self.roles["Product Manager"].go_inter()
-
-        else:
-            self.roles["Product Manager"].go()
-            Team.active_role(self.roles["Product Manager"].profile)
-
-        # make ce dirs and copy the prd to each dir
-        # 这里的数字就是探索的数量
+        # make ce dirs and copy the PRD to each dir
         ce_projects_paths = make_ce_dirs(Team.project_dir, self.explore_num)
 
-        # generate sampling architect
+        # _________________________ [ EXPLORE ] ____________________________
+
         for j in range(len(ce_projects_paths)):
             print(f"\ngenerate the architect of {j}th counter project\n")
+            # temporarily change project dir to a ce folder
             Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
             Team.project_dir = ce_projects_paths[j]
 
             self.roles["Product Manager"].go_inter()
-            # sample architect generate
             self.roles["Architect"].go_in_sample()
-            # temporarily change project dir to a ce folder
-
+            self.roles["Project Manager"].go_in_sample()
             self.roles["Programmer"].go_in_sample()
+
             self.roles["Programmer"].code_base.clear()
+
             # code_base_dir = os.path.join(Team.project_dir, "code")
             # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
-        # 对于game和gui，先只需要生成代码和testcode.py
-        # 因此这里的flag设置为ite_fdbackQAQ
+        # generate feedbacks of explored projects above
         ce_score, ce_feedbacks = test_code_generate(
             previous_work_dir,
             self.test_cases_dir,
             ce_projects_paths,
             Team.projec_catogory,
             Team.project_name,
-            "ite_fdbackQAQ",
+            "ite_fdback",
             Team.log,
         )
+
+        # |_____________________________________________________________|
+        # |                      Attention!                             |
+        # | ceaug() execute unit test, which                            |
+        # | requires switching work dir to the test code's project dir "|
+        # |                   Must switch back!                         |
+        # |_____________________________________________________________|
+        # |
+
+        os.chdir(previous_work_dir)
+        Team.project_dir = pervious_project_dir
+        Team.incremental_base_dir = pervious_project_dir
+
+        # save feedback of this turn to a log file (formatted)
+        # 这里最好是写入到一个txt中，但我不知道为什么写入txt，程序就会异常退出
+        save = True
+        if save:
+            for key, value in ce_feedbacks.items():
+                # 格式化键值对并在键和值的左右添加"#_#"标记
+                formatted_key = "#_#{}#_#".format(key)
+                formatted_value = value
+                # 将格式化后的键值对写入文件，键和值之间用空格、冒号或其他符号分隔
+                # f.write(f"{formatted_key} \n{formatted_value}\n\n\n")
+                print(formatted_key)
+                print(formatted_value)
+
+                Team.log.info(
+                    "ITERATIVE_FEEDBACK "
+                    + str(formatted_key)
+                    + "\n"
+                    + str(formatted_value)
+                )
+
+        # _________________________ [ REGENERATE ] ____________________________
+
+        print("Dev execute END")
         return
 
+    # 单生成
     def run_pure(self):
+        # root work dir
         previous_work_dir = Path.cwd()
+        # root project dir
         pervious_project_dir = Team.project_dir
-
-        inter_launch = True
-
-        if inter_launch:
-            Team.incremental_base_dir = os.path.join(
-                "D:\Project\CE\CE\project",
-                Team.projec_catogory,
-                Team.project_name,
-            )
-            self.roles["Product Manager"].go_inter()
-            self.roles["Architect"].go()
-            self.roles["Project Manager"].go()
-            # generate code
-            self.roles["Programmer"].go()
-            code_base_dir = os.path.join(Team.project_dir, "code")
-            # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
-        else:
-            self.roles["Product Manager"].go()
-            Team.active_role(self.roles["Product Manager"].profile)
+        
+        # Generate PRD, no exploration
+        self.roles["Product Manager"].go()
+        self.roles["Architect"].go()
+        self.roles["Project Manager"].go()
+        self.roles["Programmer"].go()
+        
+        self.roles["Programmer"].code_base.clear()
+        code_base_dir = os.path.join(Team.project_dir, "code")
+        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
     # generate unit test or use feedback exist
     def run_vice(self, seq):
@@ -522,7 +544,6 @@ class Team(BaseModel):
         pervious_project_dir = Team.project_dir
 
         inter_launch = True
-        # inter_launch = False
 
         # _______________ generate PRD, Architect, Task Plan _______________
         if inter_launch:
@@ -532,8 +553,6 @@ class Team(BaseModel):
                 Team.project_name,
             )
             self.roles["Product Manager"].go_inter()
-            # self.roles["Architect"].go_inter()
-            # self.roles["Project Manager"].go_inter()
         else:
             self.roles["Product Manager"].go()
             Team.active_role(self.roles["Product Manager"].profile)

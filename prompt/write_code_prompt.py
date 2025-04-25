@@ -6,11 +6,10 @@ In addition to writing code, you may also need to complete the data files in the
 
 CODING = """
 [1] Context
-## Functional Requirements
-{functional_requirements}
-
 ## Design
 {architecture}
+## Coding Plan
+{task_plan}
 
 -----
 [2] Format Example 
@@ -33,21 +32,20 @@ user1|user123
 [3] Instruction: Based on the context, follow "Format example", write code.
 
 ## ATTENTION
-1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
-2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
-3. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
-4. You must import the third-party libraries used in your code
-5. If you use a Class not in your file, you must ensure you import it firstly.
-6. Determine the order of writing the files based on your understanding of the project.
-7. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
-8. Only write code result, do not output any other content in the start or in the end.
-9. If you need to generate text data, must follow below rules:
+1. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
+2. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
+3. You must import the third-party libraries used in your code
+4. If you use a Class not in your file, you must ensure you import it firstly.
+5. Determine the order of writing the files based on your understanding of the project.
+6. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
+7. Only write code result, do not output any other content in the start or in the end.
+8. If you need to generate text data, must follow below rules:
 (Different groups of data are distinguished by line breaks.
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
-10. if you generate json data, you must change the file extension to .json.
-11. You need to write some pre-stored data to facilitate testing.
+9. if you generate json data, you must change the file extension to .json.
+10. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
 If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
@@ -62,7 +60,9 @@ If the software needs to load data, please make sure the loading data code match
 If you are doing Game Development, do not follow the rules of Website and Game development.
 
 # important rule
-Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+1. Use '***' to SPLIT different CODE SECTIONS. Each code section must start with '***' followed by the file name, then followed by the code block enclosed in ```.
+- CORRECT: *** filename.py\n ```python\n...\n```
+- INCORRECT: ```python\n*** filename.py\n...\n``` (WRONG ORDER)
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
 """
@@ -95,21 +95,20 @@ user1|user123
 -----
 [3] Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
 ## ATTENTION
-1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
-2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
-3. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
-4. You must import the third-party libraries used in your code
-5. If you use a Class not in your file, you must ensure you import it firstly.
-6. Determine the order of writing the files based on your understanding of the project.
-7. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
-8. Only write code result, do not output any other content in the start or in the end.
-9. If you need to generate text data, must follow below rules:
+1. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
+2. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
+3. You must import the third-party libraries used in your code
+4. If you use a Class not in your file, you must ensure you import it firstly.
+5. Determine the order of writing the files based on your understanding of the project.
+6. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
+7. Only write code result, do not output any other content in the start or in the end.
+8. If you need to generate text data, must follow below rules:
 (Different groups of data are distinguished by line breaks.
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
-10. if you generate json data, you must change the file extension to .json.
-11. You need to write some pre-stored data to facilitate testing.
+9. if you generate json data, you must change the file extension to .json.
+10. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
 If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
@@ -124,7 +123,9 @@ If the software needs to load data, please make sure the loading data code match
 If you are doing Game Development, do not follow the rules of Website and Game development.
 
 # important rule
-Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+1. Use '***' to SPLIT different CODE SECTIONS. Each code section must start with '***' followed by the file name, then followed by the code block enclosed in ```.
+- CORRECT: *** filename.py\n ```python\n...\n```
+- INCORRECT: ```python\n*** filename.py\n...\n``` (WRONG ORDER)
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
 
@@ -138,11 +139,10 @@ Additionally, some features were previously implemented unsuccessfully, pay atte
 # 第一次生成代码时的prompt，需要加design和plan，后续根据反馈改的就不需要加了
 CODING_C = """
 [1] Context
-## Functional Requirements
-{functional_requirements}
-
 ## Design
 {architecture}
+## Coding Plan
+{task_plan}
 
 -----
 [2] Format Example 
@@ -164,21 +164,20 @@ user1|user123
 -----
 [3] Instruction: Based on the context, follow "Format example", write code.
 ## ATTENTION
-1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
-2. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
-3. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
-4. You must import the third-party libraries used in your code
-5. If you use a Class not in your file, you must ensure you import it firstly.
-6. Determine the order of writing the files based on your understanding of the project.
-7. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
-8. Only write code result, do not output any other content in the start or in the end.
-9. If you need to generate text data, must follow below rules:
+1. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
+2. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
+3. You must import the third-party libraries used in your code
+4. If you use a Class not in your file, you must ensure you import it firstly.
+5. Determine the order of writing the files based on your understanding of the project.
+6. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
+7. Only write code result, do not output any other content in the start or in the end.
+8. If you need to generate text data, must follow below rules:
 (Different groups of data are distinguished by line breaks.
 Different contents of the same group of data are distinguished by |.
 Make sure: The "|" character is used only to separate distinct contents within a group.
 Your code of handling data must be consistent with rule in which you define the data.)
-10. if you generate json data, you must change the file extension to .json.
-11. You need to write some pre-stored data to facilitate testing.
+9. if you generate json data, you must change the file extension to .json.
+10. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
 If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
@@ -193,7 +192,9 @@ If the software needs to load data, please make sure the loading data code match
 If you are doing Game Development, do not follow the rules of Website and Game development.
 
 # important rule
-Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+1. Use '***' to SPLIT different CODE SECTIONS. Each code section must start with '***' followed by the file name, then followed by the code block enclosed in ```.
+- CORRECT: *** filename.py\n ```python\n...\n```
+- INCORRECT: ```python\n*** filename.py\n...\n``` (WRONG ORDER)
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
 """
@@ -228,7 +229,7 @@ user1|user123
 -----
 [3] Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
 ## ATTENTION
-1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
+1. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
 2. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
 3. You must import the third-party libraries used in your code
 4. If you use a Class not in your file, you must ensure you import it firstly.
@@ -256,7 +257,9 @@ If the software needs to load data, please make sure the loading data code match
 If you are doing Game Development, do not follow the rules of Website and Game development.
 
 # important rule
-Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+1. Use '***' to SPLIT different CODE SECTIONS. Each code section must start with '***' followed by the file name, then followed by the code block enclosed in ```.
+- CORRECT: *** filename.py\n ```python\n...\n```
+- INCORRECT: ```python\n*** filename.py\n...\n``` (WRONG ORDER)
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
 
@@ -299,7 +302,7 @@ user1|user123
 -----
 [3] Instruction: Based on the CODE and Experience and Lessons, follow "Format example", update your code.
 ## ATTENTION in Writing Code
-1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
+1. Follow design: YOU MUST FOLLOW "Data structures and interfaces". DONT CHANGE ANY DESIGN. Do not use public member functions that do not exist in your design.
 2. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
 3. You must import the third-party libraries used in your code
 4. If you use a Class not in your file, you must ensure you import it firstly.
@@ -327,7 +330,9 @@ If the software needs to load data, please make sure the loading data code match
 If you are doing Game Development, do not follow the rules of Website and Game development.
 
 # important rule
-Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+1. Use '***' to SPLIT different CODE SECTIONS. Each code section must start with '***' followed by the file name, then followed by the code block enclosed in ```.
+- CORRECT: *** filename.py\n ```python\n...\n```
+- INCORRECT: ```python\n*** filename.py\n...\n``` (WRONG ORDER)
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
 If you are doing website development, do not encrypt the account password for the login function.
 

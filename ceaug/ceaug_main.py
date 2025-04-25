@@ -122,13 +122,11 @@ def create_ce_document(project_dir, task_plan, log):
 # 这个直接读取已有的test的结果(result.txt)，然后总结反馈
 def ceaug_vice(base_dir, project_dirs, project_category, project_name, flag, log):
     max_score = -1.0
-    code_feedback_selected = ""
+
     all_unit_test_results = []
     all_code_feedbacks = []
     all_task_plan_feedbacks = []
     all_architecture_feedbacks = []
-
-    # 还没有通过的逻辑
 
     for i in range(len(project_dirs)):
 
@@ -474,25 +472,33 @@ def test_code_generate(
     log: 项目的log对象，用来记录
     """
 
-    max_score = -1.0
-
-    # ____________________ make a dir to store test result ___________________
+    all_unit_test_results = []
+    all_code_feedbacks = []
+    all_task_plan_feedbacks = []
+    all_architecture_feedbacks = []
 
     for i in range(len(project_dirs)):
-        print(
-            "Ready Generate Auto Test Code # # # # # # # # # # # # " + project_dirs[i]
-        )
-        log.info(
-            "Ready Generate Auto Test Code # # # # # # # # # # # # " + project_dirs[i]
-        )
+        print("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
+        log.info("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
 
+        # _______________ [1] AUTO TEST ______________
+        #
         project_dir = project_dirs[i]
+        if not os.path.exists(os.path.join(project_dirs[i], "test_result")):
+            os.makedirs(os.path.join(project_dirs[i], "test_result"))
+        unit_test_result_dir = os.path.join(project_dirs[i], "test_result")
+
+        # 抽取代码，架构，计划
         code_base = read_codebase(os.path.join(project_dir, "code"))
-        log.info("read tested code:\n" + code_base)
-        # 编写测试代码testcode.py
+        log.info("READ Tested Code:\n" + code_base)
+        architecture = read_file(project_dir, "architect.md")
+        task_plan = read_file(project_dir, "task plan.md")
+
         test_code = autogen(project_dir, project_category, project_name, testcase_dir)
         test_code = utils.remove_time_sleep_after_popen(test_code)
-    return max_score, "CodeIsGood"
+
+        # [POINT] 如果只是生成测试代码，那么到这里就可以结束了
+    return 1, "CodeIsGood"
 
 
 def ceaug(
@@ -508,49 +514,49 @@ def ceaug(
     log: 项目的log对象，用来记录
     """
 
-    max_score = -1.0
-    code_feedback_selected = ""
     all_unit_test_results = []
     all_code_feedbacks = []
+    all_task_plan_feedbacks = []
     all_architecture_feedbacks = []
 
-    # ____________________ make a dir to store test result ___________________
-
     for i in range(len(project_dirs)):
-
-        if not os.path.exists(os.path.join(project_dirs[i], "test_result")):
-            # like, DailyJournalApp/sample_unit_test_result
-            os.makedirs(os.path.join(project_dirs[i], "test_result"))
-        unit_test_result_dir = os.path.join(project_dirs[i], "test_result")
-
         print("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
         log.info("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
 
+        # _______________ [1] AUTO TEST ______________
+        #
         project_dir = project_dirs[i]
+        if not os.path.exists(os.path.join(project_dirs[i], "test_result")):
+            os.makedirs(os.path.join(project_dirs[i], "test_result"))
+        unit_test_result_dir = os.path.join(project_dirs[i], "test_result")
 
         # 抽取代码，架构，计划
         code_base = read_codebase(os.path.join(project_dir, "code"))
-        log.info("read tested code:\n" + code_base)
+        log.info("READ Tested Code:\n" + code_base)
         architecture = read_file(project_dir, "architect.md")
-        architecture = read_file(project_dir, "architect.md")
+        task_plan = read_file(project_dir, "task plan.md")
 
-        # 编写测试代码testcode.py
         test_code = autogen(project_dir, project_category, project_name, testcase_dir)
         test_code = utils.remove_time_sleep_after_popen(test_code)
 
-        # 如果只是生成测试代码，那么到这里就可以结束了
+        # [POINT] 如果只是生成测试代码，那么到这里就可以结束了
         # continue
 
         # 运行测试代码
         print("workdir before test: " + str(Path.cwd()))
-        unit_test_result = runUnitTest(project_dir, project_category)
-        log.info("unit_test_result_is\n" + unit_test_result["output"])
 
-        # 切回来目录
+        unit_test_result = runUnitTest(project_dir, project_category)
+
+        log.info("unit_test_result_is\n" + unit_test_result["output"])
+        #
+        # _______________ [1] AUTO TEST ______________
+
+        # 切回来原本的根工作目录
         os.chdir(base_dir)
         print()
-        # _________________ ask LLM to get feedback ________________
-        # 1. ask LLM to analyze the unit test results
+
+        # _______________ [2] FEEDBACK GENERATE _______________
+        #
         messages = []
 
         values = {
@@ -558,40 +564,46 @@ def ceaug(
             "unit_test_code": test_code,
             "test_results": str(unit_test_result),
         }
-        # m_0, ask llm to analyze the unit test result
+
+        # 1. get general unit test result
         PROMPT_FOR_TEST_ANA = """You are a software test analyst. Please help me analyze the code of a project.
-        Here is the entire codebase for a project: {code_base}.
-        Here are the unit test codes for this project: {unit_test_code}.
-        These are all the unit test results (Only failed tests have detailed information):{test_results}
-        Please analyze the test results one by one with related code. For each failed or error unit test, step by step to identify the reasons.
+        (1) Here is the entire codebase for a project: {code_base}.
+        
+        (2) Here are the unit test codes for this project: {unit_test_code}.
+        
+        (3) These are all the unit test results (Only failed tests have detailed information):{test_results}
+        ---
+        Action: Please analyze the test results one by one with related code. For each failed or error unit test, step by step to identify the reasons.
         If test code like "self.fail(XXX functionality not implemented)" occurs, it suggests a problem with the project code, not the test code.
         """
         messages.append(format_prompt(PROMPT_FOR_TEST_ANA, values))
+
         unit_test_result_analysis = chat_to_LLM(messages)
 
         print("1-| unit test result analysis |")
-        log.info("1-| General unit test result analysis |")
         print(unit_test_result_analysis)
+        log.info("1-| General unit test result analysis |")
         log.info(unit_test_result_analysis)
-        # input("input to analyze code relevance")
         print("\n###################################")
         log.info("\n###################################")
 
-        # 2. judge if any of the issues is caused by code (rather than other unrelated reasons)
-        # m_1, llm's response(unit test result)
         messages.append({"role": "assistant", "content": unit_test_result_analysis})
-        # for Architecture feedback and Task Plan feedback
-        architecture_messages = messages.copy()
 
-        # m_4, ask llm to summarize the unit test result
+        # copy messages, going to multi-talk in 3 diff context & target
+        architecture_messages = messages.copy()
+        task_plan_messages = messages.copy()
+
+        # 2. get code feedback
         messages.append(
             {
                 "role": "user",
                 "content": """Summarize the above mentioned unit test analysis. You only need to summarize the content in the project identified from the unit test result. You need to do 2 jobs:
                 ### 1. summarize test pass cases
-                Identify all passed test cases (test_XX_XX, marked as "ok"). For each passed case, find the corresponding project code in the codebase (not the test code) mentioned in previous conversations, understand the full implementation thought of the project code related to the test case, then express it in pseudocode format(pseudocode should capture all parts of the code, not just function body). Focus only on the project code, not the test code. 
+                Identify all passed test cases (test_XX_XX, marked as "ok"). For each passed case, find the corresponding project code from all the related files in codebase (not the test code), understand the full implementation thought of the project codes related to the test case, then express them in pseudocode format(pseudocode should capture all parts of the code, not just function body, if function related to more than 1 file, you should catch all key code from all files, not only the main file, may include different types of files). 
+                Focus only on the project code, not the test code. 
                 Your presented pseudocode should contain full information from the actual code, rather than just repeat input and output.
-                Here is A GOOD EXAMPLE for a example funtion A:
+                Here is SOME EXAMPLES, and for different style code, like HTML,css,CLASS, you should present them with other suitable format.
+                EXAMPLE:
                 FUNCTION A()
                     IF CONDITION_A
                         select DATA for A_1
@@ -603,163 +615,108 @@ def ceaug(
                     ENDIF
                     RENDER NOT IF LOGIC
                 ENDIF
+                ---
+                <form method="POST" action=/route>
+                    <label for="XXX">DOM ELEMENT:</label>
+                <form>
+                ...
                 
-
                 ### 2. summarize test failed or error cases
-                Summarize all previously mentioned failed or error test cases along with their error analyses. then, you need to provide guidance on how to solve these issues. The guidance should adhere to the following aspects:
-                (1) Be concise and instructive.
+                Summarize all previously mentioned failed or error test cases along with their error analyses. then, you need to provide guidance on how to solve these issues in program. The guidance should adhere to the following aspects:
+                (1) Be concise and instructive, but do not lose key information.
                 (2) Must offer insights based on issues revealed by unit tests, highlighting points to watch for when developing the project again.
                 (3) Provide guidance at the level of planning, rather than addressing simple code-related issues. 
                 (4) don't write guidance on the test.
                 (5) don't provide guidance from higher-level aspects such as project management, development pattern, etc.
+                if failure or error related to more than 1 file, you should catch all key problems in all files, not only the main file.
                 Attention: only consider failure or error exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded. 
                 Besides, the deficiencies of testcode.py (test code) do not need to be summarized. only analyze issues that are relevant to the project's own code.""",
             }
         )
 
-        if flag == "self_evo":
-            code_feedback = chat_to_LLM(messages)
-            print("Code Feedback")
-            print(code_feedback)
-            log.info(code_feedback)
+        code_feedback = chat_to_LLM(messages)
 
-            sum_messages = []
-            all_summaries = ""
-            str_unit_test_result = str(unit_test_result)
-            # 这里沿用之前的代码，但是就不需要组合所有结果了，直接把单次测试的结果拿来用就可以
-            all_summaries = (
-                all_summaries
-                + " project result:\n"
-                + f"test result is {str_unit_test_result}: analysis&guidance is {code_feedback} \n\n"
+        print("Code Feedback")
+        print(code_feedback)
+        log.info("Code Feedback\n" + code_feedback)
+
+        # 3. get architecture feedback
+        architecture_messages.append(
+            {
+                "role": "user",
+                "content": REFINE_ARCHITECTURE_PROMPT.format(architecture=architecture),
+            }
+        )
+        architecture_feedback = chat_to_LLM(architecture_messages)
+
+        print("Architecture Feedback")
+        print(architecture_feedback)
+        log.info("\nArchitecture Feedback\n" + architecture_feedback)
+
+        # 4. get task plan feedback
+        task_plan_messages.append(
+            {
+                "role": "user",
+                "content": REFINE_TASK_PLAN_PROMPT.format(task_plan=task_plan),
+            }
+        )
+        task_plan_feedback = chat_to_LLM(task_plan_messages)
+        print("Plan Feedback")
+        print(task_plan_feedback)
+        log.info("\nPlan Feedback\n" + task_plan_feedback)
+
+        # 5. save all the 3 types of feedback to txt
+        with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+            content = (
+                "#_#unit_test_result#_#\n"
+                + str(unit_test_result)
+                + "\n\n\n#_#unit_test_result_analysis#_#\n"
+                + unit_test_result_analysis
+                + "\n\n\n#_#code_feedback#_#\n"
+                + code_feedback
+                + "\n\n\n#_#architecture_feedback#_#\n"
+                + architecture_feedback
+                + "\n\n\n#_#task_plan_feedback#_#\n"
+                + task_plan_feedback
             )
+            file.write(content)
 
-            # 稍微改了下prompt，这些prompt把总结部分去掉了，主要是修改格式，改成适合迭代开发的格式，如果不迭代开发（弱一点的baseline，那就直接返回code_feedback就可以了
-            PROMPT_FOR_SUMMARY_MERGE = """I have conducted unit tests on a project and obtained the results. Please help me format them according to the following requirements.
-1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, may not need to outptut.
+        all_code_feedbacks.append(code_feedback)
+        all_architecture_feedbacks.append(architecture_feedback)
+        all_task_plan_feedbacks.append(task_plan_feedback)
+        all_unit_test_results.append(unit_test_result)
+        #
+        # _______________ [2] FEEDBACK GENERATE _______________
 
-2.Prepare the output, divided into two parts: Passed Test Cases and Failed or Error Test Cases, with following description:
-### Passed Test Cases
-Summarize solutions for test cases that passed. Use the pseudocode provided in the input to represent the solutions; do not generate new pseudocode. Present each case in the format:
-1. |Case|:**Case Name**
-Followed by the pseudocode which represent the successful implementation for this function.
-
-### Failed or Error Test Cases
-Collect the analysis and guidance related to each failure or error. present it in the format:
-For each error or failure, extract all related analyses and guidance from all the content. If there are duplicates, please remove them.
-Then, combine them and output them in the following format:
-1. |Case|:**Case Name**
-Followed by:
-Failure/Error Analysis1
-Improvement Guidance1 (textual, pseudocode, etc.)
-
-# Notes:
-Case Name is the test case name with the test_ prefix removed (e.g., test_navigate_to_registration becomes navigate_to_registration).
-Do not summarize guidance specifically for the test code itself.
-There is no need to output the list test cases again at the end. 
-
-# Attention
-must consider all results in "context", don't omit. don't lose information.
-The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
-
-# Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
-
-# context
-The content you need to analyze and format is as follows: {summaries}.\n"""
-
-            summary_merge_values = {"summaries": all_summaries}
-            sum_messages.append(
-                format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
-            )
-            print(sum_messages[0]["content"])
-            log.info(sum_messages[0]["content"])
-            # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
-            code_summaries_summary = chat_to_LLM(sum_messages)
-            print("Code Feedback is")
-            print(code_summaries_summary)
-            log.info("Code Feedback is\n" + code_summaries_summary)
-            with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
-                content = (
-                    "#_#unit_test_result#_#\n"
-                    + str(unit_test_result)
-                    + "\n#_#unit_test_result_analysis#_#\n"
-                    + unit_test_result_analysis
-                    + "\n#_#code_feedback#_#\n"
-                    + code_feedback
-                    + "\n#_#code_feedback_summary#_#\n"
-                    + code_summaries_summary
-                )
-                file.write(content)
-
-            return max_score, code_summaries_summary
-        else:
-            # baseline的代码到这里就不需要了，以下是采样才需要的，因为baseline不好改architecture和plan，也就不生成feedback了
-            # prompt llm to get architecture feedback
-            architecture_messages.append(
-                {
-                    "role": "user",
-                    "content": REFINE_ARCHITECTURE_PROMPT.format(
-                        architecture=architecture
-                    ),
-                }
-            )
-            log.info(architecture_messages)
-            architecture_feedback = chat_to_LLM(architecture_messages)
-
-            code_feedback = chat_to_LLM(messages)
-
-            code_feedback_selected = code_feedback
-            print("Code Feedback")
-            print(code_feedback)
-            log.info("Code Feedback\n" + code_feedback)
-
-            print("Architecture Feedback")
-            print(architecture_feedback)
-            log.info("Architecture Feedback\n" + architecture_feedback)
-
-            with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
-                content = (
-                    "#_#unit_test_result#_#\n"
-                    + str(unit_test_result)
-                    + "\n#_#unit_test_result_analysis#_#\n"
-                    + unit_test_result_analysis
-                    + "\n#_#code_feedback#_#\n"
-                    + code_feedback
-                    + "\n\n\n#_#architecture_feedback#_#\n"
-                    + architecture_feedback
-                )
-                file.write(content)
-
-            all_code_feedbacks.append(code_feedback)
-            all_architecture_feedbacks.append(architecture_feedback)
-            all_unit_test_results.append(unit_test_result)
+    # ______________ [3] FEEDBACK STNTHESIS _______________
 
     if flag == "ite_fdback":
+        # 1. summary code feedback
         sum_messages = []
-        all_summaries = ""
+        all_summaries = "-------"
+
         for k in range(len(all_code_feedbacks)):
             all_summaries = (
                 all_summaries
-                + "### the "
+                + "[The "
                 + str(k + 1)
-                + "th"
-                + " project result:\n"
-                + f"test result is {all_unit_test_results[k]['output']}: analysis&guidance is {all_code_feedbacks[k]} \n\n"
+                + "th project test result]:\n"
+                + f" {all_code_feedbacks[k]} \n\n"
             )
 
-        # means it is counter example model
-        PROMPT_FOR_SUMMARY_MERGE = """I have multiple implementations of the same project, each of which has undergone unit testing. For each implementation, I have obtained test results, analyzed them, and developed improvement recommendations. Now, you should extract and compile all my contents with the following requirements:
+        PROMPT_FOR_SUMMARY_MERGE = """I have multiple implementations of the same project, each of which has undergone unit testing. For each implementation, I have obtained test results, analyzed them, and developed improvement recommendations. Now, you should understand and compile all my test feedbacks with the following requirements:
         
-1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, may not need to outptut.
+1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, not need to outptut.
 
 2.Prepare the output, divided into two parts: Passed Test Cases and Failed or Error Test Cases, with following description:
 ### Passed Test Cases
 Summarize solutions for all test cases that passed. Use the pseudocode provided in the input to represent the solutions; do not generate new pseudocode. Present each case in the format:
 1. |Case|:**Case Name**
-Followed by the pseudocode which represent the successful implementation for this function.
+Followed by the pseudocodes which represent the successful implementation for this function.
 keep the pseudocode long as you can, do not cut information.
 
 ### Failed or Error Test Cases
-Collect the analysis and guidance related to each failure or error. present it in the format:
+Collect the analysis and guidance related to each failure or error from all 3 test feedback. present it in the format:
 For each error or failure, extract all related analyses and guidance from all the content.
 Then, organize them and output them in the following format:
 1. |Case|:**Case Name**
@@ -784,38 +741,41 @@ Do not summarize guidance specifically for the test code itself.
 There is no need to output the list test cases again at the end. 
 
 # Attention
-must consider all results in "context", don't omit. don't lose information.
+Must synthesize test results for the same test case from all projects, do not just output test result from only one project as the final case result.
+Pass pseudocode or error/failure analysis about one same case, should be assembled within one |CASE|.
 The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
+
 
 # Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
 
-# context
-The content you need to summarize is as follows:\n {summaries}."""
+# Context
+Summarize following context:\n\n\n {summaries}."""
         summary_merge_values = {"summaries": all_summaries}
         sum_messages.append(
             format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
         )
         print(sum_messages[0]["content"])
         log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+
         code_summaries_summary = chat_to_LLM(sum_messages)
-        print("Code Feedback is")
-        print(code_summaries_summary)
+
+        print("Code Feedback is:\n" + code_summaries_summary)
         log.info("Code Feedback is\n" + code_summaries_summary)
 
-        # summary the architecture feedback
+        # 2. summary code feedback
         arch_sum_messages = []
         arch_all_summaries = ""
+
         for g in range(len(all_architecture_feedbacks)):
             arch_all_summaries = (
                 arch_all_summaries
                 + "### the "
                 + str(g + 1)
-                + "th"
-                + " project result:\n"
+                + "th project result:\n"
                 + f"{all_architecture_feedbacks[g]}\n\n"
             )
 
-        PROMPT_FOR_ARCHITECT_MERGE = """You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of architecture-related feedback for a software development project and produce a concise, unified summary.
+        PROMPT_FOR_ARCHITECT_MERGE = """(1) You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of architecture-related feedback for a software development project and produce a concise, unified summary.
 ## Instructions:
 1. Combine Similar Feedback:Identify and merge duplicate or overlapping suggestions while retaining their key points. For example, if multiple feedback items suggest improving navigation in the UI, consolidate them into a single suggestion.
 2. Retain Unique Feedback:Preserve suggestions that address distinct issues, even if they apply to different aspects of the project. Ensure no unique feedback is omitted.
@@ -828,7 +788,7 @@ Attention:Use bullet points for readability, and provide actionable suggestions 
 Ensure Clarity and Precision.
 Use concise language to convey the ideas clearly and avoid redundancy.
 Result should be concise but also informative.
-the content you need to summarize is:\n{summaries}
+(2) the content you need to summarize is:\n{summaries}
 Mind: do not summary advice like using json or like enhancing data encryption in your final summary, it is too high level.
         """
         arch_summary_merge_values = {"summaries": arch_all_summaries}
@@ -840,28 +800,70 @@ Mind: do not summary advice like using json or like enhancing data encryption in
             "prompt for architecture summaries summary:\n"
             + arch_sum_messages[0]["content"]
         )
+
         arch_summaries_summary = chat_to_LLM(arch_sum_messages)
-        print("Architecture Summary")
-        print(arch_summaries_summary)
+
+        print("Architecture Summary\n" + arch_summaries_summary)
         log.info("Architecture Summary\n" + arch_summaries_summary)
 
-        # get respective feedback: architecture suggestion, code suggestion
+        # plan summary
+        plan_sum_messages = []
+        plan_all_summaries = ""
+
+        for p in range(len(all_task_plan_feedbacks)):
+            plan_all_summaries = (
+                plan_all_summaries
+                + "### the "
+                + str(p + 1)
+                + "th project result:\n"
+                + f"{all_task_plan_feedbacks[p]}\n\n"
+            )
+
+        PROMPT_FOR_PLAN_MERGE = """(1) You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of task-related feedback for a software development project and produce a concise, unified summary.You will receive multiple feedback reports, each containing various suggestions, including areas for improvement and potential enhancements. Your task is to extract suggestions that are useful for generating new plans and meet the following requirements:
+1.Categorize Suggestions: Group the suggestions into the following categories:
+Specific Areas for Improvement
+Suggested Enhancements
+2.Merge Similar Suggestions: Combine identical or highly similar suggestions into a single statement, using clear and concise language.
+3.Retain Unique Suggestions: Keep unique suggestions that appear in only one feedback report but are valuable for improvement. Highlight their source where applicable.
+4.Organized Output: Structure the output clearly and logically by category and priority (if mentioned), making it easy for planners to incorporate into new plans.
+output example:
+### Specific Areas for Improvement:  
+- Add logout functionality and error reporting for failed login/registration attempts.  
+- Clarify task descriptions for edge cases, including invalid input, duplicate registrations, and empty feedback submissions.  
+- Break down complex tasks (e.g., FeedbackManager implementation) into subtasks focusing on validation and file handling.  
+
+### Suggested Enhancements:  
+- Prioritize user authentication tasks, followed by feedback submission and navigation.  
+- Specify expected behaviors after user actions, such as feedback confirmation messages.  
+- Implement basic form validations to prevent invalid or empty submissions.  
+Use this format to summarize the feedback provided, ensuring the suggestions are actionable for creating improved new plans.
+
+(2) the content you need to summarize is:{summaries}.
+---
+follow the example, output you summary.
+        """
+        plan_summary_merge_values = {"summaries": plan_all_summaries}
+        plan_sum_messages.append(
+            format_prompt(PROMPT_FOR_PLAN_MERGE, plan_summary_merge_values)
+        )
+        print(plan_sum_messages[0]["content"])
+        log.info(
+            "prompt for plan summaries summary:\n" + plan_sum_messages[0]["content"]
+        )
+
+        plan_summaries_summary = chat_to_LLM(plan_sum_messages)
+
+        print("Plan Summary \n" + plan_summaries_summary)
+        log.info("Plan Summary\n" + plan_summaries_summary)
 
         feedback_result = {
             "arch": arch_summaries_summary,
+            "plan": plan_summaries_summary,
             "code": code_summaries_summary,
         }
-        return max_score, feedback_result
-
-    # if no code feedback generated
-    if code_feedback_selected:
-        print("final selected:\n" + code_feedback_selected)
-        return max_score, code_feedback_selected
-    else:
-        return max_score, "CodeIsGood"
+        return 1, feedback_result
 
 
-# _______________ useful functions _______________
 # _______________ useful functions _______________
 def ce_generate(
     task_plan,
@@ -1134,8 +1136,8 @@ def edit_task(d, log):
 
 
 REFINE_ARCHITECTURE_PROMPT = """
+
 ### Instructions:
-You are a software architect reviewing a Python project. 
 Below are the details about the implementation, UI, data storage, 
 file list, and data structures. 
 Based on the architecture details, the context of unit testing results, 
@@ -1165,21 +1167,11 @@ please provide improvement suggestions in the following areas:
 
 ---------------------------
 ### Output Example:
-
-1. **Overall Evaluation:**
-   - **Strengths:**
-     - Simple architecture suitable for small-scale projects.
-     - Text file storage works well at this scale.
-   - **Weaknesses:**
-     - UI lacks filtering and sorting features.
-     - files arrangement is not perfect.
-     - Text files lack organization, making scaling difficult.
-
-2. **Specific Problem Areas:**
+1. **Specific Problem Areas:**
    - **Problem 1:** UI lacks filtering and sorting features.
      - **Suggestions:** Add basic filtering and sorting functionalities.
 
-3. **Architecture Enhancements:**
+2. **Architecture Enhancements:**
    - **Implementation:** Flask is suitable, but separate models and views for better clarity.
    - **UI Design:** Add filtering, searching, and sorting.
    - **File list:** adjust files XXX.
@@ -1192,13 +1184,12 @@ please provide improvement suggestions in the following areas:
 3. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
 4. do not give advice with hash or security check in authentication.
 5. do not use recommend json if this is a website project, we only use txt now.
-5. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
+6. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
+7. output the "Specific Areas for Improvement" and "Suggested Enhancement" part.
 """
 
 REFINE_TASK_PLAN_PROMPT = """
-### Task Plan Review:
-
-You are an experienced software architect tasked with reviewing a Python application task plan. 
+Now You are an experienced software architect tasked with reviewing a Python application task plan. 
 The task plan outlines packages, logic, file structure, and tasks. 
 Based on the task plan details, the context of unit testing results, 
 the unit test code, the unit test result analysis, and the codebase, 
@@ -1232,22 +1223,19 @@ provide feedback on:
 4. do not give advice with hash or security check in authentication.
 5. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
 4. guidance related to user experience, efficiency are not needed.
+5. output the "Specific Areas for Improvement" and "Suggested Enhancement" part.
 
 ----------------------
 
 ### Example Output:
 
-**1. Overall Evaluation:**
-- **Strengths:** Covers key areas like user authentication, UI, and project management. UI components are well-defined.
-- **Weaknesses:** Lacks details on handling edge cases and data validation.
-
-**2. Specific Areas for Improvement:**
+**1. Specific Areas for Improvement:**
 - **Missing Features:** Add tasks for login and registration.
 - **Unclear Tasks:** `project_management.html` and `freelancer_profile.html` need more details on features (e.g., project editing, profile editing).
 - **Task Breakdown:** Break down larger tasks like `profile_management.html` into smaller subtasks.
 - **Dependencies:** Prioritize user login and registration first.
 
-**3. Suggested Enhancements:**
+**2. Suggested Enhancements:**
 - **Prioritization:** Implement authentication first to handle user data.
 - **Clarity:** Add more details on form validation for login/registration.
 - **Feature Clarification:** Specify editable fields for freelancer profile.

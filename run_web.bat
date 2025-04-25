@@ -1,22 +1,22 @@
 @echo off
-@REM python start_by_file.py --category website --name BookWormSearch.md
-@REM python start_by_file.py --category website --name CharitableGivingPlatform.md
-@REM python start_by_file.py --category website --name CulturalCalendar.md
-@REM python start_by_file.py --category website --name CulturalStoryteller.md
-@REM python start_by_file.py --category website --name CultureFacts.md
-@REM python start_by_file.py --category website --name DailyHealthTips.md
-@REM python start_by_file.py --category website --name DailyJournalApp.md
-@REM python start_by_file.py --category website --name DigitalStorytellingPlatform.md
-@REM python start_by_file.py --category website --name EcoFriendlyLivingTips.md
-@REM python start_by_file.py --category website --name FreelancerMarketplace.md
-@REM python start_by_file.py --category website --name GreenLivingGuide.md
-@REM python start_by_file.py --category website --name Headlinr.md
-@REM python start_by_file.py --category website --name MedicalInfoTracker.md
-@REM python start_by_file.py --category website --name MedicalTestResultTracker.md
-@REM python start_by_file.py --category website --name MovieRecommendationSystem.md
-@REM python start_by_file.py --category website --name NewsReader.md
-@REM python start_by_file.py --category website --name NoteTakingApp.md
-@REM python start_by_file.py --category website --name OfficeTaskFeedback.md
+python start_by_file.py --category website --name BookWormSearch.md
+python start_by_file.py --category website --name CharitableGivingPlatform.md
+python start_by_file.py --category website --name CulturalCalendar.md
+python start_by_file.py --category website --name CulturalStoryteller.md
+python start_by_file.py --category website --name CultureFacts.md
+python start_by_file.py --category website --name DailyHealthTips.md
+python start_by_file.py --category website --name DailyJournalApp.md
+python start_by_file.py --category website --name DigitalStorytellingPlatform.md
+python start_by_file.py --category website --name EcoFriendlyLivingTips.md
+python start_by_file.py --category website --name FreelancerMarketplace.md
+python start_by_file.py --category website --name GreenLivingGuide.md
+python start_by_file.py --category website --name Headlinr.md
+python start_by_file.py --category website --name MedicalInfoTracker.md
+python start_by_file.py --category website --name MedicalTestResultTracker.md
+python start_by_file.py --category website --name MovieRecommendationSystem.md
+python start_by_file.py --category website --name NewsReader.md
+python start_by_file.py --category website --name NoteTakingApp.md
+python start_by_file.py --category website --name OfficeTaskFeedback.md
 python start_by_file.py --category website --name OnlineLibraryManagementSystem.md
 python start_by_file.py --category website --name OnlineShoppingCenter.md
 python start_by_file.py --category website --name OnlineVintageMarket.md
@@ -30,13 +30,13 @@ python start_by_file.py --category website --name ShopPal.md
 python start_by_file.py --category website --name SocialLearn.md
 python start_by_file.py --category website --name SocialShare.md
 python start_by_file.py --category website --name SportsEquipmentInventoryTracker.md
-@REM python start_by_file.py --category website --name TaskManager.md
-@REM python start_by_file.py --category website --name TravalMemoryShare.md
-@REM python start_by_file.py --category website --name TravalTipper.md
-@REM python start_by_file.py --category website --name TravelLog.md
-@REM python start_by_file.py --category website --name TravelRecommender.md
-@REM python start_by_file.py --category website --name TripSaver.md
-@REM python start_by_file.py --category website --name VehicleMaintenanceTracker.md
-@REM python start_by_file.py --category website --name VirtualBookPublishing.md
-@REM python start_by_file.py --category website --name WhishListTracker.md
+python start_by_file.py --category website --name TaskManager.md
+python start_by_file.py --category website --name TravalMemoryShare.md
+python start_by_file.py --category website --name TravalTipper.md
+python start_by_file.py --category website --name TravelLog.md
+python start_by_file.py --category website --name TravelRecommender.md
+python start_by_file.py --category website --name TripSaver.md
+python start_by_file.py --category website --name VehicleMaintenanceTracker.md
+python start_by_file.py --category website --name VirtualBookPublishing.md
+python start_by_file.py --category website --name WhishListTracker.md
 pause

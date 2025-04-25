@@ -52,8 +52,10 @@ class C_Programmer(Role):
         Team.log.info(self.profile + " " + self.name + " Coding...")
 
         # ---------- get the information needed from SCR ----------
-        architecture = self.getArchiture().content
+
         functional_requirement = self.getPRD().content
+        architecture = self.getArchiture().content
+        task_plan = self.getProjectPlan().content
 
         # --------------- decompose and assign tasks to programmer
 
@@ -65,7 +67,8 @@ class C_Programmer(Role):
             user_prompt_msg = user_prompt_template.invoke(
                 {
                     "architecture": architecture,
-                    "functional_requirements": functional_requirement,
+                    "task_plan": task_plan,
+                    # "functional_requirements": functional_requirement,
                 }
             )
         elif flag == "1":

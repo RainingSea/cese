@@ -132,19 +132,19 @@ architecture:
 [CONTENT]
 "Required packages": ,
 "Required Other language third-party packages":,
-"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,,
+"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,
 "Task list": a list of filenames, prioritized by dependency order,
 "Shared Knowledge": ,
-
 [/CONTENT]
 
-## nodes: "<node>: <type>  # <instruction>"
+## <instruction>
 
 
 ## constraint
 Language: Please use the same language as Human INPUT.
 Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
 If you are doing website development, please do not encrypt the account password for the login function.
+---
 """
 
 WRITE_PLAN_PROMPT = """
@@ -160,10 +160,9 @@ architecture:
 [CONTENT]
 "Required packages": ,
 "Required Other language third-party packages":,
-"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,,
+"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,
 "Task list": a list of filenames, prioritized by dependency order,
 "Shared Knowledge": ,
-
 [/CONTENT]
 
 ## <instruction>
@@ -173,7 +172,48 @@ architecture:
 Language: Please use the same language as Human INPUT.
 Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
 If you are doing website development, please do not encrypt the account password for the login function.
+Specially, do not use flask_wtf to build html files.
 
 ## action
 Follow instructions, generate output and make sure it follows the format example.
+"""
+
+WRITE_PLAN_WITH_FDBACK_META = """
+## Context
+functional requirement:
+{functional_requirement}
+
+architecture:
+{software_architecture}
+
+## lessons and experience
+{ce_feedback}
+-----
+
+## format example
+[CONTENT]
+"Required packages": ,
+"Required Other language third-party packages":,
+"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,
+"Task list": a list of filenames, prioritized by dependency order,
+"Shared Knowledge": ,
+[/CONTENT]
+
+## <instruction>
+{instruction}
+
+## constraint
+Language: Please use the same language as Human INPUT.
+Format: output wrapped inside [CONTENT][/CONTENT] like format example, nothing else.
+If you are doing website development, please do not encrypt the account password for the login function.
+Specially, do not use flask_wtf to build html files.
+
+## Attention
+In "lessons and experience" section, there is a summary and feedback from previous work on this project. When you generate, you need to take these insight into consideration. 
+for example, if they are suggestions, you should adopt them. If they are error warnings, you need to avoid them.
+However, your main task remains to generate a corresponding code plan based on "original_requirement" and "architecture".
+
+
+## action
+Follow instructions of nodes and Attention, generate output and make sure it follows the format example.
 """

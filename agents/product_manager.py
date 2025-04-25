@@ -33,6 +33,7 @@ class Product_Manager(Role):
 
         # ---------- get the information needed from SCR ----------
         original_requirement = self.getOriginRequirement().content
+        
 
         # ---------- constructing prompt to LLM ----------
         system_prompt = SystemMessage(content=WRITE_PRD_SYS)

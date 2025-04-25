@@ -49,25 +49,27 @@ class Programmer(Role):
         Team.log.info(self.profile + " " + self.name + " Coding...")
 
         # ---------- get the information needed from SCR ----------
-        architecture = self.getArchiture().content
         functional_requirement = self.getPRD().content
+        architecture = self.getArchiture().content
+        task_plan = self.getProjectPlan().content
 
         system_prompt = SystemMessage(content=CODING_SYS)
         user_prompt_template = ChatPromptTemplate.from_template(CODING)
         user_prompt_msg = user_prompt_template.invoke(
             {
-                "functional_requirements": functional_requirement,
                 "architecture": architecture,
+                "task_plan": task_plan,
             }
         )
         user_prompt = user_prompt_msg.to_messages()[0]
         # prompt LLM
+
         Team.log.info(system_prompt.content + "\n" + user_prompt.content)
         code_result = self.llm.invoke(system_prompt, user_prompt)
-        Team.log.info("\n" + code_result)
+        Team.log.info("Generated Code: \n" + code_result)
         # ________ store in self code dict ________
-        Team.log.info("Compare Code")
-        self.compare_code(code_result)
+        # Team.log.info("Compare Code")
+        # self.compare_code(code_result)
         code_result_split = code_result.split("*** ")
         for i in range(1, len(code_result_split)):
             file_name, file_content = self.match(code_result_split[i])
@@ -75,9 +77,8 @@ class Programmer(Role):
 
         self.message_to_file(code_result)
         code_msg = Message(sender=self.profile, content=code_result)
-        Team.all_messages.append(code_msg)
+        # Team.all_messages.append(code_msg)
         self.own_message = code_msg
-
         return
 
     def go_in_sample(self):
@@ -87,13 +88,14 @@ class Programmer(Role):
         # ---------- get the information needed from SCR ----------
         functional_requirement = self.getPRD().content
         architecture = self.getArchiture().content
+        task_plan = self.getProjectPlan().content
 
         system_prompt = SystemMessage(content=CODING_SYS)
         user_prompt_template = ChatPromptTemplate.from_template(CODING)
         user_prompt_msg = user_prompt_template.invoke(
             {
-                "functional_requirements": functional_requirement,
                 "architecture": architecture,
+                "task_plan": task_plan,
             }
         )
         user_prompt = user_prompt_msg.to_messages()[0]

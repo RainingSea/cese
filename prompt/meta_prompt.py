@@ -5,7 +5,7 @@ My prompt is mainly divided into three parts: input, instruction, and output spe
 The input describes what input the model will receive for this task; 
 the output format or attention mainly defines the formatting requirements. They have already been defined and should not be changed.
 
-Now, I want you to help me write the "instruction" section, which describes how the LLM should generate each output in the "format example."
+Now, I want you to help me write the "<instruction>" section, which describes how the LLM should generate each output in the "format example."
 Please consider how to design the instruction section (following the given formatting requirements), and then return only the content of the instruction section.
 """
 
