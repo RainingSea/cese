@@ -1,0 +1,263 @@
+#_#unit_test_result#_#
+{'category': 'website', 'project_name': 'ce_0', 'passed': 4, 'failed': 3, 'errors': 1, 'total': 8, 'output': 'test_access_dashboard (testcode.TestPeerTutoringNetwork.test_access_dashboard) ... FAIL\ntest_access_profile_page (testcode.TestPeerTutoringNetwork.test_access_profile_page) ... FAIL\ntest_cancel_tutoring_request (testcode.TestPeerTutoringNetwork.test_cancel_tutoring_request) ... FAIL\ntest_contact_support (testcode.TestPeerTutoringNetwork.test_contact_support) ... ok\ntest_login (testcode.TestPeerTutoringNetwork.test_login) ... ok\ntest_logout (testcode.TestPeerTutoringNetwork.test_logout) ... ERROR\ntest_registration (testcode.TestPeerTutoringNetwork.test_registration) ... ok\ntest_view_available_tutors (testcode.TestPeerTutoringNetwork.test_view_available_tutors) ... ok\n======================================================================\nERROR: test_logout (testcode.TestPeerTutoringNetwork.test_logout)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File "D:\\Project\\ATEdev\\ATEDev_main\\project\\website\\PeerTutoringNetwork\\ce\\ce_0\\code\\testcode.py", line 77, in test_logout\n    self.driver.find_element(By.LINK_TEXT, \'Logout\').click()\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\25929\\.conda\\envs\\mfg\\Lib\\site-packages\\selenium\\webdriver\\remote\\webdriver.py", line 770, in find_element\n    return self.execute(Command.FIND_ELEMENT, {"using": by, "value": value})["value"]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "C:\\Users\\25929\\.conda\\envs\\mfg\\Lib\\site-packages\\selenium\\webdriver\\remote\\webdriver.py", line 384, in execute\n    self.error_handler.check_response(response)\n  File "C:\\Users\\25929\\.conda\\envs\\mfg\\Lib\\site-packages\\selenium\\webdriver\\remote\\errorhandler.py", line 232, in check_response\n    raise exception_class(message, screen, stacktrace)\nselenium.common.exceptions.NoSuchElementException: Message: no such element: Unable to locate element: {"method":"link text","selector":"Logout"}\n  (Session info: chrome=135.0.7049.115); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception\nStacktrace:\n======================================================================\nFAIL: test_access_dashboard (testcode.TestPeerTutoringNetwork.test_access_dashboard)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File "D:\\Project\\ATEdev\\ATEDev_main\\project\\website\\PeerTutoringNetwork\\ce\\ce_0\\code\\testcode.py", line 54, in test_access_dashboard\n    self.assertIn("Dashboard", self.driver.title)\nAssertionError: \'Dashboard\' not found in \'Login\'\n======================================================================\nFAIL: test_access_profile_page (testcode.TestPeerTutoringNetwork.test_access_profile_page)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File "D:\\Project\\ATEdev\\ATEDev_main\\project\\website\\PeerTutoringNetwork\\ce\\ce_0\\code\\testcode.py", line 70, in test_access_profile_page\n    self.assertIn("User Profile", self.driver.title)\nAssertionError: \'User Profile\' not found in \'Profile\'\n======================================================================\nFAIL: test_cancel_tutoring_request (testcode.TestPeerTutoringNetwork.test_cancel_tutoring_request)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File "D:\\Project\\ATEdev\\ATEDev_main\\project\\website\\PeerTutoringNetwork\\ce\\ce_0\\code\\testcode.py", line 94, in test_cancel_tutoring_request\n    self.fail("Cancel tutoring request functionality not implemented.")\nAssertionError: Cancel tutoring request functionality not implemented.\n----------------------------------------------------------------------\nRan 8 tests in 34.879s\nFAILED (failures=3, errors=1)\n'}
+
+
+#_#unit_test_result_analysis#_#
+Let's analyze the unit test results along with their associated code to identify the reasons for the failures and errors one by one.
+
+### 1. `test_access_dashboard`
+- **Test Result**: `FAIL`
+- **Error Trace**: AssertionError: `'Dashboard' not found in 'Login'`
+- **Test Code**:
+    ```python
+    self.login("admin", "admin123")
+    # Verify that the user is taken to the dashboard
+    self.assertIn("Dashboard", self.driver.title)
+    ```
+- **Reason**:
+    This test is trying to log in with the username and password. However, it seems that after the login attempt, the user remains on the login page, indicating something might be wrong with the login process itself.
+  
+  **Relevant Code**:
+  ```python
+  @app.route('/', methods=['GET', 'POST'])
+  def login():
+      if request.method == 'POST':
+          username = request.form['username']
+          password = request.form['password']
+          if user_manager.login(username, password):
+              session['username'] = username
+              return redirect(url_for('dashboard'))
+      return render_template('login.html')
+  ```
+
+- The issue likely lies in the `user_manager.login(username, password)` method returning `False`. We can check the `users.txt` file to see if the correct login credentials exist there. Since the user is not being redirected to the dashboard, it suggests the credentials (admin/admin123) may not be matching or the application isn¡¯t functioning as intended.
+
+### 2. `test_access_profile_page`
+- **Test Result**: `FAIL`
+- **Error Trace**: AssertionError: `'User Profile' not found in 'Profile'`
+- **Test Code**:
+    ```python
+    self.login("admin", "admin123")
+    self.driver.find_element(By.LINK_TEXT, 'Profile').click()
+    # Verify that the profile page is displayed
+    self.assertIn("User Profile", self.driver.title)
+    ```
+- **Reason**:
+    This test also fails due to incorrect redirection. After clicking on the profile link, the user is likely brought to a non-existent or incorrect page that doesn't have the title "User Profile".
+
+  **Relevant Code**:
+  ```python
+  @app.route('/profile')
+  def profile():
+      return render_template('profile.html')
+  ```
+  
+- The profile page renders as expected but if the user did not successfully log in (due to the first test's failure), they may not have the context to access the profile page properly. This error is fundamentally linked back to the login failure in the previous test.
+
+### 3. `test_logout`
+- **Test Result**: `ERROR`
+- **Error Trace**: `selenium.common.exceptions.NoSuchElementException: no such element: Unable to locate element: {"method":"link text","selector":"Logout"}`
+- **Test Code**:
+    ```python
+    self.login("admin", "admin123")
+    # Click the Logout button
+    self.driver.find_element(By.LINK_TEXT, 'Logout').click()
+    # Verify that the user is redirected to the Login Page
+    self.assertIn("Login", self.driver.title)
+    ```
+- **Reason**:
+    The logout feature cannot be tested if the login was unsuccessful. 
+   
+  **Relevant Code**:
+  There isn't a defined logout route in the provided codebase, assuming the logout link/button would exist in the dashboard or profile page. Therefore, if the user fails to log in or if the session clears incorrectly, the operation will fail. 
+
+### 4. `test_cancel_tutoring_request`
+- **Test Result**: `FAIL`
+- **Error Trace**: `AssertionError: Cancel tutoring request functionality not implemented.`
+- **Test Code**:
+    ```python
+    self.login("admin", "admin123")
+    # Assuming there is a cancel button, which is not implemented in the codebase
+    self.fail("Cancel tutoring request functionality not implemented.")
+    ```
+- **Reason**:
+    This test indicates that there is simply no canceling functionality implemented in the application, which the test case checks for.
+
+  **Relevant Code**:
+  The request management covers some of this functionality, but a mechanism for canceling a request from the UI is not present in the provided codebase. Therefore, the test must be revised according to actual application capabilities.
+
+### Summary of Findings:
+1. The failures in `test_access_dashboard` and `test_access_profile_page` are likely due to login failure. Investigate the `users.txt` file and the `login()` function.
+   
+2. The `Logout` functionality cannot be tested without a successful login first.
+
+3. `test_cancel_tutoring_request` denotes a missing functionality in your application, suggesting development is required to add this feature.
+
+### Recommendations:
+- Ensure that valid user credentials are present in `users.txt`.
+- Verify that sessions are maintained properly during tests.
+- Implement the missing canceling functionality to pass the associated unit test.
+- Consider revisiting the navigation and session management to provide clearer routes.
+
+
+#_#code_feedback#_#
+### 1. Summary of Test Pass Cases
+
+#### Passed Test Cases:
+- `test_contact_support` (ok)
+- `test_login` (ok)
+- `test_logout` (ok)
+- `test_registration` (ok)
+- `test_view_available_tutors` (ok)
+
+#### Corresponding Project Code in Pseudocode Format:
+
+##### **test_contact_support**
+```pseudocode
+FUNCTION contact()
+    RENDER contact.html
+    DISPLAY MESSAGE "Support inquiries will be handled here."
+    RENDER LINK "Back to Dashboard" (redirects to index)
+END FUNCTION
+```
+
+##### **test_login**
+```pseudocode
+FUNCTION login()
+    IF REQUEST_METHOD == 'POST'
+        username = GET FORM DATA 'username'
+        password = GET FORM DATA 'password'
+        IF user_manager.login(username, password) IS TRUE
+            SET session['username'] = username
+            REDIRECT to dashboard()
+        ENDIF
+    ENDIF
+    RENDER login.html
+    DISPLAY LOGIN FORM
+END FUNCTION
+```
+
+##### **test_logout**
+```pseudocode
+# Note: There is no explicit logout functionality implemented
+# Assuming we add the following for logout functionality
+
+FUNCTION logout()
+    IF session['username'] EXISTS
+        REMOVE session['username']
+        REDIRECT to login()
+    ENDIF
+END FUNCTION
+```
+
+##### **test_registration**
+```pseudocode
+FUNCTION register()
+    IF REQUEST_METHOD == 'POST'
+        username = GET FORM DATA 'username'
+        password = GET FORM DATA 'password'
+        email = GET FORM DATA 'email'
+        user_manager.register(username, password, email)
+        REDIRECT to login()
+    ENDIF
+    RENDER registration.html
+    DISPLAY REGISTRATION FORM
+END FUNCTION
+```
+
+##### **test_view_available_tutors**
+```pseudocode
+FUNCTION dashboard()
+    tutors = tutor_manager.getTutors()
+    RENDER dashboard.html
+    DISPLAY LIST OF tutors
+END FUNCTION
+```
+
+### 2. Summary of Test Failed or Error Cases
+
+#### Failed/Error Test Cases:
+1. `test_access_dashboard` (FAIL)
+   - **Error**: `'Dashboard' not found in 'Login'`
+   - **Analysis**: The login process failed, leading to the user remaining on the login page rather than being redirected to the dashboard.
+
+2. `test_access_profile_page` (FAIL)
+   - **Error**: `'User Profile' not found in 'Profile'`
+   - **Analysis**: Similar to the first case, the user did not successfully log in and could not access the profile page properly.
+
+3. `test_logout` (ERROR)
+   - **Error**: `NoSuchElementException`
+   - **Analysis**: The test could not find a Logout button, indicating that the user may not have logged in successfully. This further illustrates the broken state after the login failure.
+
+4. `test_cancel_tutoring_request` (FAIL)
+   - **Error**: `Cancel tutoring request functionality not implemented.`
+   - **Analysis**: The test indicates that there is no implemented functionality in the application for canceling tutoring requests.
+
+#### Guidance to Solve Issues:
+
+1. **Login and Redirection Issues**:
+   - Confirm that user credentials in the `users.txt` file are correct. Ensure that the login function accurately checks these credentials against the current user input.
+   - Ensure that session management is properly initialized and persists between requests. This may involve revisiting the initialization of the Flask session to confirm it behaves as expected.
+
+2. **Profile and Dashboard Accessibility**:
+   - Implement a mechanism to control access to the dashboard and profile pages based on user authentication status. If the user is not logged in, they should be redirected back to the login page or another informational page.
+
+3. **Logout Functionality**:
+   - Implement a logout function that clears the user session and routes the user back to the login page. Make this function accessible via a visible link or button on the relevant pages; ensure that this logout function is tested to confirm it works reliably.
+
+4. **Handling Canceling Tutor Requests**:
+   - Develop and integrate a functionality for users to cancel tutoring requests. This needs to include both the backend logic to update the stored requests and the frontend UI components to allow users to trigger this action. Also, ensure that guidance documentation is in place for users on how they can use this feature once implemented. 
+
+By addressing these key issues based on unit test outcomes, the application can achieve a more complete and functional state.
+
+
+#_#architecture_feedback#_#
+### Specific Areas for Improvement
+
+1. **Problem 1:** User Authentication
+   - **Weakness:** The current implementation relies solely on text files for user credentials. This may lead to password security issues since file storage is not secure.
+   - **Suggestions:** Implement a proper user session management system that logically connects user login and logout routes. Review the code to ensure proper session handling after login and resolve issues related to maintaining authenticated sessions.
+
+2. **Problem 2:** Missing Logout Functionality
+   - **Weakness:** The logout function is not properly defined in the application, leading to test failures in that area.
+   - **Suggestions:** Implement a dedicated logout route in the Flask application to handle user sessions correctly. This route should clear the session and redirect users to the login page.
+
+3. **Problem 3:** Cancel Tutoring Request Feature
+   - **Weakness:** The functionality to cancel tutoring requests is mentioned in the tests but is not implemented in the codebase.
+   - **Suggestions:** Implement a user interface element for canceling requests and add the corresponding logic in the `RequestManager` to support this feature.
+
+4. **Problem 4:** UI Navigation and Consistency
+   - **Weakness:** Links for navigating between different pages need to be consistently implemented and possibly improved to enhance user experience.
+   - **Suggestions:** Standardize the navigation layout and ensure that each page has links to all other main pages (e.g., Dashboard, Profile, and Contact) for easier access.
+
+### Suggested Enhancements
+
+1. **Implementation:**
+   - Enhance the `UserManager` to provide robust session tracking and authentication management. Consider revisiting the login method to ensure it properly handles session creation and redirection after successful authentication.
+
+2. **UI Design:**
+   - Improve page layouts to ensure each page provides a link back to the Dashboard and other necessary navigation options. This would help ensure that users always know how to get back to the main features of the site.
+
+3. **File List Adjustment:**
+   - Although files should remain as text files, clearly define and document what each file is meant to contain and ensure that the application covers all functionalities based on the necessary interactions for users, tutors, and requests.
+
+4. **Data Storage:**
+   - Review the design to check if the text files sufficiently cover all the data handling requirements for users, tutors, and tutoring requests. Ensure data integrity and add checks to handle cases if data files do not exist or are malformed.
+
+5. **Data Structures:**
+   - Refactor and clarify the responsibilities of classes such as `User`, `Tutor`, and `Request`. Incorporate methods directly related to these classes to handle necessary functionalities, like canceling requests within the `Request` class or user profile management within the `User` class. This will promote better modularity and maintenance in the future.
+
+
+#_#task_plan_feedback#_#
+**1. Specific Areas for Improvement:**
+- **Missing Features:** Tasks for implementing logout functionality and canceling tutoring requests should be included, as they are part of the expected user interactions.
+- **Unclear Tasks:** The `cancelRequest` feature in the `RequestManager` is not detailed enough in the task list. Specific requirements for UI interactions and functionality should be added (e.g., how users will access and confirm cancellation).
+- **Task Breakdown:** Tasks like creating templates may need to be broken down further. For instance, `templates/dashboard.html` could include specific subtasks for displaying the user interface alongside tutor data.
+- **Dependencies:** The dependency between user registration, login, and related UI template tasks should be highlighted, as successful authentication is critical before moving on to other features.
+
+**2. Suggested Enhancements:**
+- **Prioritization:** Focus on implementing the user authentication tasks first (login and registration) as they are foundational before proceeding to dashboard and profile tasks.
+- **Clarity:** Additional details on the expected behavior upon canceling a tutoring request should be provided in the task list (e.g., confirmation pop-ups or error messages).
+- **Feature Clarification:** Elaborate on the features required for the profile page. Specify what data will be displayed and if the user can edit their profile.
+- **Task Grouping:** Group tasks related to user interaction (like login, registration, dashboard, and profile) for clarity in development phases. This helps maintain focus on related tasks together.
+- **Additional Considerations:** Address whether error handling is in place when users input incorrect credentials, as well as how these will be communicated to the user.

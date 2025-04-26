@@ -71,11 +71,12 @@ def update_flask_port(file_path, port):
         replaced = False
 
         for line in lines:
-            if not replaced and re.match(r"(\s*).*?app\.run\(.*\)", line):  # 匹配前缀
+            if not replaced and re.match(r"(\s*)(self\.)?app\.run\(.*\)", line):  # 匹配前缀，包括可选的self.
                 indent = re.match(r"(\s*)", line).group(1)  # 提取缩进
+                prefix = re.match(r"(\s*)(self\.)?", line).group()  # 提取前缀（包括缩进和可能的self.）
                 updated_lines.append(
-                    f"{indent}app.run(port={port}, debug=False)\n"
-                )  # 替换
+                    f"{prefix}app.run(port={port}, debug=False)\n"
+                )  # 保留原有前缀
                 replaced = True  # 标志设置为 True，防止后续替换
             else:
                 updated_lines.append(line)
@@ -83,8 +84,6 @@ def update_flask_port(file_path, port):
         # 写回文件
         with open(file_path, "w", encoding="utf-8") as file:
             file.writelines(updated_lines)
-
-        # print(f"已成功将 {file_path} 文件的 Flask 端口修改为 {port}。")
 
     except Exception as e:
         print(f"发生错误: {e}")
@@ -97,23 +96,28 @@ def update_flask_port(file_path, port):
 if __name__ == "__main__":
     # add_newline_to_txt_files("D:\Project\CE\CE\project\website\Headlinr\code")
     directory = "D:\Project\Datasets\SD-bench\codebase\website"
-    try:
-        # 获取目录的绝对路径
-        directory = os.path.abspath(directory)
+    update_flask_port(
+        "D:\Project\ATEdev\ATEDev_main\project\website\FreelancerMarketplace\code\main.py",
+        "",
+    )
 
-        # 遍历目录，查找子目录
-        subdirs = [
-            name
-            for name in os.listdir(directory)
-            if os.path.isdir(os.path.join(directory, name))
-        ]
+    # try:
+    #     # 获取目录的绝对路径
+    #     directory = os.path.abspath(directory)
 
-        #     # 输出结果
-        print("Subdirectories found:")
+    #     # 遍历目录，查找子目录
+    #     subdirs = [
+    #         name
+    #         for name in os.listdir(directory)
+    #         if os.path.isdir(os.path.join(directory, name))
+    #     ]
 
-        for index, value in enumerate(subdirs):
-            print(str(index) + " " + os.path.join(directory, value))
-            update_flask_port(os.path.join(directory, value, "code", "main.py"), "")
+    #     #     # 输出结果
+    #     print("Subdirectories found:")
 
-    except Exception as e:
-        print(f"Error while reading directory: {e}")
+    #     for index, value in enumerate(subdirs):
+    #         print(str(index) + " " + os.path.join(directory, value))
+    #         update_flask_port(os.path.join(directory, value, "code", "main.py"), "")
+
+    # except Exception as e:
+    #     print(f"Error while reading directory: {e}")

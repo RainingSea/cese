@@ -106,11 +106,12 @@ WRITE_ARCHITECT_FORMAT = """
 "Implementation approach": "",
 "UI design":"",
 "Data Storage":"If software requires a data storage, you should follow the rules: Data will be stored in local files. Different types of data will be stored in separate files. You should define the file by yourself in advance. Do not use SQL database."
-"File list": ["main.py","game.py","templates/login.html","users.txt"] # Only need relative paths. ALWAYS write a main.py here.
+"File list": ["main.py","game.py","templates/login.html","users.txt"], # Only need relative paths. ALWAYS write a main.py here.
 "Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n  ...,
 [/CONTENT]
 
 [3] <instruction>
+
 
 ## constraint
 Language: Please use the same language as Human INPUT.
@@ -135,9 +136,13 @@ WRITE_ARCHITECT_PROMPT = """
 [2] Format example
 [CONTENT]
 "Implementation approach": "",
+
 "UI design":"",
+
 "Data Storage":"If software requires a data storage, you should follow the rules: Data will be stored in local files. Different types of data will be stored in separate files. You should define the file by yourself in advance. Do not use SQL database."
-"File list": ["main.py","game.py","templates/login.html","users.txt"] # Only need relative paths. ALWAYS write a main.py here.
+
+"File list": ["main.py","game.py","templates/login.html","users.txt"], # Only need relative paths. ALWAYS write a main.py here.
+
 "Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n",
 [/CONTENT]
 
@@ -177,14 +182,16 @@ WRITE_ARCHITECT_WITH_FDBACK_META = """
 [2] Format example
 [CONTENT]
 "Implementation approach": "",
+
 "UI design":"",
+
 "Data Storage":"If software requires a data storage, you should follow the rules: Data will be stored in local files. Different types of data will be stored in separate files. You should define the file by yourself in advance. Do not use SQL database."
-"File list": ["main.py","game.py","templates/login.html","users.txt"] # Only need relative paths. ALWAYS write a main.py here.
+
+"File list": ["main.py","game.py","templates/login.html","users.txt"], # Only need relative paths. ALWAYS write a main.py here.
+
 "Data structures and interfaces": "\nclassDiagram\n    class Main {{\n        -SearchEngine search_engine\n        +main() str\n    }}\n    class SearchEngine {{\n        -Index index\n        -Ranking ranking\n        -Summary summary\n        +search(query: str) str\n    }}\n",
 [/CONTENT]
 
-
-[/CONTENT]
 [3] <instruction>
 {instruction}
 

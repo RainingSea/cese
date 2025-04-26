@@ -1,6 +1,6 @@
 @echo off
-python start_by_file.py --category website --name BookWormSearch.md
-python start_by_file.py --category website --name CharitableGivingPlatform.md
+@REM python start_by_file.py --category website --name BookWormSearch.md
+@REM python start_by_file.py --category website --name CharitableGivingPlatf.orm.md
 python start_by_file.py --category website --name CulturalCalendar.md
 python start_by_file.py --category website --name CulturalStoryteller.md
 python start_by_file.py --category website --name CultureFacts.md

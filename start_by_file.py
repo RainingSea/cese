@@ -39,23 +39,17 @@ def start_project():
     # __________ from shell __________
 
     # ______________ project soft config ________________
-
+    _dir = "D:\\Project\\ATEdev\\ATEDev_main"
     # dataset dir
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
-        f"D:\Project\ATEdev\ATEDev_main\\dataset\\SD-bench\\dataset\\{category}\\{name}"
+        f"{_dir}\\dataset\\SD-bench\\dataset\\{category}\\{name}"
     )
     # test case dir
-    test_cases_dir = "D:\Project\ATEdev\ATEDev_main\\dataset\\SD-bench\\testcase"
+    test_cases_dir = f"{_dir}\\dataset\\SD-bench\\testcase"
 
     # project dir
-    projdir = (
-        "D:\\Project\\ATEdev\\ATEDev_main\\project\\"
-        + category
-        + "\\"
-        + project_name
-        + "\\"
-    )
+    projdir = f"{_dir}\\project\\" + category + "\\" + project_name + "\\"
 
     # exploration numbers
     explore_num = 3
@@ -130,16 +124,17 @@ def start_project():
     # 都走这个分支
     # 类似于这种命令 python start_by_file.py --category website --name MovieRecommendationSystem.md （没有seq参数）
 
-    team.run_pure()
-    # if not seq:
-    #     if category == "website":
-    #         team.run_web()
-    #     elif category == "dev":
-    #         team.run_pure()
-    #     else:
-    #         team.run_before_test()
-    # elif seq:
-    #     team.run_vice(seq)
+    # team.run_pure()
+    
+    if not seq:
+        if category == "website":
+            team.run_web()
+        elif category == "dev":
+            team.run_pure()
+        else:
+            team.run_before_test()
+    elif seq:
+        team.run_vice(seq)
 
     # team.run_self_evo()
     # ------------------- launch project ------------------------

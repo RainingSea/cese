@@ -577,7 +577,7 @@ def ceaug(
         If test code like "self.fail(XXX functionality not implemented)" occurs, it suggests a problem with the project code, not the test code.
         """
         messages.append(format_prompt(PROMPT_FOR_TEST_ANA, values))
-
+        # log.info(messages[0]["content"])
         unit_test_result_analysis = chat_to_LLM(messages)
 
         print("1-| unit test result analysis |")
@@ -743,8 +743,8 @@ There is no need to output the list test cases again at the end.
 # Attention
 Must synthesize test results for the same test case from all projects, do not just output test result from only one project as the final case result.
 Pass pseudocode or error/failure analysis about one same case, should be assembled within one |CASE|.
-The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
-
+The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation.
+Carefully analyze all results, do not forget any project.  
 
 # Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
 

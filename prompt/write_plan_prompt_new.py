@@ -131,9 +131,17 @@ architecture:
 ## format example
 [CONTENT]
 "Required packages": ,
+
 "Required Other language third-party packages":,
-"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,
-"Task list": a list of filenames, prioritized by dependency order,
+
+"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented, with needed description.
+
+"Task list": [
+    "filename",
+    "filename",
+    ...
+],
+
 "Shared Knowledge": ,
 [/CONTENT]
 
@@ -159,9 +167,17 @@ architecture:
 ## format example
 [CONTENT]
 "Required packages": ,
+
 "Required Other language third-party packages":,
-"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,
-"Task list": a list of filenames, prioritized by dependency order,
+
+"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented, with needed description.
+
+"Task list": [
+    "filename",
+    "filename",
+    ...
+],
+
 "Shared Knowledge": ,
 [/CONTENT]
 
@@ -193,9 +209,17 @@ architecture:
 ## format example
 [CONTENT]
 "Required packages": ,
+
 "Required Other language third-party packages":,
-"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented,
-"Task list": a list of filenames, prioritized by dependency order,
+
+"Logic Analysis": Provide a list of files with the classes/methods/functions to be implemented, with needed description.
+
+"Task list": [
+    "filename",
+    "filename",
+    ...
+],
+
 "Shared Knowledge": ,
 [/CONTENT]
 

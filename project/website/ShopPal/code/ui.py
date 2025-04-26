@@ -1,0 +1,1 @@
+# This file is intentionally left empty as the UI is handled in the templates.
