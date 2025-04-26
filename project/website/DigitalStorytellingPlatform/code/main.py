@@ -65,7 +65,7 @@ class Main:
         self.story_manager = StoryManager()
 
     def run(self) -> None:
-        app.run(port=8162, debug=False)
+        app.run(port=8297, debug=False)
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
