@@ -1,67 +1,104 @@
-class User:
-    def __init__(self, username: str, password: str):
-        self.username = username
-        self.password = password
+from flask import Flask, render_template, request, redirect, url_for
+import os
 
-    def register(self):
-        with open('users.txt', 'a') as file:
-            file.write(f"{self.username},{self.password}\n")
+class UserManager:
+    def __init__(self):
+        self.users = []
+        self.load_users()
 
-    def login(self) -> bool:
-        with open('users.txt', 'r') as file:
-            for line in file:
-                user, pwd = line.strip().split(',')
-                if user == self.username and pwd == self.password:
-                    return True
+    def login(self, username: str, password: str) -> bool:
+        for user in self.users:
+            if user[0] == username and user[1] == password:
+                return True
         return False
 
+    def register(self, username: str, password: str) -> bool:
+        if any(user[0] == username for user in self.users):
+            return False
+        self.users.append((username, password))
+        self.save_users()
+        return True
 
-class Item:
-    def __init__(self, name: str, description: str, price: float):
-        self.name = name
-        self.description = description
-        self.price = price
+    def load_users(self) -> None:
+        if os.path.exists('users.txt'):
+            with open('users.txt', 'r') as file:
+                self.users = [line.strip().split('|') for line in file.readlines()]
 
-    def create_listing(self):
-        with open('items.txt', 'a') as file:
-            file.write(f"{self.name},{self.description},{self.price}\n")
+    def save_users(self) -> None:
+        with open('users.txt', 'w') as file:
+            for user in self.users:
+                file.write('|'.join(user) + '\n')
 
-    def get_details(self) -> str:
-        return f"Name: {self.name}, Description: {self.description}, Price: {self.price}"
-
-
-class Main:
+class ItemManager:
     def __init__(self):
-        self.user = None
-        self.item = None
+        self.items = []
+        self.load_items()
 
-    def main(self) -> str:
-        return "Welcome to Online Vintage Market"
+    def add_item(self, name: str, description: str, price: float) -> None:
+        self.items.append((name, description, price))
+        self.save_items()
 
-    def login_user(self, username: str, password: str) -> bool:
-        self.user = User(username, password)
-        return self.user.login()
+    def get_items(self) -> list:
+        return self.items
 
-    def register_user(self, username: str, password: str):
-        self.user = User(username, password)
-        self.user.register()
+    def get_item_details(self, name: str) -> dict:
+        for item in self.items:
+            if item[0] == name:
+                return {'name': item[0], 'description': item[1], 'price': item[2]}
+        return {}
 
-    def list_items(self) -> str:
-        items_list = []
-        with open('items.txt', 'r') as file:
-            for line in file:
-                items_list.append(line.strip())
-        return "\n".join(items_list)
+    def load_items(self) -> None:
+        if os.path.exists('items.txt'):
+            with open('items.txt', 'r') as file:
+                self.items = [line.strip().split('|') for line in file.readlines()]
+                self.items = [(name, desc, float(price)) for name, desc, price in self.items]
 
-    def view_item_details(self, item_name: str) -> str:
-        with open('items.txt', 'r') as file:
-            for line in file:
-                name, description, price = line.strip().split(',')
-                if name == item_name:
-                    return f"Name: {name}, Description: {description}, Price: {price}"
-        return "Item not found."
+    def save_items(self) -> None:
+        with open('items.txt', 'w') as file:
+            for item in self.items:
+                file.write('|'.join([item[0], item[1], str(item[2])]) + '\n')
 
+app = Flask(__name__)
+user_manager = UserManager()
+item_manager = ItemManager()
 
-if __name__ == "__main__":
-    app = Main()
-    print(app.main())
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            return redirect(url_for('home'))
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
+    return render_template('registration.html')
+
+@app.route('/home')
+def home():
+    items = item_manager.get_items()
+    return render_template('home.html', items=items)
+
+@app.route('/listing', methods=['GET', 'POST'])
+def listing():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        price = float(request.form['price'])
+        item_manager.add_item(name, description, price)
+        return redirect(url_for('home'))
+    return render_template('listing.html')
+
+@app.route('/item/<name>')
+def item_details(name):
+    item = item_manager.get_item_details(name)
+    return render_template('item_details.html', item=item)
+
+if __name__ == '__main__':
+    app.run(port=8379, debug=False)

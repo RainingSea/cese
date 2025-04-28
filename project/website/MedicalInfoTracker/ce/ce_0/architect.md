@@ -1,37 +1,34 @@
 [CONTENT]
-"Implementation approach": "The web application 'Medical Info Tracker' will be developed using Python for the backend logic and HTML for the frontend. The Flask framework will be utilized to handle routing and serve HTML templates. The application will be structured to allow easy navigation between the registration, login, and medical information management pages. Open-source libraries such as Flask for web handling and Jinja2 for templating will be integrated into the project.",
+"Implementation approach": "The web application 'Medical Info Tracker' will be developed using Python for the backend logic and HTML for the frontend interface. The application will utilize the Flask framework to handle routing and serve HTML pages. Local text files will be used for data storage, ensuring simplicity and ease of management. The application will be structured to allow user registration, login, and management of medical information through a straightforward interface.",
 
-"UI design": "The user interface will consist of the following components: a Registration Page with fields for username and password, a Login Page with similar fields, a Medical Information Management Page with forms to input diagnoses, medications, and treatments, and a Reminders Page for setting appointment reminders. Navigation will be facilitated through a simple menu at the top of each page, ensuring accessibility for all users.",
+"UI design": "The user interface will consist of three main pages: the Registration Page, Login Page, and a Dashboard for managing medical information. The Registration Page will include fields for username and password. The Login Page will also have fields for username and password. The Dashboard will feature sections for inputting and viewing medical information, setting appointment reminders, and tracking medical history. The layout will be user-friendly and accessible, with clear navigation.",
 
-"Data Storage": "Data will be stored in local text files. Users' account information will be stored in 'users.txt', medical information in 'medical_info.txt', and reminders in 'reminders.txt'. Each file will contain structured data, with each line representing a separate entry. For example, 'users.txt' will store usernames and passwords in the format 'username,password'. SQL databases will not be used.",
+"Data Storage": "Data will be stored in local text files. The following files will be used: 'users.txt' for storing usernames and passwords, 'medical_info.txt' for storing users' medical information (diagnoses, medications, treatments), and 'appointments.txt' for storing appointment reminders. Each file will contain structured data in a simple format (e.g., JSON or plain text) for easy retrieval and management.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/medical_info.html", "templates/reminders.html", "users.txt", "medical_info.txt", "reminders.txt"],
+"File list": ["main.py", "templates/registration.html", "templates/login.html", "templates/dashboard.html", "users.txt", "medical_info.txt", "appointments.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
-        -Flask app
+        -UserManager user_manager
+        -MedicalInfoManager medical_info_manager
+        -AppointmentManager appointment_manager
         +main() str
-        +register_user(username: str, password: str) void
-        +login_user(username: str, password: str) bool
-        +add_medical_info(username: str, info: str) void
-        +set_reminder(username: str, reminder: str) void
     }
-    class User {
-        -String username
-        -String password
-        +get_medical_info() str
-        +get_reminders() str
+    class UserManager {
+        -users: dict
+        +register(username: str, password: str) bool
+        +login(username: str, password: str) bool
     }
-    class MedicalInfo {
-        -String diagnosis
-        -String medication
-        -String treatment
-        +save_info(username: str) void
+    class MedicalInfoManager {
+        -medical_info: dict
+        +add_medical_info(user: str, info: dict) bool
+        +get_medical_info(user: str) dict
     }
-    class Reminder {
-        -String reminder_text
-        +save_reminder(username: str) void
+    class AppointmentManager {
+        -appointments: dict
+        +set_appointment(user: str, appointment: dict) bool
+        +get_appointments(user: str) list
     }
 ",
 [/CONTENT]

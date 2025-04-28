@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, flash
 from user_manager import UserManager
 from feedback_manager import FeedbackManager
 
@@ -18,33 +18,29 @@ def register():
         username = request.form['username']
         password = request.form['password']
         if user_manager.register(username, password):
+            flash('Registration successful! Please log in.')
             return redirect(url_for('login'))
+        else:
+            flash('Registration failed. Username may already exist.')
     return render_template('registration.html')
 
 @app.route('/feedback', methods=['GET', 'POST'])
 def feedback():
     if request.method == 'POST':
-        user = session.get('username')
-        feedback_text = request.form['feedback']
+        username = request.form['username']
         category = request.form['category']
-        feedback_manager.submit_feedback(user, feedback_text, category)
-        return redirect(url_for('status'))
+        feedback_text = request.form['feedback']
+        if feedback_manager.submit_feedback(username, category, feedback_text):
+            flash('Feedback submitted successfully!')
+            return redirect(url_for('feedback'))
+        else:
+            flash('Failed to submit feedback.')
     return render_template('feedback.html')
 
-@app.route('/status')
-def status():
-    user = session.get('username')
-    feedback_status = feedback_manager.get_feedback_status(user)
-    return render_template('status.html', feedback_status=feedback_status)
-
-@app.route('/login', methods=['POST'])
-def do_login():
-    username = request.form['username']
-    password = request.form['password']
-    if user_manager.login(username, password):
-        session['username'] = username
-        return redirect(url_for('feedback'))
-    return redirect(url_for('login'))
+@app.route('/review')
+def review():
+    feedbacks = feedback_manager.get_feedbacks()
+    return render_template('review.html', feedbacks=feedbacks)
 
 if __name__ == '__main__':
-    app.run(port=8199, debug=False)
+    app.run(port=8363, debug=False)

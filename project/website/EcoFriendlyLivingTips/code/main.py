@@ -1,99 +1,28 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-import os
+from flask import Flask, render_template, request, redirect, session
+from flask_session import Session
+from UserManager import UserManager
+from TipManager import TipManager
+from ResourceManager import ResourceManager
+from ForumManager import ForumManager
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
-class User:
-    def __init__(self, username, password, email):
-        self.username = username
-        self.password = password
-        self.email = email
-
-    def register(self):
-        with open('users.txt', 'a') as f:
-            f.write(f"{self.username}|{self.password}|{self.email}\n")
-        return True
-
-    def login(self):
-        with open('users.txt', 'r') as f:
-            users = f.readlines()
-            for user in users:
-                u, p, _ = user.strip().split('|')
-                if u == self.username and p == self.password:
-                    return True
-        return False
-
-    def update_profile(self):
-        # Profile update logic can be implemented here
-        return True
-
-    @staticmethod
-    def load_users():
-        users = []
-        with open('users.txt', 'r') as f:
-            users = [line.strip().split('|') for line in f.readlines()]
-        return users
-
-class Tip:
-    def __init__(self, title, content, author):
-        self.title = title
-        self.content = content
-        self.author = author
-
-    def submit_tip(self):
-        with open('tips.txt', 'a') as f:
-            f.write(f"{self.title}|{self.content}|{self.author}\n")
-        return True
-
-    @staticmethod
-    def view_tips():
-        with open('tips.txt', 'r') as f:
-            return [line.strip().split('|') for line in f.readlines()]
-
-class Resource:
-    def __init__(self, title, link, description):
-        self.title = title
-        self.link = link
-        self.description = description
-
-    def add_resource(self):
-        with open('resources.txt', 'a') as f:
-            f.write(f"{self.title}|{self.link}|{self.description}\n")
-        return True
-
-    @staticmethod
-    def view_resources():
-        with open('resources.txt', 'r') as f:
-            return [line.strip().split('|') for line in f.readlines()]
-
-class ForumPost:
-    def __init__(self, title, content, author):
-        self.title = title
-        self.content = content
-        self.author = author
-
-    def submit_post(self):
-        with open('forum_posts.txt', 'a') as f:
-            f.write(f"{self.title}|{self.content}|{self.author}\n")
-        return True
-
-    @staticmethod
-    def view_posts():
-        with open('forum_posts.txt', 'r') as f:
-            return [line.strip().split('|') for line in f.readlines()]
+user_manager = UserManager()
+tip_manager = TipManager()
+resource_manager = ResourceManager()
+forum_manager = ForumManager()
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User(username, password, '')
-        if user.login():
+        if user_manager.login(username, password):
             session['username'] = username
-            return redirect(url_for('dashboard'))
-        else:
-            return render_template('login.html', error="Invalid credentials")
+            return redirect('/dashboard')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -102,48 +31,72 @@ def register():
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
-        user = User(username, password, email)
-        user.register()
-        return redirect(url_for('login'))
+        if user_manager.register(username, password, email):
+            return redirect('/')
     return render_template('register.html')
 
 @app.route('/dashboard')
 def dashboard():
-    users = User.load_users()
-    return render_template('dashboard.html', users=users)
+    if 'username' not in session:
+        return redirect('/')
+    tips = tip_manager.get_tips()
+    resources = resource_manager.get_resources()
+    return render_template('dashboard.html', tips=tips, resources=resources)
 
-@app.route('/submit_tip', methods=['GET', 'POST'])
-def submit_tip():
+@app.route('/introduction')
+def introduction():
+    return render_template('introduction.html')
+
+@app.route('/tips', methods=['GET', 'POST'])
+def tips():
+    if request.method == 'POST':
+        tip = request.form['tip']
+        tip_manager.submit_tip(tip)
+        return redirect('/tips')
+    tips = tip_manager.get_tips()
+    return render_template('tips.html', tips=tips)
+
+@app.route('/resources', methods=['GET', 'POST'])
+def resources():
     if request.method == 'POST':
         title = request.form['title']
-        content = request.form['content']
-        author = request.form['author']
-        tip = Tip(title, content, author)
-        tip.submit_tip()
-        return redirect(url_for('dashboard'))
-    return render_template('submit_tip.html')
+        url = request.form['url']
+        resource_manager.add_resource(title, url)
+        return redirect('/resources')
+    resources = resource_manager.get_resources()
+    return render_template('resources.html', resources=resources)
 
-@app.route('/view_resources')
-def view_resources():
-    resources = Resource.view_resources()
-    return render_template('view_resources.html', resources=resources)
-
-@app.route('/forum')
+@app.route('/forum', methods=['GET', 'POST'])
 def forum():
-    posts = ForumPost.view_posts()
+    if request.method == 'POST':
+        post = request.form['post']
+        forum_manager.add_post(post)
+        return redirect('/forum')
+    posts = forum_manager.get_posts()
     return render_template('forum.html', posts=posts)
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'username' not in session:
+        return redirect('/')
+    user_info = next((user for user in user_manager.users if user['username'] == session['username']), None)
+    if request.method == 'POST':
+        new_info = {
+            'username': request.form['username'],
+            'email': request.form['email']
+        }
+        user_manager.update_profile(session['username'], new_info)
+        return redirect('/profile')
+    return render_template('profile.html', user=user_info)
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
-        # Handle contact form submission
-        return redirect(url_for('dashboard'))
+        name = request.form['name']
+        email = request.form['email']
+        message = request.form['message']
+        # Handle contact form submission (e.g., save to a file or send an email)
     return render_template('contact.html')
 
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
-
 if __name__ == '__main__':
-    app.run(port=8166, debug=False)
+    app.run(port=8330, debug=False)

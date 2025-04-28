@@ -3,26 +3,23 @@ class UserManager:
         self.users = self.load_users()
 
     def load_users(self):
-        users = []
+        users = {}
         try:
             with open('users.txt', 'r') as file:
                 for line in file:
-                    users.append(line.strip().split('|'))
+                    username, password = line.strip().split('|')
+                    users[username] = password
         except FileNotFoundError:
             pass
         return users
 
     def register(self, username: str, password: str) -> bool:
-        for user in self.users:
-            if user[0] == username:
-                return False
-        self.users.append([username, password])
+        if username in self.users:
+            return False
+        self.users[username] = password
         with open('users.txt', 'a') as file:
             file.write(f"{username}|{password}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
-        for user in self.users:
-            if user[0] == username and user[1] == password:
-                return True
-        return False
+        return self.users.get(username) == password

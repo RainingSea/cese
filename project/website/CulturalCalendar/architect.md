@@ -1,8 +1,12 @@
 [CONTENT]
-"Implementation approach": "The web application will be structured using Flask as the backend framework, allowing for easy routing and handling of HTTP requests. The frontend will be built using HTML for the user interface. The interaction between the frontend and backend will occur through form submissions and URL routing, where the backend will process user input and return the appropriate HTML pages or data. User authentication will be handled through session management in Flask.",
-"UI design": "The user interface will consist of the following pages: \n1. **Registration Page**: Contains input fields for username and password, and a 'Register' button. \n2. **Login Page**: Contains input fields for username and password, and a 'Login' button. \n3. **Dashboard Page**: Displays a list of upcoming cultural events with a search bar at the top and links to event details. \n4. **Event Details Page**: Shows detailed information about a selected event with a 'Set Reminder' button. \n5. **Reminders Page**: Lists all reminders with options to delete each reminder. \nEach page will have a navigation bar for easy access to different sections of the application.",
-"Data Storage": "Data will be stored in local text files. User data will be stored in 'users.txt', event data in 'events.txt', and reminders in 'reminders.txt'. Each file will contain structured data, with each line representing a separate entry. For example, 'users.txt' will store username and password pairs, while 'events.txt' will store event details in a predefined format.",
-"File list": ["main.py", "templates/registration.html", "templates/login.html", "templates/dashboard.html", "templates/event_details.html", "templates/reminders.html", "users.txt", "events.txt", "reminders.txt"],
+"Implementation approach": "The application will be developed using Flask for the backend and HTML for the frontend. Flask will handle routing and user sessions, while HTML will provide the user interface. The architecture will be kept simple, focusing on core functionalities such as user registration, event viewing, and reminder management.",
+
+"UI design":"The main user interface components will include: 1. Registration Page: Input fields for username and password, and a submit button. 2. Login Page: Input fields for username and password, and a submit button. 3. Dashboard Page: A calendar/list view of events, a search bar, and links to event details. 4. Event Details Page: Display of event information and a 'Set Reminder' button. 5. Reminders Page: List of reminders with options to remove reminders.",
+
+"Data Storage":"Data will be stored in local text files. User data will be stored in 'users.txt', event data in 'events.txt', and reminders in 'reminders.txt'. Each type of data will be organized in separate files to facilitate easy access and management.",
+
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/event_details.html", "templates/reminders.html", "users.txt", "events.txt", "reminders.txt"],
+
 "Data structures and interfaces": "
 classDiagram
     class Main {
@@ -12,20 +16,21 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -str filename
+        -users: list
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class EventManager {
-        -str filename
+        -events: list
         +get_events() list
-        +get_event_details(event_id: str) str
+        +get_event_details(event_id: int) str
+        +search_events(query: str) list
     }
     class ReminderManager {
-        -str filename
-        +add_reminder(event_id: str, username: str) bool
-        +get_reminders(username: str) list
-        +delete_reminder(reminder_id: str) bool
+        -reminders: list
+        +add_reminder(event_id: int) bool
+        +remove_reminder(reminder_id: int) bool
+        +get_reminders() list
     }
 ",
 [/CONTENT]

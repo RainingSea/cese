@@ -6,13 +6,13 @@ import subprocess
 class TestMedicalTestResultTracker(unittest.TestCase):
 
     def setUp(self):
-        # Initialize the webdriver and open the login page
+        # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8182/') 
+        self.driver.get('http://localhost:8346/')  # Accessing the login page
 
     def tearDown(self):
-        # Close the web driver session and the subprocess
+        # Close the web driver session and the Flask application
         self.driver.quit()
         self.process.terminate()
 
@@ -24,87 +24,95 @@ class TestMedicalTestResultTracker(unittest.TestCase):
 
     def test_registration(self):
         # Functionality 1: User Registration
-        self.driver.get('http://localhost:8182/register')
-        
-        new_username = "test_user"
-        new_password = "test_password"
+        self.driver.get('http://localhost:8346/register')  # Navigate to Registration Page
+        self.assertIn("Register", self.driver.title)
 
-        # Input username and password for registration
+        # Register a new user
+        new_username = "new_user"
+        new_password = "new_password"
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
-        # Verify the user is redirected to the login page
+        # Verify redirection to login page
         self.assertIn("Login", self.driver.title)
 
-        # Attempt to register with an already existing username
-        self.driver.get('http://localhost:8182/register')
-        self.driver.find_element(By.NAME, 'username').send_keys("admin")  # existing username
+        # Attempt to register with an existing username
+        self.driver.get('http://localhost:8346/register')
+        self.driver.find_element(By.NAME, 'username').send_keys("admin")  # Existing username
         self.driver.find_element(By.NAME, 'password').send_keys("admin123")
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
-        # Verify error message for existing username
-        self.assertIn("Username already taken", self.driver.page_source)
+        # Verify error message
+        self.assertIn("Username already exists", self.driver.page_source)
 
     def test_login(self):
         # Functionality 2: User Login
-        self.login("user1", "user123")
-
-        # Verify that the Test Results Page has loaded
-        self.assertIn("Test Results", self.driver.title)
+        self.login("admin", "admin123")  # Valid credentials
+        self.assertIn("Dashboard", self.driver.title)
 
         # Attempt to login with invalid credentials
-        self.driver.get('http://localhost:8182/')
-        self.login("user1", "wrongpassword")  # invalid password
+        self.driver.get('http://localhost:8346/')
+        self.login("admin", "wrongpassword")  # Invalid password
+        self.assertIn("Invalid credentials", self.driver.page_source)
 
-        # Verify error message for incorrect credentials
-        self.assertIn("Login credentials are incorrect", self.driver.page_source)
-
-    def test_manage_test_results(self):
+    def test_view_dashboard(self):
         # Functionality 3: Input and Manage Medical Test Results
-        self.login("user1", "user123")
-        
-        # Verify that the Test Results Page is displayed
-        self.assertIn("Test Results", self.driver.title)
+        self.login("admin", "admin123")  # Log in successfully
+        self.driver.get('http://localhost:8346/dashboard')  # Navigate to Dashboard
+        self.assertIn("Dashboard", self.driver.title)
 
-        # Input valid medical test results
-        self.driver.find_element(By.NAME, 'test_name').send_keys("Blood Test")
-        self.driver.find_element(By.NAME, 'result').send_keys("Normal")
-        self.driver.find_element(By.XPATH, '//button[text()="Add Result"]').click()
+        # Check if test results can be added (this part is not implemented in the codebase)
+        self.fail("Test result management functionality not implemented")
 
-        # Verify that the test result is saved
-        self.assertIn("Blood Test: Normal", self.driver.page_source)
+    def test_view_trends(self):
+        # Functionality 4: View Historical Data and Trends
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:8346/dashboard')  # Navigate to Trends Page
+        self.assertIn("Dashboard", self.driver.title)
 
-        # Attempt to input invalid test results (e.g., negative values)
-        self.driver.find_element(By.NAME, 'test_name').send_keys("Invalid Test")
-        self.driver.find_element(By.NAME, 'result').send_keys("-1")  # invalid result
-        self.driver.find_element(By.XPATH, '//button[text()="Add Result"]').click()
-
-        # Verify error message for invalid input
-        self.assertIn("Invalid input", self.driver.page_source)
+        # Check if trends can be viewed (this part is not implemented in the codebase)
+        self.fail("Trends viewing functionality not implemented")
 
     def test_set_reminders(self):
         # Functionality 5: Set and Receive Reminders
-        self.login("user1", "user123")
-        self.driver.get('http://localhost:8182/reminders')
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:8346/dashboard')  # Navigate to Reminders Page
+        self.assertIn("Dashboard", self.driver.title)
 
-        # Set a reminder
-        self.driver.find_element(By.NAME, 'reminder_text').send_keys("Follow-up Test")
-        self.driver.find_element(By.NAME, 'date').send_keys("2023-10-10")  # example date
-        self.driver.find_element(By.XPATH, '//button[text()="Set Reminder"]').click()
+        # Check if reminders can be set (this part is not implemented in the codebase)
+        self.fail("Reminder setting functionality not implemented")
 
-        # Verify that the reminder is saved
-        self.assertIn("Follow-up Test", self.driver.page_source)
+    def test_view_test_result_history(self):
+        # Functionality 6: View Test Result History
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:8346/dashboard')  # Navigate to Test Result History Page
+        self.assertIn("Dashboard", self.driver.title)
+
+        # Check if test result history can be viewed (this part is not implemented in the codebase)
+        self.fail("Test result history viewing functionality not implemented")
 
     def test_logout(self):
         # Functionality 7: User Logout
-        self.login("user1", "user123")
-
-        # Click the Logout button
-        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
-
-        # Verify that the user is redirected to the Login Page
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Logout').click()  # Click the logout button
         self.assertIn("Login", self.driver.title)
+
+    def test_navigate_back_to_dashboard(self):
+        # Functionality 8: Navigate Back to Dashboard
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:8346/dashboard')  # Navigate to Test Results Page
+        self.driver.back()  # Click the back button
+        self.assertIn("Dashboard", self.driver.title)
+
+    def test_view_test_result_details(self):
+        # Functionality 9: View Test Result Details
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:8346/dashboard')  # Navigate to Test Results Page
+        self.assertIn("Dashboard", self.driver.title)
+
+        # Check if test result details can be viewed (this part is not implemented in the codebase)
+        self.fail("Test result details viewing functionality not implemented")
 
 if __name__ == '__main__':
     unittest.main()

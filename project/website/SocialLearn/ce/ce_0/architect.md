@@ -1,38 +1,50 @@
 [CONTENT]
-"Implementation approach": "The web application 'SocialLearn' will be implemented using HTML for the frontend and Python for the backend. The application will consist of several pages including Registration, Login, Profile Management, Study Groups, Resource Sharing, and Messaging. Each page will be served by Python scripts that handle user interactions, read from and write to local text files for data storage, and render HTML templates for user interfaces.",
+"Implementation approach": "The 'SocialLearn' web application will be developed using HTML for the frontend and Python for the backend. The choice of local text files for data storage simplifies the architecture, enabling easy file manipulation for storing user data, resources, and messages without the complexity of a SQL database. This approach ensures the application remains lightweight and efficient, suitable for a demo implementation.",
 
-"UI design":"The UI will consist of the following key components:\n1. **Registration Page**: A simple form with fields for username and password, and a submit button.\n2. **Login Page**: Similar to the registration page, with fields for username and password, and a submit button.\n3. **Profile Management Interface**: A form to update user interests and expertise, along with a save button.\n4. **Study Groups Interface**: A list of available study groups with join buttons next to each group.\n5. **Resource Sharing Section**: An area to upload and view educational resources, with input fields for resource title and link.\n6. **Messaging Feature**: A chat interface for users to send and receive messages within their study groups.",
+"UI design":"The application will feature the following key UI components: \n1. **Registration Page**: A form for users to enter their username and password to create an account. \n2. **Login Page**: A form for users to enter their credentials to access their account. \n3. **Profile Management Interface**: A section where users can create and update their profiles, specifying areas of interest or expertise. \n4. **Study Groups Interface**: A page displaying available study groups that users can join based on their learning objectives. \n5. **Resource Sharing Section**: An area for users to share and access educational resources like articles and courses. \n6. **Messaging Interface**: A simple chat interface for users to send messages to others in study groups. \n7. **Logout Functionality**: A button to log out and return to the Login Page. \nThese components will interact seamlessly, guiding users through registration, login, profile setup, and engagement with the community.",
 
-"Data Storage":"Data will be stored in local text files. The following files will be used:\n1. `users.txt` - Stores user credentials (username and password) and profile information.\n2. `study_groups.txt` - Contains information about available study groups and members.\n3. `resources.txt` - Stores shared educational resources.\n4. `messages.txt` - Contains messages exchanged in study groups.",
+"Data Storage":"Data will be stored in local text files, with different types of data organized in separate files. The following files will be created: \n1. **users.txt**: Stores user data including usernames and passwords. Each line will represent a user in the format 'username,password,interests'. \n2. **resources.txt**: Stores shared educational resources in the format 'title,url,description'. \n3. **messages.txt**: Stores messages exchanged between users in the format 'sender,receiver,message'. This structure allows for easy retrieval and management of user data, resources, and messages.",
 
-"File list": ["main.py","templates/login.html","templates/registration.html","templates/profile.html","templates/study_groups.html","templates/resources.html","templates/messaging.html","users.txt","study_groups.txt","resources.txt","messages.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/profile.html", "templates/study_groups.html", "templates/resources.html", "templates/messages.html", "users.txt", "resources.txt", "messages.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -String username
-        -String password
-        -List<String> interests
-        +createProfile(username: str, password: str, interests: List<String>) void
-        +updateProfile(interests: List<String>) void
+    class Main {
+        -UserManager user_manager
+        -ResourceManager resource_manager
+        -MessagingManager messaging_manager
+        +main() str
     }
-    class StudyGroup {
-        -String groupName
-        -List<User> members
-        +joinGroup(user: User) void
+    class UserManager {
+        -List<User> users
+        +register(username: str, password: str, interests: str) bool
+        +login(username: str, password: str) bool
+        +update_profile(username: str, interests: str) void
+    }
+    class ResourceManager {
+        -List<Resource> resources
+        +add_resource(title: str, url: str, description: str) void
+        +get_resources() List<Resource>
+    }
+    class MessagingManager {
+        -List<Message> messages
+        +send_message(sender: str, receiver: str, message: str) void
+        +get_messages(user: str) List<Message>
+    }
+    class User {
+        -username: str
+        -password: str
+        -interests: str
     }
     class Resource {
-        -String title
-        -String link
-        +shareResource(title: str, link: str) void
+        -title: str
+        -url: str
+        -description: str
     }
     class Message {
-        -String sender
-        -String content
-        +sendMessage(sender: str, content: str) void
-    }
-    class Main {
-        +main() str
+        -sender: str
+        -receiver: str
+        -message: str
     }
 ",
 [/CONTENT]

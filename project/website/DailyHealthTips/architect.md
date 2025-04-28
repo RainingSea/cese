@@ -1,8 +1,12 @@
 [CONTENT]
-"Implementation approach": "The 'DailyHealthTips' web application will be developed using Flask as the web framework to handle routing and HTTP requests. Python will be used for backend logic, and HTML will be utilized for the frontend. The application will follow a simple model-view-controller structure to maintain clarity and separation of concerns. The focus will be on implementing core features with minimal complexity, ensuring a lightweight and efficient application.",
-"UI design": "The user interface will be designed with simplicity and usability in mind. The layout will include a login page, registration page, tips display page, tips archive page, and feedback submission page. A consistent color scheme will be used to enhance user experience. Navigation links will be prominently displayed to allow users to easily move between different sections of the application, ensuring that all functional requirements are met.",
-"Data Storage": "Data will be stored in local text files, with separate files for users, tips, and feedback. This approach simplifies data management and retrieval without the overhead of a SQL database. The use of text files allows for easy reading and writing operations, making the application lightweight and efficient.",
+"Implementation approach": "The 'DailyHealthTips' web application will be developed using Python with the Flask framework for handling web requests and user sessions. The application will follow a simple structure, with a single main file managing routes and logic, and HTML templates for the user interface. The application will start from a login page, guiding users through registration, viewing daily tips, and submitting feedback.",
+
+"UI design":"The UI will consist of several key pages: The login page will have fields for username and password, along with a 'Register here' link. The registration page will include fields for new user details. The daily tips display will show the current tip with 'Previous Tip' and 'Next Tip' buttons for navigation. The tips archive page will include a search bar for filtering tips and a list of historical tips. The feedback submission will have a text area for user comments and a submit button.",
+
+"Data Storage":"Data will be stored in local text files. User accounts will be stored in 'users.txt', daily health tips in 'tips.txt', and feedback in 'feedback.txt'. Each type of data will be stored in a separate file to facilitate easy management and retrieval.",
+
 "File list": ["main.py", "templates/login.html", "templates/register.html", "templates/tips.html", "templates/archive.html", "templates/feedback.html", "users.txt", "tips.txt", "feedback.txt"],
+
 "Data structures and interfaces": "
 classDiagram
     class Main {
@@ -15,14 +19,12 @@ classDiagram
         -users_file: str
         +login(username: str, password: str) bool
         +register(username: str, password: str) bool
-        +get_users() list
     }
     class TipManager {
         -tips_file: str
         +get_current_tip() str
         +get_previous_tip(current_index: int) str
         +get_next_tip(current_index: int) str
-        +get_all_tips() list
         +search_tips(query: str) list
     }
     class FeedbackManager {

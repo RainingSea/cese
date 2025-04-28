@@ -1,44 +1,40 @@
 [CONTENT]
 1. **Required packages**: 
-   - Flask: for web framework to handle routing and HTTP requests.
-   - Flask-Session: for managing user sessions.
-   - Any other necessary libraries for handling file operations and data parsing.
+   - Flask: For handling routing and rendering HTML templates.
+   - Flask-Login: For managing user sessions and authentication.
+   - Any other necessary libraries for handling file operations (e.g., os, json).
 
 2. **Required Other language third-party packages**: 
-   - jQuery: for enhanced UI interactions and AJAX calls (if needed).
-   - Bootstrap: for responsive design and styling (optional).
+   - None identified as the application will be developed using Python and HTML without reliance on external front-end frameworks.
 
 3. **Logic Analysis**: 
    - **main.py**: 
-     - Class: Main
-       - Method: main()
-   - **tools.py**: 
-     - Class: UserManager
-       - Method: register(username: str, password: str)
-       - Method: login(username: str, password: str)
-       - Method: load_users()
-     - Class: BookManager
-       - Method: search_books(query: str)
-       - Method: load_books()
-     - Class: ReadingList
-       - Method: add_to_reading_list(username: str, book_id: str)
-       - Method: load_reading_list()
+     - `Main`: The main class that initializes the application and manages the user and book managers.
+     - `main()`: The entry point of the application.
+   - **UserManager**:
+     - `users`: A dictionary to store user credentials.
+     - `register(username: str, password: str)`: Method to register a new user.
+     - `login(username: str, password: str)`: Method to log in an existing user.
+   - **BookManager**:
+     - `books`: A list to store book details.
+     - `search(query: str)`: Method to search for books based on a query.
+     - `get_book_details(title: str)`: Method to retrieve details of a specific book.
+   - **ReadingList**:
+     - `reading_list`: A list to store books added to the user's reading list.
+     - `add_to_reading_list(book: dict)`: Method to add a book to the reading list.
+     - `get_reading_list()`: Method to retrieve the user's reading list.
 
 4. **Task list**: 
-   - 1. main.py
-   - 2. tools.py
-   - 3. templates/registration.html
-   - 4. templates/login.html
-   - 5. templates/dashboard.html
-   - 6. templates/book_details.html
-   - 7. templates/reading_list.html
-   - 8. users.txt
-   - 9. books.txt
-   - 10. reading_list.txt
+   - main.py
+   - templates/registration.html
+   - templates/login.html
+   - templates/dashboard.html
+   - templates/book_details.html
+   - templates/reading_list.html
+   - users.txt
+   - books.txt
+   - reading_list.txt
 
 5. **Shared Knowledge**: 
-   - Follow PEP 8 coding standards for Python code.
-   - Use a simple text search algorithm for the search functionality, such as linear search or regex matching.
-   - Ensure that user inputs are validated on both the client and server sides to prevent issues like SQL injection or XSS attacks.
-   - Maintain a clear separation between the application logic (in main.py and tools.py) and the presentation layer (HTML templates).
+   - The application will follow a simple design principle focused on usability and accessibility. Each page will have clear navigation links and buttons to enhance user experience. The data storage will be managed through text files, ensuring that the application remains lightweight and easy to maintain. User passwords will not be encrypted for simplicity, in line with the project constraints.
 [/CONTENT]

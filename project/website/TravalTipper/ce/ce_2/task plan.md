@@ -1,52 +1,84 @@
 [CONTENT]
-"Required packages": ["Flask", "Flask-Session"],
+"Required packages": [
+    "Flask",
+    "Flask-Session"
+],
 
-"Required Other language third-party packages": ["None"],
+"Required Other language third-party packages": [],
 
-"Logic Analysis": 
-- main.py
-  - Main class
-    - main() 
-- templates/login.html
-  - HTML form for user login
-- templates/registration.html
-  - HTML form for user registration
-- templates/travel_details.html
-  - HTML form for travel details input
-- templates/recommendations.html
-  - Section to display personalized travel tips
-- users.txt
-  - Storage for user account information
-- travel_tips.txt
-  - Storage for travel tips
-- favorites.txt
-  - Storage for user-specific saved tips
-- UserManager class
-  - register(username: str, password: str) 
-  - login(username: str, password: str) 
-  - load_users() 
-  - save_users() 
-- TravelTipManager class
-  - load_tips() 
-  - get_recommendations(destination: str, interests: list) 
-  - save_favorite(user: str, tip: str) 
+"Logic Analysis": {
+    "main.py": {
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {
+                        "name": "main",
+                        "description": "Entry point of the application that initializes the web server and routes."
+                    }
+                ]
+            },
+            {
+                "name": "UserManager",
+                "methods": [
+                    {
+                        "name": "register",
+                        "description": "Handles user registration by saving the username and password to 'users.txt'."
+                    },
+                    {
+                        "name": "login",
+                        "description": "Validates user credentials against 'users.txt' for login functionality."
+                    },
+                    {
+                        "name": "save_user_data",
+                        "description": "Saves user data to 'users.txt' after registration or updates."
+                    }
+                ]
+            },
+            {
+                "name": "TipGenerator",
+                "methods": [
+                    {
+                        "name": "generate_tips",
+                        "description": "Generates personalized travel tips based on user input from travel details."
+                    },
+                    {
+                        "name": "search_tips",
+                        "description": "Searches for travel tips in 'travel_tips.txt' based on user queries."
+                    },
+                    {
+                        "name": "save_favorite_tips",
+                        "description": "Saves selected travel tips for easy access later."
+                    }
+                ]
+            }
+        ]
+    },
+    "templates": {
+        "login.html": {
+            "description": "HTML page for user login with fields for username and password."
+        },
+        "register.html": {
+            "description": "HTML page for user registration with fields for username and password."
+        },
+        "travel_details.html": {
+            "description": "HTML page for users to input their travel details."
+        }
+    }
+},
 
-"Task list": 
-1. main.py
-2. UserManager class implementation (in main.py)
-3. TravelTipManager class implementation (in main.py)
-4. templates/registration.html
-5. templates/login.html
-6. templates/travel_details.html
-7. templates/recommendations.html
-8. users.txt (initial structure)
-9. travel_tips.txt (initial structure)
-10. favorites.txt (initial structure)
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/register.html",
+    "templates/travel_details.html",
+    "travel_tips.txt",
+    "users.txt"
+],
 
-"Shared Knowledge": 
-- Follow PEP 8 coding standards for Python code.
-- Use meaningful variable names and comments for better code readability.
-- Ensure proper error handling for user inputs.
-- Implement responsive design principles for HTML templates.
-- Organize code into functions to promote reusability and maintainability.
+"Shared Knowledge": [
+    "Ensure that user passwords are stored in plain text as per the project constraints.",
+    "Follow best practices for web development, including input validation and error handling.",
+    "Keep the UI navigation simple and user-friendly to enhance the overall user experience."
+]
 [/CONTENT]

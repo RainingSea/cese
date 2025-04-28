@@ -76,11 +76,13 @@ def start_project():
     Team.set_log()
 
     # config for framework
-    config = model_config()
+    config = model_config("./0_config/config.yaml")
 
     # normal model
     # config temperature only (fixed 0.2)
     model = GPT(config["llm_4o"])
+
+    model_t3 = GPT(config["llm_4o_t3"])
 
     # -------------- sample model ----------------
     # [model 1] (with no config for top P)
@@ -90,6 +92,7 @@ def start_project():
     # sample_model = GPT(sample_model_config)
 
     # [model 2] (config top p)
+
     # 自己配温度和top p
     sample_model = GPT_topP(config["llm_4o"])
     # --------------- sample model----------------
@@ -98,9 +101,9 @@ def start_project():
     team.set_origin_req(project_name, origin_req)
 
     # 创建不同的角色
-    product_manager = Product_Manager(llm=model, llm_sample=sample_model, team=team)
-    architect = Architect(llm=model, llm_sample=sample_model, team=team)
-    projct_manager = Project_Manager(llm=model, llm_sample=sample_model, team=team)
+    product_manager = Product_Manager(llm=model_t3, llm_sample=sample_model, team=team)
+    architect = Architect(llm=model_t3, llm_sample=sample_model, team=team)
+    projct_manager = Project_Manager(llm=model_t3, llm_sample=sample_model, team=team)
     programmer = Programmer(llm=model, llm_sample=sample_model, team=team)
     code_tester = Code_Tester(llm=model, team=team)
     reviewer = Reviewer(target=projct_manager, team=team)
@@ -120,12 +123,8 @@ def start_project():
         c_programmer,
     )
 
-    # 正常情况 不测试gui和game，或者一些特殊情况
-    # 都走这个分支
-    # 类似于这种命令 python start_by_file.py --category website --name MovieRecommendationSystem.md （没有seq参数）
-
     # team.run_pure()
-    
+
     if not seq:
         if category == "website":
             team.run_web()
@@ -190,9 +189,9 @@ def create_config_copy_with_new_temperature(
     return config_copy
 
 
-def model_config():
+def model_config(path):
     # loading config for different models, include Qwen and GPT
-    config = read_yaml("./0_config/config.yaml")
+    config = read_yaml(path)
     # dashscope.api_key = config["Qwen"]["api_key"]
     return config
 

@@ -1,60 +1,127 @@
 [CONTENT]
-1. "Required packages": ["Flask", "Flask-Session"]
+"Required packages": "Flask, Flask-Session",
 
-2. "Required Other language third-party packages": ["Bootstrap for CSS styling", "jQuery for frontend interactions"]
+"Required Other language third-party packages": "None",
 
-3. "Logic Analysis": 
-   - **main.py**: 
-     - `Main`: Main application class to initialize the app and manage routing.
-     - `main()`: Entry point of the application.
-   - **user_manager.py**: 
-     - `UserManager`: Class to handle user-related functionalities.
-       - `register(username: str, password: str)`: Registers a new user.
-       - `login(username: str, password: str)`: Authenticates a user.
-       - `update_profile(username: str, new_info: dict)`: Updates user profile information.
-       - `delete_account(username: str)`: Deletes a user account.
-   - **thread_manager.py**: 
-     - `ThreadManager`: Class to manage discussion threads.
-       - `create_thread(title: str, content: str)`: Creates a new discussion thread.
-       - `get_threads()`: Retrieves a list of discussion threads.
-       - `get_thread(thread_id: int)`: Retrieves details of a specific thread.
-   - **comment_manager.py**: 
-     - `CommentManager`: Class to manage comments on threads.
-       - `add_comment(thread_id: int, comment: str)`: Adds a comment to a thread.
-       - `get_comments(thread_id: int)`: Retrieves comments for a specific thread.
-   - **advice_manager.py**: 
-     - `AdviceManager`: Class to manage posted advice.
-       - `post_advice(title: str, content: str)`: Posts new advice.
-       - `get_advice()`: Retrieves posted advice.
-   - **templates/login.html**: HTML template for user login.
-   - **templates/register.html**: HTML template for user registration.
-   - **templates/home.html**: HTML template for the home page.
-   - **templates/forum.html**: HTML template for the forum page.
-   - **templates/view_thread.html**: HTML template for viewing a thread.
-   - **templates/post_advice.html**: HTML template for posting advice.
-   - **templates/my_account.html**: HTML template for user account management.
-   - **templates/contact_us.html**: HTML template for contacting site administrators.
+"Logic Analysis": [
+    {
+        "filename": "main.py",
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {"name": "main", "description": "Entry point of the application, handles routing and session management."}
+                ]
+            },
+            {
+                "name": "UserManager",
+                "methods": [
+                    {"name": "register", "description": "Validates input, adds user to the user list, and handles duplicate cases."},
+                    {"name": "login", "description": "Validates user credentials for login."},
+                    {"name": "update_profile", "description": "Updates user profile information."},
+                    {"name": "delete_account", "description": "Deletes user account from the system."}
+                ]
+            },
+            {
+                "name": "ThreadManager",
+                "methods": [
+                    {"name": "create_thread", "description": "Creates a new discussion thread."},
+                    {"name": "get_threads", "description": "Retrieves a list of all discussion threads."},
+                    {"name": "get_thread_details", "description": "Retrieves details of a specific thread."}
+                ]
+            },
+            {
+                "name": "CommentManager",
+                "methods": [
+                    {"name": "add_comment", "description": "Adds a comment to a specific thread."},
+                    {"name": "get_comments", "description": "Retrieves comments for a specific thread."}
+                ]
+            },
+            {
+                "name": "AdviceManager",
+                "methods": [
+                    {"name": "post_advice", "description": "Posts advice to the forum."},
+                    {"name": "get_advices", "description": "Retrieves posted advice."}
+                ]
+            },
+            {
+                "name": "ContactManager",
+                "methods": [
+                    {"name": "submit_inquiry", "description": "Submits a contact inquiry to the administrators."}
+                ]
+            }
+        ]
+    },
+    {
+        "filename": "templates/login.html",
+        "description": "HTML template for the login page, including a form for username and password."
+    },
+    {
+        "filename": "templates/register.html",
+        "description": "HTML template for the registration page, including a form for new users."
+    },
+    {
+        "filename": "templates/home.html",
+        "description": "HTML template for the home page, displaying navigation options."
+    },
+    {
+        "filename": "templates/forum.html",
+        "description": "HTML template for the forum page, displaying a list of discussion threads."
+    },
+    {
+        "filename": "templates/view_thread.html",
+        "description": "HTML template for viewing a specific thread and its comments."
+    },
+    {
+        "filename": "templates/post_advice.html",
+        "description": "HTML template for posting advice."
+    },
+    {
+        "filename": "templates/my_account.html",
+        "description": "HTML template for managing user account details."
+    },
+    {
+        "filename": "templates/contact_us.html",
+        "description": "HTML template for the contact form."
+    },
+    {
+        "filename": "users.txt",
+        "description": "Text file for storing user information."
+    },
+    {
+        "filename": "threads.txt",
+        "description": "Text file for storing discussion threads."
+    },
+    {
+        "filename": "comments.txt",
+        "description": "Text file for storing comments related to threads."
+    },
+    {
+        "filename": "advice.txt",
+        "description": "Text file for storing posted advice."
+    },
+    {
+        "filename": "contact_inquiries.txt",
+        "description": "Text file for storing contact inquiries."
+    }
+],
 
-4. "Task list": 
-   - `main.py`
-   - `user_manager.py`
-   - `thread_manager.py`
-   - `comment_manager.py`
-   - `advice_manager.py`
-   - `templates/login.html`
-   - `templates/register.html`
-   - `templates/home.html`
-   - `templates/forum.html`
-   - `templates/view_thread.html`
-   - `templates/post_advice.html`
-   - `templates/my_account.html`
-   - `templates/contact_us.html`
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/register.html",
+    "templates/home.html",
+    "templates/forum.html",
+    "templates/view_thread.html",
+    "templates/post_advice.html",
+    "templates/my_account.html",
+    "templates/contact_us.html",
+    "users.txt",
+    "threads.txt",
+    "comments.txt",
+    "advice.txt",
+    "contact_inquiries.txt"
+],
 
-5. "Shared Knowledge": 
-   - Follow PEP 8 coding standards for Python code.
-   - Use clear and descriptive naming conventions for functions and variables.
-   - Ensure proper error handling and user feedback for all user input forms.
-   - Maintain a consistent file structure for easy navigation and management of files.
-   - Implement input validation for all forms to enhance user experience and data integrity.
-   - Use comments to document code functionality and logic for future reference.
+"Shared Knowledge": "Ensure to implement user session management for maintaining user login state. Provide clear feedback mechanisms for user actions, such as success messages after registration and posting advice. Handle edge cases in user registration, such as duplicate usernames, and ensure input validation is in place. Establish clear navigation flows post-action, such as redirecting users to the Forum Page after login."
 [/CONTENT]

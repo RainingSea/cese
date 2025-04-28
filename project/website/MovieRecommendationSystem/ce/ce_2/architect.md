@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The web application will be structured using Python for backend functionality and HTML for the frontend interface. The main logic will reside in a single Python file, 'main.py', which will handle user authentication, movie recommendations, and data management. The HTML templates will be generated directly within the Python code, ensuring a seamless integration between the backend and frontend.",
+"Implementation approach": "The web application will be developed using Python for backend logic and HTML for frontend design. User preferences will be collected during registration and updated through a simple form. Movie recommendations will be generated based on user preferences stored in local text files, utilizing a basic algorithm to match user interests with movie data.",
 
-"UI design": "The user interface will consist of several key components: a login form for user authentication, a registration form for new users, a search bar for movie queries, a results page displaying search results, a movie detail view showing title, description, and rating, and a favorites management section where users can view and remove their favorite movies. Navigation will be straightforward, with clear calls to action and a consistent layout.",
+"UI design":"The UI will consist of the following key components: a login form for user authentication, a registration form for new accounts, a search bar for finding movies, a display area for movie details (including title, description, and rating), and a favorites management interface allowing users to add or remove movies from their favorites list. These components will interact through form submissions and dynamic content updates, ensuring a seamless user experience.",
 
-"Data Storage": "Data will be stored in local text files. Different types of data will be organized into separate files: 'users.txt' for user account information, 'movies.txt' for movie details, and 'favorites.txt' for user favorites. This structured approach will facilitate easy data retrieval and management through simple file manipulations in Python, ensuring the application remains light and efficient without the need for a SQL database.",
+"Data Storage":"Data will be stored in local text files. User account information will be stored in 'users.txt', movie details in 'movies.txt', and user favorites in 'favorites.txt'. Each type of data will be managed in its own file to facilitate easy retrieval and manipulation without the use of a SQL database. The structure of the text files will be predefined to maintain consistency.",
 
 "File list": ["main.py", "templates/login.html", "templates/register.html", "templates/search.html", "templates/movie_detail.html", "users.txt", "movies.txt", "favorites.txt"],
 
@@ -15,23 +15,20 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users: list
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
         +load_users() void
-        +save_users() void
     }
     class MovieManager {
-        -movies: list
+        -movies: dict
         -favorites: dict
         +search_movies(query: str) list
-        +get_movie_details(movie_id: str) dict
-        +add_to_favorites(user_id: str, movie_id: str) void
-        +remove_from_favorites(user_id: str, movie_id: str) void
+        +get_movie_details(title: str) dict
+        +add_to_favorites(username: str, movie_title: str) void
+        +remove_from_favorites(username: str, movie_title: str) void
         +load_movies() void
-        +save_movies() void
         +load_favorites() void
-        +save_favorites() void
     }
 ",
 [/CONTENT]

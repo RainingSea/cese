@@ -1,27 +1,37 @@
 class RecipeManager:
-    def __init__(self, filename):
-        self.filename = filename
-        self.recipes = self.load_recipes()
+    def __init__(self, recipes_file: str):
+        self.recipes_file = recipes_file
+        self.load_recipes()
 
     def load_recipes(self):
-        recipes = []
-        with open(self.filename, 'r') as file:
-            for line in file:
-                title, ingredients, instructions = line.strip().split('|')
-                recipes.append((title, ingredients, instructions))
-        return recipes
+        self.recipes = {}
+        try:
+            with open(self.recipes_file, 'r') as file:
+                for line in file:
+                    title, ingredients, instructions = line.strip().split(';')
+                    self.recipes[title] = {
+                        'ingredients': ingredients,
+                        'instructions': instructions
+                    }
+        except FileNotFoundError:
+            pass
 
     def submit_recipe(self, title: str, ingredients: str, instructions: str) -> bool:
-        with open(self.filename, 'a') as file:
-            file.write(f"{title}|{ingredients}|{instructions}\n")
-        self.recipes.append((title, ingredients, instructions))
+        if title in self.recipes:
+            return False
+        self.recipes[title] = {
+            'ingredients': ingredients,
+            'instructions': instructions
+        }
+        with open(self.recipes_file, 'a') as file:
+            file.write(f"{title};{ingredients};{instructions}\n")
         return True
 
     def search_recipes(self, keyword: str) -> list:
-        return [recipe for recipe in self.recipes if keyword.lower() in recipe[0].lower()]
+        return [title for title in self.recipes if keyword.lower() in title.lower()]
 
     def get_recipe_details(self, title: str) -> str:
-        for recipe in self.recipes:
-            if recipe[0] == title:
-                return f"Title: {recipe[0]}\nIngredients: {recipe[1]}\nInstructions: {recipe[2]}"
+        recipe = self.recipes.get(title)
+        if recipe:
+            return f"Title: {title}\nIngredients: {recipe['ingredients']}\nInstructions: {recipe['instructions']}"
         return "Recipe not found."

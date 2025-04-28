@@ -1,50 +1,96 @@
 [CONTENT]
-"Required packages": ["Flask", "Jinja2"],
+1. "Required packages": [
+    "Flask",
+    "Flask-Login"
+],
 
-"Required Other language third-party packages": [],
+2. "Required Other language third-party packages": [
+    "Bootstrap for CSS styling",
+    "jQuery for enhanced user interaction"
+],
 
-"Logic Analysis": {
-    "main.py": {
-        "classes": ["Main", "UserManager", "ThreadManager", "CommentManager", "AdviceManager", "ContactManager"],
-        "methods": [
-            "main()",
-            "UserManager.register(username: str, password: str)",
-            "UserManager.login(username: str, password: str)",
-            "ThreadManager.create_thread(title: str, content: str)",
-            "ThreadManager.get_threads()",
-            "ThreadManager.get_thread_details(thread_id: int)",
-            "CommentManager.add_comment(thread_id: int, comment: str)",
-            "AdviceManager.post_advice(title: str, content: str)",
-            "ContactManager.submit_inquiry(name: str, email: str, message: str)"
+3. "Logic Analysis": [
+    {
+        "filename": "main.py",
+        "classes": [
+            {
+                "class_name": "Main",
+                "methods": [
+                    {
+                        "method_name": "main",
+                        "description": "Entry point of the application that initializes the Flask app and sets up routing."
+                    }
+                ]
+            },
+            {
+                "class_name": "UserManager",
+                "methods": [
+                    {
+                        "method_name": "register",
+                        "description": "Handles user registration by adding a new user to users.txt."
+                    },
+                    {
+                        "method_name": "login",
+                        "description": "Validates user credentials against users.txt."
+                    },
+                    {
+                        "method_name": "update_profile",
+                        "description": "Updates user profile information in users.txt."
+                    },
+                    {
+                        "method_name": "delete_account",
+                        "description": "Removes a user from users.txt."
+                    }
+                ]
+            },
+            {
+                "class_name": "ThreadManager",
+                "methods": [
+                    {
+                        "method_name": "create_thread",
+                        "description": "Creates a new discussion thread and saves it to threads.txt."
+                    },
+                    {
+                        "method_name": "get_threads",
+                        "description": "Retrieves a list of all discussion threads from threads.txt."
+                    },
+                    {
+                        "method_name": "get_thread_details",
+                        "description": "Fetches detailed information about a specific thread from threads.txt."
+                    }
+                ]
+            },
+            {
+                "class_name": "CommentManager",
+                "methods": [
+                    {
+                        "method_name": "add_comment",
+                        "description": "Adds a comment to a specific thread and saves it to comments.txt."
+                    },
+                    {
+                        "method_name": "get_comments",
+                        "description": "Retrieves all comments for a specific thread from comments.txt."
+                    }
+                ]
+            },
+            {
+                "class_name": "AdviceManager",
+                "methods": [
+                    {
+                        "method_name": "post_advice",
+                        "description": "Posts new advice and saves it to advice.txt."
+                    },
+                    {
+                        "method_name": "get_advice",
+                        "description": "Retrieves a list of all posted advice from advice.txt."
+                    }
+                ]
+            }
         ]
-    },
-    "templates/login.html": {
-        "components": ["Username field", "Password field", "Login button", "Link to Register Page"]
-    },
-    "templates/register.html": {
-        "components": ["Username field", "Password field", "Register button", "Link to Login Page"]
-    },
-    "templates/home.html": {
-        "components": ["Welcome message", "Navigation links"]
-    },
-    "templates/forum.html": {
-        "components": ["List of discussion threads", "Button to create new thread"]
-    },
-    "templates/view_thread.html": {
-        "components": ["Thread title", "Thread content", "Comments", "Input area for new comments"]
-    },
-    "templates/post_advice.html": {
-        "components": ["Title field", "Content field"]
-    },
-    "templates/my_account.html": {
-        "components": ["User profile information", "Options to update or delete account"]
-    },
-    "templates/contact_us.html": {
-        "components": ["Name field", "Email field", "Message field", "Submit button"]
     }
-},
+],
 
-"Task list": [
+4. "Task list": [
     "main.py",
     "templates/login.html",
     "templates/register.html",
@@ -57,14 +103,13 @@
     "users.txt",
     "threads.txt",
     "comments.txt",
-    "advice.txt",
-    "contact_inquiries.txt"
+    "advice.txt"
 ],
 
-"Shared Knowledge": [
-    "Follow PEP 8 coding standards for Python.",
-    "Use semantic HTML for better accessibility.",
-    "Implement basic input validation for forms to enhance security.",
-    "Ensure proper error handling for user interactions."
+5. "Shared Knowledge": [
+    "Follow PEP 8 coding standards for Python code.",
+    "Use consistent naming conventions for variables and functions.",
+    "Ensure that all user inputs are validated to prevent security vulnerabilities.",
+    "Maintain clear documentation within the code for better maintainability."
 ]
 [/CONTENT]

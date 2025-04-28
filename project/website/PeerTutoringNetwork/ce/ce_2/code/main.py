@@ -1,64 +1,97 @@
-import http.server
 import os
-import json
+from flask import Flask, render_template, request, redirect, url_for, session
 
-class User:
-    def __init__(self, username: str, password: str, email: str):
-        self.username = username
-        self.password = password
-        self.email = email
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager('users.txt')
+        self.tutoring_request_manager = TutoringRequestManager('tutoring_requests.txt')
+        self.contact_manager = ContactManager('contact_messages.txt')
+
+    def main(self):
+        app.run(port=8392, debug=False)
+
+class UserManager:
+    def __init__(self, users_file: str):
+        self.users_file = users_file
+        self.load_users()
+
+    def load_users(self):
+        self.users = {}
+        if os.path.exists(self.users_file):
+            with open(self.users_file, 'r') as file:
+                for line in file:
+                    username, password, email = line.strip().split(':')
+                    self.users[username] = {'password': password, 'email': email}
 
     def register(self, username: str, password: str, email: str) -> bool:
-        with open('users.txt', 'a') as f:
-            f.write(f"{username}|{password}|{email}\n")
+        if username in self.users:
+            return False
+        with open(self.users_file, 'a') as file:
+            file.write(f"{username}:{password}:{email}\n")
+        self.users[username] = {'password': password, 'email': email}
         return True
 
     def login(self, username: str, password: str) -> bool:
-        with open('users.txt', 'r') as f:
-            for line in f:
-                stored_username, stored_password, _ = line.strip().split('|')
-                if stored_username == username and stored_password == password:
-                    return True
+        if username in self.users and self.users[username]['password'] == password:
+            session['username'] = username
+            return True
         return False
 
-class TutoringRequest:
-    def __init__(self, subject: str, details: str, preferred_date: str):
-        self.subject = subject
-        self.details = details
-        self.preferred_date = preferred_date
+    def get_user_info(self, username: str) -> dict:
+        return self.users.get(username, None)
 
-    def create_request(self, subject: str, details: str, preferred_date: str) -> bool:
-        with open('requests.txt', 'a') as f:
-            f.write(f"{subject}|{details}|{preferred_date}\n")
+class TutoringRequestManager:
+    def __init__(self, requests_file: str):
+        self.requests_file = requests_file
+        self.load_requests()
+
+    def load_requests(self):
+        self.requests = []
+        if os.path.exists(self.requests_file):
+            with open(self.requests_file, 'r') as file:
+                for line in file:
+                    self.requests.append(line.strip())
+
+    def request_tutoring(self, username: str, subject: str, details: str, date: str) -> bool:
+        request_entry = f"{username}:{subject}:{details}:{date}\n"
+        with open(self.requests_file, 'a') as file:
+            file.write(request_entry)
+        self.requests.append(request_entry.strip())
         return True
 
-class Contact:
-    def __init__(self, name: str, email: str, message: str):
-        self.name = name
-        self.email = email
-        self.message = message
+    def cancel_request(self, username: str) -> bool:
+        # This method will be a placeholder for future implementation
+        return False
+
+class ContactManager:
+    def __init__(self, messages_file: str):
+        self.messages_file = messages_file
 
     def send_message(self, name: str, email: str, message: str) -> bool:
-        with open('contacts.txt', 'a') as f:
-            f.write(f"{name}|{email}|{message}\n")
+        with open(self.messages_file, 'a') as file:
+            file.write(f"{name}:{email}:{message}\n")
         return True
 
-class Main:
-    @staticmethod
-    def main() -> str:
-        return "Welcome to the Tutoring Application"
+@app.route('/')
+def login():
+    return render_template('login.html')
 
-class SimpleHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(bytes(open('templates/login.html').read(), 'utf-8'))
-        else:
-            super().do_GET()
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form['username']
+    password = request.form['password']
+    email = request.form['email']
+    if main_instance.user_manager.register(username, password, email):
+        return redirect(url_for('login'))
+    return "Registration failed", 400
 
-if __name__ == "__main__":
-    httpd = http.server.HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
-    print("Serving on port 8000...")
-    httpd.serve_forever()
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+if __name__ == '__main__':
+    main_instance = Main()
+    main_instance.main()

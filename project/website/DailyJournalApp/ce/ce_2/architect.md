@@ -1,27 +1,27 @@
 [CONTENT]
-"Implementation approach": "The Daily Journal App will be developed using Python for backend logic and HTML for frontend presentation. User interactions will be handled through HTML forms and buttons, with data processed and stored in local text files. The application will consist of a simple web server that serves HTML pages and handles user requests for login, registration, and journal entry management.",
+"Implementation approach": "The Daily Journal App will be built using Python for backend logic and HTML for frontend presentation. The application will handle user registration, login, and journal entry management through simple file operations without the need for a database.",
 
-"UI design": "The application will have the following pages:\n1. **Login Page**: Contains input fields for username and password, a login button, and a link to the Registration Page.\n2. **Registration Page**: Contains input fields for username and password, a register button, and a link back to the Login Page.\n3. **Dashboard Page**: Displays a list of journal entries with titles and dates, a link to create a new entry, and a logout button.\n4. **New Entry Page**: Contains input fields for title and content, a save entry button, and a link back to the Dashboard Page.",
+"UI design": "The application will consist of four main pages: Login Page (with username and password fields and a login button), Registration Page (with fields for username and password and a register button), Dashboard Page (displaying a list of journal entries with titles and dates, and a logout button), and New Entry Page (with fields for title and content, and a save entry button).",
 
-"Data Storage": "All data will be stored in local text files. The following files will be used:\n1. **users.txt**: Stores user credentials (username and password).\n2. **entries.txt**: Stores journal entries with titles, content, and timestamps. Data will be read from and written to these files using simple file operations in Python.",
+"Data Storage": "Data will be stored in local text files. User credentials will be stored in 'users.txt' and journal entries will be stored in 'journal_entries.txt'. Each entry will be stored in a structured format to facilitate easy retrieval.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/new_entry.html", "users.txt", "entries.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/new_entry.html", "users.txt", "journal_entries.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
-        -EntryManager entry_manager
+        -JournalManager journal_manager
         +main() str
     }
     class UserManager {
-        -String users_file
+        -users_file: str
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
-    class EntryManager {
-        -String entries_file
-        +create_entry(title: str, content: str) void
+    class JournalManager {
+        -entries_file: str
+        +create_entry(title: str, content: str) bool
         +get_entries() list
     }
 ",

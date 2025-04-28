@@ -1,75 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import os
-import json
+from flask_session import Session
+from UserManager import UserManager
+from FeedbackManager import FeedbackManager
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.config['SESSION_TYPE'] = 'filesystem'
+app.secret_key = 'supersecretkey'  # Required for flash messages
+Session(app)
 
-class UserManager:
-    def __init__(self):
-        self.users = []
-        self.load_users()
-
-    def register(self, username: str, password: str) -> bool:
-        if any(user['username'] == username for user in self.users):
-            return False
-        self.users.append({'username': username, 'password': password})
-        self.save_users()
-        return True
-
-    def login(self, username: str, password: str) -> bool:
-        return any(user['username'] == username and user['password'] == password for user in self.users)
-
-    def load_users(self) -> None:
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                self.users = [{'username': line.split('|')[0], 'password': line.split('|')[1].strip()} for line in file.readlines()]
-
-    def save_users(self) -> None:
-        with open('users.txt', 'w') as file:
-            for user in self.users:
-                file.write(f"{user['username']}|{user['password']}\n")
-
-class FeedbackManager:
-    def __init__(self):
-        self.feedbacks = []
-        self.load_feedback()
-
-    def submit_feedback(self, username: str, feedback: str, category: str) -> bool:
-        self.feedbacks.append({'username': username, 'feedback': feedback, 'category': category, 'status': 'Pending'})
-        self.save_feedback()
-        return True
-
-    def load_feedback(self) -> None:
-        if os.path.exists('feedback.json'):
-            with open('feedback.json', 'r') as file:
-                self.feedbacks = [json.loads(line.strip()) for line in file.readlines()]
-
-    def save_feedback(self) -> None:
-        with open('feedback.json', 'w') as file:
-            for feedback in self.feedbacks:
-                file.write(json.dumps(feedback) + '\n')
-
-    def get_feedback_status(self, username: str) -> list:
-        return [feedback for feedback in self.feedbacks if feedback['username'] == username]
-
-user_manager = UserManager()
-feedback_manager = FeedbackManager()
+user_manager = UserManager('users.txt')
+feedback_manager = FeedbackManager('feedback.txt')
 
 @app.route('/')
 def login():
     return render_template('login.html')
-
-@app.route('/login', methods=['POST'])
-def do_login():
-    username = request.form['username']
-    password = request.form['password']
-    if user_manager.login(username, password):
-        session['username'] = username
-        return redirect(url_for('feedback'))
-    else:
-        flash('Invalid username or password!')
-        return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -77,20 +21,20 @@ def register():
         username = request.form['username']
         password = request.form['password']
         if user_manager.register(username, password):
-            flash('Registration successful! Please log in.')
+            flash('Registration successful! Please log in.', 'success')
             return redirect(url_for('login'))
         else:
-            flash('Username already exists!')
+            flash('Username already exists. Please choose a different one.', 'error')
     return render_template('registration.html')
 
-@app.route('/feedback', methods=['GET', 'POST'])
-def feedback():
+@app.route('/submit_feedback', methods=['GET', 'POST'])
+def submit_feedback():
     if request.method == 'POST':
         username = session.get('username')
-        feedback_text = request.form['feedback']
+        feedback = request.form['feedback']
         category = request.form['category']
-        feedback_manager.submit_feedback(username, feedback_text, category)
-        flash('Feedback submitted successfully!')
+        feedback_manager.submit_feedback(username, feedback, category)
+        flash('Feedback submitted successfully!', 'success')
         return redirect(url_for('status'))
     return render_template('feedback.html')
 
@@ -98,13 +42,24 @@ def feedback():
 def status():
     username = session.get('username')
     feedback_status = feedback_manager.get_feedback_status(username)
-    return render_template('status.html', feedbacks=feedback_status)
+    return render_template('status.html', feedback_status=feedback_status)
+
+@app.route('/authenticate', methods=['POST'])
+def authenticate():
+    username = request.form['username']
+    password = request.form['password']
+    if user_manager.login(username, password):
+        session['username'] = username
+        flash('Login successful!', 'success')
+        return redirect(url_for('submit_feedback'))
+    flash('Invalid username or password. Please try again.', 'error')
+    return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
     session.pop('username', None)
-    flash('You have been logged out.')
+    flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(port=8201, debug=False)
+    app.run(port=8365, debug=False)

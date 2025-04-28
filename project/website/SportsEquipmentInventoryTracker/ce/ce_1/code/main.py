@@ -1,69 +1,72 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from tools import load_users, load_equipment, save_users, save_equipment
+from flask import Flask, render_template, request, redirect, url_for
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
 
 class UserManager:
     def __init__(self):
-        self.users = load_users()
+        self.users = self.load_users()
+
+    def load_users(self):
+        if not os.path.exists('users.txt'):
+            return []
+        with open('users.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
     def register(self, username: str, password: str) -> bool:
-        if username in self.users:
-            return False
-        self.users[username] = password
-        save_users(self.users)
+        for user in self.users:
+            if user[0] == username:
+                return False
+        self.users.append([username, password])
+        with open('users.txt', 'a') as file:
+            file.write(f"{username}|{password}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
-        return self.users.get(username) == password
+        for user in self.users:
+            if user[0] == username and user[1] == password:
+                return True
+        return False
 
 class EquipmentManager:
     def __init__(self):
-        self.equipment = load_equipment()
+        self.equipment = self.load_equipment()
 
-    def add_equipment(self, name: str, type: str, quantity: int, condition: str, availability: bool, location: str) -> bool:
-        self.equipment[name] = {
-            'type': type,
-            'quantity': quantity,
-            'condition': condition,
-            'availability': availability,
-            'location': location
-        }
-        save_equipment(self.equipment)
+    def load_equipment(self):
+        if not os.path.exists('equipment.txt'):
+            return []
+        with open('equipment.txt', 'r') as file:
+            return [line.strip().split(',') for line in file.readlines()]
+
+    def add_equipment(self, name: str, type: str, quantity: int, condition: str, location: str) -> bool:
+        self.equipment.append([name, type, str(quantity), condition, location])
+        with open('equipment.txt', 'a') as file:
+            file.write(f"{name},{type},{quantity},{condition},{location}\n")
         return True
 
-    def update_equipment(self, name: str, quantity: int, condition: str, availability: bool, location: str) -> bool:
-        if name not in self.equipment:
-            return False
-        self.equipment[name].update({
-            'quantity': quantity,
-            'condition': condition,
-            'availability': availability,
-            'location': location
-        })
-        save_equipment(self.equipment)
-        return True
+    def update_equipment(self, name: str, quantity: int, condition: str, location: str) -> bool:
+        for item in self.equipment:
+            if item[0] == name:
+                item[2] = str(quantity)
+                item[3] = condition
+                item[4] = location
+                self.save_equipment()
+                return True
+        return False
 
     def search_equipment(self, query: str):
-        return {name: details for name, details in self.equipment.items() if query.lower() in name.lower()}
+        return [item for item in self.equipment if query.lower() in item[0].lower()]
 
-    def filter_equipment(self, criteria: str):
-        return {name: details for name, details in self.equipment.items() if details['type'] == criteria}
+    def filter_equipment(self, condition: str, availability: bool):
+        return [item for item in self.equipment if item[3] == condition]
 
-    def set_alert(self, name: str) -> bool:
-        # Placeholder for alert setting logic
-        return True
+    def save_equipment(self):
+        with open('equipment.txt', 'w') as file:
+            for item in self.equipment:
+                file.write(','.join(item) + '\n')
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user_manager = UserManager()
-        if user_manager.login(username, password):
-            session['username'] = username
-            return redirect(url_for('dashboard'))
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -71,16 +74,20 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user_manager = UserManager()
         if user_manager.register(username, password):
             return redirect(url_for('login'))
     return render_template('registration.html')
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
-    equipment_manager = EquipmentManager()
-    equipment_list = equipment_manager.equipment
-    return render_template('dashboard.html', equipment=equipment_list)
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            return render_template('dashboard.html', equipment=equipment_manager.equipment)
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(port=8251, debug=False)
+    user_manager = UserManager()
+    equipment_manager = EquipmentManager()
+    app.run(port=8423, debug=False)

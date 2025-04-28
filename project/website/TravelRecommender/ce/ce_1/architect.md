@@ -1,29 +1,32 @@
 [CONTENT]
-"Implementation approach": "The web application 'TravelRecommender' will be developed using HTML for the frontend and Python for the backend logic. User interactions will be handled through HTML forms for registration, login, and travel preferences input. The backend will process these inputs, generate recommendations based on user preferences, and serve the results back to the frontend. Data will flow from the frontend to the backend via form submissions, and the backend will read from and write to local text files for data storage.",
+"Implementation approach": "The web application 'TravelRecommender' will be developed using Python for the backend logic and HTML for the frontend. The application will utilize a simple file-based approach for data storage, ensuring ease of access and management. The application will be structured into a single main file handling user interactions and data processing, along with HTML templates for the user interface.",
 
-"UI design": "The user interface will consist of the following components: a Registration Page with fields for username and password, a Login Page with similar fields, a Travel Preferences Page where users can input their budget, preferred activities, and desired climate, a Recommendations Page to display personalized travel destinations, and a Favorites Page to show saved destinations. Each page will have a consistent layout for ease of navigation and usability.",
+"UI design": "The user interface will consist of the following main components: a Registration Page for user account creation, a Login Page for user authentication, a Preferences Page for inputting travel preferences, a Recommendations Page for displaying personalized travel destinations, and a Favorites Page for viewing saved destinations. Each page will have navigation links to facilitate easy movement between them.",
 
-"Data Storage": "Data will be stored in local text files. User accounts will be stored in 'users.txt', travel preferences in 'preferences.txt', and recommended destinations in 'destinations.txt'. Each type of data will be stored in separate files to facilitate easy retrieval and management without the use of SQL databases.",
+"Data Storage": "Data will be stored in local text files. Different types of data will be stored in separate files. The following files will be used: 'users.txt' for storing user credentials, 'preferences.txt' for storing user travel preferences, 'destinations.txt' for storing travel destination data, and 'favorites.txt' for storing user favorite destinations.",
 
-"File list": ["main.py", "tools.py", "templates/login.html", "templates/registration.html", "templates/preferences.html", "templates/recommendations.html", "templates/favorites.html", "users.txt", "preferences.txt", "destinations.txt"],
+"File list": ["main.py", "templates/registration.html", "templates/login.html", "templates/preferences.html", "templates/recommendations.html", "templates/favorites.html", "users.txt", "preferences.txt", "destinations.txt", "favorites.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
+        -PreferenceManager preference_manager
         -RecommendationEngine recommendation_engine
         +main() str
     }
     class UserManager {
-        -users: dict
+        -List users
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +save_user_data() void
+    }
+    class PreferenceManager {
+        -List preferences
+        +save_preferences(username: str, preferences: dict) void
     }
     class RecommendationEngine {
-        -destinations: list
-        +generate_recommendations(preferences: dict) list
-        +load_destinations() void
+        -List destinations
+        +generate_recommendations(preferences: dict) List
     }
 ",
 [/CONTENT]

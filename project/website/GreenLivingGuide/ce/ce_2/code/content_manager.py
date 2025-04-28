@@ -19,35 +19,23 @@ class ContentManager:
         return articles
 
     def load_forum_posts(self):
-        posts = []
+        forum_posts = []
         with open('forum.txt', 'r') as file:
             for line in file:
-                posts.append(line.strip())
-        return posts
+                forum_posts.append(line.strip())
+        return forum_posts
 
-    def submit_tip(self, tip: str) -> bool:
+    def submit_tip(self, tip: str) -> None:
+        self.tips.append(tip)
         with open('tips.txt', 'a') as file:
             file.write(f"{tip}\n")
-        self.tips.append(tip)
-        return True
 
-    def submit_article(self, article: str) -> bool:
+    def submit_article(self, article: str) -> None:
+        self.articles.append(article)
         with open('articles.txt', 'a') as file:
             file.write(f"{article}\n")
-        self.articles.append(article)
-        return True
 
-    def post_to_forum(self, post: str) -> bool:
+    def submit_forum_post(self, post: str) -> None:
+        self.forum_posts.append(post)
         with open('forum.txt', 'a') as file:
             file.write(f"{post}\n")
-        self.forum_posts.append(post)
-        return True
-
-    def get_recent_articles(self):
-        return self.articles[-5:]  # Return last 5 articles
-
-    def get_tips(self):
-        return self.tips
-
-    def get_forum_posts(self):
-        return self.forum_posts

@@ -597,9 +597,11 @@ def ceaug(
         messages.append(
             {
                 "role": "user",
-                "content": """Summarize the above mentioned unit test analysis. You only need to summarize the content in the project identified from the unit test result. You need to do 2 jobs:
+                "content": """Summarize the above mentioned unit test analysis. You only need to summarize the
+                content in the project identified from the unit test result. You need to do 2 jobs:
                 ### 1. summarize test pass cases
                 Identify all passed test cases (test_XX_XX, marked as "ok"). For each passed case, find the corresponding project code from all the related files in codebase (not the test code), understand the full implementation thought of the project codes related to the test case, then express them in pseudocode format(pseudocode should capture all parts of the code, not just function body, if function related to more than 1 file, you should catch all key code from all files, not only the main file, may include different types of files). 
+                Additionally, describe the key functionality and usage of special third-party libraries used in your pseudocode.
                 Focus only on the project code, not the test code. 
                 Your presented pseudocode should contain full information from the actual code, rather than just repeat input and output.
                 Here is SOME EXAMPLES, and for different style code, like HTML,css,CLASS, you should present them with other suitable format.
@@ -630,7 +632,8 @@ def ceaug(
                 (5) don't provide guidance from higher-level aspects such as project management, development pattern, etc.
                 if failure or error related to more than 1 file, you should catch all key problems in all files, not only the main file.
                 Attention: only consider failure or error exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded. 
-                Besides, the deficiencies of testcode.py (test code) do not need to be summarized. only analyze issues that are relevant to the project's own code.""",
+                Besides, the deficiencies of testcode.py (test code) do not need to be summarized.
+                Issues unrelated to the code itself, such as network errors, do not need to be summarized.""",
             }
         )
 
@@ -714,6 +717,7 @@ Summarize solutions for all test cases that passed. Use the pseudocode provided 
 1. |Case|:**Case Name**
 Followed by the pseudocodes which represent the successful implementation for this function.
 keep the pseudocode long as you can, do not cut information.
+Additionally, there may have some accomanying information about third-party libraries used in pseudocode, you should keep and summrize them also.
 
 ### Failed or Error Test Cases
 Collect the analysis and guidance related to each failure or error from all 3 test feedback. present it in the format:
@@ -1167,11 +1171,19 @@ please provide improvement suggestions in the following areas:
 
 ---------------------------
 ### Output Example:
-1. **Specific Problem Areas:**
+1. **Overall Evaluation:**
+   - **Strengths:**
+     - Simple architecture suitable for small-scale projects.
+     - Text file storage works well at this scale.
+   - **Weaknesses:**
+     - UI lacks filtering and sorting features.
+     - Text files lack organization, making scaling difficult.
+
+2. **Specific Problem Areas:**
    - **Problem 1:** UI lacks filtering and sorting features.
      - **Suggestions:** Add basic filtering and sorting functionalities.
 
-2. **Architecture Enhancements:**
+3. **Architecture Enhancements:**
    - **Implementation:** Flask is suitable, but separate models and views for better clarity.
    - **UI Design:** Add filtering, searching, and sorting.
    - **File list:** adjust files XXX.
@@ -1185,7 +1197,6 @@ please provide improvement suggestions in the following areas:
 4. do not give advice with hash or security check in authentication.
 5. do not use recommend json if this is a website project, we only use txt now.
 6. guidance related to user experience, efficiency are not needed. Advice concerning the technology stack is also unnecessary. Provide only the guidance directly related to the project's functionality in terms of architecture.
-7. output the "Specific Areas for Improvement" and "Suggested Enhancement" part.
 """
 
 REFINE_TASK_PLAN_PROMPT = """
@@ -1223,25 +1234,26 @@ provide feedback on:
 4. do not give advice with hash or security check in authentication.
 5. Don't provide guidance from higher-level aspects such as project management, development pattern, etc.
 4. guidance related to user experience, efficiency are not needed.
-5. output the "Specific Areas for Improvement" and "Suggested Enhancement" part.
 
 ----------------------
 
 ### Example Output:
+1. Overall Evaluation:
+- **Strengths:** Covers key areas like user authentication, UI, and project management. UI components are well-defined.
+- **Weaknesses:** Lacks details on handling edge cases and data validation.
 
-**1. Specific Areas for Improvement:**
+2. Specific Areas for Improvement:
 - **Missing Features:** Add tasks for login and registration.
 - **Unclear Tasks:** `project_management.html` and `freelancer_profile.html` need more details on features (e.g., project editing, profile editing).
 - **Task Breakdown:** Break down larger tasks like `profile_management.html` into smaller subtasks.
 - **Dependencies:** Prioritize user login and registration first.
 
-**2. Suggested Enhancements:**
+3. Suggested Enhancements:
 - **Prioritization:** Implement authentication first to handle user data.
 - **Clarity:** Add more details on form validation for login/registration.
 - **Feature Clarification:** Specify editable fields for freelancer profile.
 - **Task Grouping:** Group UI tasks for consistency.
 - **Additional Considerations:** Consider optimizing the data in text file for correctness.
-
 """
 
 import chardet

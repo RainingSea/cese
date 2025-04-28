@@ -1,33 +1,29 @@
 [CONTENT]
-"Implementation approach": "The application will be developed using Python for backend logic, handling user authentication, data management, and serving HTML content. HTML will be used for frontend presentation, with static pages for login, registration, home, listing, and item details. Local text files will be utilized for data storage, allowing for straightforward file manipulation and retrieval without the complexity of a SQL database.",
+"Implementation approach": "The web application 'OnlineVintageMarket' will be developed using Python for backend logic and HTML for frontend presentation. The application will handle user authentication through a simple login mechanism, allowing users to register and log in. Item listings will be created and managed by users, with data stored in local text files for easy retrieval and management. The application will follow a straightforward structure, ensuring that each functional requirement is met with minimal complexity.",
 
-"UI design": "The key UI components include:\n- Login Page: Input fields for username and password, a login button, and a 'Register here' link.\n- Registration Page: Input fields for username, password, and a submit button.\n- Home Page: Display of vintage items with a search bar, 'Item Details' buttons for each item, and a navigation link to the Listing Page.\n- Listing Page: Input fields for item name, description, price, and a 'Submit Listing' button.\n- Item Details Page: Display of item title, description, price, and a 'Back' button to return to the Home Page.",
+"UI design": "The user interface will consist of the following pages:\n1. **Login Page**: Contains fields for username and password, a login button, and a link to the Registration Page.\n2. **Registration Page**: Contains fields for username, password, and a submit button to create a new account.\n3. **Home Page**: Displays a list of available vintage items, a search bar for item search, and an 'Item Details' button for each item.\n4. **Listing Page**: Contains fields for item name, description, price, and a 'Submit Listing' button.\n5. **Item Details Page**: Displays detailed information about a selected item with a 'Back' button to return to the Home Page.",
 
-"Data Storage": "Data will be stored in local text files. The following files will be used:\n- users.txt: Stores user account information (username and password).\n- items.txt: Stores details of vintage items (item name, description, price). This structure supports easy retrieval and management through basic file operations in Python.",
+"Data Storage": "All data will be stored in local text files. The following text files will be used:\n- **users.txt**: Stores user account information (username and password).\n- **items.txt**: Stores item listings (item name, description, price). This organization facilitates easy data retrieval and management without the need for a SQL database.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/listing.html", "templates/item_details.html", "users.txt", "items.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -username: str
-        -password: str
-        +register() bool
-        +login() bool
-    }
-    class Item {
-        -name: str
-        -description: str
-        -price: float
-        +create_listing() bool
-        +get_details() str
-    }
     class Main {
-        -User user
-        -Item item
+        -UserManager user_manager
+        -ItemManager item_manager
         +main() str
-        +load_users() list
-        +load_items() list
+    }
+    class UserManager {
+        -users: list
+        +login(username: str, password: str) bool
+        +register(username: str, password: str) bool
+    }
+    class ItemManager {
+        -items: list
+        +add_item(name: str, description: str, price: float) bool
+        +get_items() list
+        +get_item_details(name: str) str
     }
 ",
 [/CONTENT]

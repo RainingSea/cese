@@ -1,42 +1,40 @@
 [CONTENT]
-"Implementation approach": "The web application 'SocialLearn' will be developed using HTML for the frontend and Python for the backend functionalities. User interactions will be handled through HTML forms for registration, login, and profile management, while Python will manage the logic for user authentication, profile updates, and data storage. The application will utilize local text files for data management, ensuring simplicity and efficiency.",
+"Implementation approach": "The application will be developed using Python for the backend logic and HTML for the frontend. The Flask framework will be utilized to handle routing and serve HTML templates. The application will implement simple file handling for data storage, utilizing Python's built-in file I/O capabilities to manage user data, profiles, resources, and messages stored in separate text files.",
 
-"UI design": "The user interface will consist of several key components: a Registration Page with a form for username and password, a Login Page for user authentication, a Profile Management section for updating user interests, a Study Groups interface for joining communities, a Resource Sharing area for uploading and accessing educational materials, and a Messaging system for communication within study groups. These components will be organized in a user-friendly manner, with navigation links to switch between different functionalities.",
+"UI design":"The main user interface components will include: 1. Registration Page with a form for username and password. 2. Login Page with a form for username and password. 3. Profile Management Page for creating and updating user profiles. 4. Study Groups Page to display available groups and allow users to join. 5. Resource Sharing Page to upload and access educational resources. 6. Messaging Interface for users to send and receive messages within study groups. 7. Logout button to return to the Login Page.",
 
-"Data Storage": "All data will be stored in local text files, with separate files for different types of data: 'users.txt' for user information, 'groups.txt' for study groups, 'resources.txt' for educational resources, and 'messages.txt' for user messages. This structure allows for easy data retrieval and management through simple file manipulations in Python, ensuring the application remains lightweight and efficient without the need for a SQL database.",
+"Data Storage":"Data will be stored in local text files. Different types of data will be organized into separate files: 'users.txt' for user accounts, 'profiles.txt' for user profiles, 'resources.txt' for shared educational resources, and 'messages.txt' for user messages. Each file will contain structured data, with each entry on a new line.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/profile.html", "templates/groups.html", "templates/resources.html", "templates/messages.html", "users.txt", "groups.txt", "resources.txt", "messages.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/profile.html", "templates/study_groups.html", "templates/resources.html", "templates/messages.html", "users.txt", "profiles.txt", "resources.txt", "messages.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
-        -GroupManager group_manager
+        -ProfileManager profile_manager
         -ResourceManager resource_manager
         -MessageManager message_manager
         +main() str
     }
     class UserManager {
-        -users: list
+        -users_file: str
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +update_profile(username: str, interests: list) bool
     }
-    class GroupManager {
-        -groups: list
-        +join_group(username: str, group_name: str) bool
+    class ProfileManager {
+        -profiles_file: str
+        +create_profile(username: str, interests: str) bool
+        +update_profile(username: str, interests: str) bool
     }
     class ResourceManager {
-        -resources: list
+        -resources_file: str
         +share_resource(username: str, resource: str) bool
+        +access_resources() list
     }
     class MessageManager {
-        -messages: list
+        -messages_file: str
         +send_message(from_user: str, to_user: str, message: str) bool
+        +get_messages(username: str) list
     }
 ",
-
-"Functional Requirements": "1. User Registration: Users can register by entering a username and password on the Registration Page. 2. User Login: Users can log in with their credentials on the Login Page. 3. Profile Management: Users can create and update their profiles with areas of interest. 4. Study Groups and Communities: Users can join study groups based on learning objectives. 5. Resource Sharing: Users can share and access educational resources. 6. Messaging: Users can message others in study groups. 7. User Logout: Users can log out and return to the Login Page.",
-
-"Constraints": "The application will not encrypt passwords for the login function, and the implementation will focus on achieving the outlined functional requirements in a demo version."
 [/CONTENT]

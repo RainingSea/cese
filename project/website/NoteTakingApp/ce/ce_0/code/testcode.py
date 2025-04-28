@@ -9,10 +9,10 @@ class TestNoteTakingApp(unittest.TestCase):
         # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8194/')  # Access the login page
+        self.driver.get('http://localhost:8358/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session and terminate the Flask application
+        # Close the web driver session and terminate the Flask app
         self.driver.quit()
         self.process.terminate()
 
@@ -25,11 +25,12 @@ class TestNoteTakingApp(unittest.TestCase):
     def test_login(self):
         # Functionalities 1: Test user login functionality
         self.login("admin", "admin123")
-        self.assertIn("Dashboard", self.driver.title)  # Verify redirection to Dashboard
+        self.assertIn("Dashboard", self.driver.title)
 
     def test_registration(self):
         # Functionalities 2: Test user registration functionality
-        self.driver.get('http://localhost:8194/register')  # Navigate to registration page
+        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
+        
         new_username = "new_user"
         new_password = "new_password"
 
@@ -38,77 +39,68 @@ class TestNoteTakingApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
-        # Verify redirection to the login page
+        # Verify the user is redirected to the login page
         self.assertIn("Login", self.driver.title)
 
     def test_view_notes(self):
-        # Functionalities 3: Test viewing notes on the Dashboard
-        self.login("admin", "admin123")
-        self.assertIn("Your Notes", self.driver.page_source)  # Check if notes are displayed
+        # Functionalities 3: Test viewing notes on the Dashboard Page
+        self.login("user1", "user123")
+        notes = self.driver.find_elements(By.TAG_NAME, 'li')
+        self.assertGreater(len(notes), 0, "No notes found on the dashboard.")
 
-    def test_add_note(self):
+    def test_add_new_note(self):
         # Functionalities 4: Test adding a new note
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Add Note').click()  # Navigate to Add Note page
+        self.login("user1", "user123")
+        self.driver.find_element(By.LINK_TEXT, 'Add Note').click()
 
         note_title = "Test Note"
         note_content = "This is a test note."
 
-        # Fill out the note form
+        # Fill out the new note form
         self.driver.find_element(By.NAME, 'title').send_keys(note_title)
         self.driver.find_element(By.NAME, 'content').send_keys(note_content)
-        self.driver.find_element(By.XPATH, '//button[text()="Save"]').click()  # Save the note
+        self.driver.find_element(By.XPATH, '//button[text()="Save"]').click()
 
-        # Verify that the note appears on the Dashboard
+        # Verify that the new note is displayed on the Dashboard
         self.assertIn(note_title, self.driver.page_source)
 
     def test_view_note_details(self):
         # Functionalities 5: Test viewing note details
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Test Note').click()  # Click on the note to view
-        self.assertIn("Test Note", self.driver.title)  # Check if the note title is displayed
-        self.assertIn("This is a test note.", self.driver.page_source)  # Check if the content is displayed
+        self.login("user1", "user123")
+        notes = self.driver.find_elements(By.TAG_NAME, 'li')
+        if notes:
+            notes[0].find_element(By.TAG_NAME, 'a').click()  # Click on the first note
 
-    def test_edit_note(self):
-        # Functionalities 6: Test editing a note
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Test Note').click()  # Click on the note to edit
-        self.driver.find_element(By.XPATH, '//a[text()="Edit"]').click()  # Click edit
-
-        new_content = "This is the updated content."
-        self.driver.find_element(By.NAME, 'content').clear()  # Clear existing content
-        self.driver.find_element(By.NAME, 'content').send_keys(new_content)  # Enter new content
-        self.driver.find_element(By.XPATH, '//button[text()="Save"]').click()  # Save changes
-
-        # Verify that the updated content is displayed
-        self.assertIn(new_content, self.driver.page_source)
+            # Verify that the note details are displayed
+            self.assertIn("Test Note", self.driver.page_source)
 
     def test_delete_note(self):
         # Functionalities 7: Test deleting a note
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Test Note').click()  # Click on the note to delete
-        self.driver.find_element(By.XPATH, '//button[text()="Delete"]').click()  # Confirm deletion
+        self.login("user1", "user123")
+        notes = self.driver.find_elements(By.TAG_NAME, 'li')
+        if notes:
+            delete_link = notes[0].find_elements(By.TAG_NAME, 'a')[1]  # Click on the delete link
+            delete_link.click()
 
-        # Verify that the note is no longer present on the Dashboard
-        self.assertNotIn("Test Note", self.driver.page_source)
+            # Verify that the note is deleted and no longer appears in the dashboard
+            self.assertNotIn("Test Note", self.driver.page_source)
 
     def test_search_note(self):
         # Functionalities 8: Test searching for a note
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Search Note').click()  # Navigate to search page
+        self.login("user1", "user123")
+        self.driver.find_element(By.LINK_TEXT, 'Search Notes').click()
 
-        self.driver.find_element(By.NAME, 'query').send_keys("Test Note")  # Enter search query
-        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()  # Perform search
+        search_title = "First Note"
+        self.driver.find_element(By.NAME, 'title').send_keys(search_title)
+        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
 
-        # Verify that the search results contain the note
-        self.assertIn("Test Note", self.driver.page_source)
+        # Verify that the search results display the matching note
+        self.assertIn(search_title, self.driver.page_source)
 
     def test_logout(self):
         # Functionalities 10: Test logging out
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Logout').click()  # Click logout
-
-        # Verify that the user is redirected to the Login Page
+        self.login("user1", "user123")
+        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
         self.assertIn("Login", self.driver.title)
 
 if __name__ == '__main__':

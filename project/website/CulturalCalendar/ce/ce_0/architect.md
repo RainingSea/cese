@@ -1,18 +1,17 @@
 [CONTENT]
-"Implementation approach": "The Cultural Calendar web application will be developed using HTML for the frontend and Python for the backend functionalities. The application will utilize a simple HTTP server in Python to handle user interactions, process data, and serve HTML pages. User registration and login will be managed through session handling in Python, and data will be processed using local text files for storage, ensuring a lightweight and efficient application.",
+"Implementation approach": "The web application will be developed using Python for the backend logic and HTML for the frontend. The Flask framework will be utilized to handle routing and rendering of HTML templates. The application will maintain a simple structure to ensure ease of use and maintenance.",
 
-"UI design": "The user interface will consist of the following key components: \n1. **Registration Page**: A form with fields for username and password, and a 'Register' button. \n2. **Login Page**: A form with fields for username and password, and a 'Login' button. \n3. **Dashboard Page**: A list or calendar view displaying upcoming cultural events, with links to view details. \n4. **Event Details Page**: Displays detailed information about an event, including a 'Set Reminder' button. \n5. **Reminders Page**: A list of events the user has set reminders for, with options to delete reminders.",
+"UI design":"The user interface will consist of the following pages: Registration Page (form for username and password), Login Page (form for username and password), Dashboard Page (calendar/list of events with navigation links), Event Details Page (detailed view of the selected event with a 'Set Reminder' button), and Reminders Page (list of user-set reminders with options to manage them). Navigation will be intuitive with links to return to the dashboard and logout options.",
 
-"Data Storage": "Data will be stored in local text files, with separate files for different types of data: \n1. `users.txt` for storing user account information (username and password). \n2. `events.txt` for storing event details (event name, significance, history, location). \n3. `reminders.txt` for storing user reminders (username and event names). This structure allows for easy data retrieval and management without the need for a SQL database.",
+"Data Storage":"Data will be stored in local text files. The following types of data will be stored in separate files: 'users.txt' for user account information (username and password), 'events.txt' for event details (event name, significance, history, location), and 'reminders.txt' for user reminders (username and event IDs). Each file will be structured with one entry per line, using a delimiter to separate fields.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/event_details.html", "templates/reminders.html", "users.txt", "events.txt", "reminders.txt"],
+"File list": ["main.py", "templates/registration.html", "templates/login.html", "templates/dashboard.html", "templates/event_details.html", "templates/reminders.html", "users.txt", "events.txt", "reminders.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
         -EventManager event_manager
-        -ReminderManager reminder_manager
         +main() str
     }
     class UserManager {
@@ -21,13 +20,14 @@ classDiagram
         +login(username: str, password: str) bool
     }
     class EventManager {
-        -events: list
-        +load_events() void
-        +get_event_details(event_id: str) str
+        -events: dict
+        +get_events() list
+        +get_event_details(event_id: str) dict
+        +search_events(query: str) list
     }
-    class ReminderManager {
+    class Reminder {
         -reminders: dict
-        +set_reminder(username: str, event_id: str) void
+        +add_reminder(username: str, event_id: str) bool
         +get_reminders(username: str) list
     }
 ",

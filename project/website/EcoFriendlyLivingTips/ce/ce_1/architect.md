@@ -1,43 +1,40 @@
 [CONTENT]
-"Implementation approach": "The web application will be implemented using Python for the backend logic and HTML for the frontend. The main entry point will be 'main.py', which will handle user authentication, data retrieval, and routing to different functionalities. The application will start from the login page, where users can log in or create a new account. After logging in, users can access eco-friendly tips, external resources, the community forum, and their profile. Each feature will be implemented as functions within 'main.py'.",
+"Implementation approach": "The web application 'EcoFriendlyLivingTips' will be developed using Python with a simple HTTP server to handle requests. HTML will be used for the frontend to create the user interface. The application will utilize basic Python libraries such as 'http.server' for serving HTML files and handling user input. User data and tips will be managed through local text files, ensuring a lightweight and efficient system.",
 
-"UI design":"The user interface will consist of several HTML templates. The login page will include a form for entering username and password. The registration page will have a form for creating a new account. There will be a navigation menu for accessing tips, resources, the forum, and user profile. Each section will be clearly laid out, with forms for submitting new tips or resources, and a contact form for reaching support.",
+"UI design": "The UI will consist of several pages: a login page for user authentication, a main dashboard displaying eco-friendly tips, a resource page for external links, a community forum for discussions, and a profile page for user information. Each page will have a navigation bar for easy access to different features. The login page will include fields for username and password, while the tips and resources pages will have forms for submitting new content.",
 
-"Data Storage":"Data will be stored in local text files. The following files will be used: 'users.txt' for storing user account information, 'tips.txt' for storing eco-friendly tips, 'resources.txt' for external resources, and 'forum.txt' for community forum posts. Each file will be structured in a simple format, such as one entry per line, to facilitate easy reading and writing in Python.",
+"Data Storage": "Data will be stored in local text files. Different types of data will be stored in separate files: 'users.txt' for user accounts, 'tips.txt' for eco-friendly tips, 'resources.txt' for external resources, and 'forum.txt' for community posts. This structured data storage will facilitate easy data retrieval and management through simple file manipulations in Python, ensuring the application remains light and efficient without the need for a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "users.txt", "tips.txt", "resources.txt", "forum.txt"],
+"File list": ["main.py", "templates/login.html", "templates/dashboard.html", "templates/tips.html", "templates/resources.html", "templates/forum.html", "templates/profile.html", "users.txt", "tips.txt", "resources.txt", "forum.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -String username
-        -String password
-        +create_account(username: str, password: str)
-        +login(username: str, password: str)
-    }
-    class Tip {
-        -String content
-        +submit_tip(content: str)
-    }
-    class Resource {
-        -String url
-        +add_resource(url: str)
-    }
-    class ForumPost {
-        -String content
-        +create_post(content: str)
-    }
     class Main {
-        -User user
-        -Tip tip
-        -Resource resource
-        -ForumPost forum_post
+        -UserManager user_manager
+        -TipManager tip_manager
+        -ResourceManager resource_manager
+        -ForumManager forum_manager
         +main() str
-        +login() str
-        +register() str
-        +view_tips() str
-        +view_resources() str
-        +view_forum() str
+    }
+    class UserManager {
+        -users: dict
+        +login(username: str, password: str) bool
+        +create_account(username: str, password: str) bool
+    }
+    class TipManager {
+        -tips: list
+        +view_tips() list
+        +submit_tip(tip: str) bool
+    }
+    class ResourceManager {
+        -resources: list
+        +view_resources() list
+        +add_resource(resource: str) bool
+    }
+    class ForumManager {
+        -posts: list
+        +view_posts() list
+        +add_post(post: str) bool
     }
 ",
 [/CONTENT]

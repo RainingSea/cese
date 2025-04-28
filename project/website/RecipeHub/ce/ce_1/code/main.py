@@ -1,77 +1,77 @@
-import os
-from html import escape
 from flask import Flask, render_template, request, redirect, url_for, flash
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a random secret key
+app.secret_key = 'supersecretkey'
 
 class UserManager:
-    def __init__(self, users_file: str):
-        self.users_file = users_file
-        self.load_users()
+    def __init__(self):
+        self.users = self.load_users()
 
     def load_users(self):
-        self.users = {}
-        if os.path.exists(self.users_file):
-            with open(self.users_file, 'r') as file:
-                for line in file:
-                    username, password = line.strip().split('|')
-                    self.users[username] = password
+        if not os.path.exists('users.txt'):
+            return []
+        with open('users.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
     def register(self, username: str, password: str) -> bool:
-        if username in self.users:
-            return False
-        self.users[username] = password
-        with open(self.users_file, 'a') as file:
-            file.write(f"{username}|{password}\n")
+        for user in self.users:
+            if user[0] == username:
+                return False
+        self.users.append([username, password])
+        self.save_users()
         return True
 
+    def save_users(self):
+        with open('users.txt', 'w') as file:
+            for user in self.users:
+                file.write('|'.join(user) + '\n')
+
     def login(self, username: str, password: str) -> bool:
-        return self.users.get(username) == password
+        for user in self.users:
+            if user[0] == username and user[1] == password:
+                return True
+        return False
 
     def delete_account(self, username: str) -> bool:
-        if username in self.users:
-            del self.users[username]
-            with open(self.users_file, 'w') as file:
-                for user, pwd in self.users.items():
-                    file.write(f"{user}|{pwd}\n")
-            return True
+        for user in self.users:
+            if user[0] == username:
+                self.users.remove(user)
+                self.save_users()
+                return True
         return False
 
 class RecipeManager:
-    def __init__(self, recipes_file: str):
-        self.recipes_file = recipes_file
-        self.load_recipes()
+    def __init__(self):
+        self.recipes = self.load_recipes()
 
     def load_recipes(self):
-        self.recipes = []
-        if os.path.exists(self.recipes_file):
-            with open(self.recipes_file, 'r') as file:
-                for line in file:
-                    title, ingredients, instructions = line.strip().split('|')
-                    self.recipes.append({
-                        'title': title,
-                        'ingredients': ingredients,
-                        'instructions': instructions
-                    })
+        if not os.path.exists('recipes.txt'):
+            return []
+        with open('recipes.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
     def submit_recipe(self, title: str, ingredients: str, instructions: str) -> bool:
-        self.recipes.append({'title': title, 'ingredients': ingredients, 'instructions': instructions})
-        with open(self.recipes_file, 'a') as file:
-            file.write(f"{title}|{ingredients}|{instructions}\n")
+        self.recipes.append([title, ingredients, instructions])
+        self.save_recipes()
         return True
 
-    def search_recipes(self, query: str):
-        return [recipe for recipe in self.recipes if query.lower() in recipe['title'].lower()]
+    def save_recipes(self):
+        with open('recipes.txt', 'w') as file:
+            for recipe in self.recipes:
+                file.write('|'.join(recipe) + '\n')
+
+    def search_recipes(self, keyword: str):
+        return [recipe for recipe in self.recipes if keyword.lower() in recipe[0].lower()]
 
     def get_recipe_details(self, title: str):
         for recipe in self.recipes:
-            if recipe['title'] == title:
+            if recipe[0] == title:
                 return recipe
         return None
 
-user_manager = UserManager('users.txt')
-recipe_manager = RecipeManager('recipes.txt')
+user_manager = UserManager()
+recipe_manager = RecipeManager()
 
 @app.route('/')
 def login():
@@ -80,35 +80,39 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = escape(request.form['username'])
-        password = escape(request.form['password'])
+        username = request.form['username']
+        password = request.form['password']
         if user_manager.register(username, password):
-            flash('Registration successful!')
+            flash('Registration successful! Please log in.')
             return redirect(url_for('login'))
         else:
-            flash('Username already exists!')
+            flash('Username already exists. Please choose a different one.')
     return render_template('registration.html')
 
-@app.route('/home')
+@app.route('/home', methods=['GET', 'POST'])
 def home():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            return render_template('home.html', username=username)
+        else:
+            flash('Invalid credentials. Please try again.')
     return render_template('home.html')
 
 @app.route('/submit_recipe', methods=['GET', 'POST'])
 def submit_recipe():
     if request.method == 'POST':
-        title = escape(request.form['title'])
-        ingredients = escape(request.form['ingredients'])
-        instructions = escape(request.form['instructions'])
+        title = request.form['title']
+        ingredients = request.form['ingredients']
+        instructions = request.form['instructions']
         recipe_manager.submit_recipe(title, ingredients, instructions)
         flash('Recipe submitted successfully!')
-        return redirect(url_for('home'))
     return render_template('recipe_submission.html')
 
 @app.route('/browse_recipes', methods=['GET'])
 def browse_recipes():
-    query = request.args.get('query', '')
-    recipes = recipe_manager.search_recipes(query)
-    return render_template('recipe_browsing.html', recipes=recipes)
+    return render_template('recipe_browsing.html', recipes=recipe_manager.recipes)
 
 @app.route('/recipe_details/<title>', methods=['GET'])
 def recipe_details(title):
@@ -120,4 +124,4 @@ def user_profile():
     return render_template('user_profile.html')
 
 if __name__ == '__main__':
-    app.run(port=8231, debug=False)
+    app.run(port=8403, debug=False)

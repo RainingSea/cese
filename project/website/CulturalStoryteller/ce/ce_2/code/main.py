@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
 
 app = Flask(__name__)
@@ -16,8 +15,9 @@ class UserManager:
             return [line.strip().split('|') for line in file.readlines()]
 
     def register(self, username: str, password: str) -> bool:
-        if any(user[0] == username for user in self.users):
-            return False
+        for user in self.users:
+            if user[0] == username:
+                return False  # User already exists
         self.users.append([username, password])
         with open('users.txt', 'a') as file:
             file.write(f"{username}|{password}\n")
@@ -32,6 +32,7 @@ class UserManager:
 class StoryManager:
     def __init__(self):
         self.stories = self.load_stories()
+        self.bookmarks = self.load_bookmarks()
 
     def load_stories(self):
         if not os.path.exists('stories.txt'):
@@ -39,90 +40,70 @@ class StoryManager:
         with open('stories.txt', 'r') as file:
             return [line.strip().split('|') for line in file.readlines()]
 
-    def get_all_stories(self):
-        return self.stories
-
-    def get_story_details(self, title: str):
-        for story in self.stories:
-            if story[0] == title:
-                return story
-        return None
-
-    def search_stories(self, query: str):
-        return [story for story in self.stories if query.lower() in story[0].lower()]
-
-class BookmarkManager:
-    def __init__(self):
-        self.bookmarks = self.load_bookmarks()
-
     def load_bookmarks(self):
         if not os.path.exists('bookmarks.txt'):
             return {}
         bookmarks = {}
         with open('bookmarks.txt', 'r') as file:
-            for line in file:
-                username, title = line.strip().split('|')
-                if username in bookmarks:
-                    bookmarks[username].append(title)
-                else:
-                    bookmarks[username] = [title]
+            for line in file.readlines():
+                username, story_id = line.strip().split('|')
+                if username not in bookmarks:
+                    bookmarks[username] = []
+                bookmarks[username].append(int(story_id))
         return bookmarks
 
-    def add_bookmark(self, username: str, story_title: str) -> bool:
+    def get_all_stories(self):
+        return self.stories
+
+    def get_story_details(self, story_id: int):
+        return self.stories[story_id]
+
+    def search_stories(self, query: str):
+        return [story for story in self.stories if query.lower() in story[0].lower()]
+
+    def add_bookmark(self, username: str, story_id: int) -> bool:
         if username not in self.bookmarks:
             self.bookmarks[username] = []
-        if story_title in self.bookmarks[username]:
-            return False
-        self.bookmarks[username].append(story_title)
+        if story_id in self.bookmarks[username]:
+            return False  # Already bookmarked
+        self.bookmarks[username].append(story_id)
         with open('bookmarks.txt', 'a') as file:
-            file.write(f"{username}|{story_title}\n")
+            file.write(f"{username}|{story_id}\n")
         return True
 
     def get_bookmarks(self, username: str):
         return self.bookmarks.get(username, [])
 
-    def remove_bookmark(self, username: str, story_title: str) -> bool:
-        if username in self.bookmarks and story_title in self.bookmarks[username]:
-            self.bookmarks[username].remove(story_title)
-            self.save_bookmarks()
-            return True
-        return False
-
-    def save_bookmarks(self):
-        with open('bookmarks.txt', 'w') as file:
-            for username, titles in self.bookmarks.items():
-                for title in titles:
-                    file.write(f"{username}|{title}\n")
+user_manager = UserManager()
+story_manager = StoryManager()
 
 @app.route('/')
 def login():
     return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.register(username, password):
-            return redirect('/')
-    return render_template('registration.html')
+    username = request.form['username']
+    password = request.form['password']
+    if user_manager.register(username, password):
+        return redirect(url_for('login'))
+    return "Registration Failed"
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html', stories=story_manager.get_all_stories())
+    stories = story_manager.get_all_stories()
+    return render_template('dashboard.html', stories=stories)
 
-@app.route('/story/<title>')
-def story_details(title):
-    story = story_manager.get_story_details(title)
+@app.route('/story/<int:story_id>')
+def story_details(story_id):
+    story = story_manager.get_story_details(story_id)
     return render_template('story_details.html', story=story)
 
 @app.route('/bookmarks')
 def bookmarks():
-    return render_template('bookmarks.html', bookmarks=bookmark_manager.get_bookmarks(session.get('username')))
-
-user_manager = UserManager()
-story_manager = StoryManager()
-bookmark_manager = BookmarkManager()
+    username = session.get('username')
+    bookmarks = story_manager.get_bookmarks(username)
+    return render_template('bookmarks.html', bookmarks=bookmarks)
 
 if __name__ == '__main__':
-    app.run(port=8145, debug=False)
+    app.run(port=8309, debug=False)

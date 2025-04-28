@@ -9,10 +9,10 @@ class TestRemoteJobBoardApp(unittest.TestCase):
         # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8234/')  # Use the port from main.py
+        self.driver.get('http://localhost:8406/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session and terminate the Flask app
+        # Close the web driver session and terminate the Flask application
         self.driver.quit()
         self.process.terminate()
 
@@ -22,14 +22,14 @@ class TestRemoteJobBoardApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
 
-    def test_login(self):
+    def test_user_login(self):
         # Functionalities 1: Test user login functionality
-        self.login("admin", "admin123")
+        self.login("user1", "user123")
         self.assertIn("Home", self.driver.title)  # Check if redirected to home page
 
-    def test_registration(self):
+    def test_user_registration(self):
         # Functionalities 2: Test user registration functionality
-        self.driver.get('http://localhost:8234/register')
+        self.driver.get('http://localhost:8406/register')  # Navigate to registration page
         new_username = "new_user"
         new_password = "new_password"
 
@@ -42,56 +42,48 @@ class TestRemoteJobBoardApp(unittest.TestCase):
         self.assertIn("Login", self.driver.title)
 
     def test_navigate_home_after_login(self):
-        # Functionalities 3: Test navigating to home page after login
-        self.login("admin", "admin123")
+        # Functionalities 3: Test navigating home page after login
+        self.login("user1", "user123")
         self.assertIn("Home", self.driver.title)  # Check if redirected to home page
 
-    def test_browse_job_listings(self):
+    def test_browsing_job_listings(self):
         # Functionalities 4: Test browsing job listings
-        self.login("admin", "admin123")
+        self.login("user1", "user123")
         self.driver.find_element(By.LINK_TEXT, 'Browse Jobs').click()
-        self.assertIn("Job Listings", self.driver.title)  # Check if job listings page is displayed
+        self.assertIn("Browse Jobs", self.driver.title)  # Check if job listings page is displayed
 
-    def test_post_new_job_listing(self):
+    def test_posting_new_job_listing(self):
         # Functionalities 5: Test posting a new job listing
-        self.login("admin", "admin123")
+        self.login("user1", "user123")
         self.driver.find_element(By.LINK_TEXT, 'Post a Job').click()
 
         # Fill out the job posting form
-        self.driver.find_element(By.NAME, 'title').send_keys("Software Engineer")
-        self.driver.find_element(By.NAME, 'company').send_keys("Tech Company")
-        self.driver.find_element(By.NAME, 'description').send_keys("Develop and maintain software applications.")
+        self.driver.find_element(By.NAME, 'title').send_keys("Test Job")
+        self.driver.find_element(By.NAME, 'company').send_keys("Test Company")
+        self.driver.find_element(By.NAME, 'description').send_keys("This is a test job description.")
         self.driver.find_element(By.XPATH, '//button[text()="Post Job"]').click()
 
-        # Verify that the job is posted by checking the job listings page
-        self.driver.find_element(By.LINK_TEXT, 'Browse Jobs').click()
-        self.assertIn("Software Engineer", self.driver.page_source)  # Check if job is listed
+        # Verify that the job is posted successfully
+        self.assertIn("Home", self.driver.title)  # Check if redirected to home page
 
-    def test_edit_user_profile(self):
-        # Functionalities 6: Test editing user profile
-        self.login("admin", "admin123")
-        self.driver.get('http://localhost:8234/profile')
-
-        # Simulate editing the profile (this functionality is not implemented in the codebase)
+    def test_editing_user_profile(self):
+        # Functionalities 6: Test editing user profile (not implemented in the codebase)
         self.fail("Editing user profile functionality not implemented")
 
-    def test_apply_for_job_postings(self):
-        # Functionalities 7: Test applying for job postings
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Browse Jobs').click()
-        
-        # Simulate applying for a job (this functionality is not implemented in the codebase)
+    def test_applying_for_job_postings(self):
+        # Functionalities 7: Test applying for job postings (not implemented in the codebase)
         self.fail("Applying for job postings functionality not implemented")
 
-    def test_view_user_profile(self):
+    def test_viewing_user_profile(self):
         # Functionalities 8: Test viewing user profile
-        self.login("admin", "admin123")
-        self.driver.get('http://localhost:8234/profile')
-        self.assertIn("Username: admin", self.driver.page_source)  # Check if username is displayed
+        self.login("user1", "user123")
+        self.driver.find_element(By.LINK_TEXT, 'Profile').click()
+        self.assertIn("User Profile", self.driver.title)  # Check if profile page is displayed
 
-    def test_logout(self):
+    def test_logging_out(self):
         # Functionalities 9: Test logging out
-        self.login("admin", "admin123")
+        self.login("user1", "user123")
+        self.driver.find_element(By.LINK_TEXT, 'Profile').click()
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
         self.assertIn("Login", self.driver.title)  # Check if redirected to login page
 

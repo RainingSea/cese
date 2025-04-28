@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application will be developed using Python with the Flask framework for backend logic and HTML for frontend design. Local text file storage will be utilized for data management, ensuring a lightweight and efficient application without the need for a SQL database.",
+"Implementation approach": "The web application will be developed using Flask, a lightweight Python web framework, to handle backend logic. HTML will be used for frontend presentation. User preferences will be utilized for movie recommendations by analyzing user input and matching it with a predefined list of movies stored in text files.",
 
-"UI design": "The user interface will consist of several key components: a login form for user authentication, a registration form for new users, a movie search bar for searching movies, and a detailed movie display section. The main page will feature movie recommendations based on user preferences, and users can manage their favorites list through action buttons. Each component will interact seamlessly to provide a cohesive user experience.",
+"UI design": "The key UI components will include: a login form for user authentication, a registration form for new users, a movie search interface to allow users to find movies, a movie detail view to display information about selected movies, and a favorites management section to add, view, and remove movies from the favorites list. These components will be integrated into a cohesive user interface, ensuring smooth navigation and interaction.",
 
-"Data Storage": "Data will be stored in local text files, with different types of data organized into separate files. The following files will be used: 'users.txt' for user account information, 'movies.txt' for movie details, and 'favorites.txt' for user-specific favorite movies. This structure will facilitate easy data retrieval and management without using a SQL database.",
+"Data Storage": "Data will be stored in local text files, with separate files for different types of data: 'users.txt' for user account information, 'movies.txt' for movie details, and 'favorites.txt' for user favorites. This structure allows for straightforward data retrieval and management through simple file manipulations in Python, ensuring the application remains lightweight and efficient without the need for a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/recommendations.html", "templates/movie_detail.html", "users.txt", "movies.txt", "favorites.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/search.html", "templates/movie_detail.html", "templates/favorites.html", "users.txt", "movies.txt", "favorites.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -24,12 +24,11 @@ classDiagram
     class MovieManager {
         -movies: dict
         +load_movies() void
-        +get_recommendations(user_preferences: list) list
         +search_movies(query: str) list
-        +get_movie_details(movie_id: str) dict
+        +get_movie_details(title: str) dict
         +load_favorites(username: str) list
-        +add_to_favorites(username: str, movie_id: str) void
-        +remove_from_favorites(username: str, movie_id: str) void
+        +add_to_favorites(username: str, movie_title: str) void
+        +remove_from_favorites(username: str, movie_title: str) void
     }
 ",
 [/CONTENT]

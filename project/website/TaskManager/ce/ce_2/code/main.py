@@ -1,46 +1,43 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from user_manager import UserManager
-from task_manager import TaskManager
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import os
+from UserManager import UserManager
+from TaskManager import TaskManager
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a random secret key
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager('users.txt')
+        self.task_manager = TaskManager('tasks_template.txt')
 
-user_manager = UserManager('users.txt')
-task_manager = None
+    def run(self):
+        server_address = ('', 8080)
+        httpd = HTTPServer(server_address, RequestHandler)
+        print("Server running on port 8080...")
+        httpd.serve_forever()
 
-@app.route('/', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.login(username, password):
-            global task_manager
-            task_manager = TaskManager(f'tasks_{username}.txt')
-            return redirect(url_for('home'))
-    return render_template('login.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
-        if user_manager.register(username, password, email):
-            return redirect(url_for('login'))
-    return render_template('register.html')
-
-@app.route('/home', methods=['GET', 'POST'])
-def home():
-    if request.method == 'POST':
-        if 'add_task' in request.form:
-            task_description = request.form['task_description']
-            due_date = request.form['due_date']
-            task_manager.add_task(task_description, due_date)
-        elif 'remove_task' in request.form:
-            task_index = int(request.form['task_index'])
-            task_manager.remove_task(task_index)
-    tasks = task_manager.get_tasks() if task_manager else []
-    return render_template('home.html', tasks=tasks)
+class RequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            with open('templates/login.html', 'r') as f:
+                self.wfile.write(f.read().encode())
+        elif self.path == '/register':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            with open('templates/register.html', 'r') as f:
+                self.wfile.write(f.read().encode())
+        elif self.path == '/home':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            with open('templates/home.html', 'r') as f:
+                self.wfile.write(f.read().encode())
+        else:
+            self.send_response(404)
+            self.end_headers()
 
 if __name__ == '__main__':
-    app.run(port=8256, debug=False)
+    main_app = Main()
+    main_app.run()

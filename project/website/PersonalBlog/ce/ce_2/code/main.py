@@ -1,92 +1,89 @@
 import os
 
-class User:
-    def __init__(self, username: str, password: str, email: str):
-        self.username = username
-        self.password = password
-        self.email = email
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager('users.txt')
+        self.post_manager = PostManager('posts.txt')
+
+    def main(self):
+        # Simulate routing logic for demonstration
+        return self.user_manager.login("admin", "admin123")  # Example login
+
+class UserManager:
+    def __init__(self, user_file: str):
+        self.user_file = user_file
+        self.load_users()
+
+    def load_users(self):
+        self.users = {}
+        if os.path.exists(self.user_file):
+            with open(self.user_file, 'r') as file:
+                for line in file:
+                    username, password, email = line.strip().split(',')
+                    self.users[username] = (password, email)
 
     def register(self, username: str, password: str, email: str) -> bool:
-        if not self._is_username_taken(username):
-            with open('users.txt', 'a') as f:
-                f.write(f"{username}|{password}|{email}\n")
+        if username in self.users:
+            return False
+        with open(self.user_file, 'a') as file:
+            file.write(f"{username},{password},{email}\n")
+        self.users[username] = (password, email)
+        return True
+
+    def login(self, username: str, password: str) -> bool:
+        if username in self.users and self.users[username][0] == password:
             return True
         return False
 
-    def login(self, username: str, password: str) -> bool:
-        with open('users.txt', 'r') as f:
-            for line in f:
-                user_data = line.strip().split('|')
-                if user_data[0] == username and user_data[1] == password:
-                    return True
-        return False
+class PostManager:
+    def __init__(self, post_file: str):
+        self.post_file = post_file
+        self.load_posts()
 
-    def _is_username_taken(self, username: str) -> bool:
-        with open('users.txt', 'r') as f:
-            for line in f:
-                user_data = line.strip().split('|')
-                if user_data[0] == username:
-                    return True
-        return False
+    def load_posts(self):
+        self.posts = []
+        if os.path.exists(self.post_file):
+            with open(self.post_file, 'r') as file:
+                for line in file:
+                    username, title, content = line.strip().split(',', 2)
+                    self.posts.append((username, title, content))
 
-
-class BlogPost:
-    def __init__(self):
-        self.posts = self._load_posts()
-
-    def _load_posts(self):
-        posts = []
-        if os.path.exists('posts.txt'):
-            with open('posts.txt', 'r') as f:
-                for line in f:
-                    post_data = line.strip().split('|')
-                    posts.append({
-                        'post_id': int(post_data[0]),
-                        'title': post_data[1],
-                        'content': post_data[2],
-                        'author': post_data[3]
-                    })
-        return posts
-
-    def create_post(self, title: str, content: str, author: str) -> bool:
-        post_id = len(self.posts) + 1
-        with open('posts.txt', 'a') as f:
-            f.write(f"{post_id}|{title}|{content}|{author}\n")
-        self.posts.append({'post_id': post_id, 'title': title, 'content': content, 'author': author})
+    def create_post(self, username: str, title: str, content: str) -> bool:
+        with open(self.post_file, 'a') as file:
+            file.write(f"{username},{title},{content}\n")
+        self.posts.append((username, title, content))
         return True
 
-    def edit_post(self, post_id: int, title: str, content: str) -> bool:
-        for post in self.posts:
-            if post['post_id'] == post_id:
-                post['title'] = title
-                post['content'] = content
-                self._save_posts()
+    def edit_post(self, title: str, content: str) -> bool:
+        for index, (username, post_title, _) in enumerate(self.posts):
+            if post_title == title:
+                self.posts[index] = (username, title, content)
+                self.save_posts()
                 return True
         return False
 
-    def delete_post(self, post_id: int) -> bool:
-        self.posts = [post for post in self.posts if post['post_id'] != post_id]
-        self._save_posts()
-        return True
+    def delete_post(self, title: str) -> bool:
+        for index, (username, post_title, _) in enumerate(self.posts):
+            if post_title == title:
+                del self.posts[index]
+                self.save_posts()
+                return True
+        return False
 
-    def view_post(self, post_id: int) -> str:
+    def get_posts(self, username: str):
+        return [post for post in self.posts if post[0] == username]
+
+    def get_post(self, title: str):
         for post in self.posts:
-            if post['post_id'] == post_id:
-                return post['content']
-        return ""
+            if post[1] == title:
+                return post
+        return None
 
-    def _save_posts(self):
-        with open('posts.txt', 'w') as f:
-            for post in self.posts:
-                f.write(f"{post['post_id']}|{post['title']}|{post['content']}|{post['author']}\n")
-
-
-class Main:
-    @staticmethod
-    def main() -> str:
-        return "Welcome to Personal Blog Application"
-
+    def save_posts(self):
+        with open(self.post_file, 'w') as file:
+            for username, title, content in self.posts:
+                file.write(f"{username},{title},{content}\n")
 
 if __name__ == "__main__":
     app = Main()
-    print(app.main())
+    app.main()

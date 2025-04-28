@@ -2,7 +2,6 @@ import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import subprocess
-import time
 
 class TestRecipeHubApp(unittest.TestCase):
 
@@ -10,7 +9,7 @@ class TestRecipeHubApp(unittest.TestCase):
         # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8231/')  # Access the login page
+        self.driver.get('http://localhost:8403/')  # Access the login page
 
     def tearDown(self):
         # Close the web driver session and the Flask application
@@ -22,136 +21,70 @@ class TestRecipeHubApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'username').send_keys(username)
         self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
-        time.sleep(1)  # Wait for the next page to load
 
-    def test_login(self):
-        # Functionalities 1: Test user login functionality
+    def test_user_login(self):
+        # Functionalities 1: User Login
         self.login("admin", "admin123")
         self.assertIn("Home", self.driver.title)  # Verify redirection to Home Page
 
-    def test_registration(self):
-        # Functionalities 2: Test user registration functionality
+    def test_user_registration(self):
+        # Functionalities 2: User Registration
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        new_username = "new_user"
-        new_password = "new_password"
-
-        # Input username and password for registration
-        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
-        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
-        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Verify the user is redirected to the login page
-        self.assertIn("Login", self.driver.title)
+        self.driver.find_element(By.NAME, 'username').send_keys("new_user")
+        self.driver.find_element(By.NAME, 'password').send_keys("new_password")
+        self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+        self.assertIn("Login", self.driver.title)  # Verify redirection to Login Page
 
     def test_navigate_to_registration(self):
-        # Functionalities 3: Test navigation to the Registration Page
+        # Functionalities 3: Navigation to Registration Page
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
-        time.sleep(1)  # Wait for the next page to load
-        self.assertIn("Register", self.driver.title)  # Verify Registration Page
+        self.assertIn("Register", self.driver.title)  # Verify Registration Page loaded
+        self.driver.back()  # Navigate back to Login Page
+        self.assertIn("Login", self.driver.title)  # Verify back to Login Page
 
-        # Click back to Login Page
-        self.driver.back()
-        time.sleep(1)  # Wait for the next page to load
-        self.assertIn("Login", self.driver.title)  # Verify Login Page
-
-    def test_submit_recipe(self):
-        # Functionalities 4: Test recipe submission
+    def test_recipe_submission(self):
+        # Functionalities 4: Recipe Submission
         self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Submit a Recipe').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Fill out the recipe submission form
+        self.driver.find_element(By.LINK_TEXT, 'Submit Recipe').click()
         self.driver.find_element(By.NAME, 'title').send_keys("New Recipe")
         self.driver.find_element(By.NAME, 'ingredients').send_keys("Ingredient1, Ingredient2")
         self.driver.find_element(By.NAME, 'instructions').send_keys("Instructions for the recipe.")
         self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
-        time.sleep(1)  # Wait for the submission to complete
-
-        # Verify success message
-        self.assertIn("Recipe submitted successfully!", self.driver.page_source)
+        self.assertIn("Recipe submitted successfully!", self.driver.page_source)  # Verify success message
 
     def test_browse_recipes(self):
-        # Functionalities 5: Test recipe browsing
+        # Functionalities 5: Recipe Browsing
         self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'Browse Recipes').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Search for a recipe
-        self.driver.find_element(By.NAME, 'query').send_keys("Pasta")
-        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
-        time.sleep(1)  # Wait for the search results to load
-
-        # Verify that the recipe is displayed
-        self.assertIn("Pasta", self.driver.page_source)
+        self.assertIn("Browse Recipes", self.driver.title)  # Verify Browsing Page loaded
 
     def test_view_recipe_details(self):
-        # Functionalities 6: Test viewing recipe details
+        # Functionalities 6: View Recipe Details
         self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'Browse Recipes').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.find_element(By.LINK_TEXT, 'Pasta').click()  # Assuming 'Pasta' is in the list
+        self.assertIn("Recipe Details", self.driver.title)  # Verify Recipe Details Page loaded
 
-        # Click on the recipe link
-        self.driver.find_element(By.LINK_TEXT, 'Pasta').click()
-        time.sleep(1)  # Wait for the recipe details page to load
-
-        # Verify recipe details
-        self.assertIn("Pasta", self.driver.page_source)
-        self.assertIn("Pasta, Tomato Sauce, Cheese", self.driver.page_source)
-
-    def test_navigate_from_browsing_to_home(self):
-        # Functionalities 7: Test navigation from Recipe Browsing to Home Page
+    def test_navigation_from_browsing_to_home(self):
+        # Functionalities 7: Navigation from Recipe Browsing to Home Page
         self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'Browse Recipes').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Click the Back to Home button
         self.driver.find_element(By.LINK_TEXT, 'Back to Home').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Verify redirection to Home Page
-        self.assertIn("Home", self.driver.title)
+        self.assertIn("Home", self.driver.title)  # Verify redirection to Home Page
 
     def test_user_profile_page(self):
-        # Functionalities 8: Test accessing User Profile Page
+        # Functionalities 8: User Profile Page
         self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'User Profile').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.assertIn("User Profile", self.driver.title)  # Verify User Profile Page loaded
 
-        # Verify User Profile Page
-        self.assertIn("User Profile", self.driver.title)
-
-    def test_delete_account(self):
-        # Functionalities 9: Test account deletion
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'User Profile').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Click the delete account button
-        self.driver.find_element(By.XPATH, '//button[text()="Delete Account"]').click()
-        time.sleep(1)  # Wait for the confirmation
-
-        # Verify redirection to Login Page
-        self.assertIn("Login", self.driver.title)
-
-    def test_navigate_from_recipe_details_to_home(self):
-        # Functionalities 10: Test navigation from Recipe Details to Home Page
+    def test_navigation_from_recipe_details_to_home(self):
+        # Functionalities 10: Navigation from Recipe Details to Home Page
         self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'Browse Recipes').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Click on the recipe link
-        self.driver.find_element(By.LINK_TEXT, 'Pasta').click()
-        time.sleep(1)  # Wait for the recipe details page to load
-
-        # Click the Back to Home button
+        self.driver.find_element(By.LINK_TEXT, 'Pasta').click()  # Assuming 'Pasta' is in the list
         self.driver.find_element(By.LINK_TEXT, 'Back to Home').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Verify redirection to Home Page
-        self.assertIn("Home", self.driver.title)
+        self.assertIn("Home", self.driver.title)  # Verify redirection to Home Page
 
 if __name__ == '__main__':
     unittest.main()

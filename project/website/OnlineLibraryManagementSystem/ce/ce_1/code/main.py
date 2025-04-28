@@ -1,101 +1,117 @@
-from flask import Flask, render_template, request, redirect, url_for, session
 import os
+import json
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager()
+        self.book_manager = BookManager()
+        self.session_manager = SessionManager()
+
+    def main(self):
+        self.load_data()
+        # Here you would typically start your web server or main loop
+        print("Online Library Management System started.")
+
+    def load_data(self):
+        self.user_manager.load_users()
+        self.book_manager.load_books()
+        self.session_manager.load_sessions()
 
 class UserManager:
     def __init__(self):
-        self.users = self.load_users()
+        self.users = []
 
     def load_users(self):
-        if not os.path.exists('users.txt'):
-            return []
-        with open('users.txt', 'r') as file:
-            return [line.strip().split('|') for line in file.readlines()]
+        if os.path.exists('users.txt'):
+            with open('users.txt', 'r') as file:
+                for line in file:
+                    username, password = line.strip().split('|')
+                    self.users.append({'username': username, 'password': password})
 
-    def register(self, username: str, password: str) -> None:
-        self.users.append((username, password))
+    def register(self, username: str, password: str) -> bool:
+        if any(user['username'] == username for user in self.users):
+            return False
+        self.users.append({'username': username, 'password': password})
         with open('users.txt', 'a') as file:
             file.write(f"{username}|{password}\n")
+        return True
 
     def login(self, username: str, password: str) -> bool:
-        return any(user[0] == username and user[1] == password for user in self.users)
+        if any(user['username'] == username and user['password'] == password for user in self.users):
+            self.session_manager.create_session(username)
+            return True
+        return False
 
-    def logout(self) -> None:
-        session.pop('username', None)
+    def logout(self, username: str) -> None:
+        self.session_manager.end_session(username)
 
-    def list_users(self):
+    def view_users(self) -> list:
         return self.users
 
 class BookManager:
     def __init__(self):
-        self.books = self.load_books()
+        self.books = []
 
     def load_books(self):
-        if not os.path.exists('books.txt'):
-            return []
-        with open('books.txt', 'r') as file:
-            return [line.strip().split('|') for line in file.readlines()]
+        if os.path.exists('books.txt'):
+            with open('books.txt', 'r') as file:
+                for line in file:
+                    title, author = line.strip().split('|')
+                    self.books.append({'title': title, 'author': author})
 
-    def add_book(self, title: str, author: str) -> None:
-        self.books.append((title, author))
+    def add_book(self, title: str, author: str) -> bool:
+        if any(book['title'] == title for book in self.books):
+            return False
+        self.books.append({'title': title, 'author': author})
         with open('books.txt', 'a') as file:
             file.write(f"{title}|{author}\n")
+        return True
 
-    def delete_book(self, title: str) -> None:
-        self.books = [book for book in self.books if book[0] != title]
-        self.save_books()
+    def delete_book(self, title: str) -> bool:
+        for book in self.books:
+            if book['title'] == title:
+                self.books.remove(book)
+                self.save_books()
+                return True
+        return False
 
     def save_books(self):
         with open('books.txt', 'w') as file:
             for book in self.books:
-                file.write(f"{book[0]}|{book[1]}\n")
+                file.write(f"{book['title']}|{book['author']}\n")
 
-    def list_books(self):
+    def view_books(self) -> list:
         return self.books
 
-    def search_books(self, query: str):
-        return [book for book in self.books if query.lower() in book[0].lower()]
+    def search_books(self, query: str) -> list:
+        return [book for book in self.books if query.lower() in book['title'].lower()]
 
-user_manager = UserManager()
-book_manager = BookManager()
+class SessionManager:
+    def __init__(self):
+        self.sessions = {}
 
-@app.route('/')
-def login():
-    return render_template('login.html')
+    def load_sessions(self):
+        if os.path.exists('sessions.txt'):
+            with open('sessions.txt', 'r') as file:
+                for line in file:
+                    username = line.strip()
+                    self.sessions[username] = True
 
-@app.route('/dashboard')
-def dashboard():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    return render_template('dashboard.html', books=book_manager.list_books())
+    def create_session(self, username: str) -> None:
+        self.sessions[username] = True
+        with open('sessions.txt', 'a') as file:
+            file.write(f"{username}\n")
 
-@app.route('/login', methods=['POST'])
-def do_login():
-    username = request.form['username']
-    password = request.form['password']
-    if user_manager.login(username, password):
-        session['username'] = username
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    def end_session(self, username: str) -> None:
+        if username in self.sessions:
+            del self.sessions[username]
+            self.save_sessions()
 
-@app.route('/logout')
-def do_logout():
-    user_manager.logout()
-    return redirect(url_for('login'))
+    def save_sessions(self):
+        with open('sessions.txt', 'w') as file:
+            for username in self.sessions.keys():
+                file.write(f"{username}\n")
 
-@app.route('/add_book', methods=['POST'])
-def add_book():
-    title = request.form['title']
-    author = request.form['author']
-    book_manager.add_book(title, author)
-    return redirect(url_for('dashboard'))
-
-@app.route('/delete_book/<title>')
-def delete_book(title):
-    book_manager.delete_book(title)
-    return redirect(url_for('dashboard'))
-
-if __name__ == '__main__':
-    app.run(port=8203, debug=False)
+if __name__ == "__main__":
+    app = Main()
+    app.main()

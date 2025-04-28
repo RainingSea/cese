@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session
 from flask_session import Session
+import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -25,13 +26,11 @@ class UserManager:
         return False
 
     def load_users(self) -> None:
-        try:
+        if os.path.exists('users.txt'):
             with open('users.txt', 'r') as file:
                 for line in file:
                     username, password = line.strip().split('|')
                     self.users[username] = password
-        except FileNotFoundError:
-            pass
 
     def save_users(self) -> None:
         with open('users.txt', 'w') as file:
@@ -44,13 +43,11 @@ class CultureManager:
         self.load_cultures()
 
     def load_cultures(self) -> None:
-        try:
+        if os.path.exists('cultures.txt'):
             with open('cultures.txt', 'r') as file:
                 for line in file:
-                    culture_name, details = line.strip().split('|', 1)
-                    self.cultures[culture_name] = details
-        except FileNotFoundError:
-            pass
+                    name, details = line.strip().split('|')
+                    self.cultures[name] = details
 
     def get_culture_details(self, culture_name: str) -> str:
         return self.cultures.get(culture_name, "Culture not found.")
@@ -58,22 +55,42 @@ class CultureManager:
     def search_cultures(self, query: str) -> list:
         return [name for name in self.cultures if query.lower() in name.lower()]
 
-    def bookmark_culture(self, username: str, culture_name: str) -> None:
-        if 'bookmarks' not in session:
-            session['bookmarks'] = {}
-        if username not in session['bookmarks']:
-            session['bookmarks'][username] = []
-        if culture_name not in session['bookmarks'][username]:
-            session['bookmarks'][username].append(culture_name)
+class BookmarkManager:
+    def __init__(self):
+        self.bookmarks = []
+        self.load_bookmarks()
 
-    def get_bookmarks(self, username: str) -> list:
-        return session.get('bookmarks', {}).get(username, [])
+    def add_bookmark(self, culture_name: str) -> None:
+        if culture_name not in self.bookmarks:
+            self.bookmarks.append(culture_name)
+            self.save_bookmarks()
+
+    def remove_bookmark(self, culture_name: str) -> None:
+        if culture_name in self.bookmarks:
+            self.bookmarks.remove(culture_name)
+            self.save_bookmarks()
+
+    def load_bookmarks(self) -> None:
+        if os.path.exists('bookmarks.txt'):
+            with open('bookmarks.txt', 'r') as file:
+                self.bookmarks = [line.strip() for line in file]
+
+    def save_bookmarks(self) -> None:
+        with open('bookmarks.txt', 'w') as file:
+            for culture in self.bookmarks:
+                file.write(f"{culture}\n")
 
 user_manager = UserManager()
 culture_manager = CultureManager()
+bookmark_manager = BookmarkManager()
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            return redirect('/dashboard')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -82,32 +99,26 @@ def register():
         username = request.form['username']
         password = request.form['password']
         if user_manager.register(username, password):
-            return redirect(url_for('login'))
-        else:
-            return "Username already exists."
-    return render_template('registration.html')
+            return redirect('/')
+    return render_template('register.html')
 
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html', cultures=culture_manager.cultures)
 
-@app.route('/culture/<culture_name>')
-def culture_details(culture_name):
-    details = culture_manager.get_culture_details(culture_name)
-    return render_template('culture_details.html', details=details)
-
-@app.route('/bookmark/<culture_name>')
-def bookmark(culture_name):
-    if 'username' in session:
-        culture_manager.bookmark_culture(session['username'], culture_name)
-    return redirect(url_for('dashboard'))
+@app.route('/culture/<name>')
+def culture_details(name):
+    details = culture_manager.get_culture_details(name)
+    return render_template('culture_details.html', name=name, details=details)
 
 @app.route('/bookmarks')
 def bookmarks():
-    if 'username' in session:
-        bookmarked_cultures = culture_manager.get_bookmarks(session['username'])
-        return render_template('bookmarks.html', bookmarks=bookmarked_cultures)
-    return redirect(url_for('login'))
+    return render_template('bookmarks.html', bookmarks=bookmark_manager.bookmarks)
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect('/')
 
 if __name__ == '__main__':
-    app.run(port=8147, debug=False)
+    app.run(port=8311, debug=False)

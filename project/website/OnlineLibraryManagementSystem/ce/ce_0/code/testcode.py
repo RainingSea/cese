@@ -3,93 +3,103 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 import subprocess
+import os
 
 class TestOnlineLibraryManagementSystem(unittest.TestCase):
 
     def setUp(self):
-        # Start the Flask application
+        # Start the application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8202/')  # Access the login page
+        self.driver.get('http://localhost:5000')  # Replace with the actual port from main.py
 
     def tearDown(self):
-        # Close the web driver session and the Flask application
+        # Close the web driver session and terminate the application
         self.driver.quit()
         self.process.terminate()
 
     def login(self, username, password):
         # Helper method to perform login
-        self.driver.find_element(By.NAME, 'username').send_keys(username)
-        self.driver.find_element(By.NAME, 'password').send_keys(password)
-        self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
+        self.driver.find_element(By.ID, 'username').send_keys(username)
+        self.driver.find_element(By.ID, 'password').send_keys(password)
+        self.driver.find_element(By.XPATH, '//input[@value="Login"]').click()
         time.sleep(1)  # Wait for the next page to load
 
     def test_user_registration(self):
-        # Functionalities 1: Register a new user
-        self.driver.get('http://localhost:8202/user_management')  # Navigate to user management
-        new_username = "test_user"
-        new_password = "test_password"
+        # Test user registration functionality
+        self.driver.get('http://localhost:5000/register')  # Assuming there's a registration page
+        new_username = "new_user"
+        new_password = "new_password"
 
         # Input username and password for registration
-        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
-        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
-        self.driver.find_element(By.XPATH, '//button[text()="Register User"]').click()
+        self.driver.find_element(By.ID, 'username').send_keys(new_username)
+        self.driver.find_element(By.ID, 'password').send_keys(new_password)
+        self.driver.find_element(By.XPATH, '//input[@value="Register"]').click()
         time.sleep(1)  # Wait for the next page to load
 
-        # Verify the user is redirected to the user management page
-        self.assertIn("User Management", self.driver.title)
+        # Verify the user is redirected to the login page
+        self.assertIn("Login", self.driver.title)
 
     def test_user_login(self):
-        # Functionalities 2: Log in with valid credentials
+        # Test user login functionality
         self.login("admin", "admin123")
 
         # Verify that the Dashboard Page has loaded
         self.assertIn("Dashboard", self.driver.title)
 
     def test_view_dashboard(self):
-        # Functionalities 3: Access the dashboard after logging in
+        # Test accessing the dashboard after login
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8202/dashboard')  # Access the dashboard
-
+        
         # Verify that the dashboard displays navigation options
-        self.assertIn("Manage Books", self.driver.page_source)
-        self.assertIn("Manage Users", self.driver.page_source)
+        self.assertIn("Book Management", self.driver.page_source)
+        self.assertIn("User Management", self.driver.page_source)
+        self.assertIn("Search", self.driver.page_source)
 
     def test_manage_books(self):
-        # Functionalities 4: Add a new book
+        # Test adding a new book
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8202/book_management')  # Navigate to book management
+        self.driver.get('http://localhost:5000/book_management')  # Navigate to book management page
 
-        book_title = "New Book Title"
-        book_author = "New Book Author"
+        # Add a new book
+        self.driver.find_element(By.ID, 'title').send_keys("New Book Title")
+        self.driver.find_element(By.ID, 'author').send_keys("New Author")
+        self.driver.find_element(By.ID, 'isbn').send_keys("1234567890")
+        self.driver.find_element(By.XPATH, '//input[@value="Add Book"]').click()
+        time.sleep(1)  # Wait for the action to complete
 
-        # Input book details
-        self.driver.find_element(By.NAME, 'title').send_keys(book_title)
-        self.driver.find_element(By.NAME, 'author').send_keys(book_author)
-        self.driver.find_element(By.XPATH, '//button[text()="Add Book"]').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Verify that the book is successfully added
-        self.assertIn(book_title, self.driver.page_source)
+        # Verify that the book was added (this assumes the book list updates on the page)
+        self.assertIn("New Book Title", self.driver.page_source)
 
     def test_manage_user_accounts(self):
-        # Functionalities 5: Add a new user and view the list of users
-        self.test_user_registration()  # Register a new user
-        self.driver.get('http://localhost:8202/user_management')  # Navigate to user management
+        # Test adding a new user
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:5000/user_management')  # Navigate to user management page
 
-        # Verify that the newly added user appears in the user list
-        self.assertIn("test_user", self.driver.page_source)
+        # Add a new user
+        self.driver.find_element(By.ID, 'username').send_keys("new_user")
+        self.driver.find_element(By.ID, 'password').send_keys("new_password")
+        self.driver.find_element(By.XPATH, '//input[@value="Add User"]').click()
+        time.sleep(1)  # Wait for the action to complete
+
+        # Verify that the user was added (this assumes the user list updates on the page)
+        self.assertIn("new_user", self.driver.page_source)
 
     def test_search_books(self):
-        # Functionalities 6: Search for a book
+        # Test searching for a book
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8202/book_management')  # Navigate to book management
+        self.driver.get('http://localhost:5000/search')  # Navigate to search page
 
-        # Search for a book (this functionality is not implemented in the codebase)
-        self.fail("Search books functionality not implemented")
+        # Search for a book
+        self.driver.find_element(By.ID, 'query').send_keys("1984")
+        self.driver.find_element(By.XPATH, '//input[@value="Search"]').click()
+        time.sleep(1)  # Wait for the search results to load
+
+        # Verify that the search results display the book's details
+        self.assertIn("1984", self.driver.page_source)
 
     def test_user_logout(self):
-        # Functionalities 7: Log out of the account
+        # Test logging out
         self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
         time.sleep(1)  # Wait for the next page to load
@@ -98,26 +108,30 @@ class TestOnlineLibraryManagementSystem(unittest.TestCase):
         self.assertIn("Login", self.driver.title)
 
     def test_file_handling_for_data_storage(self):
-        # Functionalities 8: Check file handling after adding and deleting a book
+        # Test adding a new book and checking the text file
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8202/book_management')  # Navigate to book management
-
-        book_title = "File Handling Book"
-        book_author = "File Handling Author"
+        self.driver.get('http://localhost:5000/book_management')
 
         # Add a new book
-        self.driver.find_element(By.NAME, 'title').send_keys(book_title)
-        self.driver.find_element(By.NAME, 'author').send_keys(book_author)
-        self.driver.find_element(By.XPATH, '//button[text()="Add Book"]').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.find_element(By.ID, 'title').send_keys("Test Book")
+        self.driver.find_element(By.ID, 'author').send_keys("Test Author")
+        self.driver.find_element(By.ID, 'isbn').send_keys("1111111111")
+        self.driver.find_element(By.XPATH, '//input[@value="Add Book"]').click()
+        time.sleep(1)
 
-        # Verify that the book entry exists in the text file
+        # Check if the book entry exists in the books.txt file
         with open('books.txt', 'r') as file:
-            books = file.read()
-            self.assertIn(book_title, books)
+            content = file.read()
+            self.assertIn("Test Book|Test Author|1111111111", content)
 
-        # Delete the book (this functionality is not implemented in the codebase)
-        self.fail("Delete book functionality not implemented")
+        # Delete the book and check if it is removed from the file
+        self.driver.find_element(By.XPATH, '//button[text()="Delete Book"]').click()  # Assuming there's a delete button
+        time.sleep(1)
+
+        # Check if the book entry is removed from the books.txt file
+        with open('books.txt', 'r') as file:
+            content = file.read()
+            self.assertNotIn("Test Book|Test Author|1111111111", content)
 
 if __name__ == '__main__':
     unittest.main()

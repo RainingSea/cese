@@ -1,42 +1,74 @@
 [CONTENT]
-"Required packages": ["Flask", "json", "os"],
+"Required packages": [
+    "Flask",
+    "json",
+    "os"
+],
 
-"Required Other language third-party packages": ["Bootstrap", "jQuery"],
+"Required Other language third-party packages": [],
 
-"Logic Analysis": 
-- main.py: 
-  - class Main
-    - main() 
-- templates/login.html: 
-  - HTML structure for login page
-- templates/registration.html: 
-  - HTML structure for registration page
-- templates/home.html: 
-  - HTML structure for home page displaying featured job listings
-- templates/job_listings.html: 
-  - HTML structure for job listings page with 'Apply' button
-- templates/job_posting.html: 
-  - HTML structure for job posting page for authorized users
-- templates/profile.html: 
-  - HTML structure for user profile page displaying user information
-- users.txt: 
-  - Data storage for user information
-- jobs.txt: 
-  - Data storage for job listings
-- applied_jobs.txt: 
-  - Data storage for applied jobs
+"Logic Analysis": {
+    "main.py": {
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {
+                        "name": "main",
+                        "description": "Entry point of the application that initializes the user and job managers."
+                    }
+                ]
+            },
+            {
+                "name": "UserManager",
+                "methods": [
+                    {
+                        "name": "register",
+                        "description": "Handles user registration by saving username and password to 'users.txt'."
+                    },
+                    {
+                        "name": "login",
+                        "description": "Validates user credentials against 'users.txt'."
+                    },
+                    {
+                        "name": "get_user_profile",
+                        "description": "Retrieves user profile information from 'users.txt'."
+                    }
+                ]
+            },
+            {
+                "name": "JobManager",
+                "methods": [
+                    {
+                        "name": "post_job",
+                        "description": "Allows authorized users to post new job listings to 'jobs.txt'."
+                    },
+                    {
+                        "name": "get_all_jobs",
+                        "description": "Fetches all job listings from 'jobs.txt'."
+                    },
+                    {
+                        "name": "apply_for_job",
+                        "description": "Records a user's application for a job in 'applied_jobs.txt'."
+                    }
+                ]
+            }
+        ]
+    }
+},
 
-"Task list": 
-1. main.py
-2. templates/login.html
-3. templates/registration.html
-4. templates/home.html
-5. templates/job_listings.html
-6. templates/job_posting.html
-7. templates/profile.html
-8. users.txt
-9. jobs.txt
-10. applied_jobs.txt
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/registration.html",
+    "templates/home.html",
+    "templates/browse_jobs.html",
+    "templates/job_posting.html",
+    "templates/profile.html",
+    "users.txt",
+    "jobs.txt",
+    "applied_jobs.txt"
+],
 
-"Shared Knowledge": The application will follow a simple MVC architecture, and all user interactions will be managed through HTTP requests. User data will be stored in text files, and the HTML pages will be structured to provide a consistent user experience. Each page will include navigation links to facilitate easy access to different sections of the application.
+"Shared Knowledge": "The application will utilize local text files for data storage, structured in JSON or CSV format for easy manipulation. The main functionalities include user authentication, job posting, and job application tracking."
 [/CONTENT]

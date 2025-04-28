@@ -1,8 +1,12 @@
 [CONTENT]
-"Implementation approach": "The NoteTakingApp will be developed using Python for backend logic and HTML for frontend presentation. User authentication will be handled through a simple login system that checks usernames and passwords against stored values in a local text file. Note management will involve creating, viewing, editing, and deleting notes, all of which will be stored in separate text files for each user. The application will utilize file operations to read and write user and note data, ensuring a lightweight and efficient structure without the need for a SQL database.",
-"UI design": "The user interface will consist of the following components: 1. Login Page: Input fields for username and password, and a Register link. 2. Registration Page: Input fields for username, password, and password confirmation. 3. Dashboard Page: A list of notes with options to add, view, edit, delete, and search notes. 4. Add Note Page: Input fields for note title and content, with Save and Discard buttons. 5. View Note Page: Display note details with Edit and Delete options. 6. Search Note Page: Input field for search query and display of search results with navigation back to the Dashboard.",
-"Data Storage": "Data will be stored in local text files. The following files will be used: 'users.txt' for storing user credentials (username and password), and '<username>_notes.txt' for storing notes associated with each user. Each note will be formatted as 'title|content|username|created_at|modified_at'. This structure allows for easy data retrieval and management without using a SQL database.",
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/add_note.html", "templates/view_note.html", "templates/search_note.html", "users.txt"],
+"Implementation approach": "The 'NoteTakingApp' will be developed using Python with the Flask framework for backend logic and HTML for frontend presentation. The application will utilize local text files for data storage and retrieval, ensuring a lightweight and efficient solution without the need for a SQL database. User data and notes will be managed through simple file manipulations, allowing for easy access and updates.",
+
+"UI design": "The user interface will consist of the following components: a Login Page with fields for username and password, a Registration Page with fields for username, password, and password confirmation, a Dashboard Page displaying a list of notes with options to add, edit, delete, and view notes, an Add Note Page for creating new notes, a View Note Page for displaying note details, and a Search Note Page for searching notes by title. Navigation elements will include links to switch between pages seamlessly.",
+
+"Data Storage": "Data will be stored in local text files, with separate files designated for user accounts and notes. This approach simplifies data management and retrieval while ensuring the application remains efficient. The user data will be stored in 'users.txt' and notes will be stored in 'notes.txt'. Each entry will be structured to facilitate easy parsing and manipulation.",
+
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/add_note.html", "templates/view_note.html", "templates/search_note.html", "users.txt", "notes.txt"],
+
 "Data structures and interfaces": "
 classDiagram
     class Main {
@@ -11,17 +15,21 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users_file: str
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +get_user_notes(username: str) list
+        +load_users() void
+        +save_users() void
     }
     class NoteManager {
-        -notes_file: str
-        +add_note(title: str, content: str, username: str) bool
-        +edit_note(title: str, content: str, username: str) bool
-        +delete_note(title: str, username: str) bool
-        +search_notes(query: str, username: str) list
+        -notes: dict
+        +add_note(title: str, content: str, username: str) void
+        +edit_note(note_id: str, title: str, content: str) void
+        +delete_note(note_id: str) void
+        +get_notes(username: str) list
+        +search_notes(title: str, username: str) list
+        +load_notes() void
+        +save_notes() void
     }
 ",
 [/CONTENT]

@@ -1,47 +1,47 @@
+import os
+
 class NoteManager:
-    def __init__(self, notes_file: str):
-        self.notes_file = notes_file
-        self.load_notes()
+    def __init__(self):
+        self.notes = self.load_notes()
 
     def load_notes(self):
-        self.notes = {}
-        if os.path.exists(self.notes_file):
-            with open(self.notes_file, 'r') as file:
+        notes = {}
+        if os.path.exists('notes.txt'):
+            with open('notes.txt', 'r') as file:
                 for line in file:
-                    title, content, username = line.strip().split('|')
-                    if username not in self.notes:
-                        self.notes[username] = []
-                    self.notes[username].append({'title': title, 'content': content})
+                    note_id, title, content, username = line.strip().split('|')
+                    notes[int(note_id)] = {'title': title, 'content': content, 'username': username}
+        return notes
 
     def add_note(self, title: str, content: str, username: str) -> bool:
-        if username not in self.notes:
-            self.notes[username] = []
-        self.notes[username].append({'title': title, 'content': content})
-        with open(self.notes_file, 'a') as file:
-            file.write(f"{title}|{content}|{username}\n")
+        note_id = len(self.notes) + 1
+        self.notes[note_id] = {'title': title, 'content': content, 'username': username}
+        with open('notes.txt', 'a') as file:
+            file.write(f"{note_id}|{title}|{content}|{username}\n")
         return True
 
-    def get_notes(self, username: str) -> list:
-        return self.notes.get(username, [])
-
-    def edit_note(self, title: str, new_content: str, username: str) -> bool:
-        for note in self.notes.get(username, []):
-            if note['title'] == title:
-                note['content'] = new_content
-                self.save_notes()
-                return True
+    def edit_note(self, note_id: int, title: str, content: str) -> bool:
+        if note_id in self.notes:
+            self.notes[note_id]['title'] = title
+            self.notes[note_id]['content'] = content
+            self.save_notes()
+            return True
         return False
 
-    def delete_note(self, title: str, username: str) -> bool:
-        self.notes[username] = [note for note in self.notes.get(username, []) if note['title'] != title]
-        self.save_notes()
-        return True
+    def delete_note(self, note_id: int) -> bool:
+        if note_id in self.notes:
+            del self.notes[note_id]
+            self.save_notes()
+            return True
+        return False
 
-    def search_notes(self, title: str, username: str) -> list:
-        return [note for note in self.notes.get(username, []) if title in note['title']]
+    def get_notes(self, username: str) -> list:
+        return [note for note in self.notes.values() if note['username'] == username]
+
+    def search_notes(self, query: str, username: str) -> list:
+        return [note for note in self.notes.values() if query.lower() in note['title'].lower() and note['username'] == username]
 
     def save_notes(self):
-        with open(self.notes_file, 'w') as file:
-            for username, notes in self.notes.items():
-                for note in notes:
-                    file.write(f"{note['title']}|{note['content']}|{username}\n")
+        with open('notes.txt', 'w') as file:
+            for note_id, note in self.notes.items():
+                file.write(f"{note_id}|{note['title']}|{note['content']}|{note['username']}\n")

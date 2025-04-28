@@ -1,139 +1,114 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from flask_httpauth import HTTPBasicAuth
+from flask import Flask, render_template, request, redirect, url_for
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-auth = HTTPBasicAuth()
 
 class UserManager:
-    def __init__(self):
+    def __init__(self, file_path: str):
+        self.file_path = file_path
         self.users = self.load_users()
-
-    def load_users(self):
-        users = {}
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                for line in file:
-                    username, password = line.strip().split(',')
-                    users[username] = password
-        return users
 
     def register(self, username: str, password: str) -> bool:
         if username in self.users:
             return False
-        self.users[username] = password
-        with open('users.txt', 'a') as file:
+        with open(self.file_path, 'a') as file:
             file.write(f"{username},{password}\n")
+        self.users[username] = password
         return True
 
     def login(self, username: str, password: str) -> bool:
         return self.users.get(username) == password
 
+    def load_users(self) -> dict:
+        users = {}
+        if os.path.exists(self.file_path):
+            with open(self.file_path, 'r') as file:
+                for line in file:
+                    username, password = line.strip().split(',')
+                    users[username] = password
+        return users
+
 class EventManager:
-    def __init__(self):
+    def __init__(self, file_path: str):
+        self.file_path = file_path
         self.events = self.load_events()
 
-    def load_events(self):
+    def load_events(self) -> list:
         events = []
-        if os.path.exists('events.txt'):
-            with open('events.txt', 'r') as file:
+        if os.path.exists(self.file_path):
+            with open(self.file_path, 'r') as file:
                 for line in file:
-                    event_name, significance, history, location, date = line.strip().split(',')
-                    events.append({
-                        'event_name': event_name,
-                        'significance': significance,
-                        'history': history,
-                        'location': location,
-                        'date': date
-                    })
+                    events.append(line.strip().split(','))
         return events
 
-    def get_event_details(self, event_name: str):
+    def get_event_details(self, event_name: str) -> str:
         for event in self.events:
-            if event['event_name'] == event_name:
-                return event
-        return None
+            if event[0] == event_name:
+                return f"Name: {event[0]}, Significance: {event[1]}, History: {event[2]}, Location: {event[3]}, Date: {event[4]}"
+        return "Event not found."
 
 class ReminderManager:
-    def __init__(self):
-        self.reminders = self.load_reminders()
+    def __init__(self, file_path: str):
+        self.file_path = file_path
 
-    def load_reminders(self):
-        reminders = {}
-        if os.path.exists('reminders.txt'):
-            with open('reminders.txt', 'r') as file:
-                for line in file:
-                    username, event_name = line.strip().split(',')
-                    if username not in reminders:
-                        reminders[username] = []
-                    reminders[username].append(event_name)
-        return reminders
-
-    def set_reminder(self, username: str, event_name: str) -> bool:
-        if username not in self.reminders:
-            self.reminders[username] = []
-        if event_name in self.reminders[username]:
-            return False
-        self.reminders[username].append(event_name)
-        with open('reminders.txt', 'a') as file:
-            file.write(f"{username},{event_name}\n")
+    def add_reminder(self, username: str, event_name: str, date: str) -> bool:
+        reminder_file = f"reminders_{username}.txt"
+        with open(reminder_file, 'a') as file:
+            file.write(f"{event_name},{date}\n")
         return True
 
-    def get_reminders(self, username: str):
-        return self.reminders.get(username, [])
+    def load_reminders(self, username: str) -> list:
+        reminders = []
+        reminder_file = f"reminders_{username}.txt"
+        if os.path.exists(reminder_file):
+            with open(reminder_file, 'r') as file:
+                for line in file:
+                    reminders.append(line.strip().split(','))
+        return reminders
 
-user_manager = UserManager()
-event_manager = EventManager()
-reminder_manager = ReminderManager()
+user_manager = UserManager('users.txt')
+event_manager = EventManager('events.txt')
 
 @app.route('/')
 def login():
     return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.register(username, password):
-            return redirect(url_for('login'))
-        return 'User already exists!'
-    return render_template('registration.html')
+    username = request.form['username']
+    password = request.form['password']
+    if user_manager.register(username, password):
+        return redirect(url_for('login'))
+    return "Registration failed. Username may already exist."
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['POST'])
 def dashboard():
-    return render_template('dashboard.html', events=event_manager.events)
+    username = request.form['username']
+    password = request.form['password']
+    if user_manager.login(username, password):
+        events = event_manager.events
+        return render_template('dashboard.html', events=events, username=username)
+    return "Login failed."
 
 @app.route('/event/<event_name>')
 def event_details(event_name):
-    event = event_manager.get_event_details(event_name)
-    return render_template('event_details.html', event=event)
+    details = event_manager.get_event_details(event_name)
+    return render_template('event_details.html', details=details)
 
-@app.route('/set_reminder/<event_name>', methods=['POST'])
-def set_reminder(event_name):
-    username = session.get('username')
-    if username:
-        reminder_manager.set_reminder(username, event_name)
+@app.route('/set_reminder', methods=['POST'])
+def set_reminder():
+    username = request.form['username']
+    event_name = request.form['event_name']
+    date = request.form['date']
+    reminder_manager = ReminderManager(f'reminders_{username}.txt')
+    reminder_manager.add_reminder(username, event_name, date)
     return redirect(url_for('dashboard'))
 
-@app.route('/reminders')
-def reminders():
-    username = session.get('username')
-    user_reminders = reminder_manager.get_reminders(username)
-    return render_template('reminders.html', reminders=user_reminders)
-
-@auth.login_required
-@app.route('/login', methods=['GET', 'POST'])
-def do_login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.login(username, password):
-            session['username'] = username
-            return redirect(url_for('dashboard'))
-        return 'Invalid credentials!'
-    return render_template('login.html')
+@app.route('/reminders/<username>')
+def reminders(username):
+    reminder_manager = ReminderManager(f'reminders_{username}.txt')
+    reminders = reminder_manager.load_reminders(username)
+    return render_template('reminders.html', reminders=reminders)
 
 if __name__ == '__main__':
-    app.run(port=8140, debug=False)
+    app.run(port=8304, debug=False)

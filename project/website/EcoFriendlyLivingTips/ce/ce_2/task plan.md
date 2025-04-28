@@ -1,116 +1,96 @@
 [CONTENT]
-"Required packages": "None, using built-in Python libraries.",
+"Required packages": ["html", "os"],
 
-"Required Other language third-party packages": "None, using standard HTML/CSS for frontend.",
+"Required Other language third-party packages": [],
 
 "Logic Analysis": [
     {
-        "file": "main.py",
+        "filename": "main.py",
         "classes": [
             {
-                "name": "Main",
+                "class_name": "Main",
                 "methods": [
-                    "main()",
-                    "login()",
-                    "register()",
-                    "submitTip()",
-                    "addResource()",
-                    "viewForum()",
-                    "updateProfile()",
-                    "contactSupport()"
+                    {
+                        "method_name": "main",
+                        "description": "Entry point of the application that initializes managers and starts the web server."
+                    }
                 ]
             },
             {
-                "name": "User",
+                "class_name": "UserManager",
                 "methods": [
-                    "createAccount()",
-                    "validateLogin()",
-                    "updateProfile()"
+                    {
+                        "method_name": "login",
+                        "description": "Validates user credentials against the 'users.txt' file."
+                    },
+                    {
+                        "method_name": "register",
+                        "description": "Creates a new user account and stores it in 'users.txt'."
+                    },
+                    {
+                        "method_name": "update_profile",
+                        "description": "Updates user profile information in 'users.txt'."
+                    }
                 ]
             },
             {
-                "name": "Tip",
+                "class_name": "TipManager",
                 "methods": [
-                    "submitTip()",
-                    "getAllTips()"
+                    {
+                        "method_name": "get_tips",
+                        "description": "Retrieves a list of eco-friendly living tips from 'tips.txt'."
+                    },
+                    {
+                        "method_name": "submit_tip",
+                        "description": "Submits a new eco-friendly tip and saves it to 'tips.txt'."
+                    }
                 ]
             },
             {
-                "name": "Resource",
+                "class_name": "ResourceManager",
                 "methods": [
-                    "addResource()",
-                    "getAllResources()"
+                    {
+                        "method_name": "get_resources",
+                        "description": "Retrieves a list of external resources from 'resources.txt'."
+                    },
+                    {
+                        "method_name": "add_resource",
+                        "description": "Adds a new resource and saves it to 'resources.txt'."
+                    }
                 ]
             },
             {
-                "name": "ForumPost",
+                "class_name": "ForumManager",
                 "methods": [
-                    "addPost()",
-                    "getAllPosts()"
+                    {
+                        "method_name": "get_posts",
+                        "description": "Retrieves community forum posts from 'forum_posts.txt'."
+                    },
+                    {
+                        "method_name": "submit_post",
+                        "description": "Submits a new forum post and saves it to 'forum_posts.txt'."
+                    }
                 ]
             }
         ]
-    },
-    {
-        "file": "templates/login.html",
-        "description": "HTML for user login."
-    },
-    {
-        "file": "templates/dashboard.html",
-        "description": "HTML for the main dashboard."
-    },
-    {
-        "file": "templates/tips.html",
-        "description": "HTML for viewing and submitting tips."
-    },
-    {
-        "file": "templates/resources.html",
-        "description": "HTML for managing resources."
-    },
-    {
-        "file": "templates/forum.html",
-        "description": "HTML for community forum."
-    },
-    {
-        "file": "templates/profile.html",
-        "description": "HTML for user profile management."
-    },
-    {
-        "file": "templates/contact.html",
-        "description": "HTML for contacting support."
-    },
-    {
-        "file": "users.txt",
-        "description": "Text file for storing user accounts."
-    },
-    {
-        "file": "tips.txt",
-        "description": "Text file for storing eco-friendly tips."
-    },
-    {
-        "file": "resources.txt",
-        "description": "Text file for storing external resources."
-    },
-    {
-        "file": "forum.txt",
-        "description": "Text file for storing community forum posts."
     }
 ],
 
 "Task list": [
     "main.py",
-    "users.txt",
-    "tips.txt",
-    "resources.txt",
-    "forum.txt",
     "templates/login.html",
-    "templates/dashboard.html",
+    "templates/register.html",
+    "templates/home.html",
     "templates/tips.html",
     "templates/resources.html",
     "templates/forum.html",
     "templates/profile.html",
-    "templates/contact.html"
+    "templates/contact.html",
+    "users.txt",
+    "tips.txt",
+    "resources.txt",
+    "forum_posts.txt"
 ],
 
-"Shared Knowledge": "Ensure to follow Python coding standards and maintain clear documentation for each function. The application will be simple and modular, focusing on ease of use and maintainability."
+"Shared Knowledge": "The application will utilize a simple file-based approach for data storage, where user accounts, tips, resources, and forum posts will be stored in separate text files. Each component will interact with its respective manager class to perform CRUD operations."
 [/CONTENT]

@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The 'CulturalStoryteller' web application will be developed using HTML for the front end and Python for the back end. The core features will be implemented using simple HTML forms for user registration and login, while the story exploration and details will be presented using HTML templates. The application will handle user sessions and data storage through Python scripts, utilizing local text files for user accounts, stories, and bookmarks. The application will be structured to ensure a clear flow from registration to story exploration and bookmarking.",
+"Implementation approach": "The application will be built using Flask as the web framework for Python, which simplifies the creation of web applications. HTML will be used for the front-end, and the application will utilize local text files for data storage. The application will follow a Model-View-Controller (MVC) architecture for better organization of code.",
 
-"UI design": "The user interface will consist of the following components:\n1. **Registration Page**: Contains input fields for username and password, a 'Register' button, and a link to the Login Page.\n2. **Login Page**: Contains input fields for username and password, a 'Login' button, and a link to the Registration Page.\n3. **Dashboard Page**: Displays a list of stories with titles and brief descriptions, a search bar for filtering stories, and links to the Story Details Page.\n4. **Story Details Page**: Displays the full text of the story, cultural background details, an 'Add to Bookmarks' button, and a link back to the Dashboard Page.\n5. **Bookmarks Page**: Displays a list of bookmarked stories with options to remove bookmarks and links to each story's details.",
+"UI design": "The UI will consist of the following components: 1. Registration Page: A form with fields for username and password, and a submit button. 2. Login Page: A form for username and password, and a submit button. 3. Dashboard Page: A list of stories displayed as clickable items. 4. Story Details Page: Displays the full text of the selected story, cultural background information, and an 'Add to Bookmarks' button. 5. Bookmarks Page: A list of bookmarked stories with options to remove bookmarks. 6. Navigation elements for easy access to different pages.",
 
-"Data Storage": "Data will be stored in local text files, organized as follows:\n1. **users.txt**: Stores user account information (username and password).\n2. **stories.txt**: Stores story details including title, full text, cultural background, and category.\n3. **bookmarks.txt**: Stores a list of bookmarked stories associated with each user by username.",
+"Data Storage": "Data will be stored in local text files. Different types of data will be organized into separate `.txt` files: 1. `users.txt` for user account information (username and password). 2. `stories.txt` for the collection of stories, including title, text, cultural background, and categories. 3. `bookmarks.txt` for storing user bookmarks, linking usernames to their bookmarked stories. This structure allows for straightforward file manipulation in Python without the need for a SQL database.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/story_details.html", "templates/bookmarks.html", "users.txt", "stories.txt", "bookmarks.txt"],
 
@@ -12,7 +12,6 @@ classDiagram
     class Main {
         -UserManager user_manager
         -StoryManager story_manager
-        -BookmarkManager bookmark_manager
         +main() str
     }
     class UserManager {
@@ -22,15 +21,12 @@ classDiagram
     }
     class StoryManager {
         -List stories
-        +get_all_stories() List
-        +get_story_details(title: str) str
-        +search_stories(query: str) List
-    }
-    class BookmarkManager {
         -List bookmarks
-        +add_bookmark(username: str, story_title: str) bool
+        +get_all_stories() List
+        +get_story_details(story_id: int) str
+        +search_stories(query: str) List
+        +add_bookmark(username: str, story_id: int) bool
         +get_bookmarks(username: str) List
-        +remove_bookmark(username: str, story_title: str) bool
     }
 ",
 [/CONTENT]

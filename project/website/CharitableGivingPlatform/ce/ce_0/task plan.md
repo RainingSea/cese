@@ -1,41 +1,39 @@
 [CONTENT]
-1. "Required packages": ["Flask", "os", "json"],
+"Required packages": ["http.server", "os", "json"],
 
-2. "Required Other language third-party packages": ["Bootstrap for CSS styling"],
+"Required Other language third-party packages": [],
 
-3. "Logic Analysis": 
-   - **main.py**: 
-     - `class Main`: Main application logic.
-       - `main()`: Entry point of the application.
-       - `login()`: Handles user login.
-       - `register()`: Handles user registration.
-       - `view_dashboard()`: Displays the dashboard with available charities and user contributions.
-       - `view_charity_details()`: Displays detailed information about a selected charity.
-   - **templates/login.html**: 
-     - HTML form for user login.
-   - **templates/registration.html**: 
-     - HTML form for user registration.
-   - **templates/dashboard.html**: 
-     - Displays list of charities and user contribution history.
-   - **templates/charity_details.html**: 
-     - Displays detailed information about a charity and allows donations.
-   - **users.txt**: 
-     - Stores user accounts (username and password).
-   - **charities.txt**: 
-     - Stores charity information (name, mission, projects).
-   - **donations.txt**: 
-     - Records user donations (username, charity name, amount).
+"Logic Analysis": 
+- **main.py**
+  - `Main`: Main class to initialize the application and handle routing.
+  - `main()`: Main function to start the server and manage requests.
+  
+- **UserManager Class**
+  - `login(username: str, password: str)`: Validates user credentials.
+  - `register(username: str, password: str)`: Registers a new user.
+  - `get_user_contributions(username: str)`: Retrieves the contribution history for a user.
 
-4. "Task list": 
-   - `users.txt` (Create user account storage)
-   - `charities.txt` (Create charity information storage)
-   - `donations.txt` (Create donation records storage)
-   - `main.py` (Implement main application logic)
-   - `templates/login.html` (Create login page)
-   - `templates/registration.html` (Create registration page)
-   - `templates/dashboard.html` (Create dashboard page)
-   - `templates/charity_details.html` (Create charity details page)
+- **CharityManager Class**
+  - `get_charities()`: Fetches the list of available charities.
+  - `get_charity_details(name: str)`: Retrieves detailed information about a specific charity.
+  - `record_donation(username: str, charity_name: str, amount: float)`: Records a donation made by a user.
 
-5. "Shared Knowledge": 
-   - The application will provide a simple and intuitive user interface, ensuring that users can easily navigate between pages. The use of local text files for data storage is intended to simplify the management of user accounts, charity information, and donation records. The project aims to create a seamless experience for users to contribute to charitable causes while maintaining a straightforward backend structure.
+- **HTML Templates**
+  - `login.html`: Contains the login form.
+  - `register.html`: Contains the registration form.
+  - `dashboard.html`: Displays the list of charities and user contributions.
+  - `charity_details.html`: Shows detailed information about a selected charity.
+
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/register.html",
+    "templates/dashboard.html",
+    "templates/charity_details.html",
+    "users.txt",
+    "charities.txt",
+    "donations.txt"
+],
+
+"Shared Knowledge": "Ensure to handle user sessions effectively using simple session variables. Local text files should be managed carefully to prevent data corruption. Consider implementing error handling for file operations and user inputs to enhance the user experience."
 [/CONTENT]

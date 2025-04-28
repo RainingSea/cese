@@ -1,56 +1,112 @@
 [CONTENT]
-"Required packages": "Flask, Flask-Login",
-"Required Other language third-party packages": "None",
+"Required packages": [
+    "Flask",
+    "Flask-Session"
+],
+
+"Required Other language third-party packages": [],
+
 "Logic Analysis": {
     "main.py": {
-        "classes": ["Main", "UserManager", "FreelancerManager", "ProjectManager"],
-        "methods": [
-            "main()",
-            "UserManager.login(username: str, password: str) -> bool",
-            "UserManager.register(username: str, password: str) -> bool",
-            "UserManager.load_users()",
-            "UserManager.save_users()",
-            "FreelancerManager.search_freelancer(name: str) -> List",
-            "FreelancerManager.load_freelancers()",
-            "FreelancerManager.save_freelancers()",
-            "ProjectManager.create_project(name: str, description: str, freelancer: str)",
-            "ProjectManager.load_projects()",
-            "ProjectManager.save_projects()"
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {
+                        "name": "login",
+                        "description": "Handles user login by validating username and password."
+                    },
+                    {
+                        "name": "register",
+                        "description": "Handles user registration by adding a new user to the system."
+                    },
+                    {
+                        "name": "search_freelancer",
+                        "description": "Searches for freelancers by name and returns a list of matching results."
+                    },
+                    {
+                        "name": "create_project",
+                        "description": "Creates a new project and assigns it to a selected freelancer."
+                    },
+                    {
+                        "name": "update_profile",
+                        "description": "Updates user profile information such as username and email."
+                    }
+                ]
+            }
         ]
     },
-    "templates/login.html": {
-        "fields": ["username", "password"],
-        "buttons": ["login"]
+    "UserManager": {
+        "methods": [
+            {
+                "name": "load_users",
+                "description": "Loads user data from 'users.txt' file."
+            },
+            {
+                "name": "save_users",
+                "description": "Saves user data to 'users.txt' file."
+            },
+            {
+                "name": "add_user",
+                "description": "Adds a new user to the user list."
+            },
+            {
+                "name": "authenticate",
+                "description": "Validates user credentials for login."
+            }
+        ]
     },
-    "templates/registration.html": {
-        "fields": ["username", "password"],
-        "buttons": ["register"]
+    "ProjectManager": {
+        "methods": [
+            {
+                "name": "load_projects",
+                "description": "Loads project data from 'projects.txt' file."
+            },
+            {
+                "name": "save_projects",
+                "description": "Saves project data to 'projects.txt' file."
+            },
+            {
+                "name": "add_project",
+                "description": "Adds a new project to the project list."
+            }
+        ]
     },
-    "templates/home.html": {
-        "elements": ["welcome message", "search field", "manage projects button", "manage profiles button"]
-    },
-    "templates/freelancer_profile.html": {
-        "elements": ["freelancer details", "view details button"]
-    },
-    "templates/project_management.html": {
-        "elements": ["project listing", "create project button", "edit project button", "delete project button"]
-    },
-    "templates/profile_management.html": {
-        "fields": ["username", "email"],
-        "buttons": ["update profile"]
+    "FreelancerManager": {
+        "methods": [
+            {
+                "name": "load_freelancers",
+                "description": "Loads freelancer data from 'freelancers.txt' file."
+            },
+            {
+                "name": "save_freelancers",
+                "description": "Saves freelancer data to 'freelancers.txt' file."
+            },
+            {
+                "name": "get_freelancer_details",
+                "description": "Retrieves detailed information about a specific freelancer."
+            }
+        ]
     }
 },
+
 "Task list": [
-    "main.py", 
-    "templates/login.html", 
-    "templates/registration.html", 
-    "templates/home.html", 
-    "templates/freelancer_profile.html", 
-    "templates/project_management.html", 
-    "templates/profile_management.html", 
-    "users.txt", 
-    "freelancers.txt", 
-    "projects.txt"
+    "main.py",
+    "templates/login.html",
+    "templates/registration.html",
+    "templates/home.html",
+    "templates/freelancer_profile.html",
+    "templates/project_management.html",
+    "templates/profile_management.html",
+    "users.txt",
+    "projects.txt",
+    "freelancers.txt"
 ],
-"Shared Knowledge": "Follow PEP 8 coding standards for Python. Use consistent naming conventions for variables and functions. Ensure proper error handling and validation for user inputs, especially in login and registration forms. Maintain clear separation of concerns between the frontend (HTML templates) and backend (Python logic)."
+
+"Shared Knowledge": [
+    "Follow coding standards for Python and Flask applications.",
+    "Organize files logically, grouping related functionalities together.",
+    "Ensure user interface design is intuitive and user-friendly, with clear navigation.",
+    "Implement input validation and error handling for user interactions to enhance user experience."
+]
 [/CONTENT]

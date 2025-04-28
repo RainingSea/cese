@@ -19,7 +19,7 @@ Develop a web application named 'Culture Facts' that provides users with interes
    - The system shall allow users to search for cultures or specific facts using keywords.
 
 6. Bookmarking
-   - The system shall enable users to bookmark their favorite culture facts for later reading.
+   - The system shall allow users to bookmark their favorite culture facts for later reading.
 
 7. Bookmark Management
    - The system shall provide a dedicated Bookmarks Page where users can view and manage their bookmarked facts.

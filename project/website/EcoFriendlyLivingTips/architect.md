@@ -1,52 +1,41 @@
 [CONTENT]
-"Implementation approach": "The web application 'EcoFriendlyLivingTips' will be developed using HTML for the frontend and Python for the backend. The application will utilize Flask as a lightweight web framework to handle routing, session management, and rendering of HTML templates. Each core feature will be integrated into distinct routes, ensuring modularity and clarity in the codebase. User data will be managed through local text files, allowing for straightforward file operations without the complexity of a SQL database.",
+"Implementation approach": "The web application 'EcoFriendlyLivingTips' will be structured using Flask as the backend framework, allowing for easy routing and management of user sessions. HTML will be used for the frontend to create user interfaces for login, registration, and content display. The application will utilize local text files for data storage, ensuring simplicity and efficiency without the need for a SQL database.",
 
-"UI design": "The user interface will consist of several key components: a login page (login.html) for user authentication, a registration page (register.html) for new account creation, a dashboard (dashboard.html) displaying personalized content, a tips submission page (submit_tip.html), a resources page (view_resources.html), a community forum page (forum.html), and a contact form (contact.html). A consistent navigation bar will be present across all pages to enhance user experience.",
+"UI design":"The UI will consist of the following key components: \n1. **Login Page**: A simple form with fields for username and password, and a button to log in. \n2. **Registration Form**: A form for new users to create an account, including fields for username, password, and email. \n3. **Introduction Page**: A static page introducing eco-friendly living with navigation links to other features. \n4. **Tips Submission Interface**: A form for users to submit new eco-friendly tips, with a text area for the tip and a submit button. \n5. **Resource Addition Form**: A form for users to add external resources, including fields for resource title and URL. \n6. **Community Forum Layout**: A page displaying existing forum posts with a form for users to submit new posts or comments. \n7. **Profile Management Section**: A page where users can view and update their profile information. \n8. **Contact Form**: A simple form for users to contact support, including fields for name, email, and message.",
 
-"Data Storage": "Data will be stored in local text files, with different types of data organized into separate `.txt` files. For example, user information will be stored in 'users.txt', eco-friendly tips in 'tips.txt', resources in 'resources.txt', and forum posts in 'forum_posts.txt'. This approach is chosen for its simplicity and efficiency, allowing easy data retrieval and management through basic file operations in Python.",
+"Data Storage": "Data will be stored in local text files organized as follows: \n- `users.txt`: Stores user account information (username, password, email). \n- `tips.txt`: Stores eco-friendly tips submitted by users. \n- `resources.txt`: Stores external resources added by users. \n- `forum.txt`: Stores community forum posts and comments. \n- `profiles.txt`: Stores user profile information. This structure allows for easy data retrieval and management through simple file manipulations in Python.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/submit_tip.html", "templates/view_resources.html", "templates/forum.html", "templates/contact.html", "users.txt", "tips.txt", "resources.txt", "forum_posts.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/introduction.html", "templates/tips.html", "templates/resources.html", "templates/forum.html", "templates/profile.html", "templates/contact.html", "users.txt", "tips.txt", "resources.txt", "forum.txt", "profiles.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -username: str
-        -password: str
-        -email: str
-        +register() bool
-        +login() bool
-        +update_profile() bool
-    }
-    class Tip {
-        -title: str
-        -content: str
-        -author: str
-        +submit_tip() bool
-        +view_tips() list
-    }
-    class Resource {
-        -title: str
-        -link: str
-        -description: str
-        +add_resource() bool
-        +view_resources() list
-    }
-    class ForumPost {
-        -title: str
-        -content: str
-        -author: str
-        +submit_post() bool
-        +view_posts() list
-    }
     class Main {
+        -UserManager user_manager
+        -TipManager tip_manager
+        -ResourceManager resource_manager
+        -ForumManager forum_manager
         +main() str
-        +login() str
-        +register() str
-        +dashboard() str
-        +submit_tip() str
-        +view_resources() str
-        +forum() str
-        +contact() str
+    }
+    class UserManager {
+        -List users
+        +login(username: str, password: str) bool
+        +register(username: str, password: str, email: str) bool
+        +update_profile(username: str, new_info: dict) bool
+    }
+    class TipManager {
+        -List tips
+        +submit_tip(tip: str) bool
+        +get_tips() List
+    }
+    class ResourceManager {
+        -List resources
+        +add_resource(title: str, url: str) bool
+        +get_resources() List
+    }
+    class ForumManager {
+        -List posts
+        +add_post(post: str) bool
+        +get_posts() List
     }
 "
 [/CONTENT]

@@ -1,23 +1,32 @@
 class BookManager:
-    def __init__(self, books_file: str):
+    def __init__(self, books_file):
         self.books_file = books_file
+        self.load_books()
 
-    def create_book(self, title: str, author: str, content: str) -> bool:
+    def load_books(self):
+        self.books = []
+        if os.path.exists(self.books_file):
+            with open(self.books_file, 'r') as file:
+                for line in file:
+                    username, title, author, content = line.strip().split(',')
+                    self.books.append({
+                        'username': username,
+                        'title': title,
+                        'author': author,
+                        'content': content
+                    })
+
+    def create_book(self, username: str, title: str, author: str, content: str) -> bool:
         with open(self.books_file, 'a') as file:
-            file.write(f"{title}|{author}|{content}\n")
+            file.write(f"{username},{title},{author},{content}\n")
+        self.books.append({'username': username, 'title': title, 'author': author, 'content': content})
         return True
 
-    def get_books(self) -> list:
-        books = []
-        with open(self.books_file, 'r') as file:
-            for line in file:
-                title, author, _ = line.strip().split('|')
-                books.append({'title': title, 'author': author})
-        return books
+    def get_books(self, username: str) -> list:
+        return [book for book in self.books if book['username'] == username]
 
     def get_book_details(self, title: str) -> str:
-        with open(self.books_file, 'r') as file:
-            for line in file:
-                if line.startswith(title):
-                    return line.strip()
+        for book in self.books:
+            if book['title'] == title:
+                return f"Title: {book['title']}, Author: {book['author']}, Content: {book['content']}"
         return "Book not found."

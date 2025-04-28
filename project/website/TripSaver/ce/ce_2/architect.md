@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application 'Trip Saver' will be developed using HTML for the front-end and Python for the back-end functionalities. The application will handle user interactions through forms for registration and login, as well as input fields for trip details. Data processing will be managed in Python, where user inputs will be validated and stored in local text files. The application will utilize simple file I/O operations for data retrieval and management, ensuring a lightweight and efficient system.",
+"Implementation approach": "The web application 'Trip Saver' will be developed using Python with the Flask framework for handling web requests and rendering HTML templates. The front-end will be built using HTML and basic CSS for styling. The application will follow a Model-View-Controller (MVC) architecture to separate concerns, making the codebase easier to manage and extend in the future. The application will utilize open-source libraries such as Flask for routing and rendering templates, and Werkzeug for handling user sessions.",
 
-"UI design":"The user interface will consist of the following components: a Registration Page with input fields for username and password, a Login Page with similar input fields, a Trip Details Page where users can enter starting point, destination, and travel date, and a Results Page to display transportation options with estimated costs and travel times. The layout will be simple and user-friendly, ensuring easy navigation between pages.",
+"UI design": "The user interface will consist of the following components: 1) Registration Page - A form with fields for username and password, and a submit button. 2) Login Page - Similar to the registration page, with fields for username and password, and a login button. 3) Trip Details Input - A form to input starting point, destination, and travel date, with a submit button to get transportation suggestions. 4) Transportation Suggestions - A section to display the suggested transportation options with estimated costs and travel times. 5) Transportation Comparison - A comparative view of different transportation options based on distance, cost, and time. 6) Save Preferred Options - A button to save selected options for future reference. 7) Logout - A button to log out and return to the Login Page.",
 
-"Data Storage":"All data will be stored in local text files. User data, including usernames and passwords, will be stored in 'users.txt'. Trip details and preferred transportation options will be stored in 'trips.txt'. Each line in these files will represent a separate entry, with fields separated by commas for easy parsing.",
+"Data Storage": "Data will be stored in local text files. User account information will be stored in 'users.txt', trip details in 'trips.txt', and saved transportation options in 'saved_options.txt'. Each file will contain structured data in a simple format, such as JSON or key-value pairs, for easy retrieval and manipulation.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/trip_details.html", "templates/results.html", "users.txt", "trips.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/trip_input.html", "templates/suggestions.html", "users.txt", "trips.txt", "saved_options.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -15,18 +15,16 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users: list
+        -List users
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +load_users() void
-        +save_users() void
+        +logout() void
     }
     class TripManager {
-        -trips: list
+        -List trips
         +add_trip(start: str, destination: str, date: str) void
-        +get_transport_options(start: str, destination: str, date: str) list
-        +save_trips() void
-        +load_trips() void
+        +get_suggestions(start: str, destination: str, date: str) List
+        +save_option(option: str) void
     }
 ",
 [/CONTENT]

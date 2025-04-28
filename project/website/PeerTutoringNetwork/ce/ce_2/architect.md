@@ -1,35 +1,34 @@
 [CONTENT]
-"Implementation approach": "The web application will be developed using Python for backend logic, utilizing the built-in HTTP server for handling requests and responses. HTML will be used for the frontend to create user interfaces. User interactions will be processed through form submissions, and data will be managed using simple file operations to read and write to local text files.",
+"Implementation approach": "The web application will be developed using Python for the backend logic and HTML for the frontend interface. The application will handle user authentication, registration, and tutoring requests through simple form submissions. Data will be stored locally in text files, allowing for straightforward file manipulations to read and write user information, tutoring requests, and contact messages.",
 
-"UI design": "The user interface will consist of several key components: 1) Login Page - A form for users to enter their username and password. 2) Registration Page - A form for new users to create an account with username, password, and email. 3) Dashboard - A central hub for logged-in users to navigate to different functionalities, including a button to view available tutors. 4) View Tutors Page - A list of available tutors displayed to the user. 5) Request Tutoring Form - A form to submit tutoring requests with subject, details, and preferred date. 6) Profile Page - Displays the user's username and email. 7) Contact Us Page - A form for users to send messages to support. 8) Logout Link - Available on the dashboard and profile page to log out.",
+"UI design": "The user interface will consist of the following pages: Login Page, Registration Page, Dashboard, View Tutors Page, Request Tutoring Page, Profile Page, and Contact Us Page. The navigation will be facilitated through buttons and links on the dashboard, allowing users to easily access different functionalities. Each page will have a consistent layout with a header, footer, and main content area for forms and information display.",
 
-"Data Storage": "All data will be stored in local text files, with separate files for different types of data. User accounts will be stored in 'users.txt', tutoring requests in 'requests.txt', and contact messages in 'contacts.txt'. This method allows for straightforward data retrieval and management through simple file operations, ensuring the application remains lightweight and efficient without the need for a SQL database.",
+"Data Storage": "Data will be stored in local text files. The following files will be used: 'users.txt' for storing user credentials (username, password, email), 'tutoring_requests.txt' for storing requests submitted by users, and 'contact_messages.txt' for storing messages sent to the support team. Each file will contain structured data in a simple format, such as 'username:password:email' for users, with each entry on a new line.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/view_tutors.html", "templates/request_tutoring.html", "templates/profile.html", "templates/contact.html", "users.txt", "requests.txt", "contacts.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/view_tutors.html", "templates/request_tutoring.html", "templates/profile.html", "templates/contact_us.html", "users.txt", "tutoring_requests.txt", "contact_messages.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -username: str
-        -password: str
-        -email: str
+    class Main {
+        -UserManager user_manager
+        -TutoringRequestManager tutoring_request_manager
+        -ContactManager contact_manager
+        +main() str
+    }
+    class UserManager {
+        -users_file: str
         +register(username: str, password: str, email: str) bool
         +login(username: str, password: str) bool
+        +get_user_info(username: str) dict
     }
-    class TutoringRequest {
-        -subject: str
-        -details: str
-        -preferred_date: str
-        +create_request(subject: str, details: str, preferred_date: str) bool
+    class TutoringRequestManager {
+        -requests_file: str
+        +request_tutoring(username: str, subject: str, details: str, date: str) bool
+        +cancel_request(username: str) bool
     }
-    class Contact {
-        -name: str
-        -email: str
-        -message: str
+    class ContactManager {
+        -messages_file: str
         +send_message(name: str, email: str, message: str) bool
-    }
-    class Main {
-        +main() str
     }
 ",
 [/CONTENT]

@@ -1,49 +1,106 @@
 [CONTENT]
-"Required packages": ["Flask"],
+"Required packages": [
+    "os", 
+    "json"
+],
 
 "Required Other language third-party packages": [],
 
-"Logic Analysis": 
-- main.py
-  - class Main
-    - main()
-- user_manager.py
-  - class UserManager
-    - register(username: str, password: str) -> bool
-    - login(username: str, password: str) -> bool
-    - update_profile(username: str, new_info: dict) -> bool
-    - delete_account(username: str) -> bool
-- thread_manager.py
-  - class ThreadManager
-    - create_thread(title: str, content: str) -> bool
-    - get_threads() -> list
-    - get_thread_details(thread_id: int) -> dict
-- comment_manager.py
-  - class CommentManager
-    - add_comment(thread_id: int, comment: str) -> bool
-    - get_comments(thread_id: int) -> list
-- contact_inquiry_manager.py
-  - class ContactInquiryManager
-    - submit_inquiry(name: str, email: str, message: str) -> bool
+"Logic Analysis": {
+    "main.py": {
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {
+                        "name": "main",
+                        "description": "Entry point of the application, initializes managers and handles routing."
+                    }
+                ]
+            },
+            {
+                "name": "UserManager",
+                "methods": [
+                    {
+                        "name": "register",
+                        "description": "Handles user registration by adding a new user to 'users.txt'."
+                    },
+                    {
+                        "name": "login",
+                        "description": "Validates user credentials against 'users.txt'."
+                    },
+                    {
+                        "name": "updateProfile",
+                        "description": "Updates user profile information in 'users.txt'."
+                    },
+                    {
+                        "name": "deleteAccount",
+                        "description": "Removes a user from 'users.txt'."
+                    }
+                ]
+            },
+            {
+                "name": "ThreadManager",
+                "methods": [
+                    {
+                        "name": "createThread",
+                        "description": "Creates a new discussion thread and saves it to 'threads.txt'."
+                    },
+                    {
+                        "name": "getThreads",
+                        "description": "Retrieves a list of all discussion threads from 'threads.txt'."
+                    },
+                    {
+                        "name": "getThreadDetails",
+                        "description": "Fetches details of a specific thread from 'threads.txt'."
+                    }
+                ]
+            },
+            {
+                "name": "CommentManager",
+                "methods": [
+                    {
+                        "name": "addComment",
+                        "description": "Adds a comment to a specific thread and saves it to 'comments.txt'."
+                    },
+                    {
+                        "name": "getComments",
+                        "description": "Retrieves comments for a specific thread from 'comments.txt'."
+                    }
+                ]
+            },
+            {
+                "name": "ContactManager",
+                "methods": [
+                    {
+                        "name": "submitInquiry",
+                        "description": "Saves a contact inquiry to 'contacts.txt'."
+                    }
+                ]
+            }
+        ]
+    }
+},
 
-"Task list": 
-1. user_manager.py
-2. thread_manager.py
-3. comment_manager.py
-4. contact_inquiry_manager.py
-5. main.py
-6. templates/login.html
-7. templates/register.html
-8. templates/home.html
-9. templates/forum.html
-10. templates/view_thread.html
-11. templates/post_advice.html
-12. templates/my_account.html
-13. templates/contact_us.html
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/register.html",
+    "templates/home.html",
+    "templates/forum.html",
+    "templates/view_thread.html",
+    "templates/post_advice.html",
+    "templates/my_account.html",
+    "templates/contact_us.html",
+    "users.txt",
+    "threads.txt",
+    "comments.txt",
+    "contacts.txt"
+],
 
-"Shared Knowledge": 
-- Ensure proper error handling for user inputs on all forms to enhance user experience.
-- Consider implementing session management for user login to maintain state across pages.
-- Keep file operations efficient by using context managers to handle file reading and writing.
-- Regularly back up text files to prevent data loss during development.
+"Shared Knowledge": {
+    "coding standards": "Follow PEP 8 guidelines for Python code.",
+    "project organization tips": "Keep templates organized in a separate 'templates' directory.",
+    "common pitfalls": "Ensure proper error handling for file operations to avoid application crashes."
+}
 [/CONTENT]

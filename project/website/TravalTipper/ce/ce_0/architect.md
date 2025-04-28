@@ -1,28 +1,35 @@
 [CONTENT]
-"Implementation approach": "The web application 'Travel_Tipper' will be developed using HTML for the front-end interface and Python for the back-end logic. The application will utilize a simple file-based data storage system to manage user accounts and travel tips. The integration will be achieved through HTTP requests handled by Python scripts, which will read from and write to local text files for user data and travel tips.",
+"Implementation approach": "The web application 'Travel_Tipper' will be structured using Python for the backend logic and HTML for the frontend user interface. The application will handle user registration, login, and travel tips generation through simple file manipulations, ensuring a lightweight and efficient design without the use of a SQL database.",
 
-"UI design": "The user interface will consist of three main pages: the Registration Page, Login Page, and Travel Tips Input Page. The Registration Page will include fields for username and password, along with a submit button. The Login Page will have similar fields for user authentication. The Travel Tips Input Page will allow users to input their travel details, such as destination, trip duration, and interests, with a submit button to generate personalized recommendations. Each page will have a consistent layout with a header and footer for navigation.",
+"UI design":"The user interface will consist of the following main components: 1) Registration Page where users can enter their username and password to create an account. 2) Login Page for users to log in with their credentials. 3) Input Travel Details Page where users can specify their destination, trip duration, and interests. 4) Recommendations Page that displays personalized travel tips. 5) Search Functionality integrated into the Recommendations Page for users to find specific tips. 6) Favorites Page to manage saved travel tips.",
 
-"Data Storage": "Data will be stored in local text files. User account information will be stored in 'users.txt' with each line containing 'username,password'. Travel tips will be stored in 'travel_tips.txt' with each line containing 'destination,tips'. This structure allows for easy retrieval and management of user accounts and travel tips without the need for a SQL database.",
+"Data Storage":"Data will be stored in local text files. Different types of data will be stored in separate files. The following files will be used: 'users.txt' for user data, 'travel_tips.txt' for storing travel tips, and 'favorites.txt' for saving users' favorite tips.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/travel_input.html", "users.txt", "travel_tips.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/travel_details.html", "templates/recommendations.html", "users.txt", "travel_tips.txt", "favorites.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
-        -TravelTipManager travel_tip_manager
+        -TravelTipGenerator travel_tip_generator
         +main() str
     }
     class UserManager {
-        -List users
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
+        +save_user_data() void
+        +load_user_data() void
     }
-    class TravelTipManager {
-        -List tips
-        +addTip(destination: str, tips: str) void
-        +getTips(destination: str) str
+    class TravelTipGenerator {
+        -tips: list
+        +generate_tips(destination: str, interests: list) list
+        +load_tips() void
+    }
+    class FavoritesManager {
+        -favorites: list
+        +save_favorite(tip: str) void
+        +load_favorites() void
     }
 ",
 [/CONTENT]

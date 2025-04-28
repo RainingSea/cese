@@ -9,10 +9,10 @@ class TestDailyJournalApp(unittest.TestCase):
         # Initialize the webdriver and open the login page
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8156/') 
+        self.driver.get('http://localhost:5000/')  # Replace 5000 with the actual port from main.py
 
     def tearDown(self):
-        # Close the web driver session and the subprocess
+        # Close the web driver session
         self.driver.quit()
         self.process.terminate()
 
@@ -56,7 +56,7 @@ class TestDailyJournalApp(unittest.TestCase):
         self.login("admin", "admin123")
 
         # Verify that the Dashboard Page shows entries
-        entries = self.driver.find_elements(By.TAG_NAME, 'li')
+        entries = self.driver.find_elements(By.XPATH, '//*[@id="entries"]/li')
         self.assertGreater(len(entries), 0, "No journal entries found.")
 
     def test_create_new_entry(self):
@@ -79,7 +79,7 @@ class TestDailyJournalApp(unittest.TestCase):
 
     def test_save_journal_entry(self):
         # Functionalities 6: Test saving journal entry
-        self.fail("Not implemented")
+        self.fail("Not implemented")  # This functionality is not explicitly tested in the codebase
 
     def test_logout(self):
         # Functionalities 7: Test logging out
@@ -92,8 +92,8 @@ class TestDailyJournalApp(unittest.TestCase):
         self.assertIn("Login", self.driver.title)
 
     def test_data_storage(self):
-        # Functionalities 8: Test data storage for journal entry
-        self.fail("Not implemented")
+        # Functionalities 8: Test data storage for journal entries
+        self.fail("Not implemented")  # This functionality is not explicitly tested in the codebase
 
 if __name__ == '__main__':
     unittest.main()

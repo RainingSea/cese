@@ -1,82 +1,70 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-import json
+from flask_session import Session
 import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 class UserManager:
     def __init__(self):
         self.users = self.load_users()
 
     def load_users(self):
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                return [line.strip().split('|') for line in file.readlines()]
-        return []
+        if not os.path.exists('users.txt'):
+            return {}
+        with open('users.txt', 'r') as file:
+            return {line.split('|')[0]: line.split('|')[1].strip() for line in file.readlines()}
 
     def register(self, username: str, password: str) -> bool:
-        for user in self.users:
-            if user[0] == username:
-                return False  # User already exists
-        self.users.append([username, password])
-        self.save_users()
+        if username in self.users:
+            return False
+        self.users[username] = password
+        with open('users.txt', 'a') as file:
+            file.write(f"{username}|{password}\n")
         return True
 
-    def save_users(self):
-        with open('users.txt', 'w') as file:
-            for user in self.users:
-                file.write('|'.join(user) + '\n')
-
     def login(self, username: str, password: str) -> bool:
-        for user in self.users:
-            if user[0] == username and user[1] == password:
-                return True
-        return False
+        return self.users.get(username) == password
 
 class VehicleManager:
     def __init__(self):
         self.vehicles = self.load_vehicles()
 
     def load_vehicles(self):
-        if os.path.exists('vehicles.txt'):
-            with open('vehicles.txt', 'r') as file:
-                return [line.strip().split('|') for line in file.readlines()]
-        return []
+        if not os.path.exists('vehicles.txt'):
+            return []
+        with open('vehicles.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
     def add_vehicle(self, make: str, model: str, year: int, mileage: int) -> bool:
         self.vehicles.append([make, model, str(year), str(mileage)])
-        self.save_vehicles()
+        with open('vehicles.txt', 'a') as file:
+            file.write(f"{make}|{model}|{year}|{mileage}\n")
         return True
 
-    def save_vehicles(self):
-        with open('vehicles.txt', 'w') as file:
-            for vehicle in self.vehicles:
-                file.write('|'.join(vehicle) + '\n')
+    def get_vehicles(self) -> list:
+        return self.vehicles
 
 class MaintenanceManager:
     def __init__(self):
-        self.maintenance_records = self.load_records()
+        self.maintenance_records = self.load_maintenance()
 
-    def load_records(self):
-        if os.path.exists('maintenance.txt'):
-            with open('maintenance.txt', 'r') as file:
-                return [line.strip().split('|') for line in file.readlines()]
-        return []
+    def load_maintenance(self):
+        if not os.path.exists('maintenance.txt'):
+            return []
+        with open('maintenance.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
-    def add_record(self, vehicle_id: int, task: str, date: str) -> bool:
-        self.maintenance_records.append([str(vehicle_id), task, date])
-        self.save_records()
+    def add_maintenance(self, vehicle_id: int, task: str, date: str, mileage: int) -> bool:
+        self.maintenance_records.append([str(vehicle_id), task, date, str(mileage)])
+        with open('maintenance.txt', 'a') as file:
+            file.write(f"{vehicle_id}|{task}|{date}|{mileage}\n")
         return True
 
-    def save_records(self):
-        with open('maintenance.txt', 'w') as file:
-            for record in self.maintenance_records:
-                file.write('|'.join(record) + '\n')
-
-user_manager = UserManager()
-vehicle_manager = VehicleManager()
-maintenance_manager = MaintenanceManager()
+    def get_maintenance_history(self, vehicle_id: int) -> list:
+        return [record for record in self.maintenance_records if int(record[0]) == vehicle_id]
 
 @app.route('/')
 def login():
@@ -84,35 +72,37 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    user_manager = UserManager()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         if user_manager.register(username, password):
             return redirect(url_for('login'))
-        else:
-            return "User already exists."
     return render_template('registration.html')
 
-@app.route('/vehicle', methods=['GET', 'POST'])
-def vehicle_input():
+@app.route('/vehicle_info', methods=['GET', 'POST'])
+def vehicle_info():
+    vehicle_manager = VehicleManager()
     if request.method == 'POST':
         make = request.form['make']
         model = request.form['model']
         year = request.form['year']
         mileage = request.form['mileage']
         vehicle_manager.add_vehicle(make, model, int(year), int(mileage))
-        return redirect(url_for('vehicle_input'))
-    return render_template('vehicle_input.html')
+    vehicles = vehicle_manager.get_vehicles()
+    return render_template('vehicle_info.html', vehicles=vehicles)
 
 @app.route('/maintenance', methods=['GET', 'POST'])
-def maintenance_tracking():
+def maintenance():
+    maintenance_manager = MaintenanceManager()
     if request.method == 'POST':
         vehicle_id = request.form['vehicle_id']
         task = request.form['task']
         date = request.form['date']
-        maintenance_manager.add_record(int(vehicle_id), task, date)
-        return redirect(url_for('maintenance_tracking'))
-    return render_template('maintenance_tracking.html')
+        mileage = request.form['mileage']
+        maintenance_manager.add_maintenance(int(vehicle_id), task, date, int(mileage))
+    maintenance_records = maintenance_manager.maintenance_records
+    return render_template('maintenance.html', maintenance_records=maintenance_records)
 
 if __name__ == '__main__':
-    app.run(port=8279, debug=False)
+    app.run(port=8451, debug=False)

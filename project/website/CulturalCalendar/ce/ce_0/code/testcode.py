@@ -6,13 +6,13 @@ import subprocess
 class TestCulturalCalendarApp(unittest.TestCase):
 
     def setUp(self):
-        # Start the server and initialize the webdriver
+        # Initialize the webdriver and open the application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8000/')  # Access the login page
+        self.driver.get('http://localhost:8303/') 
 
     def tearDown(self):
-        # Close the web driver session and terminate the server process
+        # Close the web driver session and the application
         self.driver.quit()
         self.process.terminate()
 
@@ -22,80 +22,107 @@ class TestCulturalCalendarApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
 
-    def test_registration(self):
-        # Functionality 1: User Registration
-        self.driver.find_element(By.LINK_TEXT, 'Register').click()
+    def test_user_registration(self):
+        # Navigate to the Registration Page
+        self.driver.get('http://localhost:8303/register')
         
+        # Verify that the Registration form is displayed
+        self.assertIn("Register", self.driver.title)
+
+        # Enter a valid username and password, then submit the form
         new_username = "test_user"
         new_password = "test_password"
-
-        # Input username and password for registration
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
-        # Verify that the user is redirected to the login page
+        # Verify redirection to the login page
         self.assertIn("Login", self.driver.title)
 
-        # Attempt to register with the same username
-        self.driver.find_element(By.LINK_TEXT, 'Register').click()
-        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
-        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
+        # Attempt to register with an already taken username
+        self.driver.get('http://localhost:8303/register')
+        self.driver.find_element(By.NAME, 'username').send_keys("admin")  # Using an existing username
+        self.driver.find_element(By.NAME, 'password').send_keys("admin123")
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
         # Verify that an error message is displayed
         self.assertIn("Username already in use", self.driver.page_source)
 
-    def test_login(self):
-        # Functionality 2: User Login
+    def test_user_login(self):
+        # Navigate to the Login Page
+        self.driver.get('http://localhost:8303/')
+        
+        # Verify that the Login form is displayed
+        self.assertIn("Login", self.driver.title)
+
+        # Enter valid credentials and log in
         self.login("admin", "admin123")
 
-        # Verify that the Dashboard Page has loaded
+        # Verify redirection to the Dashboard Page
         self.assertIn("Dashboard", self.driver.title)
 
-        # Attempt to login with invalid credentials
-        self.driver.get('http://localhost:8000/')  # Go back to login page
-        self.login("invalid_user", "invalid_password")
+        # Attempt to log in with invalid credentials
+        self.driver.get('http://localhost:8303/')
+        self.login("invalid_user", "wrong_password")
 
         # Verify that an error message is displayed
         self.assertIn("Invalid credentials", self.driver.page_source)
 
     def test_view_upcoming_events(self):
-        # Functionality 3: View Upcoming Cultural Events on the Dashboard Page
+        # Log in successfully
         self.login("admin", "admin123")
 
-        # Verify that the Dashboard Page shows events
-        self.assertIn("Upcoming Cultural Events", self.driver.page_source)
+        # Verify that the Dashboard Page shows upcoming events
+        self.assertIn("Upcoming Events", self.driver.page_source)
 
     def test_view_event_details(self):
-        # Functionality 4: View Event Details
+        # Log in successfully
         self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'New Year').click()  # Click on an event
+
+        # Click on a specific event from the list
+        self.driver.find_element(By.LINK_TEXT, "New Year Celebration").click()
 
         # Verify that the Event Details Page is displayed
         self.assertIn("Event Details", self.driver.title)
-        self.assertIn("Celebration of the new year", self.driver.page_source)
 
-    def test_set_reminder(self):
-        # Functionality 6: Set Reminder for an Event
-        self.login("user1", "user123")
-        self.driver.find_element(By.LINK_TEXT, 'Diwali').click()  # Click on an event
+        # Check the significance, history, and location information
+        self.assertIn("Celebration of the new year", self.driver.page_source)
+        self.assertIn("A grand celebration welcoming the new year", self.driver.page_source)
+        self.assertIn("City Square", self.driver.page_source)
+
+    def test_set_reminder_for_event(self):
+        # Log in successfully
+        self.login("admin", "admin123")
+
+        # Click on a specific event from the list
+        self.driver.find_element(By.LINK_TEXT, "New Year Celebration").click()
+
+        # Click the 'Set Reminder' button
         self.driver.find_element(By.XPATH, '//button[text()="Set Reminder"]').click()
 
-        # Verify that the reminder was set
-        self.driver.get('http://localhost:8000/reminders')  # Navigate to reminders page
-        self.assertIn("Diwali", self.driver.page_source)
+        # Verify that the reminder is set by checking the reminders page
+        self.driver.get('http://localhost:8303/reminders')
+        self.assertIn("New Year Celebration", self.driver.page_source)
 
-    def test_view_reminders(self):
-        # Functionality 7: View and Manage Reminders
-        self.login("user1", "user123")
-        self.driver.get('http://localhost:8000/reminders')  # Navigate to reminders page
+    def test_view_and_manage_reminders(self):
+        # Log in successfully
+        self.login("admin", "admin123")
 
-        # Verify that the reminders are displayed
-        self.assertIn("Your Reminders", self.driver.page_source)
+        # Set a reminder for an event
+        self.driver.get('http://localhost:8303/event/1')  # Assuming event ID 1 is "New Year Celebration"
+        self.driver.find_element(By.XPATH, '//button[text()="Set Reminder"]').click()
 
-    def test_logout(self):
-        # Functionality 8: User Logout
+        # Navigate to the Reminders Page
+        self.driver.get('http://localhost:8303/reminders')
+
+        # Verify that the reminder is displayed
+        self.assertIn("New Year Celebration", self.driver.page_source)
+
+        # Note: The functionality to remove reminders is not implemented in the provided codebase
+        self.fail("Functionality to remove reminders is not implemented")
+
+    def test_user_logout(self):
+        # Log in successfully
         self.login("admin", "admin123")
 
         # Click the Logout button

@@ -1,59 +1,109 @@
 [CONTENT]
-1. **Required packages**: 
-   - Flask
-   - Jinja2
+"Required packages": [
+    "Flask", 
+    "os"
+],
 
-2. **Required Other language third-party packages**: 
-   - None
+"Required Other language third-party packages": [],
 
-3. **Logic Analysis**: 
-   - **main.py**: 
-     - Class: Main
-       - Method: main() - Initializes the application and runs the server.
-     - Class: UserManager
-       - Method: register(username: str, password: str) - Registers a new user.
-       - Method: login(username: str, password: str) - Authenticates a user.
-     - Class: StoryManager
-       - Method: load_stories() - Loads stories from the stories.txt file.
-       - Method: get_story_details(story_id: int) - Retrieves details of a specific story.
-       - Method: bookmark_story(username: str, story_id: int) - Adds a story to the user's bookmarks.
-       - Method: get_bookmarks(username: str) - Retrieves a list of bookmarked stories for a user.
+"Logic Analysis": {
+    "main.py": {
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {
+                        "name": "main",
+                        "description": "The entry point of the application that initializes the user and story managers."
+                    }
+                ]
+            },
+            {
+                "name": "UserManager",
+                "methods": [
+                    {
+                        "name": "register",
+                        "description": "Handles user registration by saving username and password."
+                    },
+                    {
+                        "name": "login",
+                        "description": "Handles user login by verifying username and password."
+                    },
+                    {
+                        "name": "load_users",
+                        "description": "Loads user data from 'users.txt'."
+                    },
+                    {
+                        "name": "save_users",
+                        "description": "Saves user data to 'users.txt'."
+                    }
+                ]
+            },
+            {
+                "name": "StoryManager",
+                "methods": [
+                    {
+                        "name": "load_stories",
+                        "description": "Loads story data from 'stories.txt'."
+                    },
+                    {
+                        "name": "get_story_details",
+                        "description": "Retrieves full text and cultural background of a specific story."
+                    },
+                    {
+                        "name": "search_stories",
+                        "description": "Searches stories based on keywords, cultural origins, or categories."
+                    },
+                    {
+                        "name": "bookmark_story",
+                        "description": "Allows a user to bookmark a story."
+                    },
+                    {
+                        "name": "get_bookmarked_stories",
+                        "description": "Retrieves a list of stories bookmarked by a user."
+                    }
+                ]
+            }
+        ]
+    },
+    "templates/login.html": {
+        "description": "HTML template for the user login page."
+    },
+    "templates/registration.html": {
+        "description": "HTML template for the user registration page."
+    },
+    "templates/dashboard.html": {
+        "description": "HTML template for the dashboard displaying the list of stories."
+    },
+    "templates/story_details.html": {
+        "description": "HTML template for displaying the full text and details of a selected story."
+    },
+    "templates/bookmarks.html": {
+        "description": "HTML template for the bookmarks page showing saved stories."
+    },
+    "users.txt": {
+        "description": "Text file for storing user account information."
+    },
+    "stories.txt": {
+        "description": "Text file for storing story data."
+    }
+},
 
-   - **templates/login.html**: 
-     - Contains HTML for the Login Page with a form for username and password.
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/registration.html",
+    "templates/dashboard.html",
+    "templates/story_details.html",
+    "templates/bookmarks.html",
+    "users.txt",
+    "stories.txt"
+],
 
-   - **templates/registration.html**: 
-     - Contains HTML for the Registration Page with a form for username and password.
-
-   - **templates/dashboard.html**: 
-     - Contains HTML for the Dashboard Page displaying stories and a search bar.
-
-   - **templates/story_details.html**: 
-     - Contains HTML for the Story Details Page showing full story text and cultural background.
-
-   - **templates/bookmarks.html**: 
-     - Contains HTML for the Bookmarks Page displaying the user's bookmarked stories.
-
-   - **users.txt**: 
-     - Stores user credentials (username and password).
-
-   - **stories.txt**: 
-     - Contains all stories with their cultural backgrounds and metadata.
-
-   - **bookmarks.txt**: 
-     - Stores user bookmarks, linking usernames to their bookmarked story IDs.
-
-4. **Task list**: 
-   - main.py
-   - templates/registration.html
-   - templates/login.html
-   - templates/dashboard.html
-   - templates/story_details.html
-   - templates/bookmarks.html
-   - users.txt
-   - stories.txt
-   - bookmarks.txt
-
-5. **Shared Knowledge**: 
-   - The application will follow Agile methodology, allowing for iterative development. The focus will be on creating a simple and intuitive user experience while ensuring usability and accessibility principles are adhered to throughout the design process. Anticipated challenges include managing user data securely and ensuring a seamless navigation experience across different pages.
+"Shared Knowledge": [
+    "Ensure that user input is validated to prevent errors during registration and login.",
+    "Consider implementing basic error handling to improve user experience.",
+    "Keep the user interface simple and intuitive to enhance accessibility.",
+    "Regularly back up 'users.txt' and 'stories.txt' to prevent data loss."
+]
 [/CONTENT]

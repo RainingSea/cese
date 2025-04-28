@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application 'ShopPal' will be developed using HTML for the front-end interface and Python for back-end functionalities. The application will utilize a simple file-based storage system to manage user accounts and product collections, ensuring a lightweight and efficient design.",
+"Implementation approach": "The web application 'ShopPal' will be developed using HTML for the front end and Python for the back end. The application will handle user interactions through forms and buttons on the web pages, processing data using Python functions. User registration and login will be managed through simple text file operations, ensuring that user data is stored securely in local files. The application will also utilize Python to manage product collections and price tracking functionalities, reading from and writing to text files as needed.",
 
-"UI design": "The user interface will consist of the following components: a Registration Page for new users to create accounts, a Login Page for existing users, a Dashboard Page for managing product collections, and a Search Bar for product searches. Each page will have intuitive navigation links to allow users to easily move between features. The Dashboard will display saved products and allow users to track price changes.",
+"UI design": "The user interface will consist of the following components: \n1. **Registration Page**: A form with fields for username and password, and a submit button. \n2. **Login Page**: A form with fields for username and password, a submit button, and a link to the Registration Page. \n3. **Dashboard Page**: A display area for personalized product collections, an input field for adding new products, and buttons for tracking prices and searching products. \n4. **Product Detail View**: A section that shows detailed information about selected products, including description, reviews, and pricing. \n5. **Logout Button**: A button on the Dashboard Page to log out and return to the Login Page.",
 
-"Data Storage": "Data will be stored in local text files. User information will be saved in 'users.txt', and product collections will be stored in 'collections.txt'. Each type of data will be organized into separate files, allowing for straightforward file manipulation in Python without the need for SQL databases.",
+"Data Storage": "Data will be stored in local text files. The following types of data will be stored in separate files: \n1. `users.txt`: Contains user account information (username and password). \n2. `products.txt`: Contains product information (description, reviews, pricing). \n3. `collections.txt`: Contains user-specific product collections. This structure allows for easy retrieval and management of user data, product information, and collections.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "users.txt", "collections.txt"],
+"File list": ["main.py", "templates/registration.html", "templates/login.html", "templates/dashboard.html", "users.txt", "products.txt", "collections.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -15,15 +15,22 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -list users
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
+        +load_users() void
+        +save_users() void
     }
     class ProductManager {
-        -list collections
-        +add_product_to_collection(username: str, product: str) void
-        +track_price_changes(username: str) void
+        -products: dict
+        -collections: dict
+        +add_product(product_info: dict) void
+        +track_price(product_id: str) void
         +search_products(query: str) list
+        +load_products() void
+        +save_products() void
+        +load_collections() void
+        +save_collections() void
     }
 ",
 [/CONTENT]

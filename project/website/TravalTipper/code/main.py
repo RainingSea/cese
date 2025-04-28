@@ -1,121 +1,135 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request, redirect, session, url_for, flash
+import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'your_secret_key'  # Change this to a random secret key
 
 class UserManager:
     def __init__(self, users_file: str):
         self.users_file = users_file
-        self.load_users()
-
-    def load_users(self) -> None:
-        """Load users from the specified file."""
-        self.users = {}
-        try:
-            with open(self.users_file, 'r') as file:
-                for line in file:
-                    username, password = line.strip().split('|')
-                    self.users[username] = password
-        except FileNotFoundError:
-            pass
+        self.users = self.load_users()
 
     def register(self, username: str, password: str) -> bool:
-        """Register a new user if the username is not taken."""
         if username in self.users:
             return False
         self.users[username] = password
-        self.save_user_data()
+        self.save_users()
         return True
 
     def login(self, username: str, password: str) -> bool:
-        """Check if the username and password match."""
-        if username in self.users and self.users[username] == password:
-            return True
-        return False
+        return self.users.get(username) == password
 
-    def save_user_data(self) -> None:
-        """Save user data to the specified file."""
-        with open(self.users_file, 'w') as file:
+    def load_users(self) -> dict:
+        users = {}
+        if os.path.exists(self.users_file):
+            with open(self.users_file, 'r') as f:
+                for line in f:
+                    username, password = line.strip().split('|')
+                    users[username] = password
+        return users
+
+    def save_users(self) -> None:
+        with open(self.users_file, 'w') as f:
             for username, password in self.users.items():
-                file.write(f"{username}|{password}\n")
+                f.write(f"{username}|{password}\n")
 
-class TravelTipManager:
+class TravelTipGenerator:
     def __init__(self, tips_file: str):
         self.tips_file = tips_file
-        self.load_tips()
+        self.tips = self.load_tips()
 
-    def load_tips(self) -> None:
-        """Load travel tips from the specified file."""
-        self.tips = []
-        try:
-            with open(self.tips_file, 'r') as file:
-                for line in file:
-                    self.tips.append(line.strip())
-        except FileNotFoundError:
-            pass
+    def generate_tips(self, destination: str, interests: list) -> list:
+        filtered_tips = []
+        for tip in self.tips:
+            if destination.lower() in tip[0].lower() and any(interest.lower() in tip[1].lower() for interest in interests):
+                filtered_tips.append(tip)
+        return filtered_tips
 
-    def get_tips(self, destination: str, interests: list) -> list:
-        """Get tips based on destination and interests."""
-        recommendations = []
-        if destination:
-            for interest in interests:
-                for tip in self.tips:
-                    if interest in tip or destination in tip:
-                        recommendations.append(tip)
-        return recommendations
+    def load_tips(self) -> list:
+        tips = []
+        if os.path.exists(self.tips_file):
+            with open(self.tips_file, 'r') as f:
+                for line in f:
+                    destination, tip = line.strip().split('|')
+                    tips.append((destination, tip))
+        return tips
 
-    def search_tips(self, query: str) -> list:
-        """Search for tips that match the query."""
-        return [tip for tip in self.tips if query in tip]
+class FavoritesManager:
+    def __init__(self, favorites_file: str):
+        self.favorites_file = favorites_file
+
+    def save_favorite(self, username: str, tip: str) -> bool:
+        with open(self.favorites_file, 'a') as f:
+            f.write(f"{username}|{tip}\n")
+        return True
+
+    def load_favorites(self, username: str) -> list:
+        favorites = []
+        if os.path.exists(self.favorites_file):
+            with open(self.favorites_file, 'r') as f:
+                for line in f:
+                    user, tip = line.strip().split('|')
+                    if user == username:
+                        favorites.append(tip)
+        return favorites
 
 user_manager = UserManager('users.txt')
-travel_tip_manager = TravelTipManager('travel_tips.txt')
+travel_tip_generator = TravelTipGenerator('travel_tips.txt')
+favorites_manager = FavoritesManager('favorites.txt')
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
-    """Handle user login."""
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         if user_manager.login(username, password):
             session['username'] = username
-            return redirect(url_for('travel_details'))
-        else:
-            flash("Login Failed: Invalid username or password.")
-            return redirect(url_for('login'))
+            return redirect(url_for('dashboard'))
+        flash('Invalid username or password', 'danger')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    """Handle user registration."""
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         if user_manager.register(username, password):
-            flash("Registration successful! Please log in.")
+            flash('Registration successful! Please log in.', 'success')
             return redirect(url_for('login'))
-        else:
-            flash("Registration Failed: Username already taken.")
-            return redirect(url_for('register'))
-    return render_template('registration.html')
+        flash('Username already taken', 'danger')
+    return render_template('register.html')
 
-@app.route('/travel_details', methods=['GET', 'POST'])
-def travel_details():
-    """Handle travel details submission and recommendations display."""
+@app.route('/dashboard', methods=['GET', 'POST'])
+def dashboard():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    username = session['username']
+    tips = []
     if request.method == 'POST':
         destination = request.form['destination']
-        duration = request.form['duration']
-        interests = request.form.getlist('interests')
-        tips = travel_tip_manager.get_tips(destination, interests)
-        return render_template('recommendations.html', tips=tips)
-    return render_template('travel_details.html')
+        interests = request.form['interests'].split(',')
+        tips = travel_tip_generator.generate_tips(destination, interests)
+    
+    favorites = favorites_manager.load_favorites(username)
+    return render_template('dashboard.html', tips=tips, favorites=favorites)
+
+@app.route('/save_favorite', methods=['POST'])
+def save_favorite():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    username = session['username']
+    tip = request.form['tip']
+    favorites_manager.save_favorite(username, tip)
+    flash('Tip saved to favorites!', 'success')
+    return redirect(url_for('dashboard'))
 
 @app.route('/logout')
 def logout():
-    """Handle user logout."""
     session.pop('username', None)
+    flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(port=8265, debug=False)
+    app.run(port=8437, debug=False)

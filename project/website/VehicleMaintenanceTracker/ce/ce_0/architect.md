@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The 'Vehicle Maintenance Tracker' web application will be developed using HTML for the front end and Python for the back end. The application will consist of simple HTML forms for user registration, login, vehicle information input, and maintenance tracking. Python will handle the business logic, including user authentication, data storage, and maintenance reminders. The application will be lightweight, focusing on a straightforward user experience.",
+"Implementation approach": "The application will be developed using Python for the backend logic and HTML for the frontend user interface. The Flask framework will be utilized to handle web requests and routing. The application will also leverage the built-in Python libraries for file handling to manage data storage in text files.",
 
-"UI design":"The key user interface components will include: 1) Registration Page: A form for users to enter a username and password. 2) Login Page: A form for users to log in with their credentials. 3) Vehicle Information Input: A form to input vehicle details such as make, model, year, and mileage. 4) Maintenance Tracking Display: A page to view and manage maintenance tasks and history. 5) Notification Settings: A section to set preferences for maintenance reminders.",
+"UI design":"The user interface will consist of the following components: 1. Registration Page: A form with fields for username and password. 2. Login Page: A form with fields for username and password. 3. Vehicle Information Input: Fields for make, model, year, and mileage. 4. Maintenance Task Tracking: A list view to display tasks and buttons for adding, updating, or deleting tasks. 5. Notifications: A section to display upcoming maintenance reminders. 6. Maintenance History: A display area to show past maintenance records.",
 
-"Data Storage":"Data will be stored in local text files, with separate `.txt` files for different types of data such as user accounts, vehicle information, and maintenance records. This approach ensures simplicity and efficiency, allowing easy data retrieval and management through basic file operations in Python.",
+"Data Storage":"Data will be organized in local text files as follows: 1. users.txt - Stores usernames and passwords in the format 'username,password'. 2. vehicles.txt - Stores vehicle information in the format 'username,make,model,year,mileage'. 3. maintenance.txt - Stores maintenance records in the format 'username,vehicle_id,task,date,status'. Each user will have their data segregated based on their username.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "users.txt", "vehicles.txt", "maintenance.txt"],
 
@@ -16,19 +16,19 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users: dict
+        -users: list
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class VehicleManager {
-        -vehicles: dict
-        +add_vehicle(make: str, model: str, year: int, mileage: int) bool
-        +get_vehicles() list
+        -vehicles: list
+        +add_vehicle(username: str, make: str, model: str, year: int, mileage: int) bool
+        +get_vehicles(username: str) list
     }
     class MaintenanceManager {
-        -maintenance_records: dict
-        +add_maintenance(vehicle_id: str, task: str, date: str) bool
-        +get_maintenance_history(vehicle_id: str) list
+        -maintenance_records: list
+        +add_maintenance(username: str, vehicle_id: int, task: str, date: str, status: str) bool
+        +get_maintenance_history(username: str) list
     }
 ",
 [/CONTENT]

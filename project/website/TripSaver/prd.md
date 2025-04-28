@@ -22,8 +22,8 @@ Develop a web application named 'Trip Saver' that helps users find the most cost
    - The system shall allow users to compare different transportation options based on distance, cost, and time.
 
 7. **Save Preferred Options**
-   - The system shall enable users to save their preferred transportation options for future reference.
+   - The system shall allow users to save their preferred transportation options for future reference.
 
 8. **User Logout**
-   - The system shall provide a logout functionality that returns users to the Login Page.
+   - The system shall provide a logout feature that returns users to the Login Page.
 [/OUTPUT]

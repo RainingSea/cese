@@ -1,130 +1,135 @@
 import os
+from flask import Flask, render_template, request, redirect, url_for
 
-class Main:
-    def main(self):
-        self.load_data()
-        self.show_login_page()
+app = Flask(__name__)
 
-    def load_data(self):
-        self.users = self.load_users()
-        self.tips = self.load_tips()
-        self.resources = self.load_resources()
-        self.forum_posts = self.load_forum_posts()
+class UserManager:
+    def __init__(self, users_file: str):
+        self.users_file = users_file
+        self.load_users()
 
     def load_users(self):
-        users = []
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
+        self.users = {}
+        if os.path.exists(self.users_file):
+            with open(self.users_file, 'r') as file:
                 for line in file:
                     username, password = line.strip().split('|')
-                    users.append(User(username, password))
-        return users
+                    self.users[username] = password
+
+    def login(self, username: str, password: str) -> bool:
+        return self.users.get(username) == password
+
+    def register(self, username: str, password: str) -> bool:
+        if username in self.users:
+            return False
+        with open(self.users_file, 'a') as file:
+            file.write(f"{username}|{password}\n")
+        self.users[username] = password
+        return True
+
+    def update_profile(self, username: str, new_data: dict) -> bool:
+        # Simplified for this example; would require more logic in a real app
+        return True
+
+class TipManager:
+    def __init__(self, tips_file: str):
+        self.tips_file = tips_file
+        self.load_tips()
 
     def load_tips(self):
-        tips = []
-        if os.path.exists('tips.txt'):
-            with open('tips.txt', 'r') as file:
-                for line in file:
-                    tips.append(Tip(line.strip()))
-        return tips
+        self.tips = []
+        if os.path.exists(self.tips_file):
+            with open(self.tips_file, 'r') as file:
+                self.tips = [line.strip() for line in file]
+
+    def get_tips(self) -> list:
+        return self.tips
+
+    def submit_tip(self, tip: str) -> bool:
+        with open(self.tips_file, 'a') as file:
+            file.write(f"{tip}\n")
+        self.tips.append(tip)
+        return True
+
+class ResourceManager:
+    def __init__(self, resources_file: str):
+        self.resources_file = resources_file
+        self.load_resources()
 
     def load_resources(self):
-        resources = []
-        if os.path.exists('resources.txt'):
-            with open('resources.txt', 'r') as file:
-                for line in file:
-                    resources.append(Resource(line.strip()))
-        return resources
+        self.resources = []
+        if os.path.exists(self.resources_file):
+            with open(self.resources_file, 'r') as file:
+                self.resources = [line.strip() for line in file]
 
-    def load_forum_posts(self):
-        forum_posts = []
-        if os.path.exists('forum.txt'):
-            with open('forum.txt', 'r') as file:
-                for line in file:
-                    forum_posts.append(ForumPost(line.strip()))
-        return forum_posts
+    def get_resources(self) -> list:
+        return self.resources
 
-    def show_login_page(self):
-        # Logic to display login page goes here
-        pass
-
-    def login(self):
-        # Logic for user login goes here
-        pass
-
-    def register(self):
-        # Logic for user registration goes here
-        pass
-
-    def submitTip(self):
-        # Logic for submitting a tip goes here
-        pass
-
-    def addResource(self):
-        # Logic for adding a resource goes here
-        pass
-
-    def viewForum(self):
-        # Logic for viewing forum posts goes here
-        pass
-
-    def updateProfile(self):
-        # Logic for updating user profile goes here
-        pass
-
-    def contactSupport(self):
-        # Logic for contacting support goes here
-        pass
-
-
-class User:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-
-    def createAccount(self):
-        # Logic to create an account goes here
+    def add_resource(self, resource: str) -> bool:
+        with open(self.resources_file, 'a') as file:
+            file.write(f"{resource}\n")
+        self.resources.append(resource)
         return True
 
-    def validateLogin(self, username, password):
-        return self.username == username and self.password == password
+class ForumManager:
+    def __init__(self, forum_file: str):
+        self.forum_file = forum_file
+        self.load_posts()
 
-    def updateProfile(self):
-        # Logic to update user profile goes here
+    def load_posts(self):
+        self.posts = []
+        if os.path.exists(self.forum_file):
+            with open(self.forum_file, 'r') as file:
+                self.posts = [line.strip() for line in file]
+
+    def get_posts(self) -> list:
+        return self.posts
+
+    def submit_post(self, post: str) -> bool:
+        with open(self.forum_file, 'a') as file:
+            file.write(f"{post}\n")
+        self.posts.append(post)
         return True
 
+@app.route('/')
+def login_page():
+    return render_template('login.html')
 
-class Tip:
-    def __init__(self, content):
-        self.content = content
+@app.route('/register', methods=['GET', 'POST'])
+def register_page():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.register(username, password):
+            return redirect(url_for('login_page'))
+    return render_template('register.html')
 
-    def submitTip(self):
-        # Logic to submit a tip goes here
-        return True
+@app.route('/home')
+def home_page():
+    return render_template('home.html')
 
-    def getAllTips(self):
-        return [tip.content for tip in Main().load_tips()]
+@app.route('/tips')
+def tips_page():
+    tips = tip_manager.get_tips()
+    return render_template('tips.html', tips=tips)
 
+@app.route('/resources')
+def resources_page():
+    resources = resource_manager.get_resources()
+    return render_template('resources.html', resources=resources)
 
-class Resource:
-    def __init__(self, url):
-        self.url = url
+@app.route('/forum')
+def forum_page():
+    posts = forum_manager.get_posts()
+    return render_template('forum.html', posts=posts)
 
-    def addResource(self):
-        # Logic to add a resource goes here
-        return True
+@app.route('/contact')
+def contact_page():
+    return render_template('contact.html')
 
-    def getAllResources(self):
-        return [resource.url for resource in Main().load_resources()]
-
-
-class ForumPost:
-    def __init__(self, content):
-        self.content = content
-
-    def addPost(self):
-        # Logic to add a forum post goes here
-        return True
-
-    def getAllPosts(self):
-        return [post.content for post in Main().load_forum_posts()]
+if __name__ == '__main__':
+    user_manager = UserManager('users.txt')
+    tip_manager = TipManager('tips.txt')
+    resource_manager = ResourceManager('resources.txt')
+    forum_manager = ForumManager('forum_posts.txt')
+    app.run(port=8329, debug=False)

@@ -1,18 +1,19 @@
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import time
 import subprocess
 
 class TestWishlistTrackerApp(unittest.TestCase):
 
     def setUp(self):
-        # Start the Flask application
+        # Start the application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8286/')  # Access the login page
+        self.driver.get('http://localhost:8458/') 
 
     def tearDown(self):
-        # Close the web driver session and the Flask application
+        # Close the web driver session and the application
         self.driver.quit()
         self.process.terminate()
 
@@ -21,10 +22,12 @@ class TestWishlistTrackerApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'username').send_keys(username)
         self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
+        time.sleep(1)  # Wait for the next page to load
 
     def test_registration(self):
-        # Test user registration functionality
-        self.driver.get('http://localhost:8286/register')  # Navigate to registration page
+        # Functionality 1: User Registration
+        self.driver.get('http://localhost:8458/register')
+        time.sleep(1)  # Wait for the registration page to load
 
         new_username = "new_user"
         new_password = "new_password"
@@ -33,112 +36,125 @@ class TestWishlistTrackerApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+        time.sleep(1)  # Wait for the next page to load
 
         # Verify the user is redirected to the login page
         self.assertIn("Login", self.driver.title)
 
         # Attempt to register with an existing username
-        self.driver.get('http://localhost:8286/register')  # Navigate to registration page again
+        self.driver.get('http://localhost:8458/register')
+        time.sleep(1)  # Wait for the registration page to load
         self.driver.find_element(By.NAME, 'username').send_keys("admin")  # Existing username
         self.driver.find_element(By.NAME, 'password').send_keys("admin123")
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+        time.sleep(1)  # Wait for the next page to load
 
-        # Verify the error message is displayed
-        self.assertIn("Username already exists!", self.driver.page_source)
+        # Verify error message for existing username
+        self.assertIn("Username already taken", self.driver.page_source)
 
     def test_login(self):
-        # Test user login functionality
+        # Functionality 2: User Login
+        self.driver.get('http://localhost:8458/')
         self.login("admin", "admin123")
 
         # Verify that the Dashboard Page has loaded
         self.assertIn("Dashboard", self.driver.title)
 
-        # Test invalid login
-        self.driver.get('http://localhost:8286/')  # Navigate to login page again
-        self.login("invalid_user", "wrong_password")
+        # Attempt to login with invalid credentials
+        self.driver.get('http://localhost:8458/')
+        self.login("admin", "wrongpassword")
+        time.sleep(1)  # Wait for the next page to load
 
-        # Verify the error message is displayed
-        self.assertIn("Invalid credentials!", self.driver.page_source)
+        # Verify error message for incorrect credentials
+        self.assertIn("Invalid credentials", self.driver.page_source)
 
     def test_add_items_to_wishlist(self):
-        # Test adding items to the wishlist
+        # Functionality 3: Add Items to Wishlist
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8286/dashboard')  # Navigate to dashboard
+        self.driver.get('http://localhost:8458/dashboard')
+        time.sleep(1)  # Wait for the dashboard to load
 
-        # Add an item to the wishlist
-        self.driver.find_element(By.NAME, 'item_name').send_keys("item3")
-        self.driver.find_element(By.NAME, 'description').send_keys("A new gadget")
-        self.driver.find_element(By.NAME, 'price').send_keys("29.99")
-        self.driver.find_element(By.NAME, 'add_item').click()
+        # Add a new item
+        self.driver.find_element(By.NAME, 'name').send_keys("New Laptop")
+        self.driver.find_element(By.NAME, 'description').send_keys("High-end gaming laptop")
+        self.driver.find_element(By.NAME, 'price').send_keys("1500.00")
+        self.driver.find_element(By.XPATH, '//button[text()="Add Item"]').click()
+        time.sleep(1)  # Wait for the item to be added
 
-        # Verify the item is added to the wishlist
-        self.assertIn("item3", self.driver.page_source)
+        # Verify that the item appears in the wishlist
+        self.assertIn("New Laptop", self.driver.page_source)
 
-        # Attempt to add an item with missing required fields
-        self.driver.find_element(By.NAME, 'item_name').clear()  # Clear item name
-        self.driver.find_element(By.NAME, 'add_item').click()
+        # Attempt to add an item with missing fields
+        self.driver.find_element(By.NAME, 'name').clear()  # Clear the name field
+        self.driver.find_element(By.NAME, 'description').send_keys("Missing name")
+        self.driver.find_element(By.NAME, 'price').send_keys("1000.00")
+        self.driver.find_element(By.XPATH, '//button[text()="Add Item"]').click()
+        time.sleep(1)  # Wait for the error message
 
-        # Verify the error message is displayed
-        self.assertIn("This field is required.", self.driver.page_source)
+        # Verify error message for missing fields
+        self.assertIn("All fields are required", self.driver.page_source)
 
     def test_view_wishlist(self):
-        # Test viewing the wishlist
+        # Functionality 4: View Wishlist
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8286/dashboard')  # Navigate to dashboard
+        self.driver.get('http://localhost:8458/dashboard')
+        time.sleep(1)  # Wait for the dashboard to load
 
         # Verify that the wishlist is displayed
-        self.assertIn("item1", self.driver.page_source)
-        self.assertIn("item2", self.driver.page_source)
-
-    def test_update_item_in_wishlist(self):
-        # Test updating an item in the wishlist
-        self.login("admin", "admin123")
-        self.driver.get('http://localhost:8286/dashboard')  # Navigate to dashboard
-
-        # Update an item
-        self.driver.find_element(By.XPATH, '//li[contains(text(), "item1")]').click()  # Select item1
-        self.driver.find_element(By.NAME, 'description').clear()
-        self.driver.find_element(By.NAME, 'description').send_keys("Updated description")
-        self.driver.find_element(By.NAME, 'price').clear()
-        self.driver.find_element(By.NAME, 'price').send_keys("19.99")
-        self.driver.find_element(By.NAME, 'add_item').click()  # Submit the update
-
-        # Verify the item is updated
-        self.assertIn("Updated description", self.driver.page_source)
+        self.assertIn("Gaming Laptop", self.driver.page_source)
 
     def test_remove_item_from_wishlist(self):
-        # Test removing an item from the wishlist
+        # Functionality 6: Remove Item from Wishlist
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8286/dashboard')  # Navigate to dashboard
+        self.driver.get('http://localhost:8458/dashboard')
+        time.sleep(1)  # Wait for the dashboard to load
 
         # Remove an item
-        self.driver.find_element(By.XPATH, '//li[contains(text(), "item1")]').click()  # Select item1
-        self.driver.find_element(By.NAME, 'remove_item').click()  # Assuming there's a remove button
+        self.driver.find_element(By.XPATH, '//button[text()="Remove"]').click()
+        time.sleep(1)  # Wait for the item to be removed
 
-        # Verify the item is removed
-        self.assertNotIn("item1", self.driver.page_source)
+        # Verify that the item is no longer in the wishlist
+        self.assertNotIn("Gaming Laptop", self.driver.page_source)
+
+    def test_logout(self):
+        # Functionality 7: User Logout
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        # Verify that the user is redirected to the Login Page
+        self.assertIn("Login", self.driver.title)
 
     def test_data_persistence(self):
-        # Test data persistence
+        # Functionality 8: Data Persistence
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8286/dashboard')  # Navigate to dashboard
+        self.driver.get('http://localhost:8458/dashboard')
+        time.sleep(1)  # Wait for the dashboard to load
 
         # Add an item to the wishlist
-        self.driver.find_element(By.NAME, 'item_name').send_keys("item4")
-        self.driver.find_element(By.NAME, 'description').send_keys("Another gadget")
-        self.driver.find_element(By.NAME, 'price').send_keys("39.99")
-        self.driver.find_element(By.NAME, 'add_item').click()
+        self.driver.find_element(By.NAME, 'name').send_keys("Persistent Item")
+        self.driver.find_element(By.NAME, 'description').send_keys("This item should persist")
+        self.driver.find_element(By.NAME, 'price').send_keys("200.00")
+        self.driver.find_element(By.XPATH, '//button[text()="Add Item"]').click()
+        time.sleep(1)  # Wait for the item to be added
 
-        # Logout
-        self.driver.get('http://localhost:8286/')  # Navigate to login page
+        # Logout and close the application
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        # Restart the application
+        self.process.terminate()
+        self.process = subprocess.Popen(['python', 'main.py'])
+        self.driver.get('http://localhost:8458/')
+        time.sleep(1)  # Wait for the application to start
 
         # Login again
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8286/dashboard')  # Navigate to dashboard
+        self.driver.get('http://localhost:8458/dashboard')
+        time.sleep(1)  # Wait for the dashboard to load
 
-        # Verify the previously added item is still present
-        self.assertIn("item4", self.driver.page_source)
+        # Verify that the previously added item is still present
+        self.assertIn("Persistent Item", self.driver.page_source)
 
 if __name__ == '__main__':
     unittest.main()

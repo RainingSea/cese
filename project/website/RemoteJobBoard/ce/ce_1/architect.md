@@ -1,34 +1,30 @@
 [CONTENT]
-"Implementation approach": "The application will be structured using a simple MVC (Model-View-Controller) architecture. The frontend will be developed using HTML for user interface components, while the backend will be implemented in Python to handle user authentication, job postings, and data management. The main interaction will occur through HTTP requests, with the backend processing data and returning appropriate HTML responses to the frontend.",
+"Implementation approach": "The web application 'RemoteJobBoard' will be structured using Python for the backend logic and HTML for the frontend. The application will consist of a main Python file (main.py) that handles user authentication, job posting, and data management. The HTML templates will be generated directly within the Python code to keep the architecture simple. The application will utilize local text files for data storage, ensuring easy data retrieval and management.",
 
-"UI design": "The user interface will consist of several key pages: the login page (with username and password fields), registration page (for new account creation), home page (displaying featured job listings), job listings page (showing all available jobs with an 'Apply' button), job posting page (for authorized users to enter job details), and profile page (displaying user information and options to edit). Each page will have a consistent layout with a navigation bar for easy access to different sections.",
+"UI design": "The user interface will consist of the following pages: a login page with fields for username and password, a registration page for new accounts, a home page displaying featured job listings, a job browsing page with a list of all jobs, a job posting page with forms for job details, and a profile page for user information. Navigation will be facilitated through buttons and links, ensuring a seamless user experience.",
 
-"Data Storage": "Data will be stored in local text files. User information will be stored in 'users.txt', job listings in 'jobs.txt', and applied jobs in 'applied_jobs.txt'. Each file will contain structured data in a simple format, such as JSON or CSV, to facilitate easy reading and writing.",
+"Data Storage": "Data will be stored in local text files. Different types of data will be organized into separate files. The following files will be used: 'users.txt' for storing user credentials and profiles, 'jobs.txt' for job listings, and 'applied_jobs.txt' for tracking job applications. Each file will contain structured data in a simple format, such as JSON or CSV, for easy manipulation.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/job_listings.html", "templates/profile.html", "templates/job_posting.html", "users.txt", "jobs.txt", "applied_jobs.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/browse_jobs.html", "templates/job_posting.html", "templates/profile.html", "users.txt", "jobs.txt", "applied_jobs.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -username: str
-        -password: str
-        -email: str
-        -applied_jobs: list
-        +register() bool
-        +login() bool
-        +edit_profile() bool
-    }
-    class Job {
-        -title: str
-        -company: str
-        -description: str
-        +post_job() bool
-        +apply_job(user: User) bool
-    }
     class Main {
-        -User user
-        -Job job
+        -UserManager user_manager
+        -JobManager job_manager
         +main() str
+    }
+    class UserManager {
+        -users: dict
+        +register(username: str, password: str) bool
+        +login(username: str, password: str) bool
+        +get_user_profile(username: str) dict
+    }
+    class JobManager {
+        -jobs: list
+        +post_job(title: str, company: str, description: str) bool
+        +get_all_jobs() list
+        +apply_for_job(username: str, job_id: int) bool
     }
 ",
 [/CONTENT]

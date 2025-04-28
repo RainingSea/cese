@@ -1,19 +1,18 @@
 [CONTENT]
-"Implementation approach": "The web application 'DailyHealthTips' will be structured using Python with a simple web server setup. The application will utilize the built-in HTTP server from Python's http.server module to serve HTML pages. The core functionalities will be implemented in a single Python file, which will handle user authentication, display daily health tips, manage tips archives, and collect user feedback. The application will follow a straightforward flow: users will start at the login page, and upon successful login, they will be directed to the daily tips page.",
+"Implementation approach": "The application will be developed using Python for the backend logic and HTML for the frontend. The Flask framework will be utilized to handle web requests and serve HTML templates. The application will consist of routes for login, registration, viewing health tips, and submitting feedback. Local text files will be used for data storage, ensuring simplicity and ease of access.",
 
-"UI design":"The user interface will consist of the following components: \n1. **Login Page**: A form for users to enter their username and password with a link to the registration page. \n2. **Registration Page**: A form for new users to create an account. \n3. **Daily Tips Display**: A section showing the current daily health tip with buttons to navigate to the previous and next tips. \n4. **Tips Archive**: A searchable list of all historical tips. \n5. **Feedback Submission Form**: A simple form for users to submit feedback on the tips. These components will interact through hyperlinks and form submissions to navigate between pages.",
+"UI design": "The user interface will consist of a login page, a registration page, a daily tips page, an archive page for historical tips, and a feedback submission form. The layout will be simple and user-friendly, with navigation links to switch between different sections of the application. Each page will have a consistent header and footer for easy navigation.",
 
-"Data Storage": "Data will be stored in local text files to maintain simplicity and avoid the complexity of a database. User accounts will be stored in 'users.txt', daily health tips in 'tips.txt', and feedback in 'feedback.txt'. Each file will contain structured data, making it easy to read and write using Python's file handling capabilities. This approach allows for lightweight data management without requiring a SQL database.",
+"Data Storage": "Data will be stored in local text files. Different types of data will be organized into separate `.txt` files: 'users.txt' for user account information, 'tips.txt' for daily health tips, and 'feedback.txt' for user feedback. This structured approach will facilitate easy data retrieval and management through simple file manipulations in Python, ensuring the application remains light and efficient without the need for a SQL database.",
 
 "File list": ["main.py", "templates/login.html", "templates/register.html", "templates/tips.html", "templates/archive.html", "templates/feedback.html", "users.txt", "tips.txt", "feedback.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class DailyHealthTipsApp {
+    class Main {
         -UserManager user_manager
         -TipManager tip_manager
-        -FeedbackManager feedback_manager
-        +run() void
+        +main() str
     }
     class UserManager {
         -List users

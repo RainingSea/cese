@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The 'Wishlist Tracker' web application will be developed using Python with Flask as the web framework for handling HTTP requests and routing. The frontend will be built using HTML for structure and basic CSS for styling. The application will be lightweight, focusing on core functionalities without complex dependencies, ensuring ease of deployment and maintenance.",
+"Implementation approach": "The web application will be structured using Flask as the web framework. The main components include user registration, login, and wishlist management functionalities. The flow will start with user input on the registration or login page, which will be processed by the Flask backend. Upon successful authentication, users will be directed to the dashboard where they can add, view, update, or remove items from their wishlist. Data will be processed and stored in local text files, ensuring a lightweight and efficient application.",
 
-"UI design": "The user interface will consist of three main pages: Registration Page, Login Page, and Dashboard Page. The Registration Page will have fields for username and password, along with a submit button. The Login Page will mirror this layout. The Dashboard Page will display the user's wishlist items in a list format, with options to add new items, update existing ones, and remove items. Each item will have buttons for updating and removing, along with a feedback area for user actions. The layout will be simple and intuitive, ensuring ease of navigation.",
+"UI design":"The user interface will consist of the following components: 1) Registration Page with input fields for username and password, and a submit button. 2) Login Page with similar input fields and a submit button. 3) Dashboard Page with an input form to add items (item name, description, desired price), a button to submit the form, and a section to display the current wishlist items with options to update or remove each item. Alerts or notifications will be displayed for successful operations or errors.",
 
-"Data Storage": "Data will be stored in local text files. User data will be stored in 'users.txt', and wishlist items will be stored in 'wishlist_<username>.txt' files, where <username> corresponds to the registered username. Each line in the wishlist file will represent an item in the format: 'item_name|description|desired_price'. This structure allows for easy parsing and management of data.",
+"Data Storage":"Data will be stored in local text files. User account information will be stored in 'users.txt', and wishlist items will be stored in 'wishlist.txt'. Each line in 'users.txt' will contain a username and password, while 'wishlist.txt' will store item details in the format: 'item_name|description|desired_price'. This structure allows for easy retrieval and management of data through simple file manipulations in Python.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "users.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "users.txt", "wishlist.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -15,16 +15,15 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -String filename
+        -str filename
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +user_exists(username: str) bool
     }
     class WishlistManager {
-        -String filename
-        +add_item(item_name: str, description: str, price: float) bool
+        -str filename
+        +add_item(item_name: str, description: str, desired_price: float) bool
         +view_items() list
-        +update_item(old_name: str, new_name: str, new_description: str, new_price: float) bool
+        +update_item(item_name: str, new_description: str, new_price: float) bool
         +remove_item(item_name: str) bool
     }
 ",

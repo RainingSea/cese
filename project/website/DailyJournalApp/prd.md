@@ -14,7 +14,7 @@ Develop a web application called "Daily Journal App" that allows users to create
 3. **Dashboard Functionality**
    - Users shall be able to view a list of journal entries with titles and dates on the Dashboard Page.
 
-4. **Journal Entry Creation**
+4. **Creating Journal Entries**
    - Users shall be able to create a new journal entry by navigating to the New Entry Page and providing a title and content.
    - Users shall be able to save the new journal entry using the Save Entry button on the New Entry Page.
 

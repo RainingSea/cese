@@ -1,123 +1,77 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-import os
+from flask import Flask, render_template, request, redirect, url_for, session
+from user_manager import UserManager
+from item_manager import ItemManager
+import logging
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = 'your_secret_key'  # Required for session management
+user_manager = UserManager('users.txt')
+item_manager = ItemManager('items.txt')
 
-class User:
-    def __init__(self, username: str, password: str):
-        self.username = username
-        self.password = password
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
-    def register(self):
-        with open('users.txt', 'a') as f:
-            f.write(f"{self.username}|{self.password}\n")
-
-    def login(self) -> bool:
-        with open('users.txt', 'r') as f:
-            users = f.readlines()
-            for user in users:
-                u, p = user.strip().split('|')
-                if u == self.username and p == self.password:
-                    return True
-        return False
-
-class Item:
-    def __init__(self, name: str, description: str, price: float):
-        self.name = name
-        self.description = description
-        self.price = price
-
-    def create_listing(self):
-        with open('items.txt', 'a') as f:
-            f.write(f"{self.name}|{self.description}|{self.price}\n")
-
-    def get_details(self) -> str:
-        return f"Name: {self.name}, Description: {self.description}, Price: {self.price}"
-
-class ItemManager:
-    def __init__(self):
-        self.items = []
-
-    def load_items(self):
-        self.items.clear()  # Clear existing items to avoid duplicates
-        if os.path.exists('items.txt'):
-            with open('items.txt', 'r') as f:
-                items = f.readlines()
-                for item in items:
-                    name, description, price = item.strip().split('|')
-                    self.items.append(Item(name, description, float(price)))
-
-    def get_items(self):
-        return self.items
-
-    def get_item_details(self, item_id: int) -> Item:
-        return self.items[item_id]
-
-class UserManager:
-    def __init__(self):
-        self.users = []
-
-    def load_users(self):
-        self.users.clear()  # Clear existing users to avoid duplicates
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as f:
-                users = f.readlines()
-                for user in users:
-                    username, password = user.strip().split('|')
-                    self.users.append(User(username, password))
-
-user_manager = UserManager()
-user_manager.load_users()
-item_manager = ItemManager()
-item_manager.load_items()
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User(username, password)
-        if user.login():
-            return redirect(url_for('home'))
-        else:
-            flash('Invalid username or password')
     return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def handle_login():
+    username = request.form['username']
+    password = request.form['password']
+    if user_manager.login(username, password):
+        session['username'] = username  # Store username in session
+        logging.info(f"User '{username}' logged in successfully.")
+        return redirect(url_for('home'))
+    logging.warning(f"Failed login attempt for user '{username}'.")
+    return render_template('login.html', error="Invalid username or password.")
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        new_user = User(username, password)
-        new_user.register()
-        user_manager.load_users()  # Reload users after registration
-        flash('Registration successful! Please log in.')
-        return redirect(url_for('login'))
+        if user_manager.register(username, password):
+            logging.info(f"User '{username}' registered successfully.")
+            return redirect(url_for('login'))
+        logging.warning(f"Registration failed: Username '{username}' already exists.")
+        return render_template('registration.html', error="Username already exists.")
     return render_template('registration.html')
 
-@app.route('/home')
+@app.route('/home', methods=['GET'])
 def home():
+    if 'username' not in session:  # Check if user is logged in
+        return redirect(url_for('login'))
     items = item_manager.get_items()
     return render_template('home.html', items=items)
 
 @app.route('/listing', methods=['GET', 'POST'])
 def listing():
+    if 'username' not in session:  # Check if user is logged in
+        return redirect(url_for('login'))
     if request.method == 'POST':
-        name = request.form['name']
+        item_name = request.form['item_name']
         description = request.form['description']
         price = float(request.form['price'])
-        new_item = Item(name, description, price)
-        new_item.create_listing()
-        item_manager.load_items()  # Reload items after listing a new item
-        flash('Item listed successfully!')
-        return redirect(url_for('home'))
+        if item_manager.add_item(item_name, description, price):
+            logging.info(f"Item '{item_name}' added successfully.")
+            return redirect(url_for('home'))
+        logging.warning(f"Failed to add item '{item_name}'.")
     return render_template('listing.html')
 
-@app.route('/item/<int:item_id>')
-def item_details(item_id):
-    item = item_manager.get_item_details(item_id)
-    return render_template('item_details.html', item=item)
+@app.route('/item/<item_name>', methods=['GET'])
+def item_details(item_name):
+    details = item_manager.get_item_details(item_name)
+    if not details:
+        logging.warning(f"Item '{item_name}' not found.")
+        return redirect(url_for('home'))
+    return render_template('item_details.html', details=details)
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)  # Remove username from session
+    logging.info("User logged out successfully.")
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(port=8213, debug=False)
+    app.run(port=8381, debug=False)

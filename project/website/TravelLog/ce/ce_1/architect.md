@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The Travel_Log web application will be developed using HTML for the frontend and Python for the backend. The application will be structured with a main script (main.py) handling user interactions, data storage, and file manipulations. The core features will be implemented through functions that handle user registration, login, entry creation, viewing, editing, deleting, sharing, and searching. The application will utilize a simple file-based approach for data storage, ensuring easy access and management of user data without the need for a database.",
+"Implementation approach": "The 'Travel_Log' web application will be implemented using HTML for the front-end interface and Python for the back-end logic. The application will facilitate user interactions through forms for registration and login, and text areas for creating and managing travel journal entries. Data will be managed through local text files, ensuring that user accounts, journal entries, and other relevant information are stored in a structured manner for easy access and manipulation.",
 
-"UI design": "The user interface will consist of the following pages: \n1. **Registration Page**: A form with input fields for username and password, and a submit button to register. \n2. **Login Page**: A form with input fields for username and password, and a submit button to log in. \n3. **Journal Entry Page**: A form for creating new entries with fields for destination, dates, activities, photos (file upload), and personal reflections. This page will also display past entries with options to edit or delete. \n4. **Search Page**: A search bar to input queries for specific entries or destinations. \n5. **Share Page**: A display area for selected entries with a shareable link.",
+"UI design": "The user interface will consist of several key components: a Registration Page with a form for username and password input, a Login Page with similar input fields, a main dashboard for creating and viewing journal entries, and buttons for editing, deleting, and sharing entries. The layout will be organized with a navigation bar for easy access to different functionalities, and forms will be styled for user-friendly interaction.",
 
-"Data Storage": "Data will be stored in local text files. The following files will be used: \n1. **users.txt**: To store user account information (username and password). \n2. **entries.txt**: To store travel journal entries, each entry will be serialized in a structured format (e.g., JSON). \nData will be managed through simple file read/write operations in Python, allowing for easy retrieval and updates.",
+"Data Storage": "Data will be stored in local text files, with separate files designated for different types of information. User accounts will be stored in 'users.txt', and travel journal entries will be stored in 'entries.txt'. Each entry will be formatted in a structured manner, allowing for easy parsing and retrieval. This method aligns with the project's requirements for lightweight and efficient data management.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/journal_entry.html", "templates/search.html", "templates/share.html", "users.txt", "entries.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "users.txt", "entries.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -18,14 +18,16 @@ classDiagram
         -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
+        +load_users() void
+        +save_users() void
     }
     class EntryManager {
         -entries: list
-        +create_entry(destination: str, date: str, activities: str, photos: list, reflections: str) bool
-        +view_entries() list
-        +edit_entry(entry_id: int, updated_data: dict) bool
-        +delete_entry(entry_id: int) bool
-        +search_entries(query: str) list
+        +create_entry(destination: str, dates: str, activities: str, photos: str, reflections: str) void
+        +edit_entry(entry_id: int, updated_entry: dict) void
+        +delete_entry(entry_id: int) void
+        +load_entries() void
+        +save_entries() void
     }
 ",
 [/CONTENT]

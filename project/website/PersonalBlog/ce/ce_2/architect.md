@@ -1,35 +1,31 @@
 [CONTENT]
-"Implementation approach": "The 'PersonalBlog' web application will be implemented using Python for the backend and HTML for the frontend. The application will be structured in a simple manner, utilizing local text files for data storage instead of a database. This approach ensures ease of use and lightweight operation while allowing users to manage their blog entries effectively.",
+"Implementation approach": "The application will be structured as a single-page web application using Python for backend logic and HTML for frontend rendering. User authentication, blog post management, and file handling will be implemented using simple Python functions. The application will serve HTML pages for each feature, and user actions will be processed through form submissions that trigger corresponding Python functions.",
 
-"UI design": "The user interface will consist of the following pages: \n1. **Login Page**: A form to enter username and password, with a login button and a link to the registration page. \n2. **Registration Page**: A form to input username, password, and email, with a registration button. \n3. **Main Blog Page**: A list of blog posts with options to create a new post or view existing posts. \n4. **New Post Page**: A form to enter the title and content of the new post, with a submit button. \n5. **View Post Page**: Displays the full content of a selected post with options to edit or delete the post, and a back button to return to the main blog page. \n6. **Edit Post Page**: A form to modify the title and content of the existing post, with a submit button and a back button.",
+"UI design":"The application will consist of the following key UI components: 1. Login Page: Input fields for username and password, and a submit button. 2. Registration Page: Input fields for username, password, and email, and a submit button. 3. Main Blog Page: A list of blog posts with links to create a new post and view existing posts. 4. New Post Page: Input fields for title and content, and a submit button. 5. View Post Page: Display the full content of a selected post with options to edit or delete. 6. Edit Post Page: Input fields for title and content, and a submit button. 7. Navigation buttons to return to the Main Blog Page from other pages.",
 
-"Data Storage": "All data will be stored in local text files. The following files will be used: \n1. **users.txt**: Stores user account information (username, password, email). \n2. **posts.txt**: Stores blog posts (post_id, title, content, author). \nEach line in these files will represent a single record, with fields separated by a delimiter (e.g., comma). This structure allows for easy retrieval and management of data.",
+"Data Storage":"Data will be stored in local text files. User data will be stored in 'users.txt' and blog posts in 'posts.txt'. Each line in 'users.txt' will contain 'username,password,email', while 'posts.txt' will store each post as 'username,title,content'. This structure allows for easy reading and writing of user and post data without the need for a SQL database.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/main_blog.html", "templates/new_post.html", "templates/view_post.html", "templates/edit_post.html", "users.txt", "posts.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -String username
-        -String password
-        -String email
+    class Main {
+        -UserManager user_manager
+        -PostManager post_manager
+        +main() str
+    }
+    class UserManager {
+        -String user_file
         +register(username: str, password: str, email: str) bool
         +login(username: str, password: str) bool
     }
-    class BlogPost {
-        -int post_id
-        -String title
-        -String content
-        -String author
-        +create_post(title: str, content: str, author: str) bool
-        +edit_post(post_id: int, title: str, content: str) bool
-        +delete_post(post_id: int) bool
-        +view_post(post_id: int) str
+    class PostManager {
+        -String post_file
+        +create_post(username: str, title: str, content: str) bool
+        +edit_post(title: str, content: str) bool
+        +delete_post(title: str) bool
+        +get_posts(username: str) List
+        +get_post(title: str) str
     }
-    class Main {
-        +main() str
-    }
-    User -- Main
-    BlogPost -- Main
 ",
 [/CONTENT]

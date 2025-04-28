@@ -10,20 +10,20 @@ Develop a web application named 'Travel_Log' that acts as a digital travel journ
    - The system shall provide a Login Page where users can log in to their account by entering a username and password.
 
 3. Create Travel Journal Entries
-   - The system shall allow users to create and save travel journal entries, including details such as destination, dates, activities, photos, and personal reflections.
+   - The system shall allow users to create and save travel journal entries that include details such as destination, dates, activities, photos, and personal reflections.
 
 4. View and Organize Entries
-   - The system shall allow users to view and organize past entries by destination, date, or category.
+   - The system shall enable users to view and organize their past entries by destination, date, or category.
 
 5. Edit or Delete Entries
    - The system shall allow users to edit or delete their travel entries.
 
 6. Share Travel Entries
-   - The system shall allow users to share selected travel entries with friends and family through a shareable link or directly on the platform.
+   - The system shall provide functionality for users to share selected travel entries with friends and family through a shareable link or directly on the platform.
 
-7. Search Entries
+7. Search Functionality
    - The system shall allow users to search for specific entries or destinations.
 
 8. User Logout
-   - The system shall allow users to log out of their account, returning to the Login Page.
+   - The system shall provide a logout option for users to log out of their account, returning to the Login Page.
 [/OUTPUT]

@@ -1,107 +1,93 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, flash
 import os
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = 'your_secret_key'
 
 class UserManager:
     def __init__(self):
-        self.users = {}
-        self.load_users()
+        self.users = self.load_users()
+
+    def load_users(self):
+        if not os.path.exists('users.txt'):
+            return []
+        with open('users.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
     def register(self, username: str, password: str) -> bool:
-        if username in self.users:
+        if any(user[0] == username for user in self.users):
             return False
-        self.users[username] = password
-        self.save_users()
+        self.users.append([username, password])
+        with open('users.txt', 'a') as file:
+            file.write(f"{username}|{password}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
-        if username in self.users and self.users[username] == password:
-            session['username'] = username
-            return True
+        for user in self.users:
+            if user[0] == username and user[1] == password:
+                session['username'] = username
+                return True
         return False
 
-    def load_users(self) -> None:
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                for line in file:
-                    username, password = line.strip().split('|')
-                    self.users[username] = password
-
-    def save_users(self) -> None:
-        with open('users.txt', 'w') as file:
-            for username, password in self.users.items():
-                file.write(f"{username}|{password}\n")
+    def logout(self) -> None:
+        session.pop('username', None)
 
 class EntryManager:
     def __init__(self):
-        self.entries = []
-        self.load_entries()
+        self.entries = self.load_entries()
+
+    def load_entries(self):
+        if not os.path.exists('entries.txt'):
+            return []
+        with open('entries.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
     def create_entry(self, username: str, destination: str, dates: str, activities: str, photos: str, reflections: str) -> None:
-        entry_id = len(self.entries) + 1
-        entry = {
-            'id': entry_id,
-            'username': username,
-            'destination': destination,
-            'dates': dates,
-            'activities': activities,
-            'photos': photos,
-            'reflections': reflections
-        }
+        entry = [username, destination, dates, activities, photos, reflections]
         self.entries.append(entry)
-        self.save_entries()
+        with open('entries.txt', 'a') as file:
+            file.write('|'.join(entry) + '\n')
 
-    def load_entries(self) -> None:
-        if os.path.exists('entries.txt'):
-            with open('entries.txt', 'r') as file:
-                for line in file:
-                    entry_data = line.strip().split('|')
-                    entry = {
-                        'id': int(entry_data[0]),
-                        'username': entry_data[1],
-                        'destination': entry_data[2],
-                        'dates': entry_data[3],
-                        'activities': entry_data[4],
-                        'photos': entry_data[5],
-                        'reflections': entry_data[6]
-                    }
-                    self.entries.append(entry)
+    def view_entries(self, username: str) -> list:
+        return [entry for entry in self.entries if entry[0] == username]
+
+    def edit_entry(self, entry_id: int, new_data: dict) -> None:
+        if 0 <= entry_id < len(self.entries):
+            self.entries[entry_id] = [
+                new_data.get('username', self.entries[entry_id][0]),
+                new_data.get('destination', self.entries[entry_id][1]),
+                new_data.get('dates', self.entries[entry_id][2]),
+                new_data.get('activities', self.entries[entry_id][3]),
+                new_data.get('photos', self.entries[entry_id][4]),
+                new_data.get('reflections', self.entries[entry_id][5]),
+            ]
+            self.save_entries()
+
+    def delete_entry(self, entry_id: int) -> None:
+        if 0 <= entry_id < len(self.entries):
+            del self.entries[entry_id]
+            self.save_entries()
+
+    def search_entries(self, query: str) -> list:
+        return [entry for entry in self.entries if query.lower() in entry[1].lower()]
 
     def save_entries(self) -> None:
         with open('entries.txt', 'w') as file:
             for entry in self.entries:
-                file.write(f"{entry['id']}|{entry['username']}|{entry['destination']}|{entry['dates']}|{entry['activities']}|{entry['photos']}|{entry['reflections']}\n")
-
-    def edit_entry(self, entry_id: int, updated_data: dict) -> bool:
-        for entry in self.entries:
-            if entry['id'] == entry_id:
-                entry.update(updated_data)
-                self.save_entries()
-                return True
-        return False
-
-    def delete_entry(self, entry_id: int) -> bool:
-        for entry in self.entries:
-            if entry['id'] == entry_id:
-                self.entries.remove(entry)
-                self.save_entries()
-                return True
-        return False
-
-    def search_entries(self, keyword: str) -> list:
-        results = [entry for entry in self.entries if keyword.lower() in entry['destination'].lower()]
-        return results if results else []
-
-    def view_entries(self) -> list:
-        return self.entries
+                file.write('|'.join(entry) + '\n')
 
 user_manager = UserManager()
 entry_manager = EntryManager()
 
-@app.route('/')
-def login_page():
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            return redirect('/dashboard')
+        else:
+            flash('Invalid credentials, please try again.')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -110,28 +96,23 @@ def register():
         username = request.form['username']
         password = request.form['password']
         if user_manager.register(username, password):
-            return redirect(url_for('login_page'))
+            flash('Registration successful! Please log in.')
+            return redirect('/')
         else:
-            return "Registration failed. Username already exists."
-    return render_template('registration.html')
+            flash('Username already exists, please choose another.')
+    return render_template('register.html')
 
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.form['username']
-    password = request.form['password']
-    if user_manager.login(username, password):
-        return redirect(url_for('entry_creation'))
-    return "Login failed. Invalid credentials."
-
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login_page'))
-
-@app.route('/entry_creation', methods=['GET', 'POST'])
-def entry_creation():
+@app.route('/dashboard')
+def dashboard():
     if 'username' not in session:
-        return redirect(url_for('login_page'))
+        return redirect('/')
+    entries = entry_manager.view_entries(session['username'])
+    return render_template('dashboard.html', entries=entries)
+
+@app.route('/journal_entry', methods=['GET', 'POST'])
+def journal_entry():
+    if 'username' not in session:
+        return redirect('/')
     if request.method == 'POST':
         destination = request.form['destination']
         dates = request.form['dates']
@@ -139,39 +120,14 @@ def entry_creation():
         photos = request.form['photos']
         reflections = request.form['reflections']
         entry_manager.create_entry(session['username'], destination, dates, activities, photos, reflections)
-        return redirect(url_for('entry_display'))
-    return render_template('entry_creation.html')
+        flash('Entry created successfully!')
+        return redirect('/dashboard')
+    return render_template('journal_entry.html')
 
-@app.route('/entry_display')
-def entry_display():
-    if 'username' not in session:
-        return redirect(url_for('login_page'))
-    entries = entry_manager.view_entries()
-    return render_template('entry_display.html', entries=entries)
-
-@app.route('/edit_entry/<int:entry_id>', methods=['GET', 'POST'])
-def edit_entry(entry_id):
-    if 'username' not in session:
-        return redirect(url_for('login_page'))
-    entry = next((entry for entry in entry_manager.view_entries() if entry['id'] == entry_id), None)
-    if request.method == 'POST':
-        updated_data = {
-            'destination': request.form['destination'],
-            'dates': request.form['dates'],
-            'activities': request.form['activities'],
-            'photos': request.form['photos'],
-            'reflections': request.form['reflections']
-        }
-        if entry_manager.edit_entry(entry_id, updated_data):
-            return redirect(url_for('entry_display'))
-        return "Edit failed."
-    return render_template('edit_entry.html', entry=entry)
-
-@app.route('/delete_entry/<int:entry_id>', methods=['POST'])
-def delete_entry(entry_id):
-    if entry_manager.delete_entry(entry_id):
-        return redirect(url_for('entry_display'))
-    return "Delete failed."
+@app.route('/logout')
+def logout():
+    user_manager.logout()
+    return redirect('/')
 
 if __name__ == '__main__':
-    app.run(port=8269, debug=False)
+    app.run(port=8441, debug=False)

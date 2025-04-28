@@ -1,39 +1,46 @@
 [CONTENT]
 1. **Required packages**: 
-   - Flask
-   - Jinja2
-   - Werkzeug (for session management)
+   - Flask: For web development and handling routing.
+   - Flask-Session: For managing user sessions.
+   - os: For file operations.
 
 2. **Required Other language third-party packages**: 
-   - None
+   - Bootstrap: For responsive front-end design.
+   - jQuery: For DOM manipulation and AJAX requests.
 
 3. **Logic Analysis**: 
    - **main.py**: 
-     - `Main`: Main application class that initializes the user manager and search engine.
-     - `main()`: Entry point for running the application.
+     - `Main`: Main application class to initialize the app and run it.
    - **UserManager**: 
-     - `register(username: str, password: str)`: Method to register a new user.
-     - `login(username: str, password: str)`: Method to log in an existing user.
-   - **SearchEngine**: 
-     - `search(query: str)`: Method to search for books based on the user's query.
-     - `get_book_details(book_id: str)`: Method to retrieve detailed information about a specific book.
-   - **Book**: 
-     - `to_json()`: Method to convert book details to JSON format for easy handling.
+     - `register(username: str, password: str)`: Registers a new user.
+     - `login(username: str, password: str)`: Authenticates a user.
+   - **BookManager**: 
+     - `search(query: str)`: Searches for books based on the query.
+     - `get_book_details(title: str)`: Retrieves detailed information about a specific book.
+     - `add_to_reading_list(username: str, book_title: str)`: Adds a book to the user's reading list.
+     - `get_reading_list(username: str)`: Retrieves the user's reading list.
+   - **HTML Templates**: 
+     - `login.html`: Contains the login form.
+     - `registration.html`: Contains the registration form.
+     - `dashboard.html`: Contains the search bar and displays search results.
+     - `book_details.html`: Displays detailed information about a selected book.
+     - `reading_list.html`: Displays the user's reading list.
 
 4. **Task list**: 
-   - `main.py`
-   - `templates/registration.html`
-   - `templates/login.html`
-   - `templates/dashboard.html`
-   - `templates/book_details.html`
-   - `templates/reading_list.html`
-   - `users.txt`
-   - `books.txt`
+   - main.py
+   - templates/login.html
+   - templates/registration.html
+   - templates/dashboard.html
+   - templates/book_details.html
+   - templates/reading_list.html
+   - users.txt
+   - books.txt
+   - reading_list.txt
 
 5. **Shared Knowledge**: 
    - Follow PEP 8 coding standards for Python code.
-   - Use comments and docstrings to document classes and methods.
-   - Maintain a consistent naming convention for variables and functions.
-   - Ensure that HTML templates are clean and follow semantic HTML practices.
-   - Regularly commit changes to version control to track progress and changes.
+   - Organize HTML templates in a structured manner for easy maintenance.
+   - Use comments in the code to explain complex logic and functions.
+   - Ensure that user input is validated to prevent errors and security issues.
+   - Regularly back up the text files to prevent data loss.
 [/CONTENT]

@@ -1,16 +1,17 @@
 [CONTENT]
-"Implementation approach": "The software will be implemented using Python with the Natural Language Toolkit (nltk) for natural language processing tasks, such as summarization and keyword extraction. The user profile management will utilize simple file handling to read and write user preferences to text files. The ranking algorithm will be implemented using a basic scoring system based on keyword matches between user preferences and news articles. The main application logic will reside in 'main.py', while utility functions will be in 'tools.py'.",
+"Implementation approach": "The Headlinr application will be developed using Python for the backend logic and HTML for the frontend interface. Natural Language Processing (NLP) techniques will be employed using libraries like NLTK or spaCy to analyze news articles and generate concise summaries. A simple ranking algorithm will prioritize news articles based on user-defined preferences, ensuring personalized content delivery. User profiles will be managed through local text files, allowing for easy customization of news topics and sources.",
 
-"UI design": "The user interface will consist of several HTML templates organized as follows: a login page (login.html) for user authentication, a profile management page (profile.html) for setting preferences, a news browsing page (news.html) displaying personalized summaries, a bookmarking section (bookmarks.html) for saved articles, and a feedback form (feedback.html) for user input. Each page will have navigation links to ensure a user-friendly experience.",
+"UI design": "The user interface will consist of several components: a profile management section for users to set their preferences, a news browsing area displaying personalized summaries, a bookmarking feature allowing users to save articles, and sharing options integrated with social media platforms. Each component will be accessible from a main dashboard, ensuring a cohesive user experience.",
 
-"Data Storage": "Data will be stored in local text files, with separate files for different types of data. The following files will be used: 'users.txt' for storing user profiles and preferences, 'articles.txt' for storing news articles, and 'bookmarks.txt' for storing user bookmarks.",
+"Data Storage": "Data will be stored in local text files. User profiles will be saved in 'users.txt', news articles in 'articles.txt', and bookmarks in 'bookmarks.txt'. Each file will contain structured data, with each entry separated by new lines for easy retrieval and manipulation.",
 
-"File list": ["main.py", "tools.py", "templates/login.html", "templates/profile.html", "templates/news.html", "templates/bookmarks.html", "templates/feedback.html", "users.txt", "articles.txt", "bookmarks.txt"],
+"File list": ["main.py", "templates/index.html", "templates/profile.html", "templates/news.html", "users.txt", "articles.txt", "bookmarks.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -SearchEngine search_engine
+        -UserProfile user_profile
         +main() str
     }
     class SearchEngine {
@@ -22,16 +23,13 @@ classDiagram
     class UserProfile {
         -preferences
         +load_profile() dict
-        +save_profile(preferences: dict) void
+        +save_profile() void
     }
-    class Article {
-        -content
-        -summary
-        +generate_summary() str
-    }
-    class Ranking {
-        -user_preferences
-        +rank_articles(articles: list) list
+    class BookmarkManager {
+        -bookmarks
+        +add_bookmark(article_id: str) void
+        +remove_bookmark(article_id: str) void
+        +load_bookmarks() list
     }
 ",
 [/CONTENT]

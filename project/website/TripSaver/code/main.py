@@ -1,129 +1,122 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_httpauth import HTTPBasicAuth
+from flask import Flask, render_template, request, redirect, session, url_for, escape
+from datetime import datetime
 import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-auth = HTTPBasicAuth()
 
 class UserManager:
-    def __init__(self, users_file: str):
-        self.users_file = users_file
-        self.load_users()
+    def __init__(self):
+        self.users = self.load_users()
 
     def load_users(self):
-        self.users = {}
-        if os.path.exists(self.users_file):
-            with open(self.users_file, 'r') as file:
-                for line in file:
-                    username, password = line.strip().split('|')
-                    self.users[username] = password
+        if not os.path.exists('users.txt'):
+            return []
+        with open('users.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
-    def register(self, username: str, password: str) -> bool:
-        if self.check_duplicate(username):
-            return False
-        with open(self.users_file, 'a') as file:
-            file.write(f"{username}|{password}\n")
-        self.users[username] = password
-        return True
+    def register(self, username: str, password: str) -> str:
+        if any(user[0] == username for user in self.users):
+            return "Username already exists"  # Username already exists
+        self.users.append([username, password])
+        self.save_users()
+        return "Registration successful"
 
-    def login(self, username: str, password: str) -> bool:
-        return self.users.get(username) == password
+    def save_users(self):
+        with open('users.txt', 'w') as file:
+            for user in self.users:
+                file.write('|'.join(user) + '\n')
 
-    def check_duplicate(self, username: str) -> bool:
-        return username in self.users
+    def login(self, username: str, password: str) -> str:
+        if any(user[0] == username and user[1] == password for user in self.users):
+            session['username'] = username
+            return "Login successful"
+        return "Invalid credentials"
+
+    def logout(self):
+        session.pop('username', None)
+
+    def is_logged_in(self) -> bool:
+        return 'username' in session
 
 class TripManager:
-    def __init__(self, trips_file: str):
-        self.trips_file = trips_file
-        self.load_trips()
+    def __init__(self):
+        self.trips = self.load_trips()
 
     def load_trips(self):
-        self.trips = []
-        if os.path.exists(self.trips_file):
-            with open(self.trips_file, 'r') as file:
-                for line in file:
-                    self.trips.append(line.strip().split(':'))
+        if not os.path.exists('trips.txt'):
+            return []
+        with open('trips.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
-    def save_trip(self, username: str, start_point: str, end_point: str, travel_date: str, transport_option: str) -> bool:
-        with open(self.trips_file, 'a') as file:
-            file.write(f"{username}:{start_point}:{end_point}:{travel_date}:{transport_option}\n")
-        return True
+    def add_trip(self, start: str, destination: str, date: str):
+        self.trips.append([start, destination, date])
+        self.save_trips()
 
-    def get_transport_options(self, start_point: str, end_point: str, travel_date: str) -> list:
-        return [
-            {"option": "Bus", "cost": 10, "time": "1h 30m"},
-            {"option": "Train", "cost": 20, "time": "1h"},
-            {"option": "Car", "cost": 15, "time": "1h 15m"}
-        ]
+    def save_trips(self):
+        with open('trips.txt', 'w') as file:
+            for trip in self.trips:
+                file.write('|'.join(trip) + '\n')
 
-    def compare_options(self, options: list) -> str:
-        comparison = "Estimated Costs and Travel Times:\n"
-        for option in options:
-            comparison += f"{option['option']} - Cost: ${option['cost']}, Time: {option['time']}\n"
-        return comparison
+    def get_suggestions(self, start: str, destination: str, date: str):
+        return [{"mode": "Bus", "cost": 10, "time": "1 hour"}, {"mode": "Train", "cost": 20, "time": "30 minutes"}]
 
-user_manager = UserManager('users.txt')
-trip_manager = TripManager('trips.txt')
+    def save_preference(self, user: str, trip: str):
+        pass
+
+user_manager = UserManager()
+trip_manager = TripManager()
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.login(username, password):
-            return redirect(url_for('trip_input', username=username))
+        username = escape(request.form['username'])
+        password = escape(request.form['password'])
+        login_message = user_manager.login(username, password)
+        if login_message == "Login successful":
+            return redirect(url_for('trip_input'))
         else:
-            flash('Invalid username or password')
+            return render_template('login.html', error=login_message)
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.register(username, password):
-            flash('Registration successful!')
+        username = escape(request.form['username'])
+        password = escape(request.form['password'])
+        registration_message = user_manager.register(username, password)
+        if registration_message == "Registration successful":
             return redirect(url_for('login'))
         else:
-            flash('Username already exists.')
-            return render_template('registration.html')  # Render registration page again with error message
+            return render_template('registration.html', error=registration_message)
     return render_template('registration.html')
 
 @app.route('/trip_input', methods=['GET', 'POST'])
 def trip_input():
-    username = request.args.get('username')
+    if not user_manager.is_logged_in():
+        return redirect(url_for('login'))
     if request.method == 'POST':
-        start_point = request.form['start_point']
-        end_point = request.form['end_point']
-        travel_date = request.form['travel_date']
-        transport_option = request.form['transport_option']
-        trip_manager.save_trip(username, start_point, end_point, travel_date, transport_option)
-        flash('Trip details saved!')
-        return redirect(url_for('suggestions', start_point=start_point, end_point=end_point, travel_date=travel_date))
-    return render_template('trip_input.html', username=username)
+        start = request.form['start']
+        destination = request.form['destination']
+        date = request.form['date']
+        trip_manager.add_trip(start, destination, date)
+        return redirect(url_for('results', start=start, destination=destination, date=date))
+    return render_template('trip_input.html')
 
-@app.route('/suggestions')
-def suggestions():
-    start_point = request.args.get('start_point')
-    end_point = request.args.get('end_point')
-    travel_date = request.args.get('travel_date')
-    options = trip_manager.get_transport_options(start_point, end_point, travel_date)
-    return render_template('suggestions.html', options=options)
-
-@app.route('/comparison')
-def comparison():
-    start_point = request.args.get('start_point')
-    end_point = request.args.get('end_point')
-    travel_date = request.args.get('travel_date')
-    options = trip_manager.get_transport_options(start_point, end_point, travel_date)
-    comparison = trip_manager.compare_options(options)
-    return render_template('comparison.html', comparison=comparison)
+@app.route('/results')
+def results():
+    if not user_manager.is_logged_in():
+        return redirect(url_for('login'))
+    start = request.args.get('start')
+    destination = request.args.get('destination')
+    date = request.args.get('date')
+    suggestions = trip_manager.get_suggestions(start, destination, date)
+    return render_template('results.html', suggestions=suggestions)
 
 @app.route('/logout')
 def logout():
-    flash('You have been logged out.')
+    user_manager.logout()
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(port=8277, debug=False)
+    app.run(port=8449, debug=False)

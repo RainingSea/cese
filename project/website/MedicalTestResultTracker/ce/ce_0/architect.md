@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application will be developed using Python with a simple web framework such as Flask. The core features will be implemented through various routes that handle user registration, login, and management of medical test results. HTML will be used for the front-end, with forms for user input and displaying results. The application will utilize local text files for data storage, ensuring ease of access and management without the complexity of a SQL database.",
+"Implementation approach": "The web application will be developed using Python with the Flask framework for handling HTTP requests and rendering HTML templates. The front-end will be built using HTML and CSS for a simple user interface. The application will utilize the built-in Python libraries for file handling to manage data storage in local text files.",
 
-"UI design": "The user interface will be designed for simplicity and ease of use. Key pages will include: 1) Registration Page with fields for username and password, 2) Login Page with fields for username and password, 3) Test Results Page for inputting and viewing test results, and 4) Reminders Page for setting and viewing reminders. Navigation will be straightforward, with links to switch between pages. Wireframes will depict a clean layout with clear buttons and input fields.",
+"UI design": "The user interface will consist of several key components: a Registration Page with a form for username and password input, a Login Page for user authentication, a dashboard for managing medical test results, a trends visualization section, a reminders settings interface, and a history view. Each page will include navigation buttons to access different features, and forms will be styled for usability.",
 
-"Data Storage": "Data will be stored in local text files, with each type of data saved in a separate file. The following files will be used: 1) 'users.txt' for storing user credentials (username and password), 2) 'test_results.txt' for storing medical test results (including user ID, test name, result, and date), and 3) 'reminders.txt' for storing user reminders (including user ID, reminder text, and date). Each entry will be stored in a structured format, such as CSV, to facilitate easy parsing and retrieval.",
+"Data Storage": "Data will be stored in local text files as follows: 'users.txt' for storing user credentials, 'test_results.txt' for storing medical test results, 'reminders.txt' for storing reminders, and 'history.txt' for storing historical test data. Each file will contain structured data in a simple text format, ensuring easy access and manipulation without the need for a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/test_results.html", "templates/reminders.html", "users.txt", "test_results.txt", "reminders.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "users.txt", "test_results.txt", "reminders.txt", "history.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -13,21 +13,22 @@ classDiagram
         -UserManager user_manager
         -TestResultManager test_result_manager
         -ReminderManager reminder_manager
-        +run() str
+        +main() str
     }
     class UserManager {
-        -users_file: str
+        -users: list
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class TestResultManager {
-        -results_file: str
-        +add_test_result(user_id: str, test_name: str, result: str, date: str) bool
+        -test_results: list
+        +add_test_result(user_id: str, result: str) bool
         +get_test_results(user_id: str) list
+        +get_trends(user_id: str) str
     }
     class ReminderManager {
-        -reminders_file: str
-        +set_reminder(user_id: str, reminder_text: str, date: str) bool
+        -reminders: list
+        +set_reminder(user_id: str, reminder: str) bool
         +get_reminders(user_id: str) list
     }
 ",

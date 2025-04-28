@@ -1,41 +1,110 @@
 [CONTENT]
-"Required packages": ["Flask"],
+"Required packages": ["os", "json"],
 
-"Required Other language third-party packages": ["Bootstrap for styling"],
+"Required Other language third-party packages": [],
 
-"Logic Analysis": 
-- **main.py**: 
-  - `Main`: Main class to initialize the application.
-    - `main()`: Starts the application.
-- **tools.py**: 
-  - `UserManager`: Manages user-related functionalities.
-    - `register(username: str, password: str)`: Registers a new user.
-    - `login(username: str, password: str)`: Authenticates user login.
-    - `logout()`: Logs out the user.
-    - `load_users()`: Loads users from 'users.txt'.
-    - `save_users()`: Saves users to 'users.txt'.
-  - `BookManager`: Manages book-related functionalities.
-    - `add_book(title: str, author: str)`: Adds a new book.
-    - `delete_book(title: str)`: Deletes a book.
-    - `view_books()`: Returns a list of all books.
-    - `load_books()`: Loads books from 'books.txt'.
-    - `save_books()`: Saves books to 'books.txt'.
-- **templates/login.html**: HTML for user login.
-- **templates/dashboard.html**: HTML for dashboard navigation.
-- **templates/book_management.html**: HTML for managing books.
-- **templates/user_management.html**: HTML for managing users.
+"Logic Analysis": [
+    {
+        "filename": "main.py",
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {
+                        "name": "main",
+                        "description": "Entry point of the application, initializes user and book managers."
+                    }
+                ]
+            },
+            {
+                "name": "UserManager",
+                "methods": [
+                    {
+                        "name": "register",
+                        "description": "Registers a new user by saving username and password to users.txt."
+                    },
+                    {
+                        "name": "login",
+                        "description": "Validates user credentials and starts a user session."
+                    },
+                    {
+                        "name": "logout",
+                        "description": "Ends the user session and updates sessions.txt."
+                    },
+                    {
+                        "name": "view_users",
+                        "description": "Retrieves and returns a list of all registered users."
+                    }
+                ]
+            },
+            {
+                "name": "BookManager",
+                "methods": [
+                    {
+                        "name": "add_book",
+                        "description": "Adds a new book entry to books.txt."
+                    },
+                    {
+                        "name": "delete_book",
+                        "description": "Removes a book entry from books.txt using its ISBN."
+                    },
+                    {
+                        "name": "view_books",
+                        "description": "Retrieves and returns a list of all books."
+                    },
+                    {
+                        "name": "search_books",
+                        "description": "Searches for books based on a query and returns matching results."
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "filename": "templates/login.html",
+        "description": "HTML template for user login form."
+    },
+    {
+        "filename": "templates/dashboard.html",
+        "description": "HTML template for the main dashboard interface."
+    },
+    {
+        "filename": "templates/book_management.html",
+        "description": "HTML template for managing books (add, delete, view)."
+    },
+    {
+        "filename": "templates/user_management.html",
+        "description": "HTML template for managing user accounts (add, view)."
+    },
+    {
+        "filename": "templates/search.html",
+        "description": "HTML template for searching books."
+    },
+    {
+        "filename": "users.txt",
+        "description": "Text file for storing user account information."
+    },
+    {
+        "filename": "books.txt",
+        "description": "Text file for storing book details."
+    },
+    {
+        "filename": "sessions.txt",
+        "description": "Text file for managing user sessions."
+    }
+],
 
-"Task list": 
-1. main.py
-2. tools.py
-3. templates/login.html
-4. templates/dashboard.html
-5. templates/book_management.html
-6. templates/user_management.html
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/dashboard.html",
+    "templates/book_management.html",
+    "templates/user_management.html",
+    "templates/search.html",
+    "users.txt",
+    "books.txt",
+    "sessions.txt"
+],
 
-"Shared Knowledge": 
-- Follow PEP 8 coding standards for Python code.
-- Use descriptive names for functions and variables.
-- Keep HTML files organized and ensure they link correctly to each other for navigation.
-- Ensure that all user inputs are validated before processing.
+"Shared Knowledge": "The project will utilize local text files for data storage, which simplifies the implementation by avoiding SQL databases. The user interface will be built using HTML, and the backend logic will be implemented in Python. Each functionality is modularized into classes for user and book management, ensuring maintainability and scalability."
 [/CONTENT]

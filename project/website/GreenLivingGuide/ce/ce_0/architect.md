@@ -1,50 +1,40 @@
 [CONTENT]
-"Implementation approach": "The GreenLivingGuide web application will be implemented using Python for the backend logic and HTML for the frontend interface. The application will consist of a single main file (main.py) that handles user authentication, data management, and routing to different sections of the application. The user interface will be designed to be intuitive, allowing users to easily navigate through features such as account creation, viewing articles, submitting tips, and participating in the community forum. The application will utilize local text files for data storage, ensuring simplicity and efficiency without the overhead of a SQL database.",
+"Implementation approach": "The GreenLivingGuide application will be developed using HTML for the front end and Python for the back end. The application will start with a login page, allowing users to create accounts and access personalized content. The backend will handle user authentication, article submissions, and community forum interactions, promoting user engagement in sustainable living practices.",
 
-"UI design": "The user interface will start with a login page where users can enter their credentials. Upon successful login, users will be directed to a dashboard that features an introduction to sustainable living, recent articles, and links to submit tips and articles. The design will prioritize usability and accessibility, ensuring that all users can easily interact with the application. Key components will include forms for account creation and submissions, as well as a forum section for community engagement.",
+"UI design": "The key UI components will include: 1) Login Page - for user authentication; 2) User Dashboard - displaying personalized content, recent articles, and navigation options; 3) Article Submission Form - allowing users to submit articles; 4) Tips Submission Form - for users to share sustainable living tips; 5) Community Forum - a layout for users to post questions and share experiences.",
 
-"Data Storage": "Data will be stored in local text files, with different types of data organized into separate files. The following files will be used: 'users.txt' for user account information, 'tips.txt' for sustainable living tips, 'articles.txt' for articles submitted by users, and 'forum.txt' for community forum posts. This structured approach will facilitate easy data retrieval and management through simple file manipulations in Python, ensuring the application remains lightweight and efficient.",
+"Data Storage": "Data will be stored in local text files, with separate files for different data types. The following files will be used: users.txt (to store user account information), articles.txt (to store submitted articles), tips.txt (to store sustainable living tips), and forum_posts.txt (to store community forum posts).",
 
-"File list": ["main.py", "templates/login.html", "users.txt", "tips.txt", "articles.txt", "forum.txt"],
+"File list": ["main.py", "templates/login.html", "templates/dashboard.html", "templates/article_submission.html", "templates/tip_submission.html", "templates/forum.html", "users.txt", "articles.txt", "tips.txt", "forum_posts.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
-        -TipManager tip_manager
         -ArticleManager article_manager
+        -TipManager tip_manager
         -ForumManager forum_manager
         +main() str
-        +login(username: str, password: str) bool
-        +create_account(username: str, password: str) bool
-        +submit_tip(tip: str) bool
-        +submit_article(article: str) bool
-        +post_to_forum(post: str) bool
     }
     class UserManager {
-        -users: dict
-        +load_users() void
-        +save_users() void
-        +authenticate(username: str, password: str) bool
-        +add_user(username: str, password: str) bool
-    }
-    class TipManager {
-        -tips: list
-        +load_tips() void
-        +save_tips() void
-        +add_tip(tip: str) bool
+        -List users
+        +login(username: str, password: str) bool
+        +create_account(username: str, password: str) bool
     }
     class ArticleManager {
-        -articles: list
-        +load_articles() void
-        +save_articles() void
-        +add_article(article: str) bool
+        -List articles
+        +submit_article(article: str) bool
+        +get_recent_articles() List
+    }
+    class TipManager {
+        -List tips
+        +submit_tip(tip: str) bool
+        +get_tips() List
     }
     class ForumManager {
-        -posts: list
-        +load_posts() void
-        +save_posts() void
-        +add_post(post: str) bool
+        -List posts
+        +submit_post(post: str) bool
+        +get_posts() List
     }
 ",
 [/CONTENT]

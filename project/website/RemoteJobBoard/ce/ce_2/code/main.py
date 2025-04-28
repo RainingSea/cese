@@ -1,28 +1,24 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from werkzeug.utils import secure_filename
-import os
-
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-
 class UserManager:
     def __init__(self):
         self.users = self.load_users()
 
     def load_users(self):
         users = []
-        with open('users.txt', 'r') as file:
-            for line in file:
-                username, password = line.strip().split('|')
-                users.append({'username': username, 'password': password})
+        try:
+            with open('users.txt', 'r') as file:
+                for line in file:
+                    username, password, email = line.strip().split(',')
+                    users.append({'username': username, 'password': password, 'email': email})
+        except FileNotFoundError:
+            pass
         return users
 
-    def register(self, username: str, password: str) -> bool:
+    def register(self, username: str, password: str, email: str) -> bool:
         if any(user['username'] == username for user in self.users):
             return False
-        self.users.append({'username': username, 'password': password})
+        self.users.append({'username': username, 'password': password, 'email': email})
         with open('users.txt', 'a') as file:
-            file.write(f"{username}|{password}\n")
+            file.write(f"{username},{password},{email}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
@@ -40,65 +36,38 @@ class JobManager:
 
     def load_jobs(self):
         jobs = []
-        with open('jobs.txt', 'r') as file:
-            for line in file:
-                title, company, description = line.strip().split('|')
-                jobs.append({'title': title, 'company': company, 'description': description})
+        try:
+            with open('jobs.txt', 'r') as file:
+                for line in file:
+                    job_title, company_name, job_description, username = line.strip().split(',')
+                    jobs.append({'job_title': job_title, 'company_name': company_name, 'job_description': job_description, 'username': username})
+        except FileNotFoundError:
+            pass
         return jobs
 
-    def post_job(self, title: str, company: str, description: str) -> bool:
-        self.jobs.append({'title': title, 'company': company, 'description': description})
+    def post_job(self, job_title: str, company_name: str, job_description: str, username: str) -> bool:
+        self.jobs.append({'job_title': job_title, 'company_name': company_name, 'job_description': job_description, 'username': username})
         with open('jobs.txt', 'a') as file:
-            file.write(f"{title}|{company}|{description}\n")
+            file.write(f"{job_title},{company_name},{job_description},{username}\n")
         return True
 
     def get_all_jobs(self) -> list:
         return self.jobs
 
-    def apply_for_job(self, job_id: int, username: str) -> bool:
-        # Placeholder for job application logic
+    def apply_for_job(self, username: str, job_title: str) -> bool:
+        with open('applied_jobs.txt', 'a') as file:
+            file.write(f"{username},{job_title}\n")
         return True
 
-@app.route('/', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.login(username, password):
-            session['username'] = username
-            return redirect(url_for('home'))
-    return render_template('login.html')
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager()
+        self.job_manager = JobManager()
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.register(username, password):
-            return redirect(url_for('login'))
-    return render_template('registration.html')
+    def main(self):
+        # This would be the entry point for the web application
+        pass
 
-@app.route('/home')
-def home():
-    jobs = job_manager.get_all_jobs()
-    return render_template('home.html', jobs=jobs)
-
-@app.route('/post_job', methods=['GET', 'POST'])
-def post_job():
-    if request.method == 'POST':
-        title = request.form['title']
-        company = request.form['company']
-        description = request.form['description']
-        job_manager.post_job(title, company, description)
-        return redirect(url_for('home'))
-    return render_template('job_posting.html')
-
-@app.route('/profile')
-def profile():
-    user_profile = user_manager.get_user_profile(session['username'])
-    return render_template('profile.html', profile=user_profile)
-
-if __name__ == '__main__':
-    user_manager = UserManager()
-    job_manager = JobManager()
-    app.run(port=8236, debug=False)
+if __name__ == "__main__":
+    app = Main()
+    app.main()

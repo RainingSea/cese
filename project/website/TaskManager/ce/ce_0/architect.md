@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application 'Task_Manager' will be developed using Python for the back-end and HTML for the front-end. The application will handle user sessions through simple session management using in-memory storage during runtime. User data and tasks will be managed through local text files, ensuring a lightweight and efficient solution. The application will provide endpoints for user registration, login, task creation, and task removal, with appropriate HTML templates for each interface.",
+"Implementation approach": "The 'Task_Manager' web application will be developed using Python for the backend logic and HTML for the frontend interface. The application will handle user registration and login, manage tasks, and store data in local text files. The main functionalities will be implemented in a single Python file, with HTML templates for the user interface. User authentication will be handled using simple file-based checks, while task management will involve reading from and writing to text files for data persistence.",
 
-"UI design": "The UI will consist of the following key components: a login form with fields for username and password, a registration form with fields for username, password, and email, a task list displayed on the home page with options to add and remove tasks, and navigation buttons for transitioning between the login and home pages. The layout will be organized to ensure ease of use, with forms centrally aligned and buttons clearly labeled.",
+"UI design": "The user interface will consist of the following components: a login page with fields for username and password, a registration page with fields for username, password, and email, a home page displaying the list of tasks with options to add and remove tasks, and navigation buttons for transitioning between pages. The login and registration forms will be simple HTML forms, while the task list will be displayed in a structured format with buttons for adding and removing tasks.",
 
-"Data Storage": "Data will be stored in local text files. User account information will be saved in 'users.txt' and task data will be stored in 'tasks.txt'. Each line in 'users.txt' will contain a username, password, and email, while each line in 'tasks.txt' will contain a task description and due date. Data will be read from and written to these files using simple file operations in Python, allowing for straightforward data management.",
+"Data Storage": "Data will be stored in local text files. User account information will be stored in 'users.txt', and tasks will be stored in separate files named after the username (e.g., 'username_tasks.txt'). Each line in the task file will represent a task in the format 'task_description|due_date'. This structure allows for easy retrieval and management of user tasks without the need for a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/home.html", "users.txt", "tasks.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "users.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -15,15 +15,15 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -str filename
+        -String users_file
         +register(username: str, password: str, email: str) bool
         +login(username: str, password: str) bool
     }
     class TaskManager {
-        -str filename
-        +add_task(description: str, due_date: str) bool
-        +remove_task(task_id: int) bool
-        +get_tasks() list
+        -String tasks_file
+        +add_task(task_description: str, due_date: str) void
+        +remove_task(task_description: str) void
+        +list_tasks() List[str]
     }
 ",
 [/CONTENT]

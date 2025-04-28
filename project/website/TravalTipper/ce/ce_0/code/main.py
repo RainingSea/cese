@@ -1,21 +1,24 @@
 from flask import Flask, render_template, request, redirect, url_for
 from user_manager import UserManager
-from travel_tip_manager import TravelTipManager
+from travel_tip_generator import TravelTipGenerator
+from favorites_manager import FavoritesManager
 
 app = Flask(__name__)
 
-user_manager = UserManager()
-travel_tip_manager = TravelTipManager()
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager()
+        self.travel_tip_generator = TravelTipGenerator()
+        self.favorites_manager = FavoritesManager()
+        self.user_manager.load_user_data()
+        self.travel_tip_generator.load_tips()
+        self.favorites_manager.load_favorites()
 
-@app.route('/', methods=['GET', 'POST'])
+    def main(self):
+        app.run(port=8434, debug=False)
+
+@app.route('/')
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.login(username, password):
-            return redirect(url_for('travel_input'))
-        else:
-            return "Login failed. Please check your credentials."
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -23,20 +26,24 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if user_manager.register(username, password):
+        if Main().user_manager.register(username, password):
             return redirect(url_for('login'))
-        else:
-            return "Registration failed. Username may already exist."
     return render_template('registration.html')
 
-@app.route('/travel_input', methods=['GET', 'POST'])
-def travel_input():
+@app.route('/travel_details', methods=['GET', 'POST'])
+def travel_details():
     if request.method == 'POST':
         destination = request.form['destination']
-        tips = request.form['tips']
-        travel_tip_manager.addTip(destination, tips)
-        return redirect(url_for('travel_input'))
-    return render_template('travel_input.html', tips=travel_tip_manager.getTips(""))
+        duration = request.form['duration']
+        interests = request.form.getlist('interests')
+        tips = Main().travel_tip_generator.generate_tips(destination, interests)
+        return render_template('recommendations.html', tips=tips)
+    return render_template('travel_details.html')
+
+@app.route('/favorites')
+def favorites():
+    return render_template('favorites.html', favorites=Main().favorites_manager.favorites)
 
 if __name__ == '__main__':
-    app.run(port=8262, debug=False)
+    main_instance = Main()
+    main_instance.main()

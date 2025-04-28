@@ -1,27 +1,34 @@
 class TestResultManager:
-    def __init__(self, filename: str):
-        self.filename = filename
-        self.results = self.load_test_results()
+    def __init__(self, results_file: str):
+        self.results_file = results_file
+        self.results = self.load_results()
 
-    def add_test_result(self, username: str, result: str) -> bool:
-        if username is None:
-            return False
-        self.results.append(f"{username}|{result}")
-        self.save_test_results()
-        return True
-
-    def get_test_results(self, username: str) -> list:
-        if username is None:
-            return []
-        return [result.split('|')[1] for result in self.results if result.startswith(username)]
-
-    def load_test_results(self) -> list:
+    def load_results(self) -> dict:
+        results = {}
         try:
-            with open(self.filename, 'r') as file:
-                return file.read().strip().split('\n')
+            with open(self.results_file, 'r') as file:
+                for line in file:
+                    username, result = line.strip().split('|')
+                    if username not in results:
+                        results[username] = []
+                    results[username].append(result)
         except FileNotFoundError:
-            return []
+            pass  # If the file does not exist, return an empty dictionary
+        return results
 
-    def save_test_results(self):
-        with open(self.filename, 'w') as file:
-            file.write('\n'.join(self.results))
+    def add_result(self, username: str, result: str) -> None:
+        if username not in self.results:
+            self.results[username] = []
+        self.results[username].append(result)
+        with open(self.results_file, 'a') as file:
+            file.write(f"{username}|{result}\n")
+
+    def get_results(self, username: str) -> list:
+        return self.results.get(username, [])
+
+    def get_trends(self, username: str) -> list:
+        results = self.get_results(username)
+        trends = []
+        if results:
+            trends.append(f"Total results: {len(results)}")
+        return trends

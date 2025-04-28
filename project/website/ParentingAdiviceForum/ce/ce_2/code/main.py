@@ -1,142 +1,61 @@
-import os
-import json
+from flask import Flask, render_template, request, redirect, url_for, session
+from user_manager import UserManager
+from thread_manager import ThreadManager
+from comment_manager import CommentManager
+from advice_manager import AdviceManager
 
-class Main:
-    def __init__(self):
-        self.users = self.load_users()
-        self.threads = self.load_threads()
-        self.comments = self.load_comments()
-        self.contacts = self.load_contacts()
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
-    def main(self):
-        # Placeholder for main application logic
-        print("Welcome to Parenting Advice Forum!")
+user_manager = UserManager()
+thread_manager = ThreadManager()
+comment_manager = CommentManager()
+advice_manager = AdviceManager()
 
-    def load_users(self):
-        users = []
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                for line in file:
-                    username, password = line.strip().split('|')
-                    users.append(User(username, password))
-        return users
+@app.route('/')
+def login():
+    return render_template('login.html')
 
-    def load_threads(self):
-        threads = []
-        if os.path.exists('threads.txt'):
-            with open('threads.txt', 'r') as file:
-                for line in file:
-                    title, content = line.strip().split('|')
-                    threads.append(Thread(title, content))
-        return threads
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user_manager.register(username, password)
+        return redirect(url_for('login'))
+    return render_template('register.html')
 
-    def load_comments(self):
-        comments = []
-        if os.path.exists('comments.txt'):
-            with open('comments.txt', 'r') as file:
-                for line in file:
-                    thread_id, content, author = line.strip().split('|')
-                    comments.append(Comment(content, author))
-        return comments
+@app.route('/home')
+def home():
+    return render_template('home.html')
 
-    def load_contacts(self):
-        contacts = []
-        if os.path.exists('contacts.txt'):
-            with open('contacts.txt', 'r') as file:
-                for line in file:
-                    name, email, message = line.strip().split('|')
-                    contacts.append(Contact(name, email, message))
-        return contacts
+@app.route('/forum')
+def forum():
+    threads = thread_manager.get_threads()
+    return render_template('forum.html', threads=threads)
 
-    def login(self, username: str, password: str) -> bool:
-        for user in self.users:
-            if user.username == username and user.password == password:
-                return True
-        return False
+@app.route('/view_thread/<int:thread_id>')
+def view_thread(thread_id):
+    thread = thread_manager.get_thread(thread_id)
+    comments = comment_manager.get_comments(thread_id)
+    return render_template('view_thread.html', thread=thread, comments=comments)
 
-    def register(self, username: str, password: str) -> bool:
-        if any(user.username == username for user in self.users):
-            return False
-        self.users.append(User(username, password))
-        with open('users.txt', 'a') as file:
-            file.write(f"{username}|{password}\n")
-        return True
+@app.route('/post_advice', methods=['GET', 'POST'])
+def post_advice():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        advice_manager.post_advice(title, content)
+        return redirect(url_for('home'))
+    return render_template('post_advice.html')
 
-    def create_thread(self, title: str, content: str) -> bool:
-        new_thread = Thread(title, content)
-        self.threads.append(new_thread)
-        with open('threads.txt', 'a') as file:
-            file.write(f"{title}|{content}\n")
-        return True
+@app.route('/my_account')
+def my_account():
+    return render_template('my_account.html')
 
-    def post_comment(self, thread_id: int, comment: str) -> bool:
-        if 0 <= thread_id < len(self.threads):
-            self.threads[thread_id].add_comment(comment)
-            with open('comments.txt', 'a') as file:
-                file.write(f"{thread_id}|{comment}|{self.get_current_user()}\n")
-            return True
-        return False
+@app.route('/contact_us')
+def contact_us():
+    return render_template('contact_us.html')
 
-    def post_advice(self, title: str, content: str) -> bool:
-        return self.create_thread(title, content)
-
-    def update_profile(self, username: str, new_info: dict) -> bool:
-        for user in self.users:
-            if user.username == username:
-                user.username = new_info.get('username', user.username)
-                user.password = new_info.get('password', user.password)
-                self.save_users()
-                return True
-        return False
-
-    def contact_admin(self, name: str, email: str, message: str) -> bool:
-        new_contact = Contact(name, email, message)
-        self.contacts.append(new_contact)
-        with open('contacts.txt', 'a') as file:
-            file.write(f"{name}|{email}|{message}\n")
-        return True
-
-    def get_current_user(self):
-        # Placeholder for getting the currently logged-in user
-        return "current_user"
-
-class User:
-    def __init__(self, username: str, password: str):
-        self.username = username
-        self.password = password
-
-    def get_profile(self) -> dict:
-        return {"username": self.username}
-
-    def delete_account(self) -> bool:
-        # Placeholder for account deletion logic
-        return True
-
-class Thread:
-    def __init__(self, title: str, content: str):
-        self.title = title
-        self.content = content
-        self.comments = []
-
-    def add_comment(self, comment: str) -> bool:
-        self.comments.append(Comment(comment, "author_placeholder"))  # Placeholder for author
-        return True
-
-class Comment:
-    def __init__(self, content: str, author: str):
-        self.content = content
-        self.author = author
-
-class Contact:
-    def __init__(self, name: str, email: str, message: str):
-        self.name = name
-        self.email = email
-        self.message = message
-
-    def send(self) -> bool:
-        # Placeholder for sending contact message logic
-        return True
-
-if __name__ == "__main__":
-    app = Main()
-    app.main()
+if __name__ == '__main__':
+    app.run(port=8388, debug=False)

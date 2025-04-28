@@ -1,38 +1,43 @@
 [CONTENT]
-"Implementation approach": "The web application will be structured using Flask as the backend framework to handle user requests and manage sessions. The main components include the Login Page, Registration Page, Dashboard Page, and Charity Details Page. The application will utilize HTML templates for frontend presentation, allowing users to interact with the system through forms and buttons. User authentication will be managed through session handling, and data will be retrieved from local text files for user and charity information.",
-"UI design": "The Login Page will feature a form for username and password input, along with a 'Register here' link. The Registration Page will have fields for new user registration. The Dashboard Page will display a list of available charities with 'Details' buttons for each charity. The Charity Details Page will show detailed information about the selected charity and a donation input field. Navigation elements will include buttons for logging out and returning to the Dashboard.",
-"Data Storage": "Data will be stored in local text files. User data will be stored in 'users.txt', charity information in 'charities.txt', and donation history in 'donations.txt'. Each file will have a specific format: 'users.txt' will contain lines with 'username,password', 'charities.txt' will have 'charity_name,mission,projects', and 'donations.txt' will record 'username,charity_name,amount'. No SQL database will be used.",
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/charity_details.html", "users.txt", "charities.txt", "donations.txt"],
+"Implementation approach": "The 'CharitableGivingPlatform' will be developed using Python for backend logic and HTML for frontend presentation. The application will utilize Flask as a lightweight web framework to handle routing and sessions. Local storage will be managed through text files, where user, charity, and contribution data will be stored and retrieved as needed. The application will start from the login page, guiding users through registration, dashboard, and charity details seamlessly.",
+
+"UI design": "The user interface will consist of the following components:\n1. **Login Page**: Input fields for username and password, a login button, and a 'Register here' link.\n2. **Registration Page**: Input fields for username, password, and a register button.\n3. **Dashboard Page**: A list of available charities with 'Details' buttons for each charity, a view for contribution history, and a logout button.\n4. **Charity Details Page**: Display detailed information about the selected charity, an input field for donation amount, and a donate button. A back button will allow navigation back to the dashboard.",
+
+"Data Storage": "Data will be stored in local text files, with separate files for different data types:\n- `users.txt`: Stores user account information (username, password).\n- `charities.txt`: Stores charity information (name, mission, ongoing projects).\n- `contributions.txt`: Stores user contributions (username, charity name, amount donated). This structured approach facilitates easy data retrieval and management through simple file manipulations in Python.",
+
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/charity_details.html", "users.txt", "charities.txt", "contributions.txt"],
+
 "Data structures and interfaces": "
 classDiagram
     class User {
         -username: str
         -password: str
-        +register() void
-        +login() bool
+        +register(username: str, password: str) void
+        +login(username: str, password: str) bool
     }
     class Charity {
         -name: str
         -mission: str
-        -projects: str
-        +get_details() str
+        -ongoingProjects: str
+        +getDetails() str
     }
-    class Donation {
+    class Contribution {
         -username: str
-        -charity_name: str
+        -charityName: str
         -amount: float
-        +record_donation() void
+        +recordContribution(username: str, charityName: str, amount: float) void
     }
-    class App {
-        -users: List<User>
-        -charities: List<Charity>
-        -donations: List<Donation>
-        +load_users() void
-        +load_charities() void
-        +load_donations() void
-        +save_user(user: User) void
-        +save_charity(charity: Charity) void
-        +save_donation(donation: Donation) void
+    class Main {
+        -UserManager userManager
+        -CharityManager charityManager
+        -ContributionManager contributionManager
+        +main() str
     }
+    UserManager --> User
+    CharityManager --> Charity
+    ContributionManager --> Contribution
+    Main --> UserManager
+    Main --> CharityManager
+    Main --> ContributionManager
 ",
 [/CONTENT]

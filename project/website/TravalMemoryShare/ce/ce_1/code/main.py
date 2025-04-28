@@ -1,58 +1,38 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
-import json
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-class UserManager:
-    def __init__(self):
-        self.users = self.load_users()
+# Load user data
+def load_users():
+    users = {}
+    if os.path.exists('users.txt'):
+        with open('users.txt', 'r') as file:
+            for line in file:
+                username, password = line.strip().split('|')
+                users[username] = password
+    return users
 
-    def load_users(self):
-        if not os.path.exists('users.txt'):
-            return {}
-        with open('users.txt', 'r') as f:
-            return dict(line.strip().split('|') for line in f)
+# Load album data
+def load_albums():
+    albums = []
+    if os.path.exists('albums.txt'):
+        with open('albums.txt', 'r') as file:
+            for line in file:
+                title, images, privacy = line.strip().split('|')
+                albums.append({'title': title, 'images': images.split(','), 'privacy': privacy})
+    return albums
 
-    def register(self, username: str, password: str) -> bool:
-        if username in self.users:
-            return False
-        self.users[username] = password
-        self.save_users()
-        return True
-
-    def save_users(self):
-        with open('users.txt', 'w') as f:
-            for username, password in self.users.items():
-                f.write(f"{username}|{password}\n")
-
-    def login(self, username: str, password: str) -> bool:
-        return self.users.get(username) == password
-
-class AlbumManager:
-    def __init__(self):
-        self.albums = self.load_albums()
-
-    def load_albums(self):
-        if not os.path.exists('albums.txt'):
-            return {}
-        with open('albums.txt', 'r') as f:
-            return json.load(f)
-
-    def create_album(self, user: str, album_data: dict) -> bool:
-        if user not in self.albums:
-            self.albums[user] = []
-        self.albums[user].append(album_data)
-        self.save_albums()
-        return True
-
-    def save_albums(self):
-        with open('albums.txt', 'w') as f:
-            json.dump(self.albums, f)
-
-user_manager = UserManager()
-album_manager = AlbumManager()
+# Load interactions data
+def load_interactions():
+    interactions = []
+    if os.path.exists('interactions.txt'):
+        with open('interactions.txt', 'r') as file:
+            for line in file:
+                user, album, likes, comments = line.strip().split('|')
+                interactions.append({'user': user, 'album': album, 'likes': int(likes), 'comments': comments.split(',')})
+    return interactions
 
 @app.route('/')
 def login():
@@ -63,38 +43,31 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if user_manager.register(username, password):
-            flash('Registration successful! Please log in.')
-            return redirect(url_for('login'))
-        else:
-            flash('Username already exists. Please choose another one.')
-    return render_template('registration.html')
-
-@app.route('/login', methods=['POST'])
-def do_login():
-    username = request.form['username']
-    password = request.form['password']
-    if user_manager.login(username, password):
-        return redirect(url_for('album_creation'))
-    else:
-        flash('Invalid username or password.')
+        with open('users.txt', 'a') as file:
+            file.write(f'{username}|{password}\n')
         return redirect(url_for('login'))
+    return render_template('register.html')
 
-@app.route('/album_creation', methods=['GET', 'POST'])
-def album_creation():
+@app.route('/album/create', methods=['GET', 'POST'])
+def create_album():
     if request.method == 'POST':
-        album_data = {
-            'title': request.form['title'],
-            'images': request.form.getlist('images')
-        }
-        album_manager.create_album(request.form['username'], album_data)
-        flash('Album created successfully!')
-        return redirect(url_for('gallery'))
-    return render_template('album_creation.html')
+        title = request.form['title']
+        images = request.form.getlist('images')
+        privacy = request.form['privacy']
+        with open('albums.txt', 'a') as file:
+            file.write(f'{title}|{",".join(images)}|{privacy}\n')
+        return redirect(url_for('view_album'))
+    return render_template('album_create.html')
 
-@app.route('/gallery')
-def gallery():
-    return render_template('gallery.html', albums=album_manager.albums)
+@app.route('/album/view')
+def view_album():
+    albums = load_albums()
+    return render_template('album_view.html', albums=albums)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(port=8259, debug=False)
+    app.run(port=8431, debug=False)

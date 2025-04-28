@@ -1,36 +1,76 @@
 [CONTENT]
-"Required packages": ["Flask", "os"],
+"Required packages": [
+    "Flask", 
+    "json", 
+    "os"
+],
 
 "Required Other language third-party packages": [],
 
-"Logic Analysis": 
-- main.py: 
-  - Class: Main
-    - Method: main()
-  - Class: UserManager
-    - Method: register(username: str, password: str) bool
-    - Method: login(username: str, password: str) bool
-  - Class: VehicleManager
-    - Method: add_vehicle(make: str, model: str, year: int, mileage: int) bool
-    - Method: get_vehicles() list
-  - Class: MaintenanceManager
-    - Method: add_maintenance(vehicle_id: int, task: str, date: str) bool
-    - Method: get_maintenance_history(vehicle_id: int) list
+"Logic Analysis": {
+    "main.py": {
+        "classes": [
+            "Main",
+            "UserManager",
+            "VehicleManager",
+            "MaintenanceManager"
+        ],
+        "methods": {
+            "Main": [
+                "main() - Entry point for the application."
+            ],
+            "UserManager": [
+                "register(username: str, password: str) - Registers a new user.",
+                "login(username: str, password: str) - Authenticates a user."
+            ],
+            "VehicleManager": [
+                "add_vehicle(make: str, model: str, year: int, mileage: int) - Adds a new vehicle.",
+                "get_vehicles() - Retrieves a list of vehicles."
+            ],
+            "MaintenanceManager": [
+                "add_record(vehicle_id: int, task: str, date: str) - Adds a maintenance record.",
+                "get_records(vehicle_id: int) - Retrieves maintenance records for a specific vehicle."
+            ]
+        }
+    },
+    "templates/login.html": {
+        "description": "HTML page for user login."
+    },
+    "templates/registration.html": {
+        "description": "HTML page for user registration."
+    },
+    "templates/vehicle_info.html": {
+        "description": "HTML page for inputting and displaying vehicle information."
+    },
+    "templates/maintenance.html": {
+        "description": "HTML page for tracking maintenance tasks."
+    },
+    "users.txt": {
+        "description": "File to store user account data."
+    },
+    "vehicles.txt": {
+        "description": "File to store vehicle information."
+    },
+    "maintenance.txt": {
+        "description": "File to store maintenance records."
+    }
+},
 
-"Task list": 
-1. main.py
-2. templates/registration.html
-3. templates/login.html
-4. templates/vehicle_info.html
-5. templates/maintenance.html
-6. users.txt
-7. vehicles.txt
-8. maintenance.txt
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/registration.html",
+    "templates/vehicle_info.html",
+    "templates/maintenance.html",
+    "users.txt",
+    "vehicles.txt",
+    "maintenance.txt"
+],
 
-"Shared Knowledge": 
-- Follow PEP 8 coding standards for Python.
-- Use consistent naming conventions for variables and functions.
-- Keep the user interface simple and intuitive, ensuring easy navigation between pages.
-- Implement error handling for file operations to manage data integrity.
-- Ensure that user input is validated before processing to prevent potential errors.
+"Shared Knowledge": [
+    "Follow PEP 8 coding standards for Python code.",
+    "Use clear and descriptive naming conventions for variables and functions.",
+    "Ensure proper error handling for file I/O operations.",
+    "Keep the user interface simple and intuitive."
+]
 [/CONTENT]

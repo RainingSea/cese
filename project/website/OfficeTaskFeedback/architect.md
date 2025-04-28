@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application 'Office Task Feedback Tracker' will be developed using Flask as the backend framework in Python, which will handle routing and server-side logic. HTML will be used for the frontend to create user interfaces for registration, login, feedback submission, and feedback status viewing. The application will utilize simple file handling for data storage, ensuring a lightweight and efficient system without the need for a SQL database.",
+"Implementation approach": "The application will be developed using the Flask framework for the backend, allowing for easy handling of web requests and rendering of HTML templates. HTML will be used for the frontend to create a user-friendly interface.",
 
-"UI design": "The key UI components will include: 1) Registration Page with a form for username and password input, 2) Login Page with a similar form, 3) Feedback Submission Page with text areas for feedback input and dropdowns for category selection, 4) Feedback Status Page displaying submitted feedback and its status. Navigation links will be provided on each page to allow users to easily switch between registration, login, feedback submission, and status viewing.",
+"UI design": "The UI will consist of the following key components: a Registration Page for user account creation, a Login Page for user authentication, a Feedback Submission Form for employees to submit their feedback, and a Feedback Status View for employees to check the status of their submitted feedback. Each page will have a consistent layout with navigation links to facilitate easy access.",
 
-"Data Storage": "Data will be stored in local text files, with separate files for different types of data: 'users.txt' for user credentials, 'feedback.txt' for submitted feedback, and 'status.txt' for tracking feedback status. This approach simplifies data management and retrieval through basic file operations in Python, ensuring the application remains efficient and easy to maintain without the complexity of a SQL database.",
+"Data Storage": "Data will be stored in local text files. User account information will be stored in 'users.txt', and feedback submissions will be stored in 'feedback.txt'. Each line in 'users.txt' will contain a username and password, while each line in 'feedback.txt' will contain the feedback details along with the associated user and category.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/feedback.html", "templates/status.html", "users.txt", "feedback.txt", "status.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/feedback.html", "templates/status.html", "users.txt", "feedback.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -15,18 +15,20 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users: list
+        -String filename
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +load_users() void
-        +save_users() void
     }
     class FeedbackManager {
-        -feedbacks: list
+        -String filename
         +submit_feedback(username: str, feedback: str, category: str) bool
-        +load_feedback() void
-        +save_feedback() void
-        +get_feedback_status(username: str) list
+        +get_feedback_status(username: str) List<Feedback>
+    }
+    class Feedback {
+        -String username
+        -String feedback
+        -String category
+        -String status
     }
 ",
 [/CONTENT]

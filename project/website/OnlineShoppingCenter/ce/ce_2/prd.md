@@ -4,25 +4,24 @@ The task is to develop an online shopping center web application that allows use
 
 ## software functional requirements
 1. **User Login**
-   - The system shall provide a Login Page where users can enter their username and password to log in.
+   - Users shall be able to log in by entering a username and password on the Login Page.
 
 2. **User Registration**
-   - The system shall provide a Registration Page where users can create a new account by providing a username, password, and email.
+   - Users shall be able to register a new account by providing a username, password, and email on the Registration Page.
 
 3. **Product Browsing**
-   - The system shall provide a Product Listing Page that displays a list of available products.
-   - Each product on the Product Listing Page shall have an option to add it to the shopping cart.
+   - Users shall be able to browse the product list on the Product Listing Page, with each product having an option to add it to the shopping cart.
 
 4. **Shopping Cart Management**
-   - The system shall provide a Shopping Cart Page where users can view the contents of their shopping cart.
+   - Users shall be able to view the contents of their shopping cart on the Shopping Cart Page.
    - Users shall be able to remove items from their shopping cart on the Shopping Cart Page.
 
 5. **Checkout Process**
-   - The system shall provide a Checkout button on the Shopping Cart Page that allows users to proceed to checkout.
-   - The system shall provide a Checkout Page where users can enter their shipping address and payment information.
+   - Users shall be able to proceed to checkout by clicking the Checkout button on the Shopping Cart Page.
+   - Users shall be able to enter their shipping address and payment information on the Checkout Page.
    - Users shall be able to confirm and finalize their order on the Checkout Page.
 
 6. **Order Confirmation**
-   - The system shall provide an Order Confirmation Page that displays an order summary detailing the user's order.
+   - Users shall be able to view an order summary on the Order Confirmation Page, detailing their order.
    - Users shall be able to navigate back to the Product Listing Page from the Order Confirmation Page to continue shopping.
 [/OUTPUT]

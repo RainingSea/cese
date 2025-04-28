@@ -6,15 +6,15 @@ import subprocess
 class TestParentingAdviceForum(unittest.TestCase):
 
     def setUp(self):
-        # Start the main application
+        # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:5000/')  # Replace with the actual port from main.py
+        self.driver.get('http://localhost:8388/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session
+        # Close the web driver session and the Flask application
         self.driver.quit()
-        self.process.terminate()  # Terminate the main application process
+        self.process.terminate()
 
     def login(self, username, password):
         # Helper method to perform login
@@ -22,26 +22,19 @@ class TestParentingAdviceForum(unittest.TestCase):
         self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
 
-    def test_login(self):
-        # Functionalities 1: User Login
-        self.driver.get('http://localhost:5000/login')  # Navigate to login page
+    def test_user_login(self):
+        # Functionalities 1: Test user login functionality
         self.login("admin", "admin123")
-        
-        # Verify that the Home Page has loaded
-        self.assertIn("Welcome to Parenting Advice Forum", self.driver.page_source)
+        self.assertIn("Home", self.driver.title)  # Expect to be redirected to Home Page
 
     def test_navigate_to_registration(self):
-        # Functionalities 2: Navigate to Registration Page
-        self.driver.get('http://localhost:5000/login')  # Navigate to login page
+        # Functionalities 2: Test navigation to the Registration Page
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
-        
-        # Verify that the Registration Page has loaded
-        self.assertIn("Register", self.driver.page_source)
+        self.assertIn("Register", self.driver.title)  # Expect to be on Registration Page
 
-    def test_registration(self):
-        # Functionalities 3: User Registration
-        self.driver.get('http://localhost:5000/register')  # Navigate to registration page
-
+    def test_user_registration(self):
+        # Functionalities 3: Test user registration functionality
+        self.driver.find_element(By.LINK_TEXT, 'Register').click()
         new_username = "new_user"
         new_password = "new_password"
 
@@ -51,77 +44,64 @@ class TestParentingAdviceForum(unittest.TestCase):
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
         # Verify the user is redirected to the login page
-        self.assertIn("Login", self.driver.page_source)
+        self.assertIn("Login", self.driver.title)
 
     def test_view_home_page_after_login(self):
-        # Functionalities 4: View Home Page After Login
-        self.test_login()  # Log in first
-
-        # Verify that the Home Page shows navigation options
-        self.assertIn("Forum", self.driver.page_source)
-        self.assertIn("Post Advice", self.driver.page_source)
-        self.assertIn("My Account", self.driver.page_source)
-        self.assertIn("Contact Us", self.driver.page_source)
+        # Functionalities 4: Test viewing Home Page after logging in
+        self.login("admin", "admin123")
+        self.assertIn("Home", self.driver.title)  # Expect to be on Home Page
 
     def test_navigate_to_forum_page(self):
-        # Functionalities 5: Navigate to Forum Page
-        self.test_login()  # Log in first
-        self.driver.find_element(By.LINK_TEXT, 'Forum').click()
-        
-        # Verify that the Forum Page has loaded
-        self.assertIn("Forum Threads", self.driver.page_source)
+        # Functionalities 5: Test navigation to the Forum Page
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Go to Forum').click()
+        self.assertIn("Forum", self.driver.title)  # Expect to be on Forum Page
 
     def test_create_new_thread(self):
-        # Functionalities 6: Create New Thread
-        self.test_navigate_to_forum_page()  # Navigate to forum page
-        self.driver.find_element(By.LINK_TEXT, 'Post Advice').click()  # Navigate to post advice page
+        # Functionalities 6: Test creating a new thread
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Go to Forum').click()
 
-        thread_title = "New Thread Title"
-        thread_content = "This is the content of the new thread."
-
-        # Fill out the new thread form
-        self.driver.find_element(By.NAME, 'title').send_keys(thread_title)
-        self.driver.find_element(By.NAME, 'content').send_keys(thread_content)
-        self.driver.find_element(By.XPATH, '//button[text()="Submit Advice"]').click()
+        # Fill in the thread title and content
+        self.driver.find_element(By.NAME, 'title').send_keys("New Thread Title")
+        self.driver.find_element(By.NAME, 'content').send_keys("This is the content of the new thread.")
+        self.driver.find_element(By.XPATH, '//button[text()="Create Thread"]').click()
 
         # Verify that the new thread is displayed on the Forum Page
-        self.assertIn(thread_title, self.driver.page_source)
+        self.assertIn("New Thread Title", self.driver.page_source)
 
     def test_view_specific_thread(self):
-        # Functionalities 7: View Specific Thread
-        self.test_navigate_to_forum_page()  # Navigate to forum page
-        self.driver.find_element(By.LINK_TEXT, 'Thread Title 1').click()  # Click on a specific thread
-        
-        # Verify that the View Thread Page has loaded
-        self.assertIn("Thread Title", self.driver.page_source)
+        # Functionalities 7: Test viewing a specific thread
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Go to Forum').click()
+        self.driver.find_element(By.LINK_TEXT, 'First Thread').click()  # Assuming "First Thread" exists
+        self.assertIn("First Thread", self.driver.title)  # Expect to be on the View Thread Page
 
     def test_comment_on_thread(self):
-        # Functionalities 8: Comment on a Thread
-        self.test_view_specific_thread()  # Navigate to a specific thread
-        comment_text = "This is a comment on the thread."
+        # Functionalities 8: Test commenting on a thread
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Go to Forum').click()
+        self.driver.find_element(By.LINK_TEXT, 'First Thread').click()  # Assuming "First Thread" exists
 
-        # Fill out the comment form
-        self.driver.find_element(By.NAME, 'comment').send_keys(comment_text)
-        self.driver.find_element(By.XPATH, '//button[text()="Post Comment"]').click()
+        # Add a comment
+        self.driver.find_element(By.NAME, 'comment').send_keys("This is a comment.")
+        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
 
-        # Verify that the comment is displayed below the thread
-        self.assertIn(comment_text, self.driver.page_source)
+        # Verify that the comment is displayed
+        self.assertIn("This is a comment.", self.driver.page_source)
 
     def test_post_advice(self):
-        # Functionalities 9: Post Advice
-        self.test_navigate_to_forum_page()  # Navigate to forum page
-        self.driver.find_element(By.LINK_TEXT, 'Post Advice').click()  # Navigate to post advice page
+        # Functionalities 9: Test posting advice
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Post Advice').click()
 
-        advice_title = "Advice Title"
-        advice_content = "This is the content of the advice."
+        # Fill in the advice title and content
+        self.driver.find_element(By.NAME, 'title').send_keys("Advice Title")
+        self.driver.find_element(By.NAME, 'content').send_keys("This is the content of the advice.")
+        self.driver.find_element(By.XPATH, '//button[text()="Post Advice"]').click()
 
-        # Fill out the advice form
-        self.driver.find_element(By.NAME, 'title').send_keys(advice_title)
-        self.driver.find_element(By.NAME, 'content').send_keys(advice_content)
-        self.driver.find_element(By.XPATH, '//button[text()="Submit Advice"]').click()
-
-        # Verify that the advice is displayed on the Post Advice Page
-        self.assertIn(advice_title, self.driver.page_source)
+        # Verify that the advice is displayed
+        self.assertIn("Advice Title", self.driver.page_source)
 
 if __name__ == '__main__':
     unittest.main()

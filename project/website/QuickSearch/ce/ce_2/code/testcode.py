@@ -9,7 +9,7 @@ class TestBookApp(unittest.TestCase):
         # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8228/')  # Access the login page
+        self.driver.get('http://localhost:8400/')  # Access the login page
 
     def tearDown(self):
         # Close the web driver session and the Flask application
@@ -20,91 +20,104 @@ class TestBookApp(unittest.TestCase):
         # Helper method to perform login
         self.driver.find_element(By.NAME, 'username').send_keys(username)
         self.driver.find_element(By.NAME, 'password').send_keys(password)
-        self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
+        self.driver.find_element(By.XPATH, '//input[@value="Login"]').click()
 
-    def test_user_registration(self):
-        # Navigate to the Registration Page
-        self.driver.get('http://localhost:8228/register')
-        
-        # Enter valid username and password
-        self.driver.find_element(By.NAME, 'username').send_keys('new_user')
-        self.driver.find_element(By.NAME, 'password').send_keys('new_password')
-        self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+    def test_registration(self):
+        # Functionality 1: User Registration
+        self.driver.get('http://localhost:8400/register')  # Navigate to Registration Page
+        self.assertIn("Register", self.driver.title)
+
+        # Register a new user
+        new_username = "test_user"
+        new_password = "test_password"
+        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
+        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
+        self.driver.find_element(By.XPATH, '//input[@value="Register"]').click()
 
         # Verify redirection to login page
         self.assertIn("Login", self.driver.title)
 
-        # Attempt to register with an existing username
-        self.driver.get('http://localhost:8228/register')
-        self.driver.find_element(By.NAME, 'username').send_keys('admin')  # existing username
-        self.driver.find_element(By.NAME, 'password').send_keys('admin123')
-        self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+        # Attempt to register with the same username
+        self.driver.get('http://localhost:8400/register')
+        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
+        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
+        self.driver.find_element(By.XPATH, '//input[@value="Register"]').click()
 
-        # Verify error message
-        self.assertIn("Registration failed", self.driver.page_source)
+        # Verify error message for existing username
+        self.assertIn("User already exists!", self.driver.page_source)
 
-    def test_user_login(self):
-        # Test valid login
-        self.login("admin", "admin123")
+    def test_login(self):
+        # Functionality 2: User Login
+        self.login("admin", "admin123")  # Valid credentials
         self.assertIn("Dashboard", self.driver.title)
 
-        # Test invalid login
-        self.driver.get('http://localhost:8228/')
-        self.login("admin", "wrongpassword")
-        self.assertIn("Login failed", self.driver.page_source)
+        # Attempt to login with invalid credentials
+        self.driver.get('http://localhost:8400/')
+        self.login("admin", "wrong_password")
+        self.assertIn("Invalid credentials!", self.driver.page_source)
 
     def test_search_books(self):
-        # Login first
-        self.login("admin", "admin123")
-        
+        # Functionality 3: Search for Specific Words or Phrases
+        self.login("admin", "admin123")  # Login first
+        self.assertIn("Dashboard", self.driver.title)
+
         # Search for a book
-        search_box = self.driver.find_element(By.NAME, 'query')
-        search_box.send_keys("1984")
-        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
+        search_query = "1984"
+        self.driver.find_element(By.NAME, 'query').send_keys(search_query)
+        self.driver.find_element(By.XPATH, '//input[@value="Search"]').click()
 
         # Verify search results
         self.assertIn("1984", self.driver.page_source)
 
         # Search for a non-existing book
-        search_box.clear()
-        search_box.send_keys("NonExistingBook")
-        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
-        self.assertIn("No results were found", self.driver.page_source)
+        self.driver.find_element(By.NAME, 'query').clear()
+        self.driver.find_element(By.NAME, 'query').send_keys("Nonexistent Book")
+        self.driver.find_element(By.XPATH, '//input[@value="Search"]').click()
+        self.assertIn("No results found", self.driver.page_source)
 
     def test_view_book_details(self):
-        # Login first
-        self.login("admin", "admin123")
-        
-        # Search for a book and click on it
-        self.driver.find_element(By.NAME, 'query').send_keys("The Great Gatsby")
-        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
-        self.driver.find_element(By.LINK_TEXT, "The Great Gatsby").click()
+        # Functionality 4: View Book Details
+        self.login("admin", "admin123")  # Login first
+        self.driver.find_element(By.LINK_TEXT, "1984 by George Orwell").click()  # Click on the book link
 
         # Verify book details
-        self.assertIn("The Great Gatsby", self.driver.page_source)
-        self.assertIn("F. Scott Fitzgerald", self.driver.page_source)
+        self.assertIn("1984", self.driver.page_source)
+        self.assertIn("George Orwell", self.driver.page_source)
 
     def test_add_to_reading_list(self):
-        # Login first
-        self.login("admin", "admin123")
-        
-        # Search for a book and add it to reading list
-        self.driver.find_element(By.NAME, 'query').send_keys("1984")
-        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
-        self.driver.find_element(By.LINK_TEXT, "1984").click()
-        self.driver.find_element(By.LINK_TEXT, "Add to Reading List").click()
+        # Functionality 5: Add Books to Reading List
+        self.login("user1", "user123")  # Login first
+        self.driver.find_element(By.LINK_TEXT, "The Great Gatsby by F. Scott Fitzgerald").click()  # Click on the book link
+        self.driver.find_element(By.XPATH, '//input[@value="Add to Reading List"]').click()
 
         # Verify that the book is added to the reading list
-        self.driver.get('http://localhost:8228/reading_list')
-        self.assertIn("1984", self.driver.page_source)
+        self.driver.get('http://localhost:8400/reading_list')
+        self.assertIn("The Great Gatsby", self.driver.page_source)
 
     def test_view_reading_list(self):
-        # Login first
-        self.login("admin", "admin123")
-        
-        # Navigate to reading list
-        self.driver.get('http://localhost:8228/reading_list')
+        # Functionality 6: View and Manage Reading List
+        self.login("user1", "user123")  # Login first
+        self.driver.get('http://localhost:8400/reading_list')
+
+        # Verify that the reading list is displayed
         self.assertIn("Your Reading List", self.driver.page_source)
+
+    def test_logout(self):
+        # Functionality 7: User Logout
+        self.login("admin", "admin123")  # Login first
+        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
+
+        # Verify redirection to the login page
+        self.assertIn("Login", self.driver.title)
+
+    def test_navigate_back_to_dashboard(self):
+        # Functionality 8: Navigate Back to Dashboard
+        self.login("admin", "admin123")  # Login first
+        self.driver.find_element(By.LINK_TEXT, "1984 by George Orwell").click()  # Click on the book link
+        self.driver.find_element(By.LINK_TEXT, "Back to Dashboard").click()
+
+        # Verify that the user is back on the Dashboard Page
+        self.assertIn("Dashboard", self.driver.title)
 
 if __name__ == '__main__':
     unittest.main()

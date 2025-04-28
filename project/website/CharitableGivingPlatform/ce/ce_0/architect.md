@@ -1,41 +1,30 @@
 [CONTENT]
-"Implementation approach": "The web application 'CharitableGivingPlatform' will be structured using Python for the backend logic and HTML for the frontend interface. The application will start at the Login Page where users can enter their credentials. After successful login, users will be redirected to the Dashboard Page, where they can view available charities and their contribution history. Users can navigate to the Registration Page if they need to create an account and can view detailed information about charities on the Charity Details Page. The application will utilize local text files for data storage, ensuring simplicity and ease of management.",
+"Implementation approach": "The web application will be developed using Python for backend logic, leveraging the built-in HTTP server for handling requests. HTML will be used for frontend presentation, with separate HTML files for each page. User sessions will be managed using simple session variables stored in memory. The application will read and write data from local text files for user accounts, charity information, and donation history.",
 
-"UI design": "The Login Page will feature a form for username and password input, along with a 'Login' button and a 'Register here' link. The Registration Page will have fields for username and password, along with a 'Submit' button. The Dashboard Page will display a list of charities with 'Details' buttons for each charity, a 'Donate' button, and a logout option. The Charity Details Page will show detailed information about the selected charity, including a donation input field and a 'Donate' button. A back button will allow users to return to the Dashboard.",
+"UI design": "The user interface will consist of the following pages: \n1. Login Page: Contains fields for username and password, a login button, and a link to the Registration Page. \n2. Registration Page: Contains fields for username and password, a register button, and a link back to the Login Page. \n3. Dashboard Page: Displays a list of available charities with 'Details' buttons for each charity, a view of the user's contribution history, and a logout button. \n4. Charity Details Page: Shows detailed information about the selected charity, including its mission and ongoing projects, a donation input field, and a donate button, along with a back button to return to the Dashboard.",
 
-"Data Storage": "Data will be stored in local text files. The following files will be used: 'users.txt' for storing user accounts (username and password), 'charities.txt' for storing charity information (name, mission, projects), and 'donations.txt' for recording user donations (username, charity name, amount). Each type of data will be organized into separate files to facilitate easy retrieval and management.",
+"Data Storage": "Data will be organized in local text files as follows: \n1. users.txt - Stores user account information in the format 'username,password'. \n2. charities.txt - Stores charity information in the format 'charity_name,mission,ongoing_projects'. \n3. donations.txt - Stores donation history in the format 'username,charity_name,amount,date'. This structure allows for easy retrieval and management of data through simple file manipulations in Python.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/charity_details.html", "users.txt", "charities.txt", "donations.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/charity_details.html", "users.txt", "charities.txt", "donations.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -str username
-        -str password
+    class Main {
+        -UserManager user_manager
+        -CharityManager charity_manager
+        +main() str
+    }
+    class UserManager {
+        -users_file: str
         +login(username: str, password: str) bool
         +register(username: str, password: str) bool
+        +get_user_contributions(username: str) list
     }
-    class Charity {
-        -str name
-        -str mission
-        -str projects
-        +get_details() str
-    }
-    class Donation {
-        -str username
-        -str charity_name
-        -float amount
-        +record_donation() void
-    }
-    class Main {
-        -User user
-        -Charity charity
-        -Donation donation
-        +main() str
-        +login() void
-        +register() void
-        +view_dashboard() void
-        +view_charity_details() void
+    class CharityManager {
+        -charities_file: str
+        +get_charities() list
+        +get_charity_details(name: str) str
+        +record_donation(username: str, charity_name: str, amount: float) void
     }
 ",
 [/CONTENT]

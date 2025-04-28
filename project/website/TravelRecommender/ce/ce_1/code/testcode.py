@@ -1,18 +1,19 @@
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import time
 import subprocess
 
 class TestTravelRecommenderApp(unittest.TestCase):
 
     def setUp(self):
-        # Start the Flask application
+        # Initialize the webdriver and open the login page
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8271/')  # Access the login page
+        self.driver.get('http://localhost:8443/') 
 
     def tearDown(self):
-        # Close the web driver session and the Flask application
+        # Close the web driver session
         self.driver.quit()
         self.process.terminate()
 
@@ -21,109 +22,109 @@ class TestTravelRecommenderApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'username').send_keys(username)
         self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
+        time.sleep(1)  # Wait for the next page to load
 
     def test_registration(self):
         # Functionality 1: User Registration
-        self.driver.get('http://localhost:8271/register')  # Navigate to Registration Page
-        self.assertIn("Register", self.driver.title)  # Check Registration Page
+        self.driver.get('http://localhost:8443/register')
+        self.assertIn("Register", self.driver.title)
 
-        # Register a new user
         new_username = "test_user"
         new_password = "test_password"
+
+        # Input username and password for registration
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+        time.sleep(1)  # Wait for the next page to load
 
-        # Verify redirection to login page
+        # Verify the user is redirected to the login page
         self.assertIn("Login", self.driver.title)
 
-        # Attempt to register with the same username
-        self.driver.get('http://localhost:8271/register')
-        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
-        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
+        # Attempt to register with an existing username
+        self.driver.get('http://localhost:8443/register')
+        self.driver.find_element(By.NAME, 'username').send_keys("admin")  # Existing username
+        self.driver.find_element(By.NAME, 'password').send_keys("admin123")
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+        time.sleep(1)  # Wait for the next page to load
 
         # Verify error message for existing username
-        self.assertIn("Username already taken", self.driver.page_source)
+        self.assertIn("Username already exists!", self.driver.page_source)
 
     def test_login(self):
         # Functionality 2: User Login
-        self.login("admin", "admin123")  # Valid credentials
-        self.assertIn("Preferences", self.driver.title)  # Check if redirected to Preferences Page
+        self.driver.get('http://localhost:8443/')
+        self.assertIn("Login", self.driver.title)
 
-        # Attempt to login with invalid credentials
-        self.driver.get('http://localhost:8271/')
-        self.login("admin", "wrong_password")
-        self.assertIn("Invalid credentials", self.driver.page_source)  # Check for error message
+        # Valid login
+        self.login("admin", "admin123")
+        self.assertIn("Recommendations", self.driver.title)
+
+        # Invalid login
+        self.driver.get('http://localhost:8443/')
+        self.login("admin", "wrongpassword")
+        self.assertIn("Invalid credentials", self.driver.page_source)
 
     def test_input_travel_preferences(self):
         # Functionality 3: Input Travel Preferences
-        self.login("admin", "admin123")  # Login first
-        self.driver.get('http://localhost:8271/preferences')  # Navigate to Preferences Page
-        self.assertIn("Travel Preferences", self.driver.title)  # Check Preferences Page
+        self.login("user1", "user123")
+        self.driver.get('http://localhost:8443/preferences')
+        self.assertIn("Travel Preferences", self.driver.title)
 
-        # Fill in preferences
-        self.driver.find_element(By.NAME, 'budget').send_keys("1000")
-        self.driver.find_element(By.NAME, 'activities').send_keys("Sightseeing")
-        self.driver.find_element(By.NAME, 'climate').send_keys("Mild")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit Preferences"]').click()
+        # Fill in travel preferences
+        self.driver.find_element(By.NAME, 'destination').send_keys("Beach")
+        self.driver.find_element(By.NAME, 'travel_type').send_keys("Leisure")
+        self.driver.find_element(By.XPATH, '//button[text()="Save Preferences"]').click()
+        time.sleep(1)  # Wait for the next page to load
 
         # Verify redirection to recommendations page
         self.assertIn("Your Travel Recommendations", self.driver.title)
 
     def test_generate_travel_recommendations(self):
         # Functionality 4: Generate Travel Recommendations
-        self.login("admin", "admin123")  # Login first
-        self.driver.get('http://localhost:8271/preferences')  # Navigate to Preferences Page
+        self.login("user1", "user123")
+        self.driver.get('http://localhost:8443/recommendations')
+        self.assertIn("Your Travel Recommendations", self.driver.title)
 
-        # Fill in preferences
-        self.driver.find_element(By.NAME, 'budget').send_keys("1000")
-        self.driver.find_element(By.NAME, 'activities').send_keys("Sightseeing")
-        self.driver.find_element(By.NAME, 'climate').send_keys("Mild")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit Preferences"]').click()
-
-        # Verify recommendations are displayed
-        self.assertIn("Paris", self.driver.page_source)  # Check for a specific recommendation
+        # Check if recommendations are displayed
+        recommendations = self.driver.find_elements(By.TAG_NAME, 'li')
+        self.assertGreater(len(recommendations), 0, "No recommendations found.")
 
     def test_save_favorite_destinations(self):
         # Functionality 5: Save Favorite Destinations
-        self.login("admin", "admin123")  # Login first
-        self.driver.get('http://localhost:8271/preferences')  # Navigate to Preferences Page
+        self.login("user1", "user123")
+        self.driver.get('http://localhost:8443/recommendations')
+        self.assertIn("Your Travel Recommendations", self.driver.title)
 
-        # Fill in preferences
-        self.driver.find_element(By.NAME, 'budget').send_keys("1000")
-        self.driver.find_element(By.NAME, 'activities').send_keys("Sightseeing")
-        self.driver.find_element(By.NAME, 'climate').send_keys("Mild")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit Preferences"]').click()
+        # Attempt to save a favorite (assuming a save button exists next to each recommendation)
+        self.driver.find_element(By.XPATH, '//button[text()="Save"]').click()  # Adjust selector as needed
+        time.sleep(1)  # Wait for the action to complete
 
-        # Save a destination as favorite
-        self.driver.find_element(By.XPATH, '//button[text()="Save"]').click()  # Assuming a Save button exists
-        self.assertIn("Destination saved", self.driver.page_source)  # Check for confirmation message
-
-        # Navigate to favorites page
-        self.driver.get('http://localhost:8271/favorites')
-        self.assertIn("Your Favorite Destinations", self.driver.title)  # Check Favorites Page
+        # Verify that the destination is saved (this would require checking the favorites page)
+        self.driver.get('http://localhost:8443/favorites')
+        self.assertIn("Your Favorite Destinations", self.driver.title)
 
     def test_logout(self):
         # Functionality 6: User Logout
-        self.login("admin", "admin123")  # Login first
-        self.driver.find_element(By.LINK_TEXT, 'Logout').click()  # Click Logout
-        self.assertIn("Login", self.driver.title)  # Verify redirection to Login Page
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        # Verify that the user is redirected to the Login Page
+        self.assertIn("Login", self.driver.title)
 
     def test_view_detailed_information(self):
         # Functionality 7: View Detailed Information About Destinations
-        self.login("admin", "admin123")  # Login first
-        self.driver.get('http://localhost:8271/preferences')  # Navigate to Preferences Page
+        self.login("user1", "user123")
+        self.driver.get('http://localhost:8443/recommendations')
+        self.assertIn("Your Travel Recommendations", self.driver.title)
 
-        # Fill in preferences
-        self.driver.find_element(By.NAME, 'budget').send_keys("1000")
-        self.driver.find_element(By.NAME, 'activities').send_keys("Sightseeing")
-        self.driver.find_element(By.NAME, 'climate').send_keys("Mild")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit Preferences"]').click()
+        # Click on a destination (assuming each destination is a link)
+        self.driver.find_element(By.XPATH, '//li[1]').click()  # Adjust selector as needed
+        time.sleep(1)  # Wait for the next page to load
 
-        # Click on a recommended destination
-        self.driver.find_element(By.XPATH, '//li[text()="Paris"]').click()  # Assuming the destination is listed
-        self.assertIn("Detailed Information", self.driver.title)  # Check for detailed information page
+        # Verify that detailed information is displayed
+        self.assertIn("Detailed Information", self.driver.title)  # Adjust based on actual title
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,48 +1,35 @@
 [CONTENT]
-"Implementation approach": "The web application will be structured using Python for backend logic and HTML for frontend design. The application will handle user authentication, profile management, and tutoring requests, all while storing data locally in text files.",
+"Implementation approach": "The web application will be developed using Python for backend functionality, utilizing the built-in HTTP server for handling requests and responses. HTML will be used for frontend design, with forms for user interactions such as login, registration, and tutoring requests. User data will flow through the application via form submissions, and the backend will handle data processing and storage in text files.",
 
-"UI design": "The user interface will consist of several key components: a login page with fields for username and password, a registration page with fields for username, password, and email, a dashboard displaying available tutors and options to request tutoring, a profile page showing user details, and a contact form for support inquiries. Navigation links will connect these pages seamlessly.",
+"UI design": "The UI will consist of several key components: a login form with fields for username and password, a registration form for creating new accounts with username, password, and email, a dashboard displaying available tutors with a 'View Tutors' button, a tutoring request form with fields for subject, details, and preferred date, a profile page displaying the user's username and email, and a contact form on the 'Contact Us' page for users to reach the support team.",
 
-"Data Storage": "Data will be stored in local text files. Different types of data will be stored in separate files, including user accounts, tutoring requests, and available tutors. The following files will be defined in advance: 'users.txt' for user data, 'tutors.txt' for tutor information, and 'requests.txt' for tutoring requests. No SQL database will be used.",
+"Data Storage": "Data will be stored in local text files, with separate files for users, tutoring requests, and support messages. This approach simplifies data management and retrieval, ensuring the application remains lightweight and efficient without the complexity of a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/profile.html", "templates/contact.html", "users.txt", "tutors.txt", "requests.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/view_tutors.html", "templates/request_tutoring.html", "templates/profile.html", "templates/contact.html", "users.txt", "tutoring_requests.txt", "support_messages.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
-        -TutorManager tutor_manager
-        -RequestManager request_manager
+        -TutoringRequestManager tutoring_request_manager
+        -SupportManager support_manager
         +main() str
     }
     class UserManager {
-        -List<User> users
+        -List users
         +login(username: str, password: str) bool
         +register(username: str, password: str, email: str) bool
+        +get_user_profile(username: str) dict
     }
-    class TutorManager {
-        -List<Tutor> tutors
-        +viewTutors() List<Tutor>
+    class TutoringRequestManager {
+        -List requests
+        +create_request(subject: str, details: str, date: str) bool
+        +cancel_request(request_id: int) bool
+        +view_requests() List
     }
-    class RequestManager {
-        -List<Request> requests
-        +requestTutoring(subject: str, details: str, date: str) bool
-        +cancelRequest(requestId: int) bool
-    }
-    class User {
-        -username: str
-        -password: str
-        -email: str
-    }
-    class Tutor {
-        -name: str
-        -subject: str
-    }
-    class Request {
-        -subject: str
-        -details: str
-        -date: str
-        -userId: int
+    class SupportManager {
+        -List messages
+        +send_message(name: str, email: str, message: str) bool
     }
 ",
 [/CONTENT]

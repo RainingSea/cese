@@ -9,10 +9,10 @@ class TestMedicalInfoTrackerApp(unittest.TestCase):
         # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8180/')  # Access the login page
+        self.driver.get('http://localhost:8343/')  # Accessing the login page
 
     def tearDown(self):
-        # Close the web driver session and terminate the Flask app
+        # Close the web driver session and the Flask application
         self.driver.quit()
         self.process.terminate()
 
@@ -22,81 +22,93 @@ class TestMedicalInfoTrackerApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
 
-    def test_registration(self):
-        # Functionality 1: User Registration
-        self.driver.get('http://localhost:8180/register')  # Navigate to Registration Page
+    def test_user_registration(self):
+        # Navigate to the Registration Page
+        self.driver.find_element(By.LINK_TEXT, 'Register').click()
+
+        # Verify that the Registration Page is displayed
         self.assertIn("Register", self.driver.title)
 
-        # Register a new user
+        # Enter valid username and password
         new_username = "test_user"
         new_password = "test_password"
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
-        # Verify redirection to login page
+        # Verify redirection to the login page
         self.assertIn("Login", self.driver.title)
 
         # Attempt to register with an existing username
-        self.driver.get('http://localhost:8180/register')
-        self.driver.find_element(By.NAME, 'username').send_keys("admin")  # Existing user
+        self.driver.find_element(By.LINK_TEXT, 'Register').click()
+        self.driver.find_element(By.NAME, 'username').send_keys("admin")  # Existing username
         self.driver.find_element(By.NAME, 'password').send_keys("admin123")
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
-        # Verify error message
-        self.assertIn("User already exists.", self.driver.page_source)
+        # Verify error message for existing username
+        self.assertIn("Username already taken", self.driver.page_source)
 
-    def test_login(self):
-        # Functionality 2: User Login
-        self.login("admin", "admin123")  # Valid credentials
+    def test_user_login(self):
+        # Navigate to the Login Page
+        self.driver.get('http://localhost:8343/')  # Accessing the login page
+
+        # Enter valid username and password
+        self.login("admin", "admin123")
+
+        # Verify that the Dashboard Page has loaded
         self.assertIn("Dashboard", self.driver.title)
 
         # Attempt to login with invalid credentials
-        self.driver.get('http://localhost:8180/')
-        self.login("admin", "wrong_password")
-        self.assertIn("Invalid credentials.", self.driver.page_source)
+        self.driver.get('http://localhost:8343/')  # Accessing the login page again
+        self.login("admin", "wrongpassword")
 
-    def test_manage_medical_info(self):
-        # Functionality 3: Manage Medical Information
-        self.login("admin", "admin123")  # Log in first
-        self.driver.get('http://localhost:8180/dashboard')  # Navigate to Dashboard
+        # Verify error message for incorrect credentials
+        self.assertIn("Invalid credentials", self.driver.page_source)
 
-        # Add medical information
-        self.driver.find_element(By.NAME, 'medical_info').send_keys("Allergy to pollen")
-        self.driver.find_element(By.XPATH, '//button[text()="Add"]').click()
+    def test_manage_medical_information(self):
+        # Log in successfully
+        self.login("admin", "admin123")
 
-        # Verify the new information is displayed
-        self.assertIn("Allergy to pollen", self.driver.page_source)
+        # Verify that the Dashboard Page shows medical information
+        self.assertIn("Your Medical Information", self.driver.page_source)
 
-        # Edit medical information
-        self.driver.find_element(By.NAME, 'medical_info').send_keys("Updated allergy information")
-        self.driver.find_element(By.XPATH, '//button[text()="Add"]').click()
-        self.assertIn("Updated allergy information", self.driver.page_source)
+        # Input new medical information
+        self.driver.find_element(By.NAME, 'diagnosis').send_keys("Cold")
+        self.driver.find_element(By.XPATH, '//button[text()="Add Diagnosis"]').click()
 
-    def test_set_appointment_reminders(self):
-        # Functionality 4: Set and Receive Appointment Reminders
-        self.login("admin", "admin123")  # Log in first
-        self.driver.get('http://localhost:8180/dashboard')  # Navigate to Dashboard
+        # Verify that the new information is displayed
+        self.assertIn("Diagnosis: Cold", self.driver.page_source)
+
+        # Attempt to edit existing medical information (not implemented)
+        self.fail("Edit medical information functionality not implemented")
+
+    def test_set_and_receive_appointment_reminders(self):
+        # Log in successfully
+        self.login("admin", "admin123")
 
         # Set a new appointment reminder
-        self.driver.find_element(By.NAME, 'date').send_keys("2023-12-31")
-        self.driver.find_element(By.NAME, 'time').send_keys("10:00")
+        self.driver.find_element(By.NAME, 'reminder_date').send_keys("2023-12-01")
+        self.driver.find_element(By.NAME, 'reminder_time').send_keys("10:00")
         self.driver.find_element(By.XPATH, '//button[text()="Set Reminder"]').click()
 
-        # Verify the reminder is displayed
-        self.assertIn("2023-12-31 10:00", self.driver.page_source)
+        # Verify that the reminder is displayed
+        self.assertIn("Reminder: 2023-12-01 at 10:00", self.driver.page_source)
 
-    def test_logout(self):
-        # Functionality 6: User Logout
-        self.login("admin", "admin123")  # Log in first
-        self.driver.get('http://localhost:8180/dashboard')  # Navigate to Dashboard
+        # Attempt to set an appointment reminder with an invalid date format (not implemented)
+        self.fail("Invalid date format handling not implemented")
+
+    def test_user_logout(self):
+        # Log in successfully
+        self.login("admin", "admin123")
 
         # Click the logout button
-        self.driver.find_element(By.NAME, 'logout').click()
+        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
+
+        # Verify that the user is redirected to the Login Page
         self.assertIn("Login", self.driver.title)
 
-        # Attempt to access the Dashboard after logging out
-        self.driver.get('http://localhost:8180/dashboard')
+        # Attempt to access the Dashboard Page after logging out
+        self.driver.get('http://localhost:8343/dashboard')
         self.assertIn("Login", self.driver.title)
 
 if __name__ == '__main__':

@@ -1,74 +1,60 @@
-import http.server
-import os
-import urllib.parse
+from flask import Flask, render_template, request, redirect, url_for, session
+from user_manager import UserManager
+from event_manager import EventManager
+from reminder import Reminder
 
-class Main:
-    def __init__(self):
-        self.user_manager = UserManager()
-        self.event_manager = EventManager()
-        self.reminder_manager = ReminderManager()
-        self.event_manager.load_events()
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Replace with a random secret key
+user_manager = UserManager()
+event_manager = EventManager()
+reminder_manager = Reminder()
 
-    def main(self):
-        server_address = ('', 8000)
-        httpd = http.server.HTTPServer(server_address, self.RequestHandler)
-        print("Starting server on port 8000...")
-        httpd.serve_forever()
+@app.route('/')
+def login():
+    return render_template('login.html')
 
-    class RequestHandler(http.server.SimpleHTTPRequestHandler):
-        def do_GET(self):
-            if self.path == '/':
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(open('templates/login.html', 'rb').read())
-            elif self.path == '/register':
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(open('templates/registration.html', 'rb').read())
-            elif self.path == '/dashboard':
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(open('templates/dashboard.html', 'rb').read())
-            elif self.path.startswith('/event/'):
-                event_id = self.path.split('/')[-1]
-                event_details = self.event_manager.get_event_details(event_id)
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(event_details.encode())
-            elif self.path == '/reminders':
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(open('templates/reminders.html', 'rb').read())
-            else:
-                self.send_error(404)
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
+    return render_template('registration.html')
 
-        def do_POST(self):
-            if self.path == '/register':
-                content_length = int(self.headers['Content-Length'])
-                post_data = self.rfile.read(content_length).decode()
-                username, password = urllib.parse.parse_qs(post_data).get('username')[0], urllib.parse.parse_qs(post_data).get('password')[0]
-                if self.user_manager.register(username, password):
-                    self.send_response(302)
-                    self.send_header('Location', '/')
-                    self.end_headers()
-                else:
-                    self.send_error(400)
-            elif self.path == '/login':
-                content_length = int(self.headers['Content-Length'])
-                post_data = self.rfile.read(content_length).decode()
-                username, password = urllib.parse.parse_qs(post_data).get('username')[0], urllib.parse.parse_qs(post_data).get('password')[0]
-                if self.user_manager.login(username, password):
-                    self.send_response(302)
-                    self.send_header('Location', '/dashboard')
-                    self.end_headers()
-                else:
-                    self.send_error(401)
+@app.route('/dashboard')
+def dashboard():
+    if 'username' in session:
+        events = event_manager.get_events()
+        return render_template('dashboard.html', events=events)
+    return redirect(url_for('login'))
 
-if __name__ == "__main__":
-    app = Main()
-    app.main()
+@app.route('/login', methods=['POST'])
+def do_login():
+    username = request.form['username']
+    password = request.form['password']
+    if user_manager.login(username, password):
+        session['username'] = username
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
+
+@app.route('/event/<event_id>')
+def event_details(event_id):
+    event_details = event_manager.get_event_details(event_id)
+    return render_template('event_details.html', event=event_details)
+
+@app.route('/reminders')
+def reminders():
+    if 'username' in session:
+        user_reminders = reminder_manager.get_reminders(session['username'])
+        return render_template('reminders.html', reminders=user_reminders)
+    return redirect(url_for('login'))
+
+@app.route('/set_reminder/<event_id>', methods=['POST'])
+def set_reminder(event_id):
+    if 'username' in session:
+        reminder_manager.add_reminder(session['username'], event_id)
+    return redirect(url_for('reminders'))
+
+if __name__ == '__main__':
+    app.run(port=8303, debug=False)

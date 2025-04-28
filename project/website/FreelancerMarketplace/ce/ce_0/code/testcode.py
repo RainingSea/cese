@@ -6,98 +6,113 @@ import subprocess
 class TestFreelancerMarketplace(unittest.TestCase):
 
     def setUp(self):
-        # Start the application
+        # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:5000/')  # Replace with the actual port from main.py
+        self.driver.get('http://localhost:8382/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session and the application
+        # Close the web driver session and the Flask application
         self.driver.quit()
         self.process.terminate()
 
     def login(self, username, password):
         # Helper method to perform login
-        self.driver.find_element(By.ID, 'username').send_keys(username)
-        self.driver.find_element(By.ID, 'password').send_keys(password)
-        self.driver.find_element(By.XPATH, '//input[@value="Login"]').click()
+        self.driver.find_element(By.NAME, 'username').send_keys(username)
+        self.driver.find_element(By.NAME, 'password').send_keys(password)
+        self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
 
     def test_user_login(self):
-        # Functionalities 1: User Login
+        # Functionalities 1: Test user login functionality
         self.login("admin", "admin123")
-        self.assertIn("Welcome to the Home Page", self.driver.page_source)
+        self.assertIn("Welcome to Freelancer Marketplace", self.driver.page_source)
 
     def test_navigate_to_registration(self):
-        # Functionalities 2: Navigate to Registration Page
-        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
-        self.assertIn("Registration", self.driver.title)
+        # Functionalities 2: Test navigation to the Registration Page
+        self.driver.find_element(By.LINK_TEXT, 'Register').click()
+        self.assertIn("Register", self.driver.title)
 
     def test_user_registration(self):
-        # Functionalities 3: User Registration
-        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
-        self.driver.find_element(By.ID, 'username').send_keys("new_user")
-        self.driver.find_element(By.ID, 'password').send_keys("new_password")
-        self.driver.find_element(By.XPATH, '//input[@value="Register"]').click()
+        # Functionalities 3: Test user registration functionality
+        self.driver.find_element(By.LINK_TEXT, 'Register').click()
+        
+        new_username = "new_user"
+        new_password = "new_password"
+
+        # Input username and password for registration
+        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
+        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
+        self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+
+        # Verify the user is redirected to the login page
         self.assertIn("Login", self.driver.title)
 
     def test_access_home_page_after_login(self):
-        # Functionalities 4: Accessing Home Page after Login
+        # Functionalities 4: Test accessing home page after login
         self.login("admin", "admin123")
-        self.assertIn("Welcome to the Home Page", self.driver.page_source)
+        self.assertIn("Welcome to Freelancer Marketplace", self.driver.page_source)
 
-    def test_searching_for_freelancers(self):
-        # Functionalities 5: Searching for Freelancers
+    def test_search_freelancers(self):
+        # Functionalities 5: Test searching for freelancers
         self.login("admin", "admin123")
-        search_box = self.driver.find_element(By.ID, 'freelancer_name')
-        search_box.send_keys("John Doe")
-        self.driver.find_element(By.XPATH, '//input[@value="Search"]').click()
+        search_query = "John Doe"
+        self.driver.find_element(By.NAME, 'query').send_keys(search_query)
+        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
+
+        # Verify that search results display freelancers matching the entered name
         self.assertIn("John Doe", self.driver.page_source)
 
-    def test_viewing_freelancer_profiles(self):
-        # Functionalities 6: Viewing Freelancer Profiles
+    def test_view_freelancer_profiles(self):
+        # Functionalities 6: Test viewing freelancer profiles
         self.login("admin", "admin123")
-        search_box = self.driver.find_element(By.ID, 'freelancer_name')
-        search_box.send_keys("John Doe")
-        self.driver.find_element(By.XPATH, '//input[@value="Search"]').click()
-        self.driver.find_element(By.LINK_TEXT, 'View Freelancer Details').click()
-        self.assertIn("Freelancer Profile", self.driver.title)
+        search_query = "John Doe"
+        self.driver.find_element(By.NAME, 'query').send_keys(search_query)
+        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
 
-    def test_managing_projects(self):
-        # Functionalities 7: Managing Projects
-        self.login("admin", "admin123")
-        self.driver.find_element(By.XPATH, '//button[text()="Manage All Projects"]').click()
-        self.assertIn("Project Management", self.driver.title)
+        # Assuming there is a button to view details
+        self.driver.find_element(By.XPATH, '//a[text()="View Freelancer Details"]').click()
+        self.assertIn("Name: John Doe", self.driver.page_source)
 
-    def test_creating_new_project(self):
-        # Functionalities 8: Creating a New Project
+    def test_manage_projects(self):
+        # Functionalities 7: Test managing projects
         self.login("admin", "admin123")
-        self.driver.find_element(By.XPATH, '//button[text()="Create New Project"]').click()
+        self.driver.find_element(By.LINK_TEXT, 'Manage Projects').click()
+        self.assertIn("Manage Projects", self.driver.title)
+
+    def test_create_new_project(self):
+        # Functionalities 8: Test creating a new project
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Manage Projects').click()
+        
+        # Assuming there is a form to create a new project
         self.driver.find_element(By.NAME, 'project_name').send_keys("New Project")
-        self.driver.find_element(By.NAME, 'description').send_keys("Project Description")
-        self.driver.find_element(By.NAME, 'freelancer').send_keys("John Doe")
-        self.driver.find_element(By.XPATH, '//input[@value="Create Project"]').click()
+        self.driver.find_element(By.NAME, 'project_description').send_keys("Project Description")
+        self.driver.find_element(By.XPATH, '//button[text()="Create Project"]').click()
+
         self.assertIn("Project created successfully", self.driver.page_source)
 
-    def test_viewing_project_lists(self):
-        # Functionalities 9: Viewing Project Lists
+    def test_view_project_lists(self):
+        # Functionalities 9: Test viewing project lists
         self.login("admin", "admin123")
-        self.driver.find_element(By.XPATH, '//button[text()="Manage All Projects"]').click()
-        self.assertIn("Project Alpha", self.driver.page_source)
+        self.driver.find_element(By.LINK_TEXT, 'Manage Projects').click()
+        self.assertIn("Project List", self.driver.page_source)
 
     def test_profile_management(self):
-        # Functionalities 10: Profile Management
+        # Functionalities 10: Test profile management
         self.login("admin", "admin123")
-        self.driver.find_element(By.XPATH, '//button[text()="Edit Profile"]').click()
-        self.assertIn("Profile Management", self.driver.title)
+        self.driver.find_element(By.LINK_TEXT, 'Manage Profile').click()
+        self.assertIn("Current Profile Details", self.driver.page_source)
 
-    def test_updating_user_profile(self):
-        # Functionalities 11: Updating the User Profile
+    def test_update_user_profile(self):
+        # Functionalities 11: Test updating user profile
         self.login("admin", "admin123")
-        self.driver.find_element(By.XPATH, '//button[text()="Edit Profile"]').click()
-        self.driver.find_element(By.ID, 'username').clear()
-        self.driver.find_element(By.ID, 'username').send_keys("updated_user")
-        self.driver.find_element(By.ID, 'email').send_keys("updated_email@example.com")
-        self.driver.find_element(By.XPATH, '//input[@value="Update Profile"]').click()
+        self.driver.find_element(By.LINK_TEXT, 'Manage Profile').click()
+        
+        # Assuming there are fields to update username and email
+        self.driver.find_element(By.NAME, 'username').clear()
+        self.driver.find_element(By.NAME, 'username').send_keys("updated_user")
+        self.driver.find_element(By.XPATH, '//button[text()="Update Profile"]').click()
+
         self.assertIn("Profile updated successfully", self.driver.page_source)
 
 if __name__ == '__main__':

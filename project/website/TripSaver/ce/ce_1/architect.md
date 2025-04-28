@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application will be developed using Flask as the web framework for Python, which provides a simple way to create web applications. HTML will be used for the front-end, with Bootstrap for responsive design. The application will utilize local text files for data storage, implementing basic file I/O operations to manage user data and trip information.",
+"Implementation approach": "The web application 'Trip Saver' will be developed using HTML for the front end and Python for the back end. User interactions will be handled through HTML forms for registration, login, and trip details input. The application will process user inputs using Python, which will manage the logic for transportation suggestions, cost and time estimates, and saving preferred options. Data will flow from the user input to the backend logic, which will then read from and write to local text files for data storage.",
 
-"UI design": "The user interface will consist of the following components:\n1. **Registration Page**: A form with fields for username and password, and a submit button.\n2. **Login Page**: A form similar to the Registration Page for user login.\n3. **Trip Details Input**: A form for entering trip details, including starting point, destination, and travel date, along with a submit button to get transportation options.\n4. **Results Display**: A section to show transportation options with estimated costs and travel times, and buttons to save preferred options.",
+"UI design": "The user interface will consist of the following key components: \n1. **Registration Page**: Contains input fields for username and password, and a 'Register' button. \n2. **Login Page**: Contains input fields for username and password, and a 'Login' button. \n3. **Trip Details Input Form**: Input fields for starting point, destination, and travel date, along with a 'Submit' button to get transportation options. \n4. **Transportation Options Display**: A section to display the suggested transportation options with estimated costs and travel times. \n5. **Comparison Features**: A comparison table or list to allow users to compare different transportation options based on distance, cost, and time. \n6. **Logout Feature**: A 'Logout' button to return users to the Login Page.",
 
-"Data Storage": "Data will be organized in local text files as follows:\n- `users.txt`: Stores usernames and passwords in the format 'username,password'.\n- `trips.txt`: Stores trip details in the format 'username,starting_point,destination,date,options'.\n- `options.txt`: Stores transportation options in the format 'username,option,cost,time'.",
+"Data Storage": "Data will be stored in local text files, with separate files for different types of data: \n1. `users.txt` for storing user account information (username and password). \n2. `trips.txt` for storing trip details and transportation options. This approach facilitates easy data management and retrieval through simple file manipulations in Python, ensuring the application remains lightweight and efficient without the need for a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/trip_input.html", "templates/results.html", "users.txt", "trips.txt", "options.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/trip_input.html", "templates/options_display.html", "users.txt", "trips.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -18,18 +18,15 @@ classDiagram
         -List users
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
+        +save_users() void
+        +load_users() void
     }
     class TripManager {
         -List trips
-        +input_trip(username: str, starting_point: str, destination: str, date: str) bool
-        +get_transportation_options(starting_point: str, destination: str) List
-        +save_preferred_option(username: str, option: str) bool
+        +add_trip(start: str, destination: str, date: str) void
+        +get_transportation_options(start: str, destination: str, date: str) List
+        +save_trips() void
+        +load_trips() void
     }
 ",
-
-"User Authentication": "User registration and login will be handled by storing usernames and passwords in `users.txt` without encryption. During registration, the username and password will be appended to the file. During login, the system will read the file and verify the entered credentials.",
-
-"Transportation Logic": "Transportation options will be calculated based on predefined data for different modes of transport. The logic will consider factors like distance, cost, and time. For demo purposes, the application will use static data to simulate transportation options and their respective costs and times.",
-
-"Future Enhancements": "Potential future enhancements could include integrating real-time transportation APIs for dynamic cost and time estimates, implementing user profile management, adding a favorites feature for saved trips, and providing a mobile-friendly version of the application."
 [/CONTENT]

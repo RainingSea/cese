@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The NoteTakingApp will be developed using Python for the backend and HTML for the frontend. The application will utilize local text files for data storage, allowing for easy data manipulation and retrieval without the complexity of a SQL database. Each user will have their own notes stored in a separate text file, and user credentials will be stored in a dedicated user file.",
+"Implementation approach": "The application will be implemented using Python for backend logic and HTML for frontend design. User data and notes will be stored in local text files, which will facilitate easy data management through simple file operations. The application will handle user authentication, note creation, viewing, editing, and deletion functionalities, all while maintaining a straightforward architecture.",
 
-"UI design":"The application will consist of the following key UI components:\n1. **Login Page**: Input fields for username and password, a login button, and a link to the Registration Page.\n2. **Registration Page**: Input fields for username, password, and password confirmation, along with a register button.\n3. **Dashboard Page**: A list of notes with options to add, view, edit, delete, and search for notes.\n4. **Add Note Page**: Input fields for note title and content, with save and discard buttons.\n5. **View Note Page**: Display note details with options to edit or delete the note.\n6. **Search Note Page**: Input field for searching notes by title, displaying search results with links to view notes.",
+"UI design": "The UI will consist of the following key components: Login Page (username, password fields, Register link), Registration Page (username, password, confirm password fields), Dashboard Page (list of notes with links to view, edit, and delete), Add Note Page (title and content fields), View Note Page (display note details with edit and delete options), and Search Note Page (search bar and results display). The layout will ensure easy navigation between pages, enhancing user experience.",
 
-"Data Storage":"Data will be stored in local text files. The following text files will be created:\n1. **users.txt**: Stores user credentials in the format 'username:password'.\n2. **<username>_notes.txt**: Each user will have a separate file for their notes, stored in the format 'note_title|note_content'.",
+"Data Storage": "Data will be stored in local text files. User credentials will be stored in 'users.txt' and notes will be stored in 'notes.txt'. Each note will be saved in a structured format, ensuring easy retrieval and management. No SQL database will be used.",
 
-"File list": ["main.py","templates/login.html","templates/registration.html","templates/dashboard.html","templates/add_note.html","templates/view_note.html","templates/search_note.html","users.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/add_note.html", "templates/view_note.html", "templates/search_note.html", "users.txt", "notes.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -15,16 +15,17 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users_file str
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class NoteManager {
-        -notes_file str
+        -notes: list
         +add_note(title: str, content: str) bool
-        +edit_note(title: str, new_content: str) bool
-        +delete_note(title: str) bool
         +get_notes() list
+        +get_note_details(note_id: int) str
+        +edit_note(note_id: int, title: str, content: str) bool
+        +delete_note(note_id: int) bool
         +search_notes(title: str) list
     }
 ",

@@ -9,10 +9,10 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
         # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8159/')  # Access the login page
+        self.driver.get('http://localhost:8323/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session and terminate the Flask app
+        # Close the web driver session and terminate the Flask application
         self.driver.quit()
         self.process.terminate()
 
@@ -25,12 +25,14 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
     def test_user_login(self):
         # Functionalities 1: Test user login functionality
         self.login("admin", "admin123")
-        self.assertIn("Create Story", self.driver.title)  # Check if redirected to Story Creation Page
+        # Verify that the Story Creation Page has loaded
+        self.assertIn("Create Story", self.driver.title)
 
-    def test_navigate_to_registration(self):
+    def test_navigate_to_registration_page(self):
         # Functionalities 2: Test navigation to the Registration Page
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
-        self.assertIn("Register", self.driver.title)  # Check if Registration Page has loaded
+        # Verify that the Registration Page has loaded
+        self.assertIn("Register", self.driver.title)
 
     def test_user_registration(self):
         # Functionalities 3: Test user registration functionality
@@ -53,10 +55,13 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
         # Functionalities 4: Test creating a new story
         self.login("admin", "admin123")
 
-        # Fill out the new story form
+        # Navigate to Story Creation Page
+        self.driver.find_element(By.XPATH, '//h1[text()="Create Story"]').click()
+        
         story_title = "My New Story"
         story_content = "This is the content of my new story."
 
+        # Fill out the new story form
         self.driver.find_element(By.NAME, 'title').send_keys(story_title)
         self.driver.find_element(By.NAME, 'content').send_keys(story_content)
         self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
@@ -64,43 +69,32 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
         # Verify that the new story is displayed on the page
         self.assertIn(story_title, self.driver.page_source)
 
-    def test_save_story(self):
-        # Functionalities 5: Test saving a story
-        self.login("admin", "admin123")
-
-        # Fill out the new story form
-        story_title = "Another Story"
-        story_content = "This is another story content."
-
-        self.driver.find_element(By.NAME, 'title').send_keys(story_title)
-        self.driver.find_element(By.NAME, 'content').send_keys(story_content)
-        self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
-
-        # Verify that the new story is saved and displayed
-        self.assertIn(story_title, self.driver.page_source)
-
     def test_edit_story(self):
-        # Functionalities 6: Test editing a story
+        # Functionalities 6: Test editing an existing story
         self.login("admin", "admin123")
 
-        # Assuming we have a story titled "My New Story" to edit
-        self.driver.find_element(By.LINK_TEXT, "My New Story").click()  # Navigate to the story
-        new_title = "Edited Story Title"
-        new_content = "This is the edited content of the story."
+        # Assuming the story "My First Story" exists, we will edit it
+        self.driver.find_element(By.XPATH, '//h1[text()="Create Story"]').click()
+        
+        # Edit the existing story
+        edited_title = "My First Story"
+        edited_content = "This is the updated content of my first story."
 
+        # Find the existing story and edit it
         self.driver.find_element(By.NAME, 'title').clear()
-        self.driver.find_element(By.NAME, 'title').send_keys(new_title)
+        self.driver.find_element(By.NAME, 'title').send_keys(edited_title)
         self.driver.find_element(By.NAME, 'content').clear()
-        self.driver.find_element(By.NAME, 'content').send_keys(new_content)
+        self.driver.find_element(By.NAME, 'content').send_keys(edited_content)
         self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
 
-        # Verify that the story is edited and displayed
-        self.assertIn(new_title, self.driver.page_source)
+        # Verify that the edited story is displayed on the page
+        self.assertIn(edited_title, self.driver.page_source)
 
-    def test_navigate_to_registration_page(self):
-        # Functionalities 7: Test navigating to the registration page
+    def test_navigate_to_registration(self):
+        # Functionalities 7: Test navigating to the registration page from the login page
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
-        self.assertIn("Register", self.driver.title)  # Check if Registration Page has loaded
+        # Verify that the registration page has loaded
+        self.assertIn("Register", self.driver.title)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,72 +1,92 @@
-from flask import Flask, render_template, request, redirect, url_for
-import os
-
-app = Flask(__name__)
+from flask import Flask, render_template, request, redirect, session
+from flask_session import Session
 
 class UserManager:
     def __init__(self):
         self.users = self.load_users()
 
     def load_users(self):
-        if not os.path.exists('users.txt'):
-            return []
+        users = []
         with open('users.txt', 'r') as file:
-            return [line.strip().split('|') for line in file.readlines()]
+            for line in file:
+                username, password = line.strip().split('|')
+                users.append({'username': username, 'password': password})
+        return users
 
     def login(self, username: str, password: str) -> bool:
         for user in self.users:
-            if user[0] == username and user[1] == password:
+            if user['username'] == username and user['password'] == password:
                 return True
         return False
 
     def register(self, username: str, password: str) -> bool:
-        for user in self.users:
-            if user[0] == username:
-                return False
-        self.users.append([username, password])
+        if any(user['username'] == username for user in self.users):
+            return False
         with open('users.txt', 'a') as file:
             file.write(f"{username}|{password}\n")
+        self.users.append({'username': username, 'password': password})
         return True
-
-class FreelancerManager:
-    def __init__(self):
-        self.freelancers = self.load_freelancers()
-
-    def load_freelancers(self):
-        if not os.path.exists('freelancers.txt'):
-            return []
-        with open('freelancers.txt', 'r') as file:
-            return [line.strip().split('|') for line in file.readlines()]
-
-    def search_freelancer(self, name: str) -> list:
-        return [freelancer for freelancer in self.freelancers if name.lower() in freelancer[0].lower()]
-
-    def get_freelancer_details(self, id: int) -> str:
-        if 0 <= id < len(self.freelancers):
-            return '|'.join(self.freelancers[id])
-        return "Freelancer not found."
 
 class ProjectManager:
     def __init__(self):
         self.projects = self.load_projects()
 
     def load_projects(self):
-        if not os.path.exists('projects.txt'):
-            return []
+        projects = []
         with open('projects.txt', 'r') as file:
-            return [line.strip().split('|') for line in file.readlines()]
+            for line in file:
+                name, description, freelancer = line.strip().split('|')
+                projects.append({'name': name, 'description': description, 'freelancer': freelancer})
+        return projects
 
-    def create_project(self, name: str, description: str, freelancer_id: int) -> bool:
-        self.projects.append([name, description, str(freelancer_id)])
+    def create_project(self, name: str, description: str, freelancer: str) -> bool:
         with open('projects.txt', 'a') as file:
-            file.write(f"{name}|{description}|{freelancer_id}\n")
+            file.write(f"{name}|{description}|{freelancer}\n")
+        self.projects.append({'name': name, 'description': description, 'freelancer': freelancer})
         return True
 
-    def list_projects(self) -> list:
+    def list_projects(self):
         return self.projects
 
-@app.route('/')
+class FreelancerManager:
+    def __init__(self):
+        self.freelancers = self.load_freelancers()
+
+    def load_freelancers(self):
+        freelancers = []
+        with open('freelancers.txt', 'r') as file:
+            for line in file:
+                name, skills = line.strip().split('|')
+                freelancers.append({'name': name, 'skills': skills})
+        return freelancers
+
+    def search_freelancer(self, name: str):
+        return [freelancer for freelancer in self.freelancers if name.lower() in freelancer['name'].lower()]
+
+    def get_freelancer_details(self, name: str):
+        for freelancer in self.freelancers:
+            if freelancer['name'] == name:
+                return freelancer
+        return None
+
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
+
+user_manager = UserManager()
+project_manager = ProjectManager()
+freelancer_manager = FreelancerManager()
+
+@app.route('/', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            session['username'] = username
+            return redirect('/home')
+        return "Invalid credentials"
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -74,40 +94,23 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user_manager = UserManager()
         if user_manager.register(username, password):
-            return redirect(url_for('login'))
-        else:
-            return "Registration failed. User may already exist."
+            return redirect('/')
+        return "User already exists"
     return render_template('registration.html')
 
 @app.route('/home')
 def home():
     return render_template('home.html')
 
-@app.route('/freelancer_profile/<int:id>')
-def freelancer_profile(id):
-    freelancer_manager = FreelancerManager()
-    details = freelancer_manager.get_freelancer_details(id)
-    return render_template('freelancer_profile.html', details=details)
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
 
-@app.route('/project_management', methods=['GET', 'POST'])
-def project_management():
-    project_manager = ProjectManager()
-    if request.method == 'POST':
-        name = request.form['name']
-        description = request.form['description']
-        freelancer_id = request.form['freelancer_id']
-        project_manager.create_project(name, description, freelancer_id)
-    projects = project_manager.list_projects()
-    return render_template('project_management.html', projects=projects)
-
-@app.route('/profile_management', methods=['GET', 'POST'])
-def profile_management():
-    if request.method == 'POST':
-        # Logic for updating user profile
-        pass
-    return render_template('profile_management.html')
+@app.route('/projects')
+def projects():
+    project_list = project_manager.list_projects()
+    return render_template('projects.html', projects=project_list)
 
 if __name__ == '__main__':
-    app.run(port=8169, debug=False)
+    app.run(port=8384, debug=False)

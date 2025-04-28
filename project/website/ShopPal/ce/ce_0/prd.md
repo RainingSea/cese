@@ -10,17 +10,17 @@ Develop a web application named 'ShopPal' that helps users discover and save the
    - The system shall provide a Login Page where users can log in to their account by entering their username and password.
 
 3. **Product Collections**
-   - The system shall allow users to create personalized collections of products they are interested in on the Dashboard Page.
+   - The system shall allow users to create personalized collections of products on the Dashboard Page.
 
 4. **Price Tracking**
    - The system shall enable users to track price changes for products saved in their collections.
 
 5. **Product Information**
-   - The system shall allow users to view detailed product information, including description, reviews, and pricing.
+   - The system shall provide detailed product information, including description, reviews, and pricing.
 
 6. **Product Search**
-   - The system shall provide a search functionality that allows users to search for products by keywords, category, or retailer.
+   - The system shall allow users to search for products using keywords, categories, or retailers.
 
 7. **User Logout**
-   - The system shall allow users to log out of their account, returning to the Login Page.
+   - The system shall provide a logout functionality that returns users to the Login Page.
 [/OUTPUT]

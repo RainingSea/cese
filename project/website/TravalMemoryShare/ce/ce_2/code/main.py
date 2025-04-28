@@ -1,92 +1,96 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 import json
 
-app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager()
+        self.album_manager = AlbumManager()
 
-class User:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+    def main(self):
+        self.user_manager.load_users()
+        self.album_manager.load_albums()
+        # Simulate routing to login page
+        self.login_page()
 
-    def register(self):
-        with open('users.txt', 'a') as f:
-            f.write(f"{self.username}|{self.password}\n")
+    def login_page(self):
+        print("Welcome to the Album Sharing App. Please log in.")
 
-    def login(self):
-        with open('users.txt', 'r') as f:
-            users = f.readlines()
-            for user in users:
-                uname, pwd = user.strip().split('|')
-                if uname == self.username and pwd == self.password:
-                    return True
-        return False
+class UserManager:
+    def __init__(self):
+        self.users = []
 
-    def follow(self):
-        pass  # Placeholder for future implementation
+    def load_users(self):
+        if os.path.exists('users.txt'):
+            with open('users.txt', 'r') as file:
+                for line in file:
+                    username, password = line.strip().split('|')
+                    self.users.append({'username': username, 'password': password})
 
-class Album:
-    def __init__(self, title, description, images, visibility):
-        self.title = title
-        self.description = description
-        self.images = images
-        self.visibility = visibility
+    def register(self, username: str, password: str) -> bool:
+        if any(user['username'] == username for user in self.users):
+            return False
+        self.users.append({'username': username, 'password': password})
+        self.save_users()
+        return True
 
-    def create(self):
-        with open('albums.txt', 'a') as f:
-            f.write(f"{self.title}|{self.description}|{self.images}|{self.visibility}\n")
+    def save_users(self):
+        with open('users.txt', 'w') as file:
+            for user in self.users:
+                file.write(f"{user['username']}|{user['password']}\n")
 
-    def customize(self):
-        pass  # Placeholder for future implementation
+    def login(self, username: str, password: str) -> bool:
+        return any(user['username'] == username and user['password'] == password for user in self.users)
 
-    def share(self):
-        pass  # Placeholder for future implementation
+    def follow(self, user: str) -> None:
+        # Implementation for following a user would go here
+        pass
 
-class Interaction:
-    def __init__(self, user, album):
-        self.user = user
-        self.album = album
-        self.likes = 0
-        self.comments = []
+class AlbumManager:
+    def __init__(self):
+        self.albums = []
 
-    def like(self):
-        self.likes += 1
+    def load_albums(self):
+        if os.path.exists('albums.txt'):
+            with open('albums.txt', 'r') as file:
+                for line in file:
+                    album_data = json.loads(line.strip())
+                    self.albums.append(album_data)
 
-    def comment(self, comment):
-        self.comments.append(comment)
+    def create_album(self, user: str, album_data: dict) -> None:
+        self.albums.append(album_data)
+        self.save_albums()
 
-@app.route('/')
-def login():
-    return render_template('login.html')
+    def save_albums(self):
+        with open('albums.txt', 'w') as file:
+            for album in self.albums:
+                file.write(json.dumps(album) + '\n')
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User(username, password)
-        user.register()
-        flash('Registration successful! Please log in.')
-        return redirect(url_for('login'))
-    return render_template('registration.html')
+    def share_album(self, album_id: str, visibility: str) -> None:
+        # Implementation for sharing an album would go here
+        pass
 
-@app.route('/explore')
-def explore():
-    return render_template('explore.html')
+    def explore_albums(self) -> list:
+        return self.albums
 
-@app.route('/album/create', methods=['GET', 'POST'])
-def create_album():
-    if request.method == 'POST':
-        title = request.form['title']
-        description = request.form['description']
-        images = request.form['images']
-        visibility = request.form['visibility']
-        album = Album(title, description, images, visibility)
-        album.create()
-        flash('Album created successfully!')
-        return redirect(url_for('explore'))
-    return render_template('album_creation.html')
+class InteractionManager:
+    def __init__(self):
+        self.interactions = []
 
-if __name__ == '__main__':
-    app.run(port=8260, debug=False)
+    def load_interactions(self):
+        if os.path.exists('interactions.txt'):
+            with open('interactions.txt', 'r') as file:
+                for line in file:
+                    interaction_data = json.loads(line.strip())
+                    self.interactions.append(interaction_data)
+
+    def like_album(self, album_id: str, user: str) -> None:
+        # Implementation for liking an album would go here
+        pass
+
+    def comment_album(self, album_id: str, user: str, comment: str) -> None:
+        # Implementation for commenting on an album would go here
+        pass
+
+if __name__ == "__main__":
+    app = Main()
+    app.main()

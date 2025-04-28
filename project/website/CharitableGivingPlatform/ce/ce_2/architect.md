@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The web application will be structured using Python for backend logic and HTML for frontend presentation. User sessions will be managed through simple session variables stored in memory. Each page will be generated dynamically based on user interactions, with forms for login, registration, and donations handled through POST requests.",
+"Implementation approach": "The web application will be structured using Python for the backend logic and HTML for the frontend presentation. The main flow starts from the Login Page, where users enter their credentials. Upon successful login, users are redirected to the Dashboard Page, where they can view available charities and their contribution history. Users can navigate to the Charity Details Page for more information and make donations. The application will handle user sessions and data storage using local text files for simplicity and efficiency.",
 
-"UI design": "The application will consist of the following pages: 1. **Login Page**: A form with fields for username and password, and a 'Login' button. 2. **Registration Page**: A form for new users to enter their desired username and password, along with a 'Register' button. 3. **Dashboard Page**: A list of available charities with 'Details' buttons for each charity, a section for viewing contribution history, and a 'Logout' button. 4. **Charity Details Page**: Displays detailed information about a selected charity, including a donation input field and a 'Donate' button.",
+"UI design": "The Login Page will include input fields for username and password, a 'Login' button, and a 'Register here' link. The Registration Page will have fields for username, password, and a 'Register' button. The Dashboard Page will display a list of charities with 'Details' buttons for each charity, a 'Logout' button, and a section for contribution history. The Charity Details Page will show detailed information about the charity, an input field for donation amount, and a 'Donate' button. A 'Back' button will allow users to return to the Dashboard.",
 
-"Data Storage": "Data will be stored in local text files. The following files will be used: 1. `users.txt` for storing user account information (username and password). 2. `charities.txt` for storing charity details (name, mission, ongoing projects). 3. `contributions.txt` for storing user contribution history (username, charity name, amount donated).",
+"Data Storage": "All data will be stored in local text files. User data will be stored in 'users.txt', charity data in 'charities.txt', and contribution history in 'contributions.txt'. Each file will have a structured format to facilitate easy retrieval and management through simple file manipulations in Python.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/charity_details.html", "users.txt", "charities.txt", "contributions.txt"],
 
@@ -18,25 +18,18 @@ classDiagram
         -users: dict
         +login(username: str, password: str) bool
         +register(username: str, password: str) bool
-        +get_contribution_history(username: str) list
+        +load_users() void
     }
     class CharityManager {
         -charities: dict
         +get_charities() list
-        +get_charity_details(charity_name: str) dict
-        +record_donation(username: str, charity_name: str, amount: float) void
+        +get_charity_details(charity_id: str) dict
+        +load_charities() void
+    }
+    class Contribution {
+        -contributions: list
+        +add_contribution(username: str, charity_id: str, amount: float) void
+        +load_contributions() void
     }
 ",
-
-"Functional requirements mapping": "
-1. Login functionality implemented on the Login Page using UserManager's login method.
-2. Registration functionality implemented on the Registration Page using UserManager's register method.
-3. Dashboard Page displays a list of charities using CharityManager's get_charities method.
-4. Charity Details Page shows detailed information about a charity using CharityManager's get_charity_details method.
-5. Contribution history displayed on the Dashboard Page using UserManager's get_contribution_history method.
-6. Donation functionality on the Charity Details Page using CharityManager's record_donation method.
-7. Logout functionality returns to the Login Page by clearing session variables.
-8. Back button on Charity Details Page navigates back to the Dashboard Page.
-9. Details button on Dashboard Page links to Charity Details Page for specific charities.
-"
 [/CONTENT]

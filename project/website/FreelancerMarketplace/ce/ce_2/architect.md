@@ -1,18 +1,18 @@
 [CONTENT]
-"Implementation approach": "The application will be structured as a single-page web application where users can navigate through different functionalities using links. The main components include the login page, registration page, home page, freelancer profile page, project management page, and profile management page. Each page will be rendered using HTML templates, and user interactions will be handled by Python functions that read from and write to text files for data storage.",
+"Implementation approach": "The web application 'FreelancerMarketplace' will be developed using Python with a simple web framework like Flask. The application will consist of several routes for login, registration, home, profile management, and project management. HTML will be used for the frontend, and the application will handle user authentication and data management through local text files. The application will be structured to ensure that each functional requirement is met with minimal complexity.",
 
-"UI design": "The login page will have input fields for username and password, along with a 'Login' button and a link to the registration page. The registration page will have similar input fields for creating a new account. The home page will display a welcome message, a search field for freelancers, and buttons to navigate to project management and profile management. The freelancer profile page will show freelancer details with a 'View Freelancer Details' button. The project management page will allow users to create and view projects, while the profile management page will have fields for updating username and email.",
+"UI design": "The application will have the following pages: \n1. Login Page: Contains input fields for username and password, a login button, and a link to the registration page. \n2. Registration Page: Contains input fields for username and password, a registration button, and a link to the login page. \n3. Home Page: Displays a welcome message, a search bar for freelancers, and buttons to navigate to project management and profile management. \n4. Freelancer Profile Page: Shows freelancer details and a button to view projects. \n5. Project Management Page: Lists all projects with options to create new projects and view project details. \n6. Profile Management Page: Contains input fields for updating username and email, and an update button.",
 
-"Data Storage": "Data will be stored in local text files to maintain simplicity and efficiency. The following types of data will be stored in separate files: user accounts in 'users.txt', freelancer profiles in 'freelancers.txt', and project details in 'projects.txt'. This approach allows for easy data retrieval and management through simple file manipulations in Python.",
+"Data Storage": "Data will be stored in local text files. The following files will be used: \n- users.txt: Stores user information (username, password). \n- freelancers.txt: Stores freelancer details (name, skills, etc.). \n- projects.txt: Stores project details (project name, description, assigned freelancer). Each line in the files will represent a single record, with fields separated by commas. This structure allows for easy retrieval and management of data without the use of a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/freelancer_profile.html", "templates/project_management.html", "templates/profile_management.html", "users.txt", "freelancers.txt", "projects.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/profile.html", "templates/projects.html", "users.txt", "freelancers.txt", "projects.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
-        -FreelancerManager freelancer_manager
         -ProjectManager project_manager
+        -FreelancerManager freelancer_manager
         +main() str
     }
     class UserManager {
@@ -20,15 +20,15 @@ classDiagram
         +login(username: str, password: str) bool
         +register(username: str, password: str) bool
     }
+    class ProjectManager {
+        -List projects
+        +create_project(name: str, description: str, freelancer: str) bool
+        +list_projects() List
+    }
     class FreelancerManager {
         -List freelancers
         +search_freelancer(name: str) List
-        +get_freelancer_details(id: int) str
-    }
-    class ProjectManager {
-        -List projects
-        +create_project(name: str, description: str, freelancer_id: int) bool
-        +list_projects() List
+        +get_freelancer_details(name: str) str
     }
 ",
 [/CONTENT]

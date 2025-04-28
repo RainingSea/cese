@@ -6,13 +6,13 @@ import subprocess
 class TestRemoteJobBoardApp(unittest.TestCase):
 
     def setUp(self):
-        # Initialize the webdriver and open the login page
+        # Start the main application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8235/') 
+        self.driver.get('http://localhost:8407/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session
+        # Close the web driver session and terminate the application
         self.driver.quit()
         self.process.terminate()
 
@@ -23,46 +23,46 @@ class TestRemoteJobBoardApp(unittest.TestCase):
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
 
     def test_login(self):
-        # Functionalities 1: User Login
-        self.login("user1", "user123")
-        self.assertIn("Home", self.driver.title)  # Expectation: Redirected to home page
+        # Functionalities 1: Test user login functionality
+        self.login("admin", "admin123")
+        # Verify that the user is redirected to the home page
+        self.assertIn("Home", self.driver.title)
 
     def test_registration(self):
-        # Functionalities 2: User Registration
-        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
-        
+        # Functionalities 2: Test user registration functionality
+        self.driver.get('http://localhost:8407/register')  # Navigate to registration page
         new_username = "new_user"
         new_password = "new_password"
-        new_email = "new_user@example.com"
 
         # Input username and password for registration
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
-        self.driver.find_element(By.NAME, 'email').send_keys(new_email)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
         # Verify the user is redirected to the login page
         self.assertIn("Login", self.driver.title)
 
     def test_navigate_home_after_login(self):
-        # Functionalities 3: Navigating Home Page After Login
-        self.login("user1", "user123")
-        self.assertIn("Home", self.driver.title)  # Expectation: Home page is displayed
+        # Functionalities 3: Test navigating to home page after login
+        self.login("admin", "admin123")
+        # Verify that the user is on the home page
+        self.assertIn("Home", self.driver.title)
 
-    def test_browsing_job_listings(self):
-        # Functionalities 4: Browsing Job Listings
-        self.login("user1", "user123")
-        self.driver.find_element(By.LINK_TEXT, 'View All Jobs').click()
-        self.assertIn("Job Listings", self.driver.title)  # Expectation: Job listings page is displayed
+    def test_browse_jobs(self):
+        # Functionalities 4: Test browsing job listings
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Browse Jobs').click()
+        # Verify that job listings are displayed
+        self.assertIn("Job Listings", self.driver.page_source)
 
-    def test_posting_new_job_listing(self):
-        # Functionalities 5: Posting a New Job Listing
-        self.login("user1", "user123")
-        self.driver.find_element(By.LINK_TEXT, 'Post a Job').click()
+    def test_post_job(self):
+        # Functionalities 5: Test posting a new job listing
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:8407/post_job')  # Navigate to post job page
 
-        job_title = "New Software Engineer"
-        job_company = "New Tech Company"
-        job_description = "Develop new software applications."
+        job_title = "Software Engineer"
+        job_company = "Tech Company"
+        job_description = "Develop software applications."
 
         # Fill out the job posting form
         self.driver.find_element(By.NAME, 'title').send_keys(job_title)
@@ -71,43 +71,26 @@ class TestRemoteJobBoardApp(unittest.TestCase):
         self.driver.find_element(By.XPATH, '//button[text()="Post Job"]').click()
 
         # Verify that the job is posted successfully
-        self.assertIn("Job Listings", self.driver.title)  # Expectation: Redirected to job listings page
+        self.assertIn("Job Listings", self.driver.page_source)
 
     def test_edit_user_profile(self):
-        # Functionalities 6: Editing User Profile
-        self.login("user1", "user123")
-        self.driver.find_element(By.LINK_TEXT, 'Profile').click()
+        # Functionalities 6: Test editing user profile (not implemented)
+        self.fail("Edit user profile functionality not implemented")
 
-        new_email = "updated_user@example.com"
-        self.driver.find_element(By.NAME, 'email').send_keys(new_email)
-        self.driver.find_element(By.XPATH, '//button[text()="Update"]').click()
+    def test_apply_for_job(self):
+        # Functionalities 7: Test applying for job postings (not implemented)
+        self.fail("Apply for job postings functionality not implemented")
 
-        # Verify that the profile updates successfully
-        self.assertIn("User Profile", self.driver.title)  # Expectation: Profile page is displayed
-
-    def test_applying_for_job_postings(self):
-        # Functionalities 7: Applying for Job Postings
-        self.login("user1", "user123")
-        self.driver.find_element(By.LINK_TEXT, 'View All Jobs').click()
-
-        # Apply for the first job listing
-        self.driver.find_element(By.XPATH, '//button[text()="Apply"]').click()
-
-        # Verify that the application is submitted successfully
-        self.assertIn("Job Listings", self.driver.title)  # Expectation: Redirected to job listings page
-
-    def test_viewing_user_profile(self):
-        # Functionalities 8: Viewing User Profile
-        self.login("user1", "user123")
-        self.driver.find_element(By.LINK_TEXT, 'Profile').click()
-        self.assertIn("User Profile", self.driver.title)  # Expectation: Profile page is displayed
+    def test_view_user_profile(self):
+        # Functionalities 8: Test viewing user profile (not implemented)
+        self.fail("View user profile functionality not implemented")
 
     def test_logout(self):
-        # Functionalities 9: Logging Out
-        self.login("user1", "user123")
-        self.driver.find_element(By.LINK_TEXT, 'Profile').click()
+        # Functionalities 9: Test logging out
+        self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
-        self.assertIn("Login", self.driver.title)  # Expectation: Redirected to login page
+        # Verify that the user is redirected to the login page
+        self.assertIn("Login", self.driver.title)
 
 if __name__ == '__main__':
     unittest.main()

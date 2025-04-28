@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The web application 'Sports Equipment Inventory Tracker' will be developed using HTML for the front end and Python for the back end. The application will handle user interactions through forms and buttons, processing data using Python functions. User registration and login will be managed through simple text file operations, while equipment management will be facilitated by reading and writing to specific text files for data storage.",
+"Implementation approach": "The application will be developed using HTML for the frontend and Python for the backend logic. User interactions will be handled through HTML forms, while data processing and storage will be managed using Python scripts. Local text files will be utilized for data storage, ensuring a lightweight and efficient application.",
 
-"UI design":"The user interface will consist of three main pages: the Registration Page for user account creation, the Login Page for user authentication, and the Dashboard Page for managing equipment inventory. Key UI elements will include forms for inputting user credentials and equipment details, buttons for submitting data, and tables for displaying equipment information, including quantity, condition, and location.",
+"UI design":"The UI will consist of the following components: 1) Registration Page with fields for username and password, 2) Login Page with fields for username and password, 3) Dashboard Page for inputting and updating equipment information, displaying equipment list with details such as quantity, condition, availability, and location, 4) Alert settings for maintenance or replacement, 5) Search bar for equipment lookup, and 6) Filter options for equipment list.",
 
-"Data Storage":"Data will be stored in local text files. User information will be stored in 'users.txt', while equipment details will be stored in 'equipment.txt'. Alerts for maintenance will be stored in 'alerts.txt'. Each file will be structured to facilitate easy reading and writing, ensuring efficient data retrieval and management.",
+"Data Storage":"Data will be stored in local text files. Different types of data will be stored in separate files. The files will include: users.txt for user credentials, equipment.txt for equipment details, and alerts.txt for maintenance alerts.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "users.txt", "equipment.txt", "alerts.txt"],
 
@@ -20,12 +20,12 @@ classDiagram
         +login(username: str, password: str) bool
     }
     class EquipmentManager {
-        -equipment: list
-        +add_equipment(name: str, type: str, quantity: int, condition: str, location: str) bool
+        -equipment_list: list
+        +add_equipment(name: str, quantity: int, condition: str, location: str) bool
         +update_equipment(name: str, quantity: int, condition: str, location: str) bool
-        +get_equipment() list
+        +view_equipment() list
         +search_equipment(query: str) list
-        +filter_equipment(criteria: str) list
+        +filter_equipment(criteria: dict) list
     }
 ",
 [/CONTENT]

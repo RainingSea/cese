@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application will be structured using a simple MVC (Model-View-Controller) architecture. The 'main.py' file will serve as the entry point, handling routing and user interactions. The 'tools.py' file will manage data storage and retrieval. The user interface will be created using HTML templates stored in the 'templates' directory. User registration and login will be handled through forms, with session management to maintain user state. The search functionality will utilize a simple text search algorithm to find relevant books from the stored data files.",
+"Implementation approach": "The 'QuickSearch' application will be developed using Python for the backend logic and HTML for the frontend interface. The application will use a simple file-based storage system to manage user accounts and book data. The Flask framework will be utilized to handle routing and rendering of HTML templates. The application will be structured to allow easy integration of the various components, ensuring a smooth user experience.",
 
-"UI design": "The user interface will consist of the following pages: \n1. **Registration Page**: A form with fields for username and password, and a submit button. \n2. **Login Page**: Similar to the Registration Page, with fields for username and password. \n3. **Dashboard Page**: A search bar at the top, a list of search results displayed below, each with a title, author, summary, and cover image. \n4. **Book Details Page**: Detailed information about the selected book, including a detailed description and an 'Add to Reading List' button. \n5. **Reading List Page**: A list of books added by the user, with options to remove books from the list. \nThe layout will be simple and user-friendly, ensuring easy navigation between pages.",
+"UI design": "The user interface will consist of the following pages: 1) Registration Page: A form for users to enter a username and password. 2) Login Page: A form for users to log in with their credentials. 3) Dashboard Page: A search bar for entering search queries, and a section to display search results. 4) Book Details Page: A detailed view of the selected book, including an 'Add to Reading List' button. 5) Reading List Page: A list of books the user has added to their reading list, with options to remove books. Navigation will be achieved through links and buttons, ensuring users can easily move between pages.",
 
-"Data Storage": "Data will be stored in local text files. The following types of data will be stored in separate files: \n1. **users.txt**: Stores user accounts with usernames and passwords. \n2. **books.txt**: Contains book details such as title, author, summary, cover image, and detailed description. \n3. **reading_list.txt**: Stores the reading lists for each user, mapping usernames to their selected books.",
+"Data Storage": "User data and book information will be stored in local text files. The following files will be used: 1) 'users.txt' for storing usernames and passwords, 2) 'books.txt' for storing book details (title, author, summary, cover image), and 3) 'reading_list.txt' for storing users' reading lists. Each file will contain structured data, with each entry separated by a newline for easy retrieval.",
 
-"File list": ["main.py", "tools.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/book_details.html", "templates/reading_list.html", "users.txt", "books.txt", "reading_list.txt"],
+"File list": ["main.py", "templates/registration.html", "templates/login.html", "templates/dashboard.html", "templates/book_details.html", "templates/reading_list.html", "users.txt", "books.txt", "reading_list.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -18,17 +18,16 @@ classDiagram
         -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +load_users() void
     }
     class BookManager {
         -books: list
-        +search_books(query: str) list
-        +load_books() void
+        +search(query: str) list
+        +get_book_details(title: str) dict
     }
     class ReadingList {
-        -reading_list: dict
-        +add_to_reading_list(username: str, book_id: str) void
-        +load_reading_list() void
+        -reading_list: list
+        +add_to_reading_list(book: dict) void
+        +get_reading_list() list
     }
 ",
 [/CONTENT]

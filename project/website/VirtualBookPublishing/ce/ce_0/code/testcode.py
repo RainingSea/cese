@@ -1,19 +1,19 @@
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import time
 import subprocess
+import os
 
 class TestVirtualBookPublishingApp(unittest.TestCase):
 
     def setUp(self):
-        # Initialize the webdriver and open the login page
+        # Start the server and open the login page
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8282/') 
+        self.driver.get('http://localhost:8000/') 
 
     def tearDown(self):
-        # Close the web driver session
+        # Close the web driver session and terminate the server
         self.driver.quit()
         self.process.terminate()
 
@@ -21,111 +21,91 @@ class TestVirtualBookPublishingApp(unittest.TestCase):
         # Helper method to perform login
         self.driver.find_element(By.NAME, 'username').send_keys(username)
         self.driver.find_element(By.NAME, 'password').send_keys(password)
-        self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.find_element(By.XPATH, '//input[@type="submit"]').click()
 
     def test_login(self):
-        # Functionalities 1: Test user login functionality
-        self.login("admin", "admin123")
+        # Functionalities 1: User Login
+        self.login("user1", "user123")
         self.assertIn("Dashboard", self.driver.title)
 
     def test_navigate_to_registration(self):
-        # Functionalities 2: Test navigation to the Registration Page
+        # Functionalities 2: Navigation to Registration Page
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
-        time.sleep(1)  # Wait for the next page to load
         self.assertIn("Register", self.driver.title)
 
     def test_registration(self):
-        # Functionalities 3: Test user registration functionality
+        # Functionalities 3: User Registration
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
-        time.sleep(1)  # Wait for the next page to load
-
         new_username = "new_user"
         new_password = "new_password"
 
         # Input username and password for registration
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
-        self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.find_element(By.XPATH, '//input[@type="submit"]').click()
 
         # Verify the user is redirected to the login page
         self.assertIn("Login", self.driver.title)
 
     def test_access_dashboard(self):
-        # Functionalities 4: Test accessing the Dashboard Page
-        self.login("admin", "admin123")
+        # Functionalities 4: Accessing the Dashboard Page
+        self.login("user1", "user123")
         self.assertIn("Dashboard", self.driver.title)
 
     def test_create_new_book(self):
-        # Functionalities 5: Test creating a new book
-        self.login("admin", "admin123")
+        # Functionalities 5: Create New Book
+        self.login("user1", "user123")
         self.driver.find_element(By.LINK_TEXT, 'Create New Book').click()
-        time.sleep(1)  # Wait for the next page to load
-
+        
         # Fill out the new book form
-        self.driver.find_element(By.NAME, 'title').send_keys("New Book Title")
-        self.driver.find_element(By.NAME, 'author').send_keys("New Author")
-        self.driver.find_element(By.NAME, 'content').send_keys("This is the content of the new book.")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
-        time.sleep(1)  # Wait for saving the book
+        self.driver.find_element(By.NAME, 'title').send_keys("My New Book")
+        self.driver.find_element(By.NAME, 'author').send_keys("Author Test")
+        self.driver.find_element(By.NAME, 'content').send_keys("This is the content of my new book.")
+        self.driver.find_element(By.XPATH, '//input[@type="submit"]').click()
 
-        # Verify that the new book is displayed on the My Books page
-        self.driver.find_element(By.LINK_TEXT, 'View My Books').click()
-        time.sleep(1)  # Wait for the next page to load
-        self.assertIn("New Book Title", self.driver.page_source)
+        # Verify that the user is redirected to the My Books Page
+        self.assertIn("My Published Books", self.driver.page_source)
 
     def test_view_my_books(self):
-        # Functionalities 6: Test viewing my books
-        self.login("admin", "admin123")
+        # Functionalities 6: View My Books
+        self.login("user1", "user123")
         self.driver.find_element(By.LINK_TEXT, 'View My Books').click()
-        time.sleep(1)  # Wait for the next page to load
-        self.assertIn("My Books", self.driver.title)
+        self.assertIn("My Published Books", self.driver.page_source)
 
     def test_view_book_details(self):
-        # Functionalities 7: Test viewing book details
-        self.login("admin", "admin123")
+        # Functionalities 7: View Book Details
+        self.login("user1", "user123")
         self.driver.find_element(By.LINK_TEXT, 'View My Books').click()
-        time.sleep(1)  # Wait for the next page to load
-        self.driver.find_element(By.LINK_TEXT, 'View').click()
-        time.sleep(1)  # Wait for the next page to load
+        # Assuming there's a button to view details next to the book
+        self.driver.find_element(By.XPATH, '//button[text()="View"]').click()
         self.assertIn("Book Details", self.driver.title)
 
     def test_navigate_back_to_my_books(self):
-        # Functionalities 8: Test navigating back to My Books Page
-        self.login("admin", "admin123")
+        # Functionalities 8: Navigate Back to My Books Page
+        self.login("user1", "user123")
         self.driver.find_element(By.LINK_TEXT, 'View My Books').click()
-        time.sleep(1)  # Wait for the next page to load
-        self.driver.find_element(By.LINK_TEXT, 'View').click()
-        time.sleep(1)  # Wait for the next page to load
-        self.driver.find_element(By.LINK_TEXT, 'Back').click()
-        time.sleep(1)  # Wait for the next page to load
-        self.assertIn("My Books", self.driver.title)
+        self.driver.find_element(By.XPATH, '//button[text()="Back"]').click()
+        self.assertIn("My Published Books", self.driver.page_source)
 
     def test_view_about_page(self):
-        # Functionalities 9: Test viewing the About Page
-        self.login("admin", "admin123")
+        # Functionalities 9: View About Page
+        self.login("user1", "user123")
         self.driver.find_element(By.LINK_TEXT, 'About').click()
-        time.sleep(1)  # Wait for the next page to load
-        self.assertIn("About", self.driver.title)
+        self.assertIn("About VirtualBookPublishing", self.driver.title)
 
     def test_data_storage(self):
-        # Functionalities 10: Test data storage using text files
-        self.login("admin", "admin123")
+        # Functionalities 10: Data Storage using Text Files
+        self.login("user1", "user123")
         self.driver.find_element(By.LINK_TEXT, 'Create New Book').click()
-        time.sleep(1)  # Wait for the next page to load
-
-        # Fill out the new book form
-        self.driver.find_element(By.NAME, 'title').send_keys("Test Book Title")
+        self.driver.find_element(By.NAME, 'title').send_keys("Test Book")
         self.driver.find_element(By.NAME, 'author').send_keys("Test Author")
-        self.driver.find_element(By.NAME, 'content').send_keys("This is the content of the test book.")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
-        time.sleep(1)  # Wait for saving the book
+        self.driver.find_element(By.NAME, 'content').send_keys("Test content.")
+        self.driver.find_element(By.XPATH, '//input[@type="submit"]').click()
 
-        # Verify that the book details are saved correctly in the text file
-        with open('books.txt', 'r') as file:
+        # Check if the book is saved in the text file
+        with open(os.path.join(os.path.dirname(__file__), 'books.txt'), 'r') as file:
             content = file.read()
-            self.assertIn("Test Book Title|Test Author|This is the content of the test book.", content)
+            self.assertIn("Test Book", content)
 
 if __name__ == '__main__':
     unittest.main()

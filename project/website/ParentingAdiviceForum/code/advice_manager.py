@@ -1,27 +1,24 @@
+import os
+
 class AdviceManager:
     def __init__(self):
-        self.advice_posts = self.load_advice()
+        self.advices = self.load_advices()
 
-    def load_advice(self):
-        advice_posts = []
-        try:
-            with open('advice.txt', 'r') as file:
-                for line in file:
-                    title, content = line.strip().split('|')
-                    advice_posts.append({'title': title, 'content': content})
-        except FileNotFoundError:
-            pass  # Handle the case where the file does not exist
-        return advice_posts
+    def load_advices(self):
+        if not os.path.exists('advice.txt'):
+            return []
+        with open('advice.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
     def post_advice(self, title: str, content: str) -> bool:
-        self.advice_posts.append({'title': title, 'content': content})
-        self.save_advice()
+        self.advices.append([title, content])
+        self.save_advices()
         return True
 
-    def get_advice(self) -> list:
-        return self.advice_posts
-
-    def save_advice(self):
+    def save_advices(self):
         with open('advice.txt', 'w') as file:
-            for advice in self.advice_posts:
-                file.write(f"{advice['title']}|{advice['content']}\n")
+            for advice in self.advices:
+                file.write('|'.join(advice) + '\n')
+
+    def get_advices(self) -> list:
+        return self.advices

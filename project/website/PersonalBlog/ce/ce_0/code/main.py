@@ -1,33 +1,70 @@
-import os
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import parse_qs
+from flask import Flask, render_template, request, redirect, url_for, session
 from user_manager import UserManager
-from post_manager import PostManager
+from blog_manager import BlogManager
 
-class Main:
-    def __init__(self):
-        self.user_manager = UserManager('users.txt')
-        self.post_manager = PostManager('posts.txt')
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
-    def main(self):
-        server_address = ('', 8000)
-        httpd = HTTPServer(server_address, RequestHandler)
-        httpd.serve_forever()
+user_manager = UserManager('users.txt')
+blog_manager = BlogManager('posts.txt')
 
-class RequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            with open('templates/login.html', 'r') as f:
-                self.wfile.write(f.read().encode())
-        # Additional routes will be handled here...
+@app.route('/')
+def login():
+    return render_template('login.html')
 
-    def do_POST(self):
-        # Handle POST requests for login and registration
-        pass
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        user_manager.register(username, password, email)
+        return redirect(url_for('login'))
+    return render_template('registration.html')
 
-if __name__ == "__main__":
-    app = Main()
-    app.main()
+@app.route('/main_blog', methods=['GET'])
+def main_blog():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    posts = blog_manager.get_posts(session['username'])
+    return render_template('main_blog.html', posts=posts)
+
+@app.route('/new_post', methods=['GET', 'POST'])
+def new_post():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        blog_manager.create_post(session['username'], title, content)
+        return redirect(url_for('main_blog'))
+    return render_template('new_post.html')
+
+@app.route('/view_post/<int:post_id>', methods=['GET'])
+def view_post(post_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    post = blog_manager.get_posts(session['username'])[post_id]
+    return render_template('view_post.html', post=post)
+
+@app.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
+def edit_post(post_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        blog_manager.edit_post(post_id, title, content)
+        return redirect(url_for('main_blog'))
+    post = blog_manager.get_posts(session['username'])[post_id]
+    return render_template('edit_post.html', post=post)
+
+@app.route('/delete_post/<int:post_id>', methods=['POST'])
+def delete_post(post_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    blog_manager.delete_post(post_id)
+    return redirect(url_for('main_blog'))
+
+if __name__ == '__main__':
+    app.run(port=8394, debug=False)

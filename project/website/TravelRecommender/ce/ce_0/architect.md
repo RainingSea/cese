@@ -1,39 +1,28 @@
 [CONTENT]
-"Implementation approach": "The web application 'TravelRecommender' will be implemented using HTML for the front-end user interface and Python for the back-end logic. The application will utilize the built-in HTTP server in Python to serve HTML pages and handle user requests. Simple file handling in Python will be used for data storage, ensuring a lightweight and efficient application without the need for a SQL database.",
+"Implementation approach": "The web application 'TravelRecommender' will be developed using HTML for the front end and Python for the back end. User interactions will be handled through HTML forms for registration, login, and preference input. The application will process user inputs, read from and write to local text files for data storage, and generate personalized travel recommendations based on user preferences. The flow of data will involve reading user credentials and preferences from text files and writing favorite destinations back to the storage files.",
 
-"UI design":"The user interface will consist of the following components: \n1. **Registration Page**: A form with fields for username and password, and a submit button. \n2. **Login Page**: Similar to the registration page, with fields for username and password. \n3. **Preference Input Form**: A form allowing users to select their budget, preferred activities (checkboxes), and desired climate (dropdown). \n4. **Destination Recommendation Display**: A list format showing recommended destinations with links to view details. \n5. **Favorite Destinations Management**: A section where users can view and remove their saved favorite destinations. \nEach component will be linked to ensure smooth navigation and a cohesive user experience.",
+"UI design": "The key user interface components include: 1) Registration Page: A form for users to create an account with fields for username and password. 2) Login Page: A form for users to log in using their credentials. 3) Preferences Input Page: A form for users to input their travel preferences such as budget, activities, and climate. 4) Destination Recommendation Page: A display of personalized travel destinations based on user preferences, with options to view details and save favorites. These components will interact through navigation links and form submissions, providing a seamless user experience.",
 
-"Data Storage":"Data will be stored in local text files, with separate files for different data types. The following files will be used: \n1. `users.txt` - stores user credentials (username and password). \n2. `preferences.txt` - stores user travel preferences. \n3. `destinations.txt` - stores destination data including name, activities, climate, and costs. \n4. `favorites.txt` - stores user favorite destinations.",
+"Data Storage": "Data will be stored in local text files. User accounts will be stored in 'users.txt', travel preferences in 'preferences.txt', and favorite destinations in 'favorites.txt'. This structure allows for easy data retrieval and management through simple file manipulations in Python, ensuring the application remains lightweight and efficient without the need for a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/preferences.html", "templates/recommendations.html", "users.txt", "preferences.txt", "destinations.txt", "favorites.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/preferences.html", "templates/recommendations.html", "users.txt", "preferences.txt", "favorites.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
-        -DestinationRecommender recommender
+        -RecommendationEngine recommendation_engine
         +main() str
     }
     class UserManager {
         -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +save_user_data() void
-        +load_user_data() void
     }
-    class DestinationRecommender {
+    class RecommendationEngine {
         -destinations: list
-        +get_recommendations(preferences: dict) list
-        +load_destinations() void
-    }
-    class User {
-        -username: str
-        -password: str
-        -preferences: dict
-        -favorites: list
-        +save_preferences(preferences: dict) void
-        +add_favorite(destination: str) void
-        +remove_favorite(destination: str) void
+        +generate_recommendations(preferences: dict) list
+        +get_destination_details(destination: str) dict
     }
 ",
 [/CONTENT]

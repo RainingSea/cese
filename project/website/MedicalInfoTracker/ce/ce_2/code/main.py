@@ -1,28 +1,17 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import os
-import json
-
-class Main:
-    def __init__(self):
-        self.user_manager = UserManager()
-        self.medical_info_manager = MedicalInfoManager()
-        self.reminder_manager = ReminderManager()
-
-    def main(self):
-        server_address = ('', 8080)
-        httpd = HTTPServer(server_address, RequestHandler)
-        print("Starting server on port 8080...")
-        httpd.serve_forever()
+from flask import Flask, render_template, request, redirect, url_for
+from datetime import datetime
 
 class UserManager:
     def __init__(self):
         self.users = self.load_users()
 
     def load_users(self):
-        if not os.path.exists('users.txt'):
-            return {}
+        users = {}
         with open('users.txt', 'r') as file:
-            return {line.split('|')[0]: line.split('|')[1].strip() for line in file.readlines()}
+            for line in file:
+                username, password = line.strip().split('|')
+                users[username] = password
+        return users
 
     def register(self, username: str, password: str) -> bool:
         if username in self.users:
@@ -40,63 +29,85 @@ class MedicalInfoManager:
         self.medical_info = self.load_medical_info()
 
     def load_medical_info(self):
-        if not os.path.exists('medical_info.txt'):
-            return {}
+        medical_info = []
         with open('medical_info.txt', 'r') as file:
-            return {line.split('|')[0]: line.split('|')[1].strip() for line in file.readlines()}
+            for line in file:
+                medical_info.append(line.strip().split('|'))
+        return medical_info
 
-    def add_medical_info(self, user: str, info: str) -> bool:
-        self.medical_info[user] = info
+    def add_info(self, diagnosis: str, medication: str, treatment: str) -> None:
+        self.medical_info.append([diagnosis, medication, treatment])
         with open('medical_info.txt', 'a') as file:
-            file.write(f"{user}|{info}\n")
-        return True
+            file.write(f"{diagnosis}|{medication}|{treatment}\n")
 
-    def get_medical_info(self, user: str) -> str:
-        return self.medical_info.get(user, "")
+    def view_info(self) -> list:
+        return self.medical_info
 
 class ReminderManager:
     def __init__(self):
         self.reminders = self.load_reminders()
 
     def load_reminders(self):
-        if not os.path.exists('reminders.txt'):
-            return {}
+        reminders = []
         with open('reminders.txt', 'r') as file:
-            return {line.split('|')[0]: line.split('|')[1].strip() for line in file.readlines()}
+            for line in file:
+                reminders.append(line.strip().split('|'))
+        return reminders
 
-    def set_reminder(self, user: str, reminder: str) -> bool:
-        self.reminders[user] = reminder
+    def set_reminder(self, date: str, time: str, description: str) -> None:
+        self.reminders.append([date, time, description])
         with open('reminders.txt', 'a') as file:
-            file.write(f"{user}|{reminder}\n")
-        return True
+            file.write(f"{date}|{time}|{description}\n")
 
-    def get_reminders(self, user: str) -> str:
-        return self.reminders.get(user, "")
+    def get_reminders(self) -> list:
+        return self.reminders
 
-class RequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            with open('templates/login.html', 'r') as file:
-                self.wfile.write(file.read().encode())
-        elif self.path == '/register':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            with open('templates/registration.html', 'r') as file:
-                self.wfile.write(file.read().encode())
-        elif self.path == '/dashboard':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            with open('templates/dashboard.html', 'r') as file:
-                self.wfile.write(file.read().encode())
+app = Flask(__name__)
+user_manager = UserManager()
+medical_info_manager = MedicalInfoManager()
+reminder_manager = ReminderManager()
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            return redirect(url_for('medical_info'))
         else:
-            self.send_response(404)
-            self.end_headers()
+            return "Invalid credentials"
+    return render_template('login.html')
 
-if __name__ == "__main__":
-    app = Main()
-    app.main()
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
+        else:
+            return "Username already exists"
+    return render_template('registration.html')
+
+@app.route('/medical_info', methods=['GET', 'POST'])
+def medical_info():
+    if request.method == 'POST':
+        diagnosis = request.form['diagnosis']
+        medication = request.form['medication']
+        treatment = request.form['treatment']
+        medical_info_manager.add_info(diagnosis, medication, treatment)
+    info = medical_info_manager.view_info()
+    return render_template('medical_info.html', info=info)
+
+@app.route('/reminders', methods=['GET', 'POST'])
+def reminders():
+    if request.method == 'POST':
+        date = request.form['date']
+        time = request.form['time']
+        description = request.form['description']
+        reminder_manager.set_reminder(date, time, description)
+    reminders = reminder_manager.get_reminders()
+    return render_template('reminders.html', reminders=reminders)
+
+if __name__ == '__main__':
+    app.run(port=8344, debug=False)

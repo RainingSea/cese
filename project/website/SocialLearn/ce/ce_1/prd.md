@@ -10,17 +10,19 @@ Develop a web application 'SocialLearn' that connects individuals with a passion
    - The system shall provide a Login Page where users can log in to their account by entering their username and password.
 
 3. **Profile Management**
-   - The system shall allow users to create and update their profile, specifying their areas of interest or expertise.
+   - The system shall allow users to create a profile specifying their areas of interest or expertise.
+   - The system shall allow users to update their profile information.
 
 4. **Study Groups and Communities**
    - The system shall enable users to join study groups or communities based on their learning objectives.
 
 5. **Resource Sharing**
-   - The system shall allow users to share and access educational resources such as articles and courses.
+   - The system shall allow users to share educational resources such as articles and courses.
+   - The system shall provide users access to shared educational resources.
 
 6. **Messaging**
-   - The system shall enable users to message others in study groups or forums.
+   - The system shall enable users to send messages to others within study groups or forums.
 
 7. **User Logout**
-   - The system shall provide a logout functionality that allows users to log out of their account, returning to the Login Page.
+   - The system shall provide a logout functionality that returns users to the Login Page.
 [/OUTPUT]

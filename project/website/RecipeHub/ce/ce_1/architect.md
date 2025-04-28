@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The RecipeHub web application will be implemented using HTML for the frontend and Python for the backend. The frontend will consist of various HTML pages that allow users to interact with the application. The backend will handle user authentication, recipe submission, and data storage. The interaction between the user interface and backend logic will be facilitated through form submissions and file manipulations in Python, ensuring a seamless user experience.",
+"Implementation approach": "The RecipeHub application will be developed using Python for the back end and HTML for the front end. User interactions will be handled through form submissions and button clicks, with data flowing from the user interface to the back end for processing and storage. The application will utilize local text files for data storage, ensuring a lightweight and efficient system.",
 
-"UI design": "The user interface will consist of the following pages: \n1. **Login Page**: Contains fields for username and password, and a 'Register' button to navigate to the Registration Page.\n2. **Registration Page**: Contains fields for username and password, and a 'Submit' button to register the user.\n3. **Home Page**: Displays a welcome message and buttons to navigate to Recipe Submission, Recipe Browsing, and User Profile Pages.\n4. **Recipe Submission Page**: Contains fields for recipe title, ingredients, and instructions, along with a 'Submit' button to add the recipe and a message area for success/error feedback.\n5. **Recipe Browsing Page**: Contains a search bar for keywords, a list of recipes, and links to view details of each recipe.\n6. **User Profile Page**: Displays user information and a list of submitted recipes, with an option to delete the account.\n7. **Recipe Details Page**: Shows full details of a selected recipe and a 'Back to Home' button.",
+"UI design": "The application will consist of the following key UI components:\n1. Login Page: Username and password input fields, a Login button, and a Register button.\n2. Registration Page: Username and password input fields, a Register button, and a Back to Login button.\n3. Home Page: Welcome message, buttons to navigate to Recipe Submission, Recipe Browsing, and User Profile Pages.\n4. Recipe Submission Page: Input fields for title, ingredients, and instructions, a Submit button, and a message area for success/error messages.\n5. Recipe Browsing Page: Search input field, a list of recipes with links to view details, and a Back to Home button.\n6. User Profile Page: Display of user information and submitted recipes, a Delete Account button, and a Back to Home button.\n7. Recipe Details Page: Display of full recipe details, including ingredients and instructions, and a Back to Home button.",
 
-"Data Storage": "Data will be stored in local text files. The following files will be used: \n1. `users.txt` - stores user credentials (username and password).\n2. `recipes.txt` - stores submitted recipes in the format: 'title|ingredients|instructions'. Each recipe will be stored on a new line. This structured data storage will facilitate easy data retrieval and management through simple file manipulations in Python.",
+"Data Storage": "Data will be stored in local text files, with different types of data organized into separate files. For example, user data will be stored in 'users.txt' and recipes in 'recipes.txt'. This structured storage will facilitate easy data retrieval and management through simple file manipulations in Python, ensuring the application remains light and efficient without the need for a SQL database.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/recipe_submission.html", "templates/recipe_browsing.html", "templates/user_profile.html", "templates/recipe_details.html", "users.txt", "recipes.txt"],
 
@@ -15,15 +15,15 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users_file: str
+        -List users
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
         +delete_account(username: str) bool
     }
     class RecipeManager {
-        -recipes_file: str
+        -List recipes
         +submit_recipe(title: str, ingredients: str, instructions: str) bool
-        +search_recipes(query: str) list
+        +search_recipes(keyword: str) List
         +get_recipe_details(title: str) str
     }
 ",

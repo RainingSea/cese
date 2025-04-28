@@ -3,40 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <title>Dashboard</title>
 </head>
 <body>
-    <div class="container">
-        <h2>Equipment Dashboard</h2>
-        <a href="{{ url_for('add_equipment') }}" class="btn btn-success">Add Equipment</a>
-        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
-        <form method="POST" class="form-inline my-2">
-            <input type="text" name="search_query" class="form-control mr-2" placeholder="Search Equipment">
-            <button type="submit" class="btn btn-info">Search</button>
-        </form>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Quantity</th>
-                    <th>Condition</th>
-                    <th>Location</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for equip in equipment %}
-                <tr>
-                    <td>{{ equip[0] }}</td>
-                    <td>{{ equip[1] }}</td>
-                    <td>{{ equip[2] }}</td>
-                    <td>{{ equip[3] }}</td>
-                    <td>{{ equip[4] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <h1>Equipment Dashboard</h1>
+    <form method="GET" action="{{ url_for('search') }}">
+        <input type="text" name="query" placeholder="Search equipment" required>
+        <button type="submit">Search</button>
+    </form>
+    <h2>Equipment List</h2>
+    <ul>
+        {% for item in equipment %}
+            <li>
+                {{ item.name }} - Quantity: {{ item.quantity }} - Condition: {{ item.condition }} - Availability: {{ item.availability }} - Location: {{ item.location }}
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="name" value="{{ item.name }}">
+                    <input type="number" name="quantity" value="{{ item.quantity }}" required>
+                    <input type="text" name="condition" value="{{ item.condition }}" required>
+                    <input type="text" name="availability" value="{{ item.availability }}" required>
+                    <input type="text" name="location" value="{{ item.location }}" required>
+                    <button type="submit" name="update">Update Equipment</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    <h2>Add Equipment</h2>
+    <form method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <br>
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" required>
+        <br>
+        <label for="condition">Condition:</label>
+        <input type="text" id="condition" name="condition" required>
+        <br>
+        <label for="availability">Availability:</label>
+        <input type="text" id="availability" name="availability" required>
+        <br>
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location" required>
+        <br>
+        <button type="submit">Add Equipment</button>
+    </form>
+    <a href="{{ url_for('logout') }}">Logout</a>
 </body>
 </html>

@@ -22,7 +22,7 @@ Develop a web application named 'QuickSearch' that allows users to quickly searc
    - The system shall provide an 'Add to Reading List' button on the Book Details Page that allows users to add books to their personal reading list.
 
 7. **Manage Reading List**
-   - The system shall provide a dedicated Reading List Page where users can view and manage their personal reading list.
+   - The system shall provide a dedicated Reading List Page where users can view and manage their reading list.
 
 8. **User Logout**
    - The system shall allow users to log out of their account, returning them to the Login Page.

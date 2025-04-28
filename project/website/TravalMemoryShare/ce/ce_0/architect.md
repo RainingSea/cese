@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application 'Travel Memories Sharer' will be developed using HTML for the frontend and Python for the backend. The application will consist of a series of web pages for user registration, login, album creation, customization, and sharing. User interactions will be handled through forms that submit data to the backend, where Python will process the requests and manage the data storage in local text files. The application flow will guide users from registration to album sharing seamlessly.",
+"Implementation approach": "The web application 'Travel Memories Sharer' will be developed using Python for the backend logic and HTML for the frontend. The core features will be implemented using Flask as the web framework to handle routing and rendering HTML templates. User authentication will be managed through simple session management. The application will utilize local text files for data storage, ensuring a lightweight and efficient system without SQL databases.",
 
-"UI design":"The UI will include the following components: a Registration Page with a form for username and password, a Login Page with similar input fields, an Album Creation interface allowing users to upload images and add descriptions, customization options for layout selection, and an exploration page displaying albums shared by other users. The design will prioritize user experience with clear navigation and visually appealing layouts.",
+"UI design":"The user interface will consist of the following components: \n1. Registration Page: A form for users to enter their username and password. \n2. Login Page: A form for users to log in with their credentials. \n3. Album Creation Page: An interface for users to upload images and provide album details. \n4. Album Customization Page: Options for users to select layouts and designs for their albums. \n5. Album Exploration Page: A gallery view where users can browse albums shared by others. \n6. User Interaction Section: Options for liking, commenting, and sharing albums. \n7. Following Feature: A section to follow other users and view updates. \nThese components will be interconnected through navigation links and forms, ensuring a smooth user experience.",
 
-"Data Storage":"Data will be stored in local text files. User data will be stored in 'users.txt', which will include usernames and passwords. Album data will be stored in 'albums.txt', containing album details such as titles, descriptions, and associated user information. Interaction data (likes and comments) will be stored in 'interactions.txt'. This structured approach will facilitate easy data retrieval and management without using a SQL database.",
+"Data Storage":"Data will be stored in local text files, with separate files for different data types: \n1. users.txt - to store user account information (username and password). \n2. albums.txt - to store album details (album title, creator username, images, privacy settings). \n3. interactions.txt - to store likes, comments, and follow relationships. \nThis structured approach allows for easy data retrieval and management using simple file operations in Python.",
 
-"File list": ["main.py","templates/login.html","templates/registration.html","templates/album_creation.html","templates/explore.html","users.txt","albums.txt","interactions.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/album_creation.html", "templates/album_exploration.html", "users.txt", "albums.txt", "interactions.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -18,19 +18,14 @@ classDiagram
         -List users
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
+        +follow_user(follower: str, followed: str) bool
     }
     class AlbumManager {
         -List albums
-        +create_album(user: str, title: str, description: str) bool
+        +create_album(title: str, username: str, images: List) bool
         +customize_album(album_id: str, layout: str) bool
-        +share_album(album_id: str, visibility: str) bool
         +explore_albums() List
-    }
-    class InteractionManager {
-        -List interactions
-        +like_album(album_id: str, user: str) bool
-        +comment_on_album(album_id: str, user: str, comment: str) bool
-        +follow_user(follower: str, followed: str) bool
+        +interact_with_album(album_id: str, interaction_type: str, user: str) bool
     }
 ",
 [/CONTENT]

@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The 'SocialShare' web application will be developed using HTML for the frontend and Python for the backend logic. The application will handle user interactions through web forms for registration and login, and will manage content through text file storage. User profiles, articles, and interactions will be processed in Python, with data read from and written to local text files. The application will be structured to allow easy navigation between different features, such as registration, profile management, and content sharing.",
+"Implementation approach": "The SocialShare web application will be developed using HTML for the front-end interface and Python for the back-end logic. The application will utilize basic HTTP requests to handle user interactions, and the data will be managed through local text files for simplicity. The architecture will follow a Model-View-Controller (MVC) pattern where the Python code serves as the controller, processing requests and managing data, while HTML will serve as the view for the user interface.",
 
-"UI design": "The key UI components will include: 1) Registration Page - a form for users to enter a username and password. 2) Login Page - a form for users to log in. 3) Profile Management - a section where users can view and edit their bio and personal information. 4) Content Sharing Interface - a form for users to upload articles. 5) Feed/Discovery Page - a display area for shared content, including options to like, comment, and save. These components will be organized in a simple navigation layout, allowing users to easily switch between functionalities.",
+"UI design": "The user interface will consist of the following components: a Registration Page with fields for username and password, a Login Page with similar fields, a Profile Management Page for users to update their bio and personal information, a Content Sharing interface for uploading articles, a Feed Page to display shared content, and interaction elements such as buttons for liking, commenting, and following users.",
 
-"Data Storage": "Data will be stored in local text files. User information will be stored in 'users.txt', articles in 'articles.txt', and interactions (likes, comments) in 'interactions.txt'. Each type of data will be organized in its respective file to facilitate easy access and management.",
+"Data Storage": "Data will be stored in local text files as follows: 'users.txt' for user information (username and password), 'profiles.txt' for user profile details (bio and personal information), 'articles.txt' for shared articles (title, content, author), and 'interactions.txt' for likes, comments, and follows. Each file will be accessed and modified using simple file operations in Python, ensuring efficient data management.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/profile.html", "templates/feed.html", "users.txt", "articles.txt", "interactions.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/profile.html", "templates/feed.html", "users.txt", "profiles.txt", "articles.txt", "interactions.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -18,14 +18,14 @@ classDiagram
         -List users
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +updateProfile(username: str, bio: str) void
+        +update_profile(username: str, bio: str) bool
     }
     class ContentManager {
         -List articles
-        +shareArticle(username: str, article: str) void
-        +getFeed() List
-        +likeArticle(username: str, article_id: int) void
-        +commentOnArticle(username: str, article_id: int, comment: str) void
+        +share_article(title: str, content: str, author: str) bool
+        +get_feed() List
+        +like_article(article_id: int, user_id: int) bool
+        +comment_on_article(article_id: int, user_id: int, comment: str) bool
     }
 ",
 [/CONTENT]

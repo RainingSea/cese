@@ -1,59 +1,45 @@
-import os
+from flask import Flask, render_template, request, redirect, url_for, session
+from user_manager import UserManager
+from story_manager import StoryManager
 
-class Main:
-    def main(self):
-        # Load user data
-        self.users = self.load_users()
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
-    def load_users(self):
-        users = {}
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                for line in file:
-                    username, password, email = line.strip().split(',')
-                    users[username] = (password, email)
-        return users
+user_manager = UserManager()
+story_manager = StoryManager()
 
-    def login(self, username: str, password: str) -> bool:
-        if username in self.users and self.users[username][0] == password:
-            return True
-        return False
+@app.route('/')
+def login():
+    return render_template('login.html')
 
-    def register(self, username: str, password: str, email: str) -> bool:
-        if username in self.users:
-            return False
-        with open('users.txt', 'a') as file:
-            file.write(f"{username},{password},{email}\n")
-        self.users[username] = (password, email)
-        return True
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        user_manager.register(username, password, email)
+        return redirect(url_for('login'))
+    return render_template('registration.html')
 
-    def create_story(self, username: str, title: str, content: str) -> bool:
-        filename = f"{username}_stories.txt"
-        with open(filename, 'a') as file:
-            file.write(f"{title}|{content}\n")
-        return True
+@app.route('/story', methods=['GET', 'POST'])
+def story():
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        username = session.get('username')
+        story_manager.create_story(username, title, content)
+        return redirect(url_for('story'))
+    return render_template('story_creation.html')
 
-    def edit_story(self, username: str, title: str, new_content: str) -> bool:
-        filename = f"{username}_stories.txt"
-        if not os.path.exists(filename):
-            return False
-        
-        stories = []
-        found = False
-        with open(filename, 'r') as file:
-            for line in file:
-                story_title, content = line.strip().split('|')
-                if story_title == title:
-                    stories.append(f"{title}|{new_content}\n")
-                    found = True
-                else:
-                    stories.append(line)
-        
-        if found:
-            with open(filename, 'w') as file:
-                file.writelines(stories)
-            return True
-        return False
+@app.route('/authenticate', methods=['POST'])
+def authenticate():
+    username = request.form['username']
+    password = request.form['password']
+    if user_manager.login(username, password):
+        session['username'] = username
+        return redirect(url_for('story'))
+    return redirect(url_for('login'))
 
-main_app = Main()
-main_app.main()
+if __name__ == '__main__':
+    app.run(port=8324, debug=False)

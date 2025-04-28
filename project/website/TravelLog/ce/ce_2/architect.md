@@ -1,37 +1,31 @@
 [CONTENT]
-"Implementation approach": "The 'Travel_Log' web application will be developed using HTML for the frontend and Python for the backend functionalities. The application will handle user interactions through forms for registration and login, and provide a simple interface for creating and managing journal entries. User data and journal entries will be managed using local text files for storage, enabling easy data retrieval and manipulation without the need for a SQL database.",
+"Implementation approach": "The 'Travel_Log' web application will be developed using Python for the backend logic and HTML for the frontend interface. The application will utilize a simple file-based data storage system to manage user accounts and journal entries. The project will be structured to ensure easy navigation and maintenance, with a focus on user experience and functionality.",
 
-"UI design": "The user interface will consist of the following components: a Registration Page with input fields for username and password, a Login Page with similar fields, a main dashboard to create and display journal entries, text areas for inputting travel details, and buttons for editing, deleting, and sharing entries. The design will focus on simplicity and accessibility, ensuring that users can navigate the application easily.",
+"UI design":"The UI will consist of three main pages: the Registration Page, the Login Page, and the Journal Entry interface. The Registration Page will have fields for username and password, along with a submit button. The Login Page will mirror this layout. The Journal Entry interface will include fields for destination, dates, activities, a file upload option for photos, and a text area for personal reflections. Users will also see a list of their past entries with options to edit or delete them.",
 
-"Data Storage": "Data will be stored in local text files. User information will be stored in 'users.txt', and journal entries will be stored in 'entries.txt'. Each entry will include details such as destination, dates, activities, photos, and reflections, formatted in a structured manner (e.g., JSON or CSV) for efficient retrieval and management.",
+"Data Storage":"User accounts and journal entries will be stored in local text files. User data will be saved in 'users.txt', where each line contains a username and password. Journal entries will be stored in 'journal_entries.txt', with each entry formatted as a JSON string for easy parsing. This structure allows for straightforward data retrieval and management without the complexity of a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "users.txt", "entries.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/journal_entry.html", "users.txt", "journal_entries.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -username: str
-        -password: str
-        +register() bool
-        +login() bool
+    class Main {
+        -UserManager user_manager
+        -JournalManager journal_manager
+        +main() str
     }
-    class JournalEntry {
-        -destination: str
-        -dates: str
-        -activities: str
-        -photos: list
-        -reflections: str
-        +save() bool
-        +edit() bool
-        +delete() bool
+    class UserManager {
+        -str users_file
+        +register(username: str, password: str) bool
+        +login(username: str, password: str) bool
     }
-    class TravelLog {
-        -users: list
-        -entries: list
-        +create_entry() bool
+    class JournalManager {
+        -str entries_file
+        +create_entry(destination: str, dates: str, activities: str, photos: str, reflections: str) bool
         +view_entries() list
+        +edit_entry(entry_id: int, updated_entry: dict) bool
+        +delete_entry(entry_id: int) bool
         +search_entries(query: str) list
-        +share_entry(entry_id: int) str
     }
 ",
 [/CONTENT]

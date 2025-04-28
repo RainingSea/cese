@@ -1,75 +1,114 @@
-from flask import Flask, render_template, request, redirect, url_for
+import http.server
 import os
+import json
 
-app = Flask(__name__)
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager()
+        self.tip_manager = TipManager()
+        self.resource_manager = ResourceManager()
+        self.forum_manager = ForumManager()
 
-class User:
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+    def main(self):
+        server_address = ('', 8000)
+        httpd = http.server.HTTPServer(server_address, RequestHandler)
+        print("Starting server on port 8000...")
+        httpd.serve_forever()
 
-    @staticmethod
-    def create_account(username: str, password: str):
-        with open('users.txt', 'a') as f:
-            f.write(f"{username}|{password}\n")
+class UserManager:
+    def __init__(self):
+        self.users = self.load_users()
 
-    @staticmethod
-    def login(username: str, password: str):
-        with open('users.txt', 'r') as f:
-            for line in f:
-                user, pwd = line.strip().split('|')
-                if user == username and pwd == password:
-                    return True
-        return False
+    def load_users(self):
+        users = {}
+        if os.path.exists('users.txt'):
+            with open('users.txt', 'r') as file:
+                for line in file:
+                    username, password = line.strip().split('|')
+                    users[username] = password
+        return users
 
-class Tip:
-    def __init__(self, content):
-        self.content = content
+    def login(self, username: str, password: str) -> bool:
+        return self.users.get(username) == password
 
-    @staticmethod
-    def submit_tip(content: str):
-        with open('tips.txt', 'a') as f:
-            f.write(f"{content}\n")
+    def create_account(self, username: str, password: str) -> bool:
+        if username in self.users:
+            return False
+        self.users[username] = password
+        with open('users.txt', 'a') as file:
+            file.write(f"{username}|{password}\n")
+        return True
 
-class Resource:
-    def __init__(self, url):
-        self.url = url
+class TipManager:
+    def __init__(self):
+        self.tips = self.load_tips()
 
-    @staticmethod
-    def add_resource(url: str):
-        with open('resources.txt', 'a') as f:
-            f.write(f"{url}\n")
+    def load_tips(self):
+        tips = []
+        if os.path.exists('tips.txt'):
+            with open('tips.txt', 'r') as file:
+                tips = [line.strip() for line in file]
+        return tips
 
-class ForumPost:
-    def __init__(self, content):
-        self.content = content
+    def view_tips(self) -> list:
+        return self.tips
 
-    @staticmethod
-    def create_post(content: str):
-        with open('forum.txt', 'a') as f:
-            f.write(f"{content}\n")
+    def submit_tip(self, tip: str) -> bool:
+        self.tips.append(tip)
+        with open('tips.txt', 'a') as file:
+            file.write(f"{tip}\n")
+        return True
 
-@app.route('/', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if User.login(username, password):
-            return redirect(url_for('dashboard'))
-    return render_template('login.html')
+class ResourceManager:
+    def __init__(self):
+        self.resources = self.load_resources()
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        User.create_account(username, password)
-        return redirect(url_for('login'))
-    return render_template('register.html')
+    def load_resources(self):
+        resources = []
+        if os.path.exists('resources.txt'):
+            with open('resources.txt', 'r') as file:
+                resources = [line.strip() for line in file]
+        return resources
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template('dashboard.html')
+    def view_resources(self) -> list:
+        return self.resources
+
+    def add_resource(self, resource: str) -> bool:
+        self.resources.append(resource)
+        with open('resources.txt', 'a') as file:
+            file.write(f"{resource}\n")
+        return True
+
+class ForumManager:
+    def __init__(self):
+        self.posts = self.load_posts()
+
+    def load_posts(self):
+        posts = []
+        if os.path.exists('forum.txt'):
+            with open('forum.txt', 'r') as file:
+                posts = [line.strip() for line in file]
+        return posts
+
+    def view_posts(self) -> list:
+        return self.posts
+
+    def add_post(self, post: str) -> bool:
+        self.posts.append(post)
+        with open('forum.txt', 'a') as file:
+            file.write(f"{post}\n")
+        return True
+
+class RequestHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            with open('templates/login.html', 'r') as file:
+                self.wfile.write(file.read().encode())
+        # Additional routing for other pages would go here
 
 if __name__ == '__main__':
-    app.run(port=8164, debug=False)
+    app = Main()
+    app.main()

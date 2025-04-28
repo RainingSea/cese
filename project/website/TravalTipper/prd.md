@@ -9,10 +9,10 @@ Develop a web application named 'Travel_Tipper' that provides users with helpful
 2. User Login
    - The system shall provide a Login Page where users can log in to their account by entering their username and password.
 
-3. Travel Details Input
+3. Input Travel Details
    - The system shall allow users to input their travel details, including destination, trip duration, and interests.
 
-4. Personalized Recommendations
+4. Generate Recommendations
    - The system shall generate and display personalized travel tips based on the user's travel details, including:
      - Local customs
      - Safety tips
@@ -21,10 +21,10 @@ Develop a web application named 'Travel_Tipper' that provides users with helpful
      - Popular attractions
 
 5. Search Functionality
-   - The system shall allow users to search for travel tips related to specific destinations or travel interests.
+   - The system shall allow users to search for travel tips based on specific destinations or travel interests.
 
 6. Save Favorite Tips
-   - The system shall allow users to save their favorite travel tips for easy access.
+   - The system shall enable users to save their favorite travel tips for easy access later.
 
 7. User Logout
    - The system shall provide a logout functionality that returns users to the Login Page.

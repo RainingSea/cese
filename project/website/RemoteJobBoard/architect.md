@@ -1,41 +1,31 @@
 [CONTENT]
-"Implementation approach": "The 'RemoteJobBoard' web application will be developed using Flask for the back-end and HTML for the front-end. The application will handle user authentication through a simple login system, allowing users to register, log in, and manage their profiles. Job postings will be managed through forms that allow users to submit job details. Data management will be handled using local text files for user and job data, ensuring a lightweight and efficient system without the need for a SQL database.",
+"Implementation approach": "The 'RemoteJobBoard' web application will be developed using Flask for the backend, allowing for easy routing and session management. HTML will be used for the frontend to create user interfaces for login, registration, job listings, and profile management. User authentication will be implemented using simple session management, and job management functionalities will be handled through dedicated classes for user and job operations.",
 
-"UI design": "The key UI components will include: 1) Login Form: A simple form for users to enter their username and password. 2) Registration Form: A form for new users to create an account with username and password. 3) Home Page: Displays featured job listings and navigation links. 4) Job Listings Page: A page to browse all job listings with an 'Apply' button for each job. 5) Job Posting Page: A form for authorized users to post new job listings. 6) Profile Page: Displays user information and allows editing of profile details. These components will interact seamlessly to provide a user-friendly experience.",
+"UI design": "The user interface will consist of the following components: a login form (login.html), a registration form (registration.html), a home page (home.html) displaying featured job listings, a job browsing page (browse_jobs.html), a job posting page (job_posting.html), and a profile management page (profile.html). Navigation will be facilitated through links on each page, allowing users to easily transition between functionalities.",
 
-"Data Storage": "Data will be stored in local text files, with separate files for users and jobs. The user data will be stored in 'users.txt' and job listings in 'jobs.txt'. This approach simplifies data retrieval and management through basic file operations in Python, ensuring the application remains efficient and easy to maintain without the complexity of a SQL database.",
+"Data Storage": "Data will be stored in local text files. User accounts will be stored in 'users.txt', job listings in 'jobs.txt', and applied jobs in 'applied_jobs.txt'. Each file will contain structured data, with each line representing a separate record. No SQL database will be used, ensuring the application remains lightweight and efficient.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/job_listing.html", "templates/job_posting.html", "templates/profile.html", "users.txt", "jobs.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/browse_jobs.html", "templates/job_posting.html", "templates/profile.html", "users.txt", "jobs.txt", "applied_jobs.txt"],
 
 "Data structures and interfaces": "
 classDiagram
-    class User {
-        -username: str
-        -password: str
-        -email: str
-        -applied_jobs: list
-        +register(username: str, password: str, email: str) bool
-        +login(username: str, password: str) bool
-        +edit_profile(username: str, password: str, email: str) void
-        +apply_job(job_id: str) void
-    }
-    class Job {
-        -job_id: str
-        -title: str
-        -company: str
-        -description: str
-        +post_job(title: str, company: str, description: str) void
-        +get_jobs() list
-    }
     class Main {
-        -User user
-        -Job job
+        -UserManager user_manager
+        -JobManager job_manager
         +main() str
-        +login() void
-        +register() void
-        +post_job() void
-        +view_jobs() void
-        +edit_profile() void
+    }
+    class UserManager {
+        -users: list
+        +register(username: str, password: str) bool
+        +login(username: str, password: str) bool
+        +get_user_profile(username: str) dict
+        +edit_profile(username: str, new_data: dict) bool
+    }
+    class JobManager {
+        -jobs: list
+        +post_job(job_details: dict) bool
+        +get_all_jobs() list
+        +apply_for_job(username: str, job_id: str) bool
     }
 ",
 [/CONTENT]

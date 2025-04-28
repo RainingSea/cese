@@ -7,7 +7,7 @@ Develop a web application named 'SocialShare' that allows users to share and dis
    - The system shall provide a Registration Page where users can register for an account by entering a username and password.
 
 2. **User Login**
-   - The system shall provide a Login Page where users can log in to their account by entering a username and password.
+   - The system shall provide a Login Page where users can log in to their account by entering their username and password.
 
 3. **Profile Management**
    - The system shall allow users to create and update their profile, including their bio and personal information.
@@ -16,7 +16,7 @@ Develop a web application named 'SocialShare' that allows users to share and dis
    - The system shall enable users to upload and share articles on their profile or with their network.
 
 5. **Content Discovery**
-   - The system shall provide a feed or discovery page where users can explore content shared by others.
+   - The system shall provide a feed or discovery page for users to explore content shared by others.
 
 6. **Engagement with Content**
    - The system shall allow users to like, comment, and save content shared by others.

@@ -6,35 +6,35 @@ import subprocess
 class TestEcoFriendlyLivingTips(unittest.TestCase):
 
     def setUp(self):
-        # Start the application
+        # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:5000')  # Replace with the actual port from main.py
+        self.driver.get('http://localhost:8329/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session and the application
+        # Close the web driver session and terminate the Flask app
         self.driver.quit()
         self.process.terminate()
 
     def login(self, username, password):
         # Helper method to perform login
-        self.driver.find_element(By.ID, 'username').send_keys(username)
-        self.driver.find_element(By.ID, 'password').send_keys(password)
+        self.driver.find_element(By.NAME, 'username').send_keys(username)
+        self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
 
     def test_user_login(self):
         # Functionalities 1: Test user login functionality
         self.login("admin", "admin123")
-        self.assertIn("Dashboard", self.driver.title)
+        self.assertIn("Welcome to EcoFriendlyLivingTips", self.driver.page_source)
 
     def test_navigate_to_registration(self):
         # Functionalities 2: Test navigation to the Registration Page
-        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
+        self.driver.find_element(By.LINK_TEXT, 'Register').click()
         self.assertIn("Register", self.driver.title)
 
-    def test_registration(self):
+    def test_user_registration(self):
         # Functionalities 3: Test user registration functionality
-        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
+        self.driver.find_element(By.LINK_TEXT, 'Register').click()
         new_username = "new_user"
         new_password = "new_password"
 
@@ -46,93 +46,72 @@ class TestEcoFriendlyLivingTips(unittest.TestCase):
         # Verify the user is redirected to the login page
         self.assertIn("Login", self.driver.title)
 
-    def test_view_introduction(self):
-        # Functionalities 4: Test viewing introduction after logging in
+    def test_view_tips(self):
+        # Functionalities 5: Test viewing tips after logging in
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:5000/introduction')  # Assuming the introduction page URL
-        self.assertIn("Introduction", self.driver.title)
+        self.driver.find_element(By.LINK_TEXT, 'Tips').click()
+        self.assertIn("Eco-Friendly Living Tips", self.driver.page_source)
 
-    def test_view_and_submit_tips(self):
-        # Functionalities 5: Test viewing and submitting tips
+    def test_submit_tip(self):
+        # Functionalities 5: Test submitting a new tip
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:5000/tips')
+        self.driver.find_element(By.LINK_TEXT, 'Tips').click()
         
-        # Verify tips are displayed
-        tips = self.driver.find_elements(By.TAG_NAME, 'li')  # Assuming tips are in <li> elements
-        self.assertGreater(len(tips), 0, "No tips found.")
-
-        # Submit a new tip
-        self.driver.find_element(By.NAME, 'tip').send_keys("Reduce water usage.")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit Tip"]').click()
+        new_tip = "Use reusable bags."
+        self.driver.find_element(By.NAME, 'tip').send_keys(new_tip)
+        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
 
         # Verify the new tip is displayed
-        self.assertIn("Reduce water usage.", self.driver.page_source)
+        self.assertIn(new_tip, self.driver.page_source)
 
-    def test_access_and_add_resources(self):
-        # Functionalities 6: Test accessing and adding resources
+    def test_view_resources(self):
+        # Functionalities 6: Test viewing resources after logging in
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:5000/resources')
+        self.driver.find_element(By.LINK_TEXT, 'Resources').click()
+        self.assertIn("External Resources", self.driver.page_source)
 
-        # Verify existing resources are displayed
-        resources = self.driver.find_elements(By.TAG_NAME, 'li')  # Assuming resources are in <li> elements
-        self.assertGreater(len(resources), 0, "No resources found.")
-
-        # Add a new resource
-        self.driver.find_element(By.NAME, 'url').send_keys("https://www.example.com")
-        self.driver.find_element(By.XPATH, '//button[text()="Add Resource"]').click()
+    def test_add_resource(self):
+        # Functionalities 6: Test adding a new resource
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Resources').click()
+        
+        new_resource = "https://www.example.com"
+        self.driver.find_element(By.NAME, 'resource').send_keys(new_resource)
+        self.driver.find_element(By.XPATH, '//button[text()="Add"]').click()
 
         # Verify the new resource is displayed
-        self.assertIn("https://www.example.com", self.driver.page_source)
+        self.assertIn(new_resource, self.driver.page_source)
 
-    def test_participate_in_forum(self):
-        # Functionalities 7: Test participating in the community forum
+    def test_view_forum(self):
+        # Functionalities 7: Test viewing forum posts after logging in
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:5000/forum')
+        self.driver.find_element(By.LINK_TEXT, 'Forum').click()
+        self.assertIn("Community Forum", self.driver.page_source)
 
-        # Verify forum posts are displayed
-        posts = self.driver.find_elements(By.TAG_NAME, 'li')  # Assuming posts are in <li> elements
-        self.assertGreater(len(posts), 0, "No forum posts found.")
-
-        # Submit a new forum post
-        self.driver.find_element(By.NAME, 'post').send_keys("This is a new forum post.")
-        self.driver.find_element(By.XPATH, '//button[text()="Add Post"]').click()
+    def test_submit_forum_post(self):
+        # Functionalities 7: Test submitting a new forum post
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Forum').click()
+        
+        new_post = "What are your favorite eco-friendly products?"
+        self.driver.find_element(By.NAME, 'post').send_keys(new_post)
+        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
 
         # Verify the new post is displayed
-        self.assertIn("This is a new forum post.", self.driver.page_source)
-
-    def test_profile_management(self):
-        # Functionalities 8: Test profile management
-        self.login("admin", "admin123")
-        self.driver.get('http://localhost:5000/profile')
-
-        # Verify current profile information is displayed
-        self.assertIn("admin", self.driver.page_source)  # Assuming username is displayed
-
-        # Update profile information
-        self.driver.find_element(By.NAME, 'username').clear()
-        self.driver.find_element(By.NAME, 'username').send_keys("admin_updated")
-        self.driver.find_element(By.XPATH, '//button[text()="Update Profile"]').click()
-
-        # Verify the updated profile information is displayed
-        self.assertIn("admin_updated", self.driver.page_source)
-
-    def test_user_logout(self):
-        # Functionalities 9: Test user logout
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Logout').click()
-        self.assertIn("Login", self.driver.title)
+        self.assertIn(new_post, self.driver.page_source)
 
     def test_contact_support(self):
-        # Functionalities 10: Test contacting support
+        # Functionalities 10: Test submitting a contact form
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:5000/contact')
-
-        # Fill out the contact form
+        self.driver.find_element(By.LINK_TEXT, 'Contact').click()
+        
+        self.driver.find_element(By.NAME, 'name').send_keys("Test User")
+        self.driver.find_element(By.NAME, 'email').send_keys("test@example.com")
         self.driver.find_element(By.NAME, 'message').send_keys("This is a test message.")
-        self.driver.find_element(By.XPATH, '//button[text()="Send Message"]').click()
+        self.driver.find_element(By.XPATH, '//button[text()="Send"]').click()
 
-        # Verify confirmation message is displayed
-        self.assertIn("Message sent successfully", self.driver.page_source)
+        # Verify a confirmation message is displayed
+        self.assertIn("Your message has been sent successfully.", self.driver.page_source)
 
 if __name__ == '__main__':
     unittest.main()

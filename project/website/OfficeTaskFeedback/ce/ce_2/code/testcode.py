@@ -2,18 +2,17 @@ import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import subprocess
-import time
 
 class TestOfficeTaskFeedbackApp(unittest.TestCase):
 
     def setUp(self):
-        # Start the server and open the login page
+        # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8000/')  # Replace 8000 with the actual port from main.py
+        self.driver.get('http://localhost:8364/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session and terminate the server
+        # Close the web driver session and terminate the Flask application
         self.driver.quit()
         self.process.terminate()
 
@@ -22,12 +21,11 @@ class TestOfficeTaskFeedbackApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'username').send_keys(username)
         self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
-        time.sleep(1)  # Wait for the next page to load
 
     def test_registration(self):
         # Functionality 1: User Registration
-        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.get('http://localhost:8364/register')  # Navigate to registration page
+        self.assertIn("Register", self.driver.title)
 
         new_username = "new_user"
         new_password = "new_password"
@@ -36,18 +34,15 @@ class TestOfficeTaskFeedbackApp(unittest.TestCase):
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
-        time.sleep(1)  # Wait for the next page to load
 
         # Verify the user is redirected to the login page
         self.assertIn("Login", self.driver.title)
 
         # Attempt to register with an existing username
-        self.driver.find_element(By.LINK_TEXT, 'Register here').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.get('http://localhost:8364/register')
         self.driver.find_element(By.NAME, 'username').send_keys("admin")  # Existing username
         self.driver.find_element(By.NAME, 'password').send_keys("admin123")
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
-        time.sleep(1)  # Wait for the next page to load
 
         # Verify error message for existing username
         self.assertIn("Username already taken", self.driver.page_source)
@@ -55,69 +50,63 @@ class TestOfficeTaskFeedbackApp(unittest.TestCase):
     def test_login(self):
         # Functionality 2: User Login
         self.login("admin", "admin123")
-
-        # Verify that the user is redirected to the Dashboard Page
         self.assertIn("Dashboard", self.driver.title)
 
-        # Attempt to log in with invalid credentials
-        self.driver.find_element(By.LINK_TEXT, 'Logout').click()  # Log out to test invalid login
-        self.login("admin", "wrongpassword")  # Invalid password
-        self.assertIn("Login credentials are incorrect", self.driver.page_source)
+        # Attempt to login with invalid credentials
+        self.driver.get('http://localhost:8364/')
+        self.login("admin", "wrongpassword")
+        self.assertIn("Invalid credentials", self.driver.page_source)
 
     def test_feedback_submission(self):
         # Functionality 3: Feedback Submission
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8000/feedback')  # Navigate to feedback page
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.get('http://localhost:8364/feedback')  # Navigate to feedback submission page
+        self.assertIn("Submit Feedback", self.driver.title)
 
         # Fill in the feedback form
-        self.driver.find_element(By.ID, 'content').send_keys("Great job on the project!")
-        self.driver.find_element(By.ID, 'category').send_keys("Praise")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
-        time.sleep(1)  # Wait for submission confirmation
+        self.driver.find_element(By.NAME, 'feedback').send_keys("Great job on the project!")
+        self.driver.find_element(By.NAME, 'category').send_keys("General")
+        self.driver.find_element(By.XPATH, '//button[text()="Submit Feedback"]').click()
 
-        # Verify feedback submission confirmation
+        # Verify feedback submission
         self.assertIn("Feedback submitted successfully", self.driver.page_source)
 
-        # Attempt to submit feedback without filling in required fields
-        self.driver.find_element(By.ID, 'content').clear()  # Clear content
-        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
-        time.sleep(1)  # Wait for error message
-
-        # Verify error message for required fields
-        self.assertIn("All required fields must be filled", self.driver.page_source)
+        # Attempt to submit feedback without filling required fields
+        self.driver.get('http://localhost:8364/feedback')
+        self.driver.find_element(By.XPATH, '//button[text()="Submit Feedback"]').click()
+        self.assertIn("All fields are required", self.driver.page_source)
 
     def test_feedback_categorization(self):
         # Functionality 4: Feedback Categorization
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8000/feedback')  # Navigate to feedback page
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.get('http://localhost:8364/feedback')  # Navigate to feedback submission page
 
         # Select a category and submit feedback
-        self.driver.find_element(By.ID, 'category').send_keys("Request")
-        self.driver.find_element(By.ID, 'content').send_keys("Need more resources for the team.")
-        self.driver.find_element(By.XPATH, '//button[text()="Submit"]').click()
-        time.sleep(1)  # Wait for submission confirmation
+        self.driver.find_element(By.NAME, 'feedback').send_keys("Need to improve response time.")
+        self.driver.find_element(By.NAME, 'category').send_keys("Complaint")
+        self.driver.find_element(By.XPATH, '//button[text()="Submit Feedback"]').click()
 
         # Verify feedback categorization
-        self.assertIn("Feedback categorized successfully", self.driver.page_source)
+        self.assertIn("Complaint", self.driver.page_source)
 
-    def test_view_feedback_status(self):
-        # Functionality 6: View Feedback Status
+    def test_feedback_review(self):
+        # Functionality 5: Manager Review of Feedback
         self.login("admin", "admin123")
-        self.driver.get('http://localhost:8000/feedback/status')  # Navigate to feedback status page
-        time.sleep(1)  # Wait for the next page to load
+        self.driver.get('http://localhost:8364/feedback_review')  # Navigate to feedback review page
+        self.assertIn("Feedback Review", self.driver.title)
 
-        # Verify that the feedback status is displayed
-        self.assertIn("Pending", self.driver.page_source)
+        # Verify feedback entries are displayed
+        feedback_entries = self.driver.find_elements(By.CLASS_NAME, 'list-group-item')
+        self.assertGreater(len(feedback_entries), 0, "No feedback entries found.")
 
     def test_logout(self):
         # Functionality 7: User Logout
         self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
-        time.sleep(1)  # Wait for the next page to load
+        self.assertIn("Login", self.driver.title)
 
-        # Verify that the user is redirected to the Login Page
+        # Attempt to navigate to the Dashboard Page after logging out
+        self.driver.get('http://localhost:8364/')
         self.assertIn("Login", self.driver.title)
 
 if __name__ == '__main__':

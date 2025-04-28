@@ -1,73 +1,117 @@
-from flask import Flask, render_template, request, redirect, url_for
-import os
+from flask import Flask, render_template, request, redirect, url_for, session
+import json
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
-class Main:
+class UserManager:
     def __init__(self):
-        self.users_file = 'users.txt'
-        self.medical_info_file = 'medical_info.txt'
-        self.reminders_file = 'reminders.txt'
-        self.load_data()
+        self.users = self.load_users()
 
-    def load_data(self):
-        self.users = {}
-        if os.path.exists(self.users_file):
-            with open(self.users_file, 'r') as file:
+    def load_users(self):
+        users = {}
+        try:
+            with open('users.txt', 'r') as file:
                 for line in file:
-                    username, password = line.strip().split(',')
-                    self.users[username] = password
+                    username, password = line.strip().split('|')
+                    users[username] = password
+        except FileNotFoundError:
+            pass
+        return users
 
-    def main(self):
-        return redirect(url_for('login'))
+    def register(self, username: str, password: str) -> bool:
+        if username in self.users:
+            return False
+        self.users[username] = password
+        with open('users.txt', 'a') as file:
+            file.write(f"{username}|{password}\n")
+        return True
 
-    def register_user(self, username: str, password: str):
-        if username not in self.users:
-            self.users[username] = password
-            with open(self.users_file, 'a') as file:
-                file.write(f"{username},{password}\n")
-
-    def login_user(self, username: str, password: str) -> bool:
+    def login(self, username: str, password: str) -> bool:
         return self.users.get(username) == password
 
-    def add_medical_info(self, username: str, info: str):
-        with open(self.medical_info_file, 'a') as file:
-            file.write(f"{username}|{info}\n")
+class MedicalInfoManager:
+    def __init__(self):
+        self.medical_info = self.load_medical_info()
 
-    def set_reminder(self, username: str, reminder: str):
-        with open(self.reminders_file, 'a') as file:
-            file.write(f"{username}|{reminder}\n")
+    def load_medical_info(self):
+        medical_info = {}
+        try:
+            with open('medical_info.txt', 'r') as file:
+                for line in file:
+                    username, info = line.strip().split('|')
+                    medical_info[username] = json.loads(info)
+        except FileNotFoundError:
+            pass
+        return medical_info
 
-main_instance = Main()
+    def add_medical_info(self, user: str, info: dict) -> bool:
+        self.medical_info[user] = info
+        with open('medical_info.txt', 'a') as file:
+            file.write(f"{user}|{json.dumps(info)}\n")
+        return True
 
-@app.route('/')
+    def get_medical_info(self, user: str) -> dict:
+        return self.medical_info.get(user, {})
+
+class AppointmentManager:
+    def __init__(self):
+        self.appointments = self.load_appointments()
+
+    def load_appointments(self):
+        appointments = {}
+        try:
+            with open('appointments.txt', 'r') as file:
+                for line in file:
+                    username, appointment = line.strip().split('|')
+                    if username not in appointments:
+                        appointments[username] = []
+                    appointments[username].append(appointment)
+        except FileNotFoundError:
+            pass
+        return appointments
+
+    def set_appointment(self, user: str, appointment: dict) -> bool:
+        if user not in self.appointments:
+            self.appointments[user] = []
+        self.appointments[user].append(appointment)
+        with open('appointments.txt', 'a') as file:
+            file.write(f"{user}|{json.dumps(appointment)}\n")
+        return True
+
+    def get_appointments(self, user: str) -> list:
+        return self.appointments.get(user, [])
+
+@app.route('/', methods=['GET', 'POST'])
 def login():
+    user_manager = UserManager()
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            session['username'] = username
+            return redirect(url_for('dashboard'))
+        else:
+            return "Invalid credentials", 401
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    user_manager = UserManager()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        main_instance.register_user(username, password)
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
+        else:
+            return "Username already exists", 400
+    return render_template('registration.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if 'username' not in session:
         return redirect(url_for('login'))
-    return render_template('register.html')
-
-@app.route('/medical_info', methods=['GET', 'POST'])
-def medical_info():
-    if request.method == 'POST':
-        username = request.form['username']
-        info = request.form['info']
-        main_instance.add_medical_info(username, info)
-    return render_template('medical_info.html')
-
-@app.route('/reminders', methods=['GET', 'POST'])
-def reminders():
-    if request.method == 'POST':
-        username = request.form['username']
-        reminder = request.form['reminder']
-        main_instance.set_reminder(username, reminder)
-    return render_template('reminders.html')
+    return render_template('dashboard.html', username=session['username'])
 
 if __name__ == '__main__':
-    app.run(port=8179, debug=False)
+    app.run(port=8342, debug=False)

@@ -1,28 +1,78 @@
 [CONTENT]
-"Required packages": ["Flask"],
+"Required packages": [
+    "Flask",
+    "Flask-Session"
+],
 
-"Required Other language third-party packages": [],
+"Required Other language third-party packages": [
+    "Bootstrap",
+    "jQuery"
+],
 
-"Logic Analysis": 
-- main.py: 
-    - class Main
-        - main() 
-- user_manager.py: 
-    - class UserManager
-        - register(username: str, password: str) 
-        - login(username: str, password: str) 
-- article_manager.py: 
-    - class ArticleManager
-        - load_articles() 
-        - get_articles_by_category(category: str) 
-        - get_article_details(headline: str) 
+"Logic Analysis": {
+    "main.py": {
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {
+                        "name": "main",
+                        "description": "Entry point of the application that initializes the Flask app and sets up routing."
+                    }
+                ]
+            },
+            {
+                "name": "UserManager",
+                "methods": [
+                    {
+                        "name": "register",
+                        "description": "Handles user registration by saving username and password to 'users.txt'."
+                    },
+                    {
+                        "name": "login",
+                        "description": "Handles user login by verifying credentials against 'users.txt'."
+                    }
+                ]
+            },
+            {
+                "name": "ArticleManager",
+                "methods": [
+                    {
+                        "name": "load_articles",
+                        "description": "Loads news articles from 'articles.txt' into memory."
+                    },
+                    {
+                        "name": "search_articles",
+                        "description": "Searches for articles based on a query string."
+                    }
+                ]
+            }
+        ]
+    },
+    "templates/login.html": {
+        "description": "HTML template for user login interface."
+    },
+    "templates/registration.html": {
+        "description": "HTML template for user registration interface."
+    },
+    "templates/dashboard.html": {
+        "description": "HTML template for displaying news categories and articles."
+    },
+    "templates/article_details.html": {
+        "description": "HTML template for displaying the full text of a selected article."
+    },
+    "users.txt": {
+        "description": "Text file for storing user account information."
+    },
+    "articles.txt": {
+        "description": "Text file for storing news articles."
+    }
+},
 
 "Task list": [
     "main.py",
-    "user_manager.py",
-    "article_manager.py",
-    "templates/registration.html",
     "templates/login.html",
+    "templates/registration.html",
     "templates/dashboard.html",
     "templates/article_details.html",
     "users.txt",
@@ -30,8 +80,9 @@
 ],
 
 "Shared Knowledge": [
-    "Ensure to validate user input on the registration and login forms to prevent injection attacks.",
-    "Consider implementing basic error handling for file operations to manage potential issues with user and article data.",
-    "Keep the user interface clean and intuitive, focusing on easy navigation between pages."
+    "Follow PEP 8 coding standards for Python code.",
+    "Organize templates in a 'templates' directory for better structure.",
+    "Use session management to keep track of logged-in users.",
+    "Ensure that user passwords are stored securely, even if not encrypted for this project."
 ]
 [/CONTENT]

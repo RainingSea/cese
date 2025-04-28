@@ -1,12 +1,9 @@
-from flask import Flask, render_template, request, redirect, session
-from flask_session import Session
+from flask import Flask, render_template, request, redirect, url_for, session
 from user_manager import UserManager
 from recipe_manager import RecipeManager
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-app.config['SESSION_TYPE'] = 'filesystem'
-Session(app)
+app.secret_key = 'your_secret_key'  # Replace with a secure key
 
 user_manager = UserManager('users.txt')
 recipe_manager = RecipeManager('recipes.txt')
@@ -20,8 +17,8 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user_manager.register(username, password)
-        return redirect('/')
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
     return render_template('registration.html')
 
 @app.route('/home')
@@ -35,25 +32,22 @@ def submit_recipe():
         ingredients = request.form['ingredients']
         instructions = request.form['instructions']
         recipe_manager.submit_recipe(title, ingredients, instructions)
-        return redirect('/home')
+        return redirect(url_for('home'))
     return render_template('recipe_submission.html')
 
-@app.route('/browse_recipes', methods=['GET', 'POST'])
+@app.route('/browse_recipes')
 def browse_recipes():
-    if request.method == 'POST':
-        keyword = request.form['keyword']
-        recipes = recipe_manager.search_recipes(keyword)
-        return render_template('recipe_browsing.html', recipes=recipes)
-    return render_template('recipe_browsing.html')
+    recipes = recipe_manager.search_recipes('')
+    return render_template('recipe_browsing.html', recipes=recipes)
 
 @app.route('/user_profile')
 def user_profile():
     return render_template('user_profile.html')
 
-@app.route('/recipe_details/<title>')
+@app.route('/recipe/<title>')
 def recipe_details(title):
     details = recipe_manager.get_recipe_details(title)
     return render_template('recipe_details.html', details=details)
 
 if __name__ == '__main__':
-    app.run(port=8230, debug=False)
+    app.run(port=8402, debug=False)

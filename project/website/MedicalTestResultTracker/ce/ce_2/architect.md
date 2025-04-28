@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The web application will be implemented using Python with Flask as the web framework. The core functionalities will be integrated into a single Python file, ensuring simplicity and ease of maintenance. The application will utilize HTML for the frontend, with forms for user registration and login, and charts for displaying test result trends. The application will handle user sessions to manage logins and logouts.",
+"Implementation approach": "The web application will be structured using HTML for the front end and Python for the back end. The application will handle user interactions through forms for registration and login, and will manage data using simple file operations to read and write to local text files. The application will be lightweight and efficient, focusing on the core functionalities required to track medical test results.",
 
-"UI design": "The user interface will consist of a Registration Page with a form for username and password input, a Login Page with a similar form, a Dashboard for managing medical test results, viewing trends, and setting reminders. The Dashboard will include buttons for adding test results, viewing history, and setting reminders, as well as a chart area to visualize trends over time.",
+"UI design":"The user interface will consist of the following components: \n1. **Registration Page**: A form with fields for username and password, and a submit button. \n2. **Login Page**: A similar form for user authentication. \n3. **Dashboard**: A main interface where users can input test results, view historical data, and trends. It will include buttons for adding results, viewing history, and setting reminders. \n4. **Reminders Section**: An area where users can set and view reminders for follow-up tests and appointments. Usability and accessibility will be prioritized by ensuring clear labels and responsive design.",
 
-"Data Storage": "Data will be stored in local text files. User account information will be stored in 'users.txt', medical test results in 'test_results.txt', and reminders in 'reminders.txt'. Each file will contain structured data in a simple format, allowing for easy retrieval and management through file operations in Python.",
+"Data Storage": "Data will be stored in local text files, organized as follows: \n- `users.txt`: Contains user account information (username and password). \n- `test_results.txt`: Stores medical test results associated with each user. \n- `reminders.txt`: Holds reminder information for follow-up tests and appointments. Each file will use a simple format, with each line representing a separate entry, ensuring easy parsing and management.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "users.txt", "test_results.txt", "reminders.txt"],
 
@@ -16,20 +16,19 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users: list
+        -String filename
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class TestResultManager {
-        -test_results: list
-        +add_test_result(user_id: str, result: str) bool
-        +get_test_results(user_id: str) list
-        +get_trends(user_id: str) list
+        -String filename
+        +add_result(username: str, result: str) bool
+        +get_results(username: str) list
     }
     class ReminderManager {
-        -reminders: list
-        +set_reminder(user_id: str, reminder: str) bool
-        +get_reminders(user_id: str) list
+        -String filename
+        +set_reminder(username: str, reminder: str) bool
+        +get_reminders(username: str) list
     }
 ",
 [/CONTENT]

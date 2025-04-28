@@ -6,13 +6,13 @@ import subprocess
 class TestPeerTutoringNetwork(unittest.TestCase):
 
     def setUp(self):
-        # Start the Flask application
+        # Start the application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8218/')  # Access the login page
+        self.driver.get('http://localhost:8390/')  # Accessing the login page
 
     def tearDown(self):
-        # Close the web driver session and the Flask application
+        # Close the web driver session and the application
         self.driver.quit()
         self.process.terminate()
 
@@ -25,73 +25,68 @@ class TestPeerTutoringNetwork(unittest.TestCase):
     def test_login(self):
         # Functionalities 1: Test user login functionality
         self.login("admin", "admin123")
-
-        # Verify that the Dashboard Page has loaded
-        self.assertIn("Dashboard", self.driver.title)
+        self.assertIn("Dashboard", self.driver.title)  # Verify redirection to dashboard
 
     def test_registration(self):
         # Functionalities 2: Test user registration functionality
-        self.driver.find_element(By.LINK_TEXT, 'Register').click()
-
-        new_username = "new_user"
-        new_password = "new_password"
-        new_email = "new_user@example.com"
-
-        # Input username, password, and email for registration
-        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
-        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
-        self.driver.find_element(By.NAME, 'email').send_keys(new_email)
+        self.driver.get('http://localhost:8390/register')  # Navigate to registration page
+        self.driver.find_element(By.NAME, 'username').send_keys("new_user")
+        self.driver.find_element(By.NAME, 'password').send_keys("new_password")
+        self.driver.find_element(By.NAME, 'email').send_keys("new_user@example.com")
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
-        # Verify the user is redirected to the login page
+        # Verify redirection to login page
         self.assertIn("Login", self.driver.title)
 
     def test_access_dashboard(self):
         # Functionalities 3: Test access to the dashboard after login
         self.login("admin", "admin123")
-
-        # Verify that the user is taken to the dashboard
-        self.assertIn("Dashboard", self.driver.title)
+        self.assertIn("Dashboard", self.driver.title)  # Verify dashboard access
 
     def test_view_available_tutors(self):
         # Functionalities 4: Test viewing available tutors
         self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'View Tutors').click()
+        self.assertIn("Available Tutors", self.driver.title)  # Verify tutors page access
 
-        # Verify that the list of available tutors is displayed
-        tutors_list = self.driver.find_elements(By.TAG_NAME, 'li')
-        self.assertGreater(len(tutors_list), 0, "No tutors found.")
+    def test_request_tutoring(self):
+        # Functionalities 5: Test requesting tutoring
+        self.login("admin", "admin123")
+        self.driver.find_element(By.LINK_TEXT, 'Request Tutoring').click()
+        self.driver.find_element(By.NAME, 'subject').send_keys("Math")
+        self.driver.find_element(By.NAME, 'details').send_keys("Need help with algebra.")
+        self.driver.find_element(By.NAME, 'date').send_keys("2023-10-10")
+        self.driver.find_element(By.XPATH, '//button[text()="Submit Request"]').click()
 
-    def test_access_profile_page(self):
+        # Verify redirection to dashboard
+        self.assertIn("Dashboard", self.driver.title)
+
+    def test_access_profile(self):
         # Functionalities 6: Test access to the profile page
         self.login("admin", "admin123")
         self.driver.find_element(By.LINK_TEXT, 'Profile').click()
-
-        # Verify that the profile page is displayed
-        self.assertIn("User Profile", self.driver.title)
+        self.assertIn("User Profile", self.driver.title)  # Verify profile page access
 
     def test_logout(self):
-        # Functionalities 7: Test logging out
+        # Functionalities 7: Test user logout
         self.login("admin", "admin123")
-
-        # Click the Logout button
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
-
-        # Verify that the user is redirected to the Login Page
-        self.assertIn("Login", self.driver.title)
+        self.assertIn("Login", self.driver.title)  # Verify redirection to login page
 
     def test_contact_support(self):
         # Functionalities 8: Test contacting support
-        self.login("admin", "admin123")
-        self.driver.find_element(By.LINK_TEXT, 'Contact Support').click()
+        self.driver.get('http://localhost:8390/contact')  # Navigate to contact page
+        self.driver.find_element(By.NAME, 'name').send_keys("Test User")
+        self.driver.find_element(By.NAME, 'email').send_keys("test@example.com")
+        self.driver.find_element(By.NAME, 'message').send_keys("This is a test message.")
+        self.driver.find_element(By.XPATH, '//button[text()="Send"]').click()
 
-        # Verify that the contact page is displayed
-        self.assertIn("Contact Support", self.driver.title)
+        # Verify confirmation message (assuming there's a confirmation message)
+        self.assertIn("Message sent successfully", self.driver.page_source)
 
     def test_cancel_tutoring_request(self):
-        # Functionalities 9: Test canceling a tutoring request
-        self.login("admin", "admin123")
-        # Assuming there is a cancel button, which is not implemented in the codebase
-        self.fail("Cancel tutoring request functionality not implemented.")
+        # Functionalities 9: Test canceling a tutoring request (not implemented)
+        self.fail("Cancel tutoring request functionality not implemented")
 
 if __name__ == '__main__':
     unittest.main()

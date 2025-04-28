@@ -8,13 +8,13 @@ import os
 class TestOnlineLibraryManagementSystem(unittest.TestCase):
 
     def setUp(self):
-        # Start the Flask application
+        # Start the main application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8203/')  # Access the login page
+        self.driver.get('http://localhost:5000/')  # Replace with the correct port
 
     def tearDown(self):
-        # Close the web driver session and terminate the Flask application
+        # Close the web driver session and terminate the application
         self.driver.quit()
         self.process.terminate()
 
@@ -22,38 +22,88 @@ class TestOnlineLibraryManagementSystem(unittest.TestCase):
         # Helper method to perform login
         self.driver.find_element(By.NAME, 'username').send_keys(username)
         self.driver.find_element(By.NAME, 'password').send_keys(password)
-        self.driver.find_element(By.XPATH, '//input[@type="submit"]').click()
+        self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
         time.sleep(1)  # Wait for the next page to load
 
+    def test_user_registration(self):
+        # Functionalities 1: User Registration
+        self.driver.get('http://localhost:5000/user_management')  # Navigate to User Management
+        new_username = "new_user"
+        new_password = "new_password"
+
+        # Input username and password for registration
+        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
+        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
+        self.driver.find_element(By.XPATH, '//button[text()="Register User"]').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        # Verify the user is redirected to the user management page
+        self.assertIn("User Management", self.driver.title)
+
     def test_user_login(self):
-        # Functionalities 2: Test user login functionality
+        # Functionalities 2: User Login
         self.login("admin", "admin123")
 
         # Verify that the Dashboard Page has loaded
         self.assertIn("Dashboard", self.driver.title)
 
     def test_view_dashboard(self):
-        # Functionalities 3: Test accessing the dashboard after login
+        # Functionalities 3: View Dashboard
         self.login("admin", "admin123")
+        
+        # Verify that the dashboard displays navigation options
+        self.assertIn("Manage Books", self.driver.page_source)
+        self.assertIn("Manage Users", self.driver.page_source)
 
-        # Verify that the dashboard displays book management options
-        self.assertIn("Welcome to the Library Dashboard", self.driver.page_source)
-
-    def test_add_book(self):
-        # Functionalities 4: Test adding a new book
+    def test_manage_books(self):
+        # Functionalities 4: Manage Books
         self.login("admin", "admin123")
+        self.driver.get('http://localhost:5000/book_management')  # Navigate to Book Management
 
-        # Add a new book
-        self.driver.find_element(By.NAME, 'title').send_keys("New Book Title")
-        self.driver.find_element(By.NAME, 'author').send_keys("New Author")
-        self.driver.find_element(By.XPATH, '//input[@value="Add Book"]').click()
-        time.sleep(1)  # Wait for the book to be added
+        book_title = "New Book Title"
+        book_author = "New Book Author"
 
-        # Verify that the new book appears in the dashboard
-        self.assertIn("New Book Title", self.driver.page_source)
+        # Input book details for adding a new book
+        self.driver.find_element(By.NAME, 'title').send_keys(book_title)
+        self.driver.find_element(By.NAME, 'author').send_keys(book_author)
+        self.driver.find_element(By.XPATH, '//button[text()="Add Book"]').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        # Verify the book is added
+        self.assertIn(book_title, self.driver.page_source)
+
+    def test_manage_user_accounts(self):
+        # Functionalities 5: Manage User Accounts
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:5000/user_management')  # Navigate to User Management
+
+        new_username = "test_user"
+        new_password = "test_password"
+
+        # Input username and password for registration
+        self.driver.find_element(By.NAME, 'username').send_keys(new_username)
+        self.driver.find_element(By.NAME, 'password').send_keys(new_password)
+        self.driver.find_element(By.XPATH, '//button[text()="Register User"]').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        # Verify the user is added
+        self.assertIn(new_username, self.driver.page_source)
+
+    def test_search_books(self):
+        # Functionalities 6: Search Books
+        self.login("admin", "admin123")
+        self.driver.get('http://localhost:5000/book_management')  # Navigate to Book Management
+
+        search_query = "1984"  # Assuming this book exists
+        self.driver.find_element(By.NAME, 'search').send_keys(search_query)
+        self.driver.find_element(By.XPATH, '//button[text()="Search"]').click()
+        time.sleep(1)  # Wait for the search results
+
+        # Verify the search results display the book's details
+        self.assertIn("1984", self.driver.page_source)
 
     def test_user_logout(self):
-        # Functionalities 7: Test logging out
+        # Functionalities 7: User Logout
         self.login("admin", "admin123")
 
         # Click the Logout button
@@ -63,41 +113,33 @@ class TestOnlineLibraryManagementSystem(unittest.TestCase):
         # Verify that the user is redirected to the Login Page
         self.assertIn("Login", self.driver.title)
 
-    def test_file_handling_after_add_book(self):
-        # Functionalities 8: Check if the book is added to the file
+    def test_file_handling_for_data_storage(self):
+        # Functionalities 8: File Handling for Data Storage
         self.login("admin", "admin123")
 
         # Add a new book
-        book_title = "File Check Book"
-        self.driver.find_element(By.NAME, 'title').send_keys(book_title)
-        self.driver.find_element(By.NAME, 'author').send_keys("File Check Author")
-        self.driver.find_element(By.XPATH, '//input[@value="Add Book"]').click()
-        time.sleep(1)  # Wait for the book to be added
+        self.driver.get('http://localhost:5000/book_management')  # Navigate to Book Management
+        book_title = "Test Book"
+        book_author = "Test Author"
 
-        # Verify that the book entry exists in the books.txt file
+        self.driver.find_element(By.NAME, 'title').send_keys(book_title)
+        self.driver.find_element(By.NAME, 'author').send_keys(book_author)
+        self.driver.find_element(By.XPATH, '//button[text()="Add Book"]').click()
+        time.sleep(1)  # Wait for the next page to load
+
+        # Check if the book entry exists in the books.txt file
         with open('books.txt', 'r') as file:
-            books = file.read()
-            self.assertIn(book_title, books)
-
-    def test_file_handling_after_delete_book(self):
-        # Functionalities 8: Check if the book is deleted from the file
-        self.login("admin", "admin123")
-
-        # Add a book to delete later
-        book_title = "Delete Check Book"
-        self.driver.find_element(By.NAME, 'title').send_keys(book_title)
-        self.driver.find_element(By.NAME, 'author').send_keys("Delete Check Author")
-        self.driver.find_element(By.XPATH, '//input[@value="Add Book"]').click()
-        time.sleep(1)  # Wait for the book to be added
+            books = file.readlines()
+            self.assertIn(f"{book_title}|{book_author}\n", books)
 
         # Delete the book
-        self.driver.find_element(By.LINK_TEXT, f'Delete').click()
-        time.sleep(1)  # Wait for the book to be deleted
+        self.driver.find_element(By.XPATH, f'//li[contains(text(), "{book_title}")]/following-sibling::button[text()="Delete"]').click()
+        time.sleep(1)  # Wait for the next page to load
 
-        # Verify that the book entry is removed from the books.txt file
+        # Check if the book entry is removed from the books.txt file
         with open('books.txt', 'r') as file:
-            books = file.read()
-            self.assertNotIn(book_title, books)
+            books = file.readlines()
+            self.assertNotIn(f"{book_title}|{book_author}\n", books)
 
 if __name__ == '__main__':
     unittest.main()

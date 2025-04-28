@@ -4,21 +4,20 @@ class ResourceManager:
 
     def load_resources(self):
         resources = []
-        with open('resources.txt', 'r') as file:
-            for line in file:
-                title, link = line.strip().split('|')
-                resources.append({'title': title, 'link': link})
+        with open('resources.txt', 'r') as f:
+            for line in f:
+                resources.append(line.strip())
         return resources
 
-    def share_resource(self, title: str, link: str) -> bool:
-        self.resources.append({'title': title, 'link': link})
+    def share_resource(self, username: str, resource: str) -> bool:
+        self.resources.append(resource)
         self.save_resources()
         return True
 
-    def get_resources(self):
+    def access_resources(self):
         return self.resources
 
     def save_resources(self):
-        with open('resources.txt', 'w') as file:
+        with open('resources.txt', 'w') as f:
             for resource in self.resources:
-                file.write(f"{resource['title']}|{resource['link']}\n")
+                f.write(f"{resource}\n")

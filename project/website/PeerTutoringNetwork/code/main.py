@@ -1,199 +1,184 @@
-import http.server
+from flask import Flask, render_template, request, redirect, session, flash
 import os
-import json
-from urllib.parse import parse_qs, urlparse
 
-class User:
-    def __init__(self, username, password, email):
-        self.username = username
-        self.password = password
-        self.email = email
+app = Flask(__name__)
+app.secret_key = 'your_secret_key'
 
 class UserManager:
-    def __init__(self):
-        self.users = self.load_users()
+    def __init__(self, users_file):
+        self.users_file = users_file
+        self.load_users()
 
     def load_users(self):
-        users = []
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as f:
-                for line in f:
+        self.users = {}
+        if os.path.exists(self.users_file):
+            with open(self.users_file, 'r') as file:
+                for line in file:
                     username, password, email = line.strip().split('|')
-                    users.append(User(username, password, email))
-        return users
+                    self.users[username] = {'password': password, 'email': email}
 
-    def register(self, username, password, email):
-        for user in self.users:
-            if user.username == username:
-                return False
-        new_user = User(username, password, email)
-        self.users.append(new_user)
-        with open('users.txt', 'a') as f:
-            f.write(f"{username}|{password}|{email}\n")
+    def register(self, username: str, password: str, email: str) -> bool:
+        if username in self.users:
+            return False
+        with open(self.users_file, 'a') as file:
+            file.write(f"{username}|{password}|{email}\n")
+        self.users[username] = {'password': password, 'email': email}
         return True
 
-    def login(self, username, password):
-        for user in self.users:
-            if user.username == username and user.password == password:
-                return True
-        return False
-
-class TutoringRequest:
-    def __init__(self, subject, details, preferred_date):
-        self.subject = subject
-        self.details = details
-        self.preferred_date = preferred_date
-
-    def create_request(self):
-        with open('requests.txt', 'a') as f:
-            f.write(f"{self.subject}|{self.details}|{self.preferred_date}\n")
-        return True
-
-    def cancel_request(self):
-        requests = []
-        if os.path.exists('requests.txt'):
-            with open('requests.txt', 'r') as f:
-                requests = [line.strip().split('|') for line in f]
-        
-        if requests:
-            requests.pop()  # Remove the last request
-            with open('requests.txt', 'w') as f:
-                for req in requests:
-                    f.write('|'.join(req) + '\n')
+    def login(self, username: str, password: str) -> bool:
+        if username in self.users and self.users[username]['password'] == password:
+            session['username'] = username
             return True
         return False
 
-class Contact:
-    def __init__(self, name, email, message):
-        self.name = name
-        self.email = email
-        self.message = message
+    def get_user_profile(self, username: str) -> dict:
+        return self.users.get(username, {})
 
-    def send_message(self):
-        with open('contacts.txt', 'a') as f:
-            f.write(f"{self.name}|{self.email}|{self.message}\n")
+class TutoringRequestManager:
+    def __init__(self, requests_file):
+        self.requests_file = requests_file
+        self.load_requests()
+
+    def load_requests(self):
+        self.requests = {}
+        if os.path.exists(self.requests_file):
+            with open(self.requests_file, 'r') as file:
+                for line in file:
+                    username, subject, details, date = line.strip().split('|')
+                    if username not in self.requests:
+                        self.requests[username] = []
+                    self.requests[username].append({'subject': subject, 'details': details, 'date': date})
+
+    def request_tutoring(self, username: str, subject: str, details: str, date: str) -> bool:
+        with open(self.requests_file, 'a') as file:
+            file.write(f"{username}|{subject}|{details}|{date}\n")
+        if username not in self.requests:
+            self.requests[username] = []
+        self.requests[username].append({'subject': subject, 'details': details, 'date': date})
         return True
 
-class Main(http.server.SimpleHTTPRequestHandler):
-    user_manager = UserManager()
-    logged_in_user = None
+    def cancel_request(self, username: str, request_id: int) -> bool:
+        if username in self.requests and 0 <= request_id < len(self.requests[username]):
+            del self.requests[username][request_id]
+            self.save_requests()
+            return True
+        return False
 
-    def do_GET(self):
-        parsed_path = urlparse(self.path)
-        if parsed_path.path == '/':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(self.render_login_page().encode())
-        elif parsed_path.path == '/register':
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(self.render_register_page().encode())
-        elif parsed_path.path == '/dashboard':
-            if self.logged_in_user:
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(self.render_dashboard_page().encode())
-            else:
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-        elif parsed_path.path == '/contact':
-            if self.logged_in_user:
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(self.render_contact_page().encode())
-            else:
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-        elif parsed_path.path == '/logout':
-            self.logged_in_user = None
-            self.send_response(302)
-            self.send_header('Location', '/')
-            self.end_headers()
-        elif parsed_path.path == '/cancel_request':
-            if self.logged_in_user:
-                tutoring_request = TutoringRequest("", "", "")
-                if tutoring_request.cancel_request():
-                    self.send_response(302)
-                    self.send_header('Location', '/dashboard')
-                    self.end_headers()
-                else:
-                    self.send_response(400)
-                    self.end_headers()
-            else:
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-        else:
-            self.send_response(404)
-            self.end_headers()
+    def save_requests(self):
+        with open(self.requests_file, 'w') as file:
+            for username, requests in self.requests.items():
+                for req in requests:
+                    file.write(f"{username}|{req['subject']}|{req['details']}|{req['date']}\n")
 
-    def do_POST(self):
-        parsed_path = urlparse(self.path)
-        if parsed_path.path == '/login':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = parse_qs(post_data.decode())
-            username = data['username'][0]
-            password = data['password'][0]
-            if self.user_manager.login(username, password):
-                self.logged_in_user = username
-                self.send_response(302)
-                self.send_header('Location', '/dashboard')
-                self.end_headers()
-            else:
-                self.send_response(401)
-                self.end_headers()
-        elif parsed_path.path == '/register':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = parse_qs(post_data.decode())
-            username = data['username'][0]
-            password = data['password'][0]
-            email = data['email'][0]
-            if self.user_manager.register(username, password, email):
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-            else:
-                self.send_response(400)
-                self.end_headers()
-        elif parsed_path.path == '/contact':
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = parse_qs(post_data.decode())
-            name = data['name'][0]
-            email = data['email'][0]
-            message = data['message'][0]
-            contact = Contact(name, email, message)
-            contact.send_message()
-            self.send_response(302)
-            self.send_header('Location', '/dashboard')
-            self.end_headers()
+    def get_requests(self, username: str) -> list:
+        return self.requests.get(username, [])
 
-    def render_login_page(self):
-        with open('templates/login.html', 'r') as f:
-            return f.read()
+@app.route('/')
+def login():
+    return render_template('login.html')
 
-    def render_register_page(self):
-        with open('templates/register.html', 'r') as f:
-            return f.read()
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form['username']
+    password = request.form['password']
+    email = request.form['email']
+    if user_manager.register(username, password, email):
+        flash('Registration successful!')
+        return redirect('/')
+    else:
+        flash('Username already exists.')
+        return redirect('/')
 
-    def render_dashboard_page(self):
-        with open('templates/dashboard.html', 'r') as f:
-            return f.read()
+@app.route('/login', methods=['POST'])
+def do_login():
+    username = request.form['username']
+    password = request.form['password']
+    if user_manager.login(username, password):
+        return redirect('/dashboard')
+    else:
+        flash('Invalid credentials.')
+        return redirect('/')
 
-    def render_contact_page(self):
-        with open('templates/contact.html', 'r') as f:
-            return f.read()
+@app.route('/dashboard')
+def dashboard():
+    if 'username' not in session:
+        flash('Please log in to access the dashboard.')
+        return redirect('/')
+    return render_template('dashboard.html')
 
-if __name__ == "__main__":
-    server_address = ('', 8000)
-    httpd = http.server.HTTPServer(server_address, Main)
-    print("Server started at http://localhost:8000")
-    httpd.serve_forever()
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    flash('You have been logged out.')
+    return redirect('/')
+
+@app.route('/request_tutoring')
+def request_tutoring():
+    if 'username' not in session:
+        flash('Please log in to request tutoring.')
+        return redirect('/')
+    return render_template('request_tutoring.html')
+
+@app.route('/submit_request', methods=['POST'])
+def submit_request():
+    username = session.get('username')
+    subject = request.form['subject']
+    details = request.form['details']
+    date = request.form['date']
+    tutoring_request_manager.request_tutoring(username, subject, details, date)
+    flash('Tutoring request submitted successfully!')
+    return redirect('/dashboard')
+
+@app.route('/view_requests')
+def view_requests():
+    username = session.get('username')
+    if not username:
+        flash('Please log in to view your requests.')
+        return redirect('/')
+    requests = tutoring_request_manager.get_requests(username)
+    return render_template('view_requests.html', requests=requests)
+
+@app.route('/cancel_request/<int:request_id>', methods=['POST'])
+def cancel_request(request_id):
+    username = session.get('username')
+    if tutoring_request_manager.cancel_request(username, request_id):
+        flash('Tutoring request canceled successfully!')
+    else:
+        flash('Failed to cancel tutoring request.')
+    return redirect('/view_requests')
+
+@app.route('/contact_support')
+def contact_support():
+    if 'username' not in session:
+        flash('Please log in to contact support.')
+        return redirect('/')
+    return render_template('contact_support.html')
+
+@app.route('/view_available_tutors')
+def view_available_tutors():
+    if 'username' not in session:
+        flash('Please log in to view available tutors.')
+        return redirect('/')
+    return render_template('view_tutors.html', tutors=tutors_manager.get_available_tutors())
+
+class TutorsManager:
+    def __init__(self, tutors_file):
+        self.tutors_file = tutors_file
+        self.load_tutors()
+
+    def load_tutors(self):
+        self.tutors = []
+        if os.path.exists(self.tutors_file):
+            with open(self.tutors_file, 'r') as file:
+                for line in file:
+                    name, subject, availability = line.strip().split('|')
+                    self.tutors.append({'name': name, 'subject': subject, 'availability': availability})
+
+    def get_available_tutors(self):
+        return self.tutors
+
+if __name__ == '__main__':
+    user_manager = UserManager('users.txt')
+    tutoring_request_manager = TutoringRequestManager('tutoring_requests.txt')
+    tutors_manager = TutorsManager('tutors.txt')
+    app.run(port=8393, debug=False)

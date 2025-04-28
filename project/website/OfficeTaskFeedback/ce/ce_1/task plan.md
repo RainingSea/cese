@@ -1,41 +1,28 @@
 [CONTENT]
-"Required packages": ["Flask", "Jinja2"],
+"Required packages": ["Flask"],
 
-"Required Other language third-party packages": [],
+"Required Other language third-party packages": ["Bootstrap for CSS styling"],
 
 "Logic Analysis": 
-- main.py: 
-  - Class: Main
-    - Method: main()
-  - Class: UserManager
-    - Method: register(username: str, password: str) -> bool
-    - Method: login(username: str, password: str) -> bool
-  - Class: FeedbackManager
-    - Method: submit_feedback(user: str, feedback: str, category: str) -> bool
-    - Method: get_feedback_status(user: str) -> list
+- **main.py**: 
+  - `Main`: Manages the overall application flow.
+    - `main()`: Entry point of the application that initializes the web server and routes.
+- **UserManager**: Handles user registration and login functionalities.
+  - `register(username: str, password: str)`: Registers a new user and saves to 'users.txt'.
+  - `login(username: str, password: str)`: Validates user credentials against 'users.txt'.
+- **FeedbackManager**: Manages feedback submission and retrieval.
+  - `submit_feedback(username: str, category: str, feedback: str)`: Saves feedback to 'feedback.txt'.
+  - `get_feedbacks()`: Retrieves all feedback submissions from 'feedback.txt'.
 
-- templates/login.html: 
-  - HTML structure for login page with form fields and links.
+"Task list": [
+    "main.py",
+    "templates/login.html",
+    "templates/registration.html",
+    "templates/feedback.html",
+    "templates/review.html",
+    "users.txt",
+    "feedback.txt"
+],
 
-- templates/registration.html: 
-  - HTML structure for registration page with form fields and links.
-
-- templates/feedback.html: 
-  - HTML structure for feedback submission form.
-
-- templates/status.html: 
-  - HTML structure for displaying feedback statuses.
-
-"Task list": 
-1. main.py
-2. templates/registration.html
-3. templates/login.html
-4. templates/feedback.html
-5. templates/status.html
-
-"Shared Knowledge": 
-- Follow PEP 8 coding standards for Python code.
-- Use meaningful variable and method names for clarity.
-- Ensure proper error handling for user inputs and file operations.
-- Maintain a clear separation of concerns between the front end and back end.
+"Shared Knowledge": "Follow PEP 8 coding standards for Python code. Ensure that HTML templates are clean and use Bootstrap for responsive design. Comments should be added to explain the purpose of classes and methods. Maintain a clear project structure with separate directories for templates and static files."
 [/CONTENT]

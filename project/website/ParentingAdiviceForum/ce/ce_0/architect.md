@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The application will be implemented using HTML for the front-end and Python for the back-end logic. The structure will consist of a main Python file handling routing and data storage, with HTML templates for user interface components. User interactions will be managed through forms and basic input validation will be included.",
+"Implementation approach": "The application will be built using Python for the backend logic and HTML for the frontend user interface. The application will handle user authentication, thread management, and advice posting using local text file storage for data persistence. Flask will be used as the web framework to serve the application and handle routing.",
 
-"UI design": "The UI will consist of the following key components: \n1. **Login Page**: Username and password fields, login button, and a link to the Register Page. \n2. **Register Page**: Username and password fields, register button, and a link to the Login Page. \n3. **Home Page**: Welcome message, navigation links to Forum, Post Advice, My Account, and Contact Us pages. \n4. **Forum Page**: List of discussion threads with a button to create a new thread. \n5. **View Thread Page**: Displays thread title, content, comments, and an input area for new comments. \n6. **Post Advice Page**: Title and content fields for posting advice. \n7. **My Account Page**: Displays user profile information with options to update or delete the account. \n8. **Contact Us Page**: Name, email, and message fields with a submit button.",
+"UI design":"The main user interface components will include a Login Page, Register Page, Home Page, Forum Page, View Thread Page, Post Advice Page, My Account Page, and Contact Us Page. Each page will have navigation links to facilitate user movement throughout the application.",
 
-"Data Storage": "Data will be stored in local text files. The following files will be used: \n- `users.txt`: Stores usernames and passwords. \n- `threads.txt`: Stores discussion threads with titles and content. \n- `comments.txt`: Stores comments related to each thread. \n- `advice.txt`: Stores posted advice. \n- `contact_inquiries.txt`: Stores contact inquiries from users.",
+"Data Storage":"Data will be stored in local text files. Different types of data will be stored in separate files. The following files will be used: 'users.txt' for user accounts, 'threads.txt' for discussion threads, 'comments.txt' for thread comments, and 'advice.txt' for posted advice. This structured data storage will allow for easy data retrieval and management.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/home.html", "templates/forum.html", "templates/view_thread.html", "templates/post_advice.html", "templates/my_account.html", "templates/contact_us.html", "users.txt", "threads.txt", "comments.txt", "advice.txt", "contact_inquiries.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/home.html", "templates/forum.html", "templates/view_thread.html", "templates/post_advice.html", "templates/my_account.html", "templates/contact_us.html", "users.txt", "threads.txt", "comments.txt", "advice.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -14,31 +14,30 @@ classDiagram
         -ThreadManager thread_manager
         -CommentManager comment_manager
         -AdviceManager advice_manager
-        -ContactManager contact_manager
         +main() str
     }
     class UserManager {
         -List users
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
+        +update_profile(username: str, new_info: dict) bool
+        +delete_account(username: str) bool
     }
     class ThreadManager {
         -List threads
         +create_thread(title: str, content: str) bool
         +get_threads() List
-        +get_thread_details(thread_id: int) str
+        +get_thread_details(thread_id: int) dict
     }
     class CommentManager {
         -List comments
         +add_comment(thread_id: int, comment: str) bool
+        +get_comments(thread_id: int) List
     }
     class AdviceManager {
-        -List advice
+        -List advice_posts
         +post_advice(title: str, content: str) bool
-    }
-    class ContactManager {
-        -List inquiries
-        +submit_inquiry(name: str, email: str, message: str) bool
+        +get_advice() List
     }
 ",
 [/CONTENT]

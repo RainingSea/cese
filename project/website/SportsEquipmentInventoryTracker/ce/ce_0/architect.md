@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The web application will be structured using Python for the backend logic and HTML for the frontend interface. The main components include user registration and login functionalities, a dashboard for managing equipment, and search and filter capabilities. The application will utilize local text files for data storage, ensuring simplicity and ease of access. The main interaction will be through forms and buttons on the web pages, with data being read from and written to text files as needed.",
+"Implementation approach": "The application will be developed using Python for the backend logic and HTML for the frontend interface. The Flask framework will be utilized to manage routing and serve the web pages. User authentication will be handled through session management. Data will be stored in local text files for simplicity and ease of access.",
 
-"UI design": "The user interface will consist of the following components: a Registration Page with a form for username and password input, a Login Page with similar input fields, a Dashboard Page displaying a table of equipment with options to add, update, and delete items, and a search bar for filtering equipment. Alerts for maintenance will be shown as notifications on the Dashboard. Navigation will be straightforward, with links to register, log in, and access the dashboard.",
+"UI design": "The user interface will consist of the following components: a Registration Page for new users to create accounts, a Login Page for existing users to access their accounts, a Dashboard Page for managing equipment, including forms for inputting and updating equipment details, and a search/filter functionality for easy navigation. Each page will have a consistent layout with a navigation bar for easy access to different sections.",
 
-"Data Storage": "Data will be stored in local text files, with separate files for users and equipment information. This choice simplifies data management and retrieval, allowing for quick access without the overhead of a SQL database. The files will be structured to facilitate easy reading and writing of data in a plain text format.",
+"Data Storage": "Data will be stored in local text files. Different types of data will be organized into separate files, including 'users.txt' for user accounts and 'equipment.txt' for equipment details. This structured approach allows for straightforward data retrieval and management using simple file operations in Python.",
 
 "File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "users.txt", "equipment.txt"],
 
@@ -15,16 +15,16 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -list users
+        -List users
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class EquipmentManager {
-        -list equipment
+        -List equipment
         +add_equipment(name: str, type: str, quantity: int, condition: str, location: str) bool
         +update_equipment(name: str, quantity: int, condition: str, location: str) bool
-        +search_equipment(query: str) list
-        +filter_equipment(criteria: str) list
+        +search_equipment(query: str) List
+        +filter_equipment(criteria: str) List
     }
 ",
 [/CONTENT]

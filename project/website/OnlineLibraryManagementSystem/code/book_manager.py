@@ -1,39 +1,38 @@
 import os
 
 class BookManager:
-    def __init__(self, file_path: str):
-        self.file_path = file_path
-        self.load_books()
+    def __init__(self, filename):
+        self.filename = filename
+        self.books = []
 
     def load_books(self):
-        self.books = []
-        if os.path.exists(self.file_path):
-            with open(self.file_path, 'r') as file:
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as file:
                 for line in file:
                     title, author = line.strip().split('|')
-                    self.books.append({'title': title, 'author': author})
+                    self.books.append((title, author))
 
     def add_book(self, title: str, author: str) -> bool:
-        if any(book['title'] == title for book in self.books):
-            return False  # Book already exists
-        self.books.append({'title': title, 'author': author})
-        self.save_books()
+        self.books.append((title, author))
+        with open(self.filename, 'a') as file:
+            file.write(f"{title}|{author}\n")
         return True
 
     def delete_book(self, title: str) -> bool:
-        if any(book['title'] == title for book in self.books):
-            self.books = [book for book in self.books if book['title'] != title]
-            self.save_books()
-            return True
-        return False  # Book not found
+        for book in self.books:
+            if book[0] == title:
+                self.books.remove(book)
+                self._save_books()
+                return True
+        return False
+
+    def _save_books(self):
+        with open(self.filename, 'w') as file:
+            for title, author in self.books:
+                file.write(f"{title}|{author}\n")
 
     def list_books(self) -> list:
         return self.books
 
-    def save_books(self):
-        with open(self.file_path, 'w') as file:
-            for book in self.books:
-                file.write(f"{book['title']}|{book['author']}\n")
-
-    def search_book(self, query: str) -> list:
-        return [book for book in self.books if query.lower() in book['title'].lower()]
+    def search_books(self, query: str) -> list:
+        return [book for book in self.books if query.lower() in book[0].lower()]

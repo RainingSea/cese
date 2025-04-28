@@ -1,78 +1,49 @@
-import os
-import json
+from flask import Flask, render_template, request, redirect, url_for, session
+from flask_session import Session
+from user_manager import UserManager
+from tip_manager import TipManager
+from feedback_manager import FeedbackManager
 
-class Main:
-    def __init__(self):
-        self.user_manager = UserManager()
-        self.tip_manager = TipManager()
-        self.feedback_manager = FeedbackManager()
+app = Flask(__name__)
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
-    def main(self):
-        # Load data from files
-        self.user_manager.load_users()
-        self.tip_manager.load_tips()
-        self.feedback_manager.load_feedbacks()
-        # Start the application (this would be where you'd set up your web server)
-        print("DailyHealthTips application started.")
+user_manager = UserManager('users.txt')
+tip_manager = TipManager('tips.txt')
+feedback_manager = FeedbackManager('feedback.txt')
 
-class UserManager:
-    def __init__(self):
-        self.users = []
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            session['username'] = username
+            return redirect(url_for('tips'))
+        return render_template('login.html', error='Invalid credentials.')
+    return render_template('login.html')
 
-    def load_users(self):
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                self.users = [line.strip().split('|') for line in file.readlines()]
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
+        return render_template('register.html', error='Registration failed.')
+    return render_template('register.html')
 
-    def login(self, username: str, password: str) -> bool:
-        for user in self.users:
-            if user[0] == username and user[1] == password:
-                return True
-        return False
+@app.route('/tips', methods=['GET'])
+def tips():
+    current_tip = tip_manager.get_current_tip()
+    return render_template('tips.html', tip=current_tip)
 
-    def register(self, username: str, password: str) -> bool:
-        if any(user[0] == username for user in self.users):
-            return False
-        self.users.append([username, password])
-        with open('users.txt', 'a') as file:
-            file.write(f"{username}|{password}\n")
-        return True
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    user = session.get('username', 'Guest')
+    feedback_text = request.form['feedback']
+    feedback_manager.submit_feedback(user, feedback_text)
+    return redirect(url_for('tips'))
 
-class TipManager:
-    def __init__(self):
-        self.tips = []
-
-    def load_tips(self):
-        if os.path.exists('tips.txt'):
-            with open('tips.txt', 'r') as file:
-                self.tips = [line.strip() for line in file.readlines()]
-
-    def get_current_tip(self) -> str:
-        return self.tips[0] if self.tips else "No tips available."
-
-    def get_previous_tip(self) -> str:
-        return self.tips[-1] if len(self.tips) > 1 else "No previous tip available."
-
-    def get_next_tip(self) -> str:
-        return self.tips[1] if len(self.tips) > 1 else "No next tip available."
-
-    def search_tips(self, query: str) -> list:
-        return [tip for tip in self.tips if query.lower() in tip.lower()]
-
-class FeedbackManager:
-    def __init__(self):
-        self.feedbacks = []
-
-    def load_feedbacks(self):
-        if os.path.exists('feedback.txt'):
-            with open('feedback.txt', 'r') as file:
-                self.feedbacks = [line.strip() for line in file.readlines()]
-
-    def submit_feedback(self, feedback: str) -> None:
-        self.feedbacks.append(feedback)
-        with open('feedback.txt', 'a') as file:
-            file.write(f"{feedback}\n")
-
-if __name__ == "__main__":
-    app = Main()
-    app.main()
+if __name__ == '__main__':
+    app.run(port=8317, debug=False)

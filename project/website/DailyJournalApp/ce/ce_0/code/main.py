@@ -1,8 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, session
 import os
+from datetime import datetime
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager('users.txt')
+        self.journal_manager = JournalManager('journal_entries.txt')
+
+    def main(self):
+        # Placeholder for application flow
+        print("Welcome to the Daily Journal App")
+        # Here you would typically handle routing to different pages (login, register, etc.)
 
 class UserManager:
     def __init__(self, filename: str):
@@ -19,10 +26,10 @@ class UserManager:
 
     def register(self, username: str, password: str) -> bool:
         if username in self.users:
-            return False
-        self.users[username] = password
+            return False  # User already exists
         with open(self.filename, 'a') as file:
             file.write(f"{username}|{password}\n")
+        self.users[username] = password
         return True
 
     def login(self, username: str, password: str) -> bool:
@@ -38,67 +45,20 @@ class JournalManager:
         if os.path.exists(self.filename):
             with open(self.filename, 'r') as file:
                 for line in file:
-                    title, content = line.strip().split('|', 1)
-                    self.entries.append({'title': title, 'content': content})
+                    title, date, content = line.strip().split('|')
+                    self.entries.append({'title': title, 'date': date, 'content': content})
 
-    def create_entry(self, title: str, content: str) -> bool:
-        self.entries.append({'title': title, 'content': content})
+    def add_entry(self, title: str, content: str) -> bool:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        entry = f"{title}|{date}|{content}\n"
         with open(self.filename, 'a') as file:
-            file.write(f"{title}|{content}\n")
+            file.write(entry)
+        self.entries.append({'title': title, 'date': date, 'content': content})
         return True
 
-    def get_entries(self):
+    def get_entries(self) -> list:
         return self.entries
 
-user_manager = UserManager('users.txt')
-journal_manager = JournalManager('journal_entries.txt')
-
-@app.route('/')
-def login():
-    return render_template('login.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.register(username, password):
-            return redirect(url_for('login'))
-        else:
-            return "Username already exists!"
-    return render_template('register.html')
-
-@app.route('/dashboard', methods=['GET'])
-def dashboard():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    entries = journal_manager.get_entries()
-    return render_template('dashboard.html', entries=entries)
-
-@app.route('/new_entry', methods=['GET', 'POST'])
-def new_entry():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        journal_manager.create_entry(title, content)
-        return redirect(url_for('dashboard'))
-    return render_template('new_entry.html')
-
-@app.route('/login', methods=['POST'])
-def do_login():
-    username = request.form['username']
-    password = request.form['password']
-    if user_manager.login(username, password):
-        session['username'] = username
-        return redirect(url_for('dashboard'))
-    return "Invalid credentials!"
-
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('login'))
-
-if __name__ == '__main__':
-    app.run(port=8155, debug=False)
+if __name__ == "__main__":
+    app = Main()
+    app.main()

@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The Online Library Management System will be developed using Python for the backend and HTML for the frontend. User authentication will be implemented using simple session management in Python. Book and user management functionalities will be handled through file operations on local text files. The application will provide a dashboard for navigation between different sections, allowing users to manage books and user accounts efficiently.",
+"Implementation approach": "The Online Library Management System will be implemented using HTML for the frontend and Python for the backend logic. User authentication will be handled through simple form submissions, where users can register, log in, and log out. Book management will include functionalities to add, delete, and view books, while user management will allow for adding and viewing user accounts. The search functionality will enable users to find specific books based on their titles or authors.",
 
-"UI design": "The user interface will consist of several components: a login page (login.html) for user authentication, a dashboard page (dashboard.html) for navigation, a book management page (book_management.html) to add, delete, and view books, and a user management page (user_management.html) to add and view users. Each page will have links to navigate back to the dashboard, ensuring a seamless user experience.",
+"UI design": "The UI will consist of several key components: a login form for user authentication, a dashboard that provides navigation to book management, user management, and search functionalities. The book management interface will include forms for adding and deleting books, and a display area for listing all books. The user management interface will similarly allow for adding new users and listing existing users. The search functionality will include a search bar for users to input their queries.",
 
-"Data Storage": "All data will be stored in local text files, with separate `.txt` files for users and books. This approach simplifies data retrieval and management, making the application lightweight and efficient. The users will be stored in 'users.txt' and books in 'books.txt'.",
+"Data Storage": "Data will be stored in local text files. The following files will be used: 'users.txt' for storing user account information (username and password), 'books.txt' for storing book details (title, author, and ISBN), and 'sessions.txt' for managing user sessions. Each type of data will be stored in its respective file, ensuring easy retrieval and management without using a SQL database.",
 
-"File list": ["main.py", "tools.py", "templates/login.html", "templates/dashboard.html", "templates/book_management.html", "templates/user_management.html", "users.txt", "books.txt"],
+"File list": ["main.py", "templates/login.html", "templates/dashboard.html", "templates/book_management.html", "templates/user_management.html", "templates/search.html", "users.txt", "books.txt", "sessions.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -16,19 +16,17 @@ classDiagram
     }
     class UserManager {
         -users: list
-        +register(username: str, password: str) void
+        +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +logout() void
-        +load_users() void
-        +save_users() void
+        +logout(username: str) void
+        +view_users() list
     }
     class BookManager {
         -books: list
-        +add_book(title: str, author: str) void
-        +delete_book(title: str) void
+        +add_book(title: str, author: str, isbn: str) bool
+        +delete_book(isbn: str) bool
         +view_books() list
-        +load_books() void
-        +save_books() void
+        +search_books(query: str) list
     }
 ",
 [/CONTENT]

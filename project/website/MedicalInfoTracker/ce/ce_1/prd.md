@@ -10,17 +10,17 @@ Develop a web application named 'Medical Info Tracker' that helps users track an
    - The system shall provide a Login Page where users can log in to their account by entering their username and password.
 
 3. **Medical Information Management**
-   - The system shall allow users to input and manage their medical information, which includes:
+   - The system shall allow users to input and manage their medical information, including:
      - Diagnoses
      - Medications
      - Treatments
 
 4. **Appointment Reminders**
-   - The system shall allow users to set appointment reminders and send notifications to users when appointments are due.
+   - The system shall allow users to set appointment reminders and send notifications to users when appointments are approaching.
 
 5. **Medical History Tracking**
-   - The system shall provide functionality for users to view and edit their medical history and track their progress over time.
+   - The system shall enable users to view and edit their medical history and track their progress over time.
 
 6. **User Logout**
-   - The system shall provide a logout feature that allows users to log out of their account, returning them to the Login Page.
+   - The system shall provide a logout functionality that allows users to log out of their account, returning them to the Login Page.
 [/OUTPUT]

@@ -1,8 +1,12 @@
 [CONTENT]
-"Implementation approach": "The RecipeHub web application will be developed using Flask for the backend in Python and HTML for the frontend. User authentication will be handled through simple form submissions, with user credentials stored in a local text file. Recipe submission and browsing functionalities will be implemented using forms and file operations to read and write recipe data to separate text files. The application will maintain user sessions to ensure a seamless experience across different pages.",
-"UI design": "The application will consist of the following key UI components: Login Page (input fields for username and password, Register button), Registration Page (input fields for username and password), Home Page (welcome message, navigation buttons to Recipe Submission, Recipe Browsing, and User Profile Pages), Recipe Submission Page (input fields for title, ingredients, instructions, and a submit button), Recipe Browsing Page (search bar for keywords, list of recipes with links to details), User Profile Page (display of submitted recipes and account deletion option), and Recipe Details Page (full details of a selected recipe). Each component will interact through form submissions and navigation buttons to ensure a smooth user experience.",
-"Data Storage": "Data will be stored in local text files. User data will be stored in 'users.txt' and recipe data in 'recipes.txt'. Each line in 'users.txt' will contain a username and password separated by a comma, while 'recipes.txt' will store each recipe in the format: title, ingredients, instructions, with each recipe on a new line. The application will read from and write to these files as needed for user authentication and recipe management.",
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/home.html", "templates/recipe_submission.html", "templates/recipe_browsing.html", "templates/user_profile.html", "templates/recipe_details.html", "users.txt", "recipes.txt"],
+"Implementation approach": "The RecipeHub web application will be implemented using Flask for the back end, allowing for quick routing and handling of user requests. HTML will be used to create the front-end user interface, which will include forms for login, registration, and recipe submission. The application will be structured to facilitate user interactions through a simple and intuitive layout, ensuring that users can easily navigate between different pages.",
+
+"UI design": "The user interface will consist of several key components: a Login Page for user authentication, a Registration Page for new users, a Home Page that provides navigation to Recipe Submission, Recipe Browsing, and User Profile Pages, a Recipe Submission Page for entering new recipes, a Recipe Browsing Page for searching and viewing recipes, and a User Profile Page for managing user information and submitted recipes. Important UI elements will include buttons for navigation, forms for input, and message displays for user feedback upon actions such as registration and recipe submission.",
+
+"Data Storage": "Data will be stored in local text files, with different types of data organized into separate files. The following files will be defined in advance: 'users.txt' for storing user credentials, 'recipes.txt' for storing submitted recipes, and 'sessions.txt' for managing user sessions. No SQL database will be used, ensuring the application remains lightweight and efficient.",
+
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/recipe_submission.html", "templates/recipe_browsing.html", "templates/user_profile.html", "templates/recipe_details.html", "users.txt", "recipes.txt", "sessions.txt"],
+
 "Data structures and interfaces": "
 classDiagram
     class Main {
@@ -11,13 +15,13 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -str users_file
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
         +delete_account(username: str) bool
     }
     class RecipeManager {
-        -str recipes_file
+        -recipes: list
         +submit_recipe(title: str, ingredients: str, instructions: str) bool
         +search_recipes(keyword: str) list
         +get_recipe_details(title: str) str

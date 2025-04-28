@@ -1,64 +1,26 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from werkzeug.security import generate_password_hash, check_password_hash
-import os
+from flask import Flask, render_template, request, redirect, session
+from flask_session import Session
+from user_manager import UserManager
+from tip_generator import TipGenerator
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
-class UserManager:
-    def __init__(self):
-        self.users = self.load_users()
+user_manager = UserManager()
+tip_generator = TipGenerator()
 
-    def load_users(self):
-        if not os.path.exists('users.txt'):
-            return {}
-        with open('users.txt', 'r') as file:
-            users = {}
-            for line in file:
-                username, password = line.strip().split('|')
-                users[username] = password
-            return users
-
-    def register(self, username: str, password: str) -> bool:
-        if username in self.users:
-            return False
-        self.users[username] = password
-        with open('users.txt', 'a') as file:
-            file.write(f"{username}|{password}\n")
-        return True
-
-    def login(self, username: str, password: str) -> bool:
-        if username in self.users and self.users[username] == password:
-            session['username'] = username
-            return True
-        return False
-
-    def logout(self) -> None:
-        session.pop('username', None)
-
-class TipManager:
-    def __init__(self):
-        self.tips = self.load_tips()
-
-    def load_tips(self):
-        if not os.path.exists('tips.txt'):
-            return []
-        with open('tips.txt', 'r') as file:
-            return [line.strip() for line in file]
-
-    def generate_tips(self, destination: str, interests: list) -> list:
-        # For simplicity, returning all tips that contain the destination
-        return [tip for tip in self.tips if destination.lower() in tip.lower()]
-
-    def search_tips(self, query: str) -> list:
-        return [tip for tip in self.tips if query.lower() in tip.lower()]
-
-    def save_favorite(self, tip: str) -> None:
-        with open('favorites.txt', 'a') as file:
-            file.write(f"{tip}\n")
-
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            session['username'] = username
+            return redirect('/main')
+        else:
+            return "Invalid credentials. Please try again."
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -66,26 +28,24 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user_manager = UserManager()
         if user_manager.register(username, password):
-            return redirect(url_for('login'))
-    return render_template('register.html')
+            return redirect('/')
+        else:
+            return "Registration failed. Username may already exist."
+    return render_template('registration.html')
 
-@app.route('/travel', methods=['GET', 'POST'])
-def travel_details():
+@app.route('/main', methods=['GET', 'POST'])
+def main():
+    if 'username' not in session:
+        return redirect('/')
     if request.method == 'POST':
         destination = request.form['destination']
         interests = request.form.getlist('interests')
-        tip_manager = TipManager()
-        tips = tip_manager.generate_tips(destination, interests)
-        return render_template('recommendations.html', tips=tips)
-    return render_template('travel_details.html')
-
-@app.route('/logout')
-def logout():
-    user_manager = UserManager()
-    user_manager.logout()
-    return redirect(url_for('login'))
+        tips = tip_generator.generate_tips(destination, interests)
+        return render_template('main.html', tips=tips)
+    return render_template('main.html', tips=None)
 
 if __name__ == '__main__':
-    app.run(port=8263, debug=False)
+    user_manager.load_users()
+    tip_generator.load_tips()
+    app.run(port=8435, debug=False)

@@ -1,115 +1,148 @@
-from flask import Flask, render_template, request, redirect, session
-from flask_session import Session
 import os
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
-app.config['SESSION_TYPE'] = 'filesystem'
-Session(app)
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager('users.txt')
+        self.test_result_manager = TestResultManager('test_results.txt')
+        self.reminder_manager = ReminderManager('reminders.txt')
+
+    def main(self):
+        while True:
+            print("Welcome to the Medical Test Tracker")
+            print("1. Register")
+            print("2. Login")
+            choice = input("Choose an option: ")
+            if choice == '1':
+                username = input("Enter username: ")
+                password = input("Enter password: ")
+                if self.user_manager.register(username, password):
+                    print("Registration successful!")
+                else:
+                    print("Registration failed. Username may already exist.")
+            elif choice == '2':
+                username = input("Enter username: ")
+                password = input("Enter password: ")
+                if self.user_manager.login(username, password):
+                    print("Login successful!")
+                    self.dashboard(username)
+                else:
+                    print("Login failed. Invalid credentials.")
+            else:
+                print("Invalid option. Please try again.")
+
+    def dashboard(self, username):
+        while True:
+            print(f"Welcome {username} to your dashboard!")
+            print("1. Add Test Result")
+            print("2. View Test Results")
+            print("3. Set Reminder")
+            print("4. View Reminders")
+            print("5. Logout")
+            choice = input("Choose an option: ")
+            if choice == '1':
+                result = input("Enter test result: ")
+                if self.test_result_manager.add_result(username, result):
+                    print("Test result added successfully!")
+                else:
+                    print("Failed to add test result.")
+            elif choice == '2':
+                results = self.test_result_manager.get_results(username)
+                print("Your Test Results:")
+                for res in results:
+                    print(res)
+            elif choice == '3':
+                reminder = input("Enter reminder: ")
+                if self.reminder_manager.set_reminder(username, reminder):
+                    print("Reminder set successfully!")
+                else:
+                    print("Failed to set reminder.")
+            elif choice == '4':
+                reminders = self.reminder_manager.get_reminders(username)
+                print("Your Reminders:")
+                for rem in reminders:
+                    print(rem)
+            elif choice == '5':
+                print("Logging out...")
+                break
+            else:
+                print("Invalid option. Please try again.")
 
 class UserManager:
-    def __init__(self):
-        self.users = self.load_users()
+    def __init__(self, filename):
+        self.filename = filename
+        self.load_users()
 
     def load_users(self):
-        users = []
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
+        self.users = {}
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as file:
                 for line in file:
                     username, password = line.strip().split('|')
-                    users.append({'username': username, 'password': password})
-        return users
+                    self.users[username] = password
 
     def register(self, username: str, password: str) -> bool:
-        if any(user['username'] == username for user in self.users):
+        if username in self.users:
             return False
-        self.users.append({'username': username, 'password': password})
-        with open('users.txt', 'a') as file:
+        self.users[username] = password
+        with open(self.filename, 'a') as file:
             file.write(f"{username}|{password}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
-        return any(user['username'] == username and user['password'] == password for user in self.users)
+        return self.users.get(username) == password
 
 class TestResultManager:
-    def __init__(self):
-        self.test_results = self.load_test_results()
+    def __init__(self, filename):
+        self.filename = filename
+        self.load_results()
 
-    def load_test_results(self):
-        test_results = []
-        if os.path.exists('test_results.txt'):
-            with open('test_results.txt', 'r') as file:
+    def load_results(self):
+        self.results = {}
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as file:
                 for line in file:
-                    user_id, result = line.strip().split('|')
-                    test_results.append({'user_id': user_id, 'result': result})
-        return test_results
+                    username, result = line.strip().split('|')
+                    if username not in self.results:
+                        self.results[username] = []
+                    self.results[username].append(result)
 
-    def add_test_result(self, user_id: str, result: str) -> bool:
-        self.test_results.append({'user_id': user_id, 'result': result})
-        with open('test_results.txt', 'a') as file:
-            file.write(f"{user_id}|{result}\n")
+    def add_result(self, username: str, result: str) -> bool:
+        if username not in self.results:
+            self.results[username] = []
+        self.results[username].append(result)
+        with open(self.filename, 'a') as file:
+            file.write(f"{username}|{result}\n")
         return True
 
-    def get_test_results(self, user_id: str) -> list:
-        return [result for result in self.test_results if result['user_id'] == user_id]
-
-    def get_trends(self, user_id: str) -> list:
-        # Placeholder for trend analysis logic
-        return self.get_test_results(user_id)
+    def get_results(self, username: str) -> list:
+        return self.results.get(username, [])
 
 class ReminderManager:
-    def __init__(self):
-        self.reminders = self.load_reminders()
+    def __init__(self, filename):
+        self.filename = filename
+        self.load_reminders()
 
     def load_reminders(self):
-        reminders = []
-        if os.path.exists('reminders.txt'):
-            with open('reminders.txt', 'r') as file:
+        self.reminders = {}
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as file:
                 for line in file:
-                    user_id, reminder = line.strip().split('|')
-                    reminders.append({'user_id': user_id, 'reminder': reminder})
-        return reminders
+                    username, reminder = line.strip().split('|')
+                    if username not in self.reminders:
+                        self.reminders[username] = []
+                    self.reminders[username].append(reminder)
 
-    def set_reminder(self, user_id: str, reminder: str) -> bool:
-        self.reminders.append({'user_id': user_id, 'reminder': reminder})
-        with open('reminders.txt', 'a') as file:
-            file.write(f"{user_id}|{reminder}\n")
+    def set_reminder(self, username: str, reminder: str) -> bool:
+        if username not in self.reminders:
+            self.reminders[username] = []
+        self.reminders[username].append(reminder)
+        with open(self.filename, 'a') as file:
+            file.write(f"{username}|{reminder}\n")
         return True
 
-    def get_reminders(self, user_id: str) -> list:
-        return [reminder for reminder in self.reminders if reminder['user_id'] == user_id]
+    def get_reminders(self, username: str) -> list:
+        return self.reminders.get(username, [])
 
-user_manager = UserManager()
-test_result_manager = TestResultManager()
-reminder_manager = ReminderManager()
-
-@app.route('/', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.login(username, password):
-            session['username'] = username
-            return redirect('/dashboard')
-    return render_template('login.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if user_manager.register(username, password):
-            return redirect('/')
-    return render_template('registration.html')
-
-@app.route('/dashboard')
-def dashboard():
-    if 'username' not in session:
-        return redirect('/')
-    user_id = session['username']
-    test_results = test_result_manager.get_test_results(user_id)
-    reminders = reminder_manager.get_reminders(user_id)
-    return render_template('dashboard.html', test_results=test_results, reminders=reminders)
-
-if __name__ == '__main__':
-    app.run(port=8184, debug=False)
+if __name__ == "__main__":
+    app = Main()
+    app.main()

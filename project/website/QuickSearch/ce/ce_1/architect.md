@@ -1,17 +1,17 @@
 [CONTENT]
-"Implementation approach": "The web application will be developed using Python with Flask as the web framework for handling requests and rendering HTML templates. The application will utilize the Jinja2 templating engine for dynamic content generation. For user authentication, simple session management will be implemented. The search functionality will be powered by a custom search engine that processes text files containing book data. The overall design will follow a Model-View-Controller (MVC) pattern to separate concerns and enhance maintainability.",
+"Implementation approach": "The application will be developed using HTML for the front-end and Python for the back-end. The Flask framework will be utilized to handle routing and rendering of HTML templates. The application will manage user sessions and perform search operations on a collection of books stored in local text files.",
 
-"UI design":"The application will consist of the following pages: \n1. **Registration Page**: A form for users to enter a username and password, with a 'Register' button. \n2. **Login Page**: A form for users to enter their credentials, with a 'Login' button. \n3. **Dashboard Page**: A search bar for entering queries, a 'Search' button, and a list of search results displayed below. \n4. **Book Details Page**: Displays detailed information about a selected book, including an 'Add to Reading List' button. \n5. **Reading List Page**: A list of books the user has added to their reading list, with options to remove books.",
+"UI design": "The user interface will consist of the following components: \n1. **Registration Page**: Input fields for username and password, a 'Register' button, and a link to the Login Page. \n2. **Login Page**: Input fields for username and password, a 'Login' button, and a link to the Registration Page. \n3. **Dashboard Page**: A search bar for entering search queries, a list area to display search results with book details, and a logout button. \n4. **Book Details Page**: Display of book information including title, author, summary, cover image, and an 'Add to Reading List' button. \n5. **Reading List Page**: A list of books added to the user's reading list with options to remove books.",
 
-"Data Storage": "Data will be stored in local text files. User account information will be stored in 'users.txt', and book information will be stored in 'books.txt'. Each line in 'users.txt' will contain a username and password, while 'books.txt' will contain book details formatted as JSON strings for easy parsing. This structure allows for efficient data retrieval and manipulation without the overhead of a SQL database.",
+"Data Storage": "Data will be stored in local text files. Different types of data will be stored in separate `.txt` files. The following files will be used: \n- `users.txt`: to store user account information (username and password). \n- `books.txt`: to store book details (title, author, summary, cover image). \n- `reading_list.txt`: to store the user's reading list (username and list of book titles).",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/book_details.html", "templates/reading_list.html", "users.txt", "books.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/book_details.html", "templates/reading_list.html", "users.txt", "books.txt", "reading_list.txt"],
 
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
-        -SearchEngine search_engine
+        -BookManager book_manager
         +main() str
     }
     class UserManager {
@@ -19,17 +19,12 @@ classDiagram
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
-    class SearchEngine {
+    class BookManager {
         -books: list
         +search(query: str) list
-        +get_book_details(book_id: str) dict
+        +get_book_details(title: str) dict
+        +add_to_reading_list(username: str, book_title: str) bool
+        +get_reading_list(username: str) list
     }
-    class Book {
-        -title: str
-        -author: str
-        -summary: str
-        -cover_image: str
-        +to_json() str
-    }
-"
+",
 [/CONTENT]

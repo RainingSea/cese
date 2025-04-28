@@ -1,26 +1,64 @@
 [CONTENT]
-"Required packages": "http.server, os, json",
+"Required packages": [
+    "os", 
+    "json"
+],
 
-"Required Other language third-party packages": "",
+"Required Other language third-party packages": [],
 
 "Logic Analysis": {
     "main.py": {
-        "classes": ["User", "TutoringRequest", "Contact", "Main"],
-        "methods": [
-            "User.register(username: str, password: str, email: str) -> bool",
-            "User.login(username: str, password: str) -> bool",
-            "TutoringRequest.create_request(subject: str, details: str, preferred_date: str) -> bool",
-            "Contact.send_message(name: str, email: str, message: str) -> bool",
-            "Main.main() -> str"
+        "classes": [
+            {
+                "name": "Main",
+                "methods": [
+                    {
+                        "name": "main",
+                        "description": "Entry point of the application that initializes the user manager, tutoring request manager, and contact manager."
+                    }
+                ]
+            },
+            {
+                "name": "UserManager",
+                "methods": [
+                    {
+                        "name": "register",
+                        "description": "Handles user registration by saving the username, password, and email to 'users.txt'."
+                    },
+                    {
+                        "name": "login",
+                        "description": "Validates user credentials against 'users.txt'."
+                    },
+                    {
+                        "name": "get_user_info",
+                        "description": "Retrieves user information from 'users.txt' based on the username."
+                    }
+                ]
+            },
+            {
+                "name": "TutoringRequestManager",
+                "methods": [
+                    {
+                        "name": "request_tutoring",
+                        "description": "Saves a tutoring request to 'tutoring_requests.txt' with the user's details."
+                    },
+                    {
+                        "name": "cancel_request",
+                        "description": "Removes a tutoring request from 'tutoring_requests.txt' for the specified user."
+                    }
+                ]
+            },
+            {
+                "name": "ContactManager",
+                "methods": [
+                    {
+                        "name": "send_message",
+                        "description": "Saves a contact message to 'contact_messages.txt' with the user's name, email, and message."
+                    }
+                ]
+            }
         ]
-    },
-    "templates/login.html": {},
-    "templates/registration.html": {},
-    "templates/dashboard.html": {},
-    "templates/view_tutors.html": {},
-    "templates/request_tutoring.html": {},
-    "templates/profile.html": {},
-    "templates/contact.html": {}
+    }
 },
 
 "Task list": [
@@ -31,11 +69,15 @@
     "templates/view_tutors.html",
     "templates/request_tutoring.html",
     "templates/profile.html",
-    "templates/contact.html",
+    "templates/contact_us.html",
     "users.txt",
-    "requests.txt",
-    "contacts.txt"
+    "tutoring_requests.txt",
+    "contact_messages.txt"
 ],
 
-"Shared Knowledge": "Ensure to follow PEP 8 coding standards for Python code. Keep HTML files clean and organized. Use comments to document the purpose of classes and methods."
+"Shared Knowledge": [
+    "Ensure that user passwords are stored in plain text for this project as per the requirements.",
+    "Implement basic file handling practices to read and write data to text files, ensuring to handle exceptions where necessary.",
+    "Follow best practices for user authentication, including validating user inputs and managing sessions appropriately."
+]
 [/CONTENT]

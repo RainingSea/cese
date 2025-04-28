@@ -3,11 +3,21 @@
 To develop a web application that recommends movies to users based on their preferences, utilizing Python for development and local text file storage for data management.
 
 ## software functional requirements
-1. Users shall be able to log in to their accounts.
-2. Users shall be able to register a new account.
-3. Users shall be able to view movie recommendations based on their preferences.
-4. Users shall be able to search for movies and view the results.
-5. Users shall be able to view detailed information about a movie, including its title, description, and rating.
-6. Users shall be able to add movies to their favorites list.
-7. Users shall be able to view their favorite movies and remove them from the list.
+1. User Authentication
+   - The system shall allow users to log in to their accounts.
+   - The system shall allow users to register a new account.
+
+2. Movie Recommendations
+   - The system shall provide movie recommendations to users based on their preferences.
+
+3. Movie Search
+   - The system shall allow users to search for movies and view the results.
+
+4. Movie Details
+   - The system shall allow users to view detailed information about a movie, including its title, description, and rating.
+
+5. Favorites Management
+   - The system shall allow users to add movies to their favorites list.
+   - The system shall allow users to view their favorite movies.
+   - The system shall allow users to remove movies from their favorites list.
 [/OUTPUT]

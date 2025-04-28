@@ -1,27 +1,27 @@
 class ReminderManager:
-    def __init__(self, filename: str):
-        self.filename = filename
+    def __init__(self, reminders_file: str):
+        self.reminders_file = reminders_file
         self.reminders = self.load_reminders()
 
-    def set_reminder(self, username: str, reminder_text: str, date_time: str) -> bool:
-        if username is None:
-            return False
-        self.reminders.append(f"{username}|{reminder_text}|{date_time}")
-        self.save_reminders()
-        return True
+    def load_reminders(self) -> dict:
+        reminders = {}
+        try:
+            with open(self.reminders_file, 'r') as file:
+                for line in file:
+                    username, reminder = line.strip().split('|')
+                    if username not in reminders:
+                        reminders[username] = []
+                    reminders[username].append(reminder)
+        except FileNotFoundError:
+            pass  # If the file does not exist, return an empty dictionary
+        return reminders
+
+    def set_reminder(self, username: str, reminder: str) -> None:
+        if username not in self.reminders:
+            self.reminders[username] = []
+        self.reminders[username].append(reminder)
+        with open(self.reminders_file, 'a') as file:
+            file.write(f"{username}|{reminder}\n")
 
     def get_reminders(self, username: str) -> list:
-        if username is None:
-            return []
-        return [reminder.split('|')[1:] for reminder in self.reminders if reminder.startswith(username)]
-
-    def load_reminders(self) -> list:
-        try:
-            with open(self.filename, 'r') as file:
-                return file.read().strip().split('\n')
-        except FileNotFoundError:
-            return []
-
-    def save_reminders(self):
-        with open(self.filename, 'w') as file:
-            file.write('\n'.join(self.reminders))
+        return self.reminders.get(username, [])

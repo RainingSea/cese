@@ -6,37 +6,37 @@ import subprocess
 class TestDigitalStorytellingPlatform(unittest.TestCase):
 
     def setUp(self):
-        # Initialize the webdriver and open the login page
+        # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:5000/')  # Replace 5000 with the actual port from main.py
+        self.driver.get('http://localhost:8324/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session
+        # Close the web driver session and the Flask application
         self.driver.quit()
         self.process.terminate()
 
     def login(self, username, password):
         # Helper method to perform login
-        self.driver.find_element(By.ID, 'username').send_keys(username)
-        self.driver.find_element(By.ID, 'password').send_keys(password)
+        self.driver.find_element(By.NAME, 'username').send_keys(username)
+        self.driver.find_element(By.NAME, 'password').send_keys(password)
         self.driver.find_element(By.XPATH, '//button[text()="Login"]').click()
 
-    def test_login(self):
+    def test_user_login(self):
         # Functionalities 1: Test user login functionality
         self.login("admin", "admin123")
-
+        
         # Verify that the Story Creation Page has loaded
         self.assertIn("Create Story", self.driver.title)
 
-    def test_navigate_to_registration(self):
+    def test_navigate_to_registration_page(self):
         # Functionalities 2: Test navigation to the Registration Page
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
 
         # Verify that the Registration Page has loaded
         self.assertIn("Register", self.driver.title)
 
-    def test_registration(self):
+    def test_user_registration(self):
         # Functionalities 3: Test user registration functionality
         self.driver.find_element(By.LINK_TEXT, 'Register').click()
 
@@ -57,31 +57,34 @@ class TestDigitalStorytellingPlatform(unittest.TestCase):
         # Functionalities 4: Test creating a new story
         self.login("admin", "admin123")
 
-        # Fill out the story creation form
-        story_title = "My New Story"
-        story_content = "This is the content of my new story."
-
-        self.driver.find_element(By.NAME, 'title').send_keys(story_title)
-        self.driver.find_element(By.NAME, 'content').send_keys(story_content)
+        # Enter a valid story title and content
+        self.driver.find_element(By.NAME, 'title').send_keys("My New Story")
+        self.driver.find_element(By.NAME, 'content').send_keys("This is the content of my new story.")
         self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
 
-        # Verify that the story is saved in the text file (this would require additional implementation)
-        self.assertIn("Story saved successfully", self.driver.page_source)
+        # Verify that the story is created successfully
+        self.assertIn("My New Story", self.driver.page_source)
 
-    def test_edit_story(self):
-        # Functionalities 6: Test editing an existing story
+    def test_save_story(self):
+        # Functionalities 5: Test saving a story
         self.login("admin", "admin123")
 
-        # Assuming the story to edit exists, fill out the edit form
-        edit_title = "My New Story"
-        new_content = "This is the updated content of my story."
+        # Enter a valid story title and content
+        self.driver.find_element(By.NAME, 'title').send_keys("Another Story")
+        self.driver.find_element(By.NAME, 'content').send_keys("This is another story content.")
+        self.driver.find_element(By.XPATH, '//button[text()="Save Story"]').click()
 
-        self.driver.find_element(By.NAME, 'edit_title').send_keys(edit_title)
-        self.driver.find_element(By.NAME, 'new_content').send_keys(new_content)
-        self.driver.find_element(By.XPATH, '//button[text()="Edit Story"]').click()
+        # Verify that the story is saved in the text file (not directly testable via Selenium)
+        self.assertIn("Another Story", self.driver.page_source)
 
-        # Verify that the story is edited successfully (this would require additional implementation)
-        self.assertIn("Story edited successfully", self.driver.page_source)
+    def test_edit_story(self):
+        # Functionalities 6: Test editing a story
+        self.fail("Editing a story functionality is not implemented in the codebase.")
+
+    def test_navigate_application(self):
+        # Functionalities 7: Test navigating to the registration page from the login page
+        self.driver.find_element(By.LINK_TEXT, 'Register').click()
+        self.assertIn("Register", self.driver.title)
 
 if __name__ == '__main__':
     unittest.main()

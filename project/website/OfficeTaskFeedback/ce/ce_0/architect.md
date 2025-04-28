@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application will be structured using a simple MVC (Model-View-Controller) architecture. The main components will include a registration system, login system, feedback submission interface, and feedback status display. The application will be built using Python for the backend logic and HTML for the frontend. The Flask framework will be used to handle routing and rendering of HTML templates. The application will interact with local text files for data storage, ensuring a lightweight and efficient solution.",
+"Implementation approach": "The web application will be developed using HTML for the front-end and Python for the back-end. The application will handle user registration, login, feedback submission, and feedback review through simple HTML forms and Python scripts that manage data storage in local text files.",
 
-"UI design": "The UI will consist of the following key components: a Registration Page for user sign-up, a Login Page for authentication, a Feedback Submission Page where employees can submit their feedback, and a Feedback Status Page for employees to view the status of their submitted feedback. Each page will have a consistent layout with a navigation bar for easy access. The Registration and Login Pages will include forms for user input, while the Feedback Submission Page will include a text area for feedback and a dropdown for category selection. The Feedback Status Page will display a list of submitted feedback along with their statuses.",
+"UI design": "The user interface will consist of the following components: a Registration Page with fields for username and password, a Login Page with fields for username and password, a Feedback Submission Page with fields for feedback text and category selection, and a Feedback Review Page for managers to view and track feedback status. Each page will have navigation links to return to the main pages.",
 
-"Data Storage": "Data will be stored in local text files. The following types of data will be stored in separate files: user accounts in 'users.txt', feedback submissions in 'feedback.txt', and feedback categories in 'categories.txt'. Each file will be structured in a simple, readable format to facilitate easy data retrieval and management through basic file operations in Python.",
+"Data Storage": "Data will be stored in local text files. User accounts will be stored in 'users.txt', feedback submissions will be stored in 'feedback.txt', and feedback categories will be predefined in 'categories.txt'. Each type of data will be managed in its respective file to ensure easy retrieval and manipulation.",
 
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/feedback.html", "templates/status.html", "users.txt", "feedback.txt", "categories.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/feedback_submission.html", "templates/feedback_review.html", "users.txt", "feedback.txt", "categories.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -15,14 +15,14 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -List users
+        -users: list
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class FeedbackManager {
-        -List feedbacks
+        -feedbacks: list
         +submit_feedback(username: str, feedback: str, category: str) bool
-        +get_feedback_status(username: str) List
+        +review_feedback() list
     }
 ",
 [/CONTENT]

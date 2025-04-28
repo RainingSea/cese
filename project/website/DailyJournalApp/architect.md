@@ -1,8 +1,12 @@
 [CONTENT]
-"Implementation approach": "The Daily Journal App will be developed using Flask as the web framework to handle routing and user sessions. Python will manage backend logic, including user authentication and journal entry management. HTML will be used for frontend presentation, with forms for user login, registration, and journal entry creation. User interactions will be processed through Flask routes, and data will be read from and written to local text files for persistence.",
-"UI design":"The application will consist of four main pages: 1) **Login Page**: Contains input fields for username and password, and a login button. 2) **Registration Page**: Contains input fields for username and password, a register button, and a link to navigate back to the login page. 3) **Dashboard Page**: Displays a list of journal entries with titles and dates, a button to create a new entry, and a logout button. 4) **New Entry Page**: Contains input fields for the title and content of the journal entry, and a save entry button.",
-"Data Storage":"Data will be stored in local text files. User data will be stored in `users.txt`, and journal entries will be stored in `entries.txt`. Each line in `users.txt` will contain a username and password separated by a comma, while each journal entry in `entries.txt` will be formatted as 'title|date|content'. Data will be read from these files during login and entry retrieval, and written to them during registration and entry creation.",
+"Implementation approach": "The Daily Journal App will be implemented using Python with Flask for backend logic and HTML for frontend design. Users will interact with the application through a series of web pages: Login Page, Registration Page, Dashboard Page, and New Entry Page. User inputs will be processed by Flask routes, and data will be managed through local text files for user credentials and journal entries.",
+
+"UI design":"The application will consist of the following key UI components:\n1. **Login Page**: Input fields for username and password, a 'Login' button, and a link to the Registration Page.\n2. **Registration Page**: Input fields for username and password, a 'Register' button, and a link back to the Login Page.\n3. **Dashboard Page**: A list displaying journal entries with titles and dates, a 'New Entry' button to navigate to the New Entry Page, and a 'Logout' button.\n4. **New Entry Page**: Input fields for journal entry title and content, and a 'Save Entry' button to save the entry.",
+
+"Data Storage": "Data will be stored in local text files. User credentials will be stored in 'users.txt', and journal entries will be stored in 'entries.txt'. Each entry will be formatted as 'username|title|content|date' to facilitate easy retrieval and management.",
+
 "File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/new_entry.html", "users.txt", "entries.txt"],
+
 "Data structures and interfaces": "
 classDiagram
     class Main {
@@ -14,14 +18,12 @@ classDiagram
         -str users_file
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
-        +get_users() list
     }
     class JournalManager {
         -str entries_file
-        +create_entry(title: str, content: str) bool
-        +get_entries() list
-        +delete_entry(title: str) bool
-        +update_entry(title: str, new_content: str) bool
+        +create_entry(username: str, title: str, content: str) bool
+        +get_entries(username: str) list
+        +delete_entry(entry_id: int) bool
     }
-"
+",
 [/CONTENT]

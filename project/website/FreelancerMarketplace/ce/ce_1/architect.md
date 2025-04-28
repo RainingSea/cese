@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The 'FreelancerMarketplace' web application will be implemented using Python for backend logic and HTML for frontend design. The application will handle user interactions through a series of HTML forms and buttons, with data flow managed via Python functions that read from and write to local text files. The application will start from a login page, and upon successful login, users will navigate through various features such as registration, searching for freelancers, and managing projects.",
+"Implementation approach": "The 'FreelancerMarketplace' web application will be developed using Python for backend functionality and HTML for frontend design. The application will handle user interactions through forms and buttons, facilitating navigation between different pages such as login, registration, home, freelancer profiles, project management, and profile management. The application will be structured in a way that allows for easy addition of features in the future while maintaining simplicity.",
 
-"UI design": "The user interface will consist of several key components: a login form with fields for username and password, a registration form for creating new accounts, a home page displaying a welcome message and a search field for freelancers, a project management page with options to create and view projects, and a profile management page for editing user details. Each page will be organized with clear navigation buttons to ensure a user-friendly experience.",
+"UI design": "The user interface will consist of the following components: \n1. **Login Page**: Input fields for username and password, a login button, and a link to the registration page. \n2. **Registration Page**: Input fields for username and password, a registration button, and a link to the login page. \n3. **Home Page**: A welcome message, a search field for freelancers, and a button to manage projects. \n4. **Freelancer Profile Page**: Display of freelancer details and a button to view projects assigned to them. \n5. **Project Management Page**: A list of projects with options to create, edit, and delete projects. \n6. **Profile Management Page**: Input fields for updating username and email, an update button, and a confirmation message display.",
 
-"Data Storage": "All data will be stored in local text files. Different types of data will be organized into separate files, including 'users.txt' for user accounts, 'freelancers.txt' for freelancer details, and 'projects.txt' for project information. This structured approach will facilitate easy data retrieval and management through simple file manipulations in Python.",
+"Data Storage": "Data will be stored in local text files, with different types of data stored in separate files. The following files will be used: \n1. **users.txt**: To store user account information (username and password). \n2. **freelancers.txt**: To store freelancer profiles (name and other details). \n3. **projects.txt**: To store project details (project name, description, assigned freelancer). \nData will be read from and written to these files using simple file operations in Python.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/home.html", "templates/freelancer_profile.html", "templates/project_management.html", "templates/profile_management.html", "users.txt", "freelancers.txt", "projects.txt"],
 
@@ -23,11 +23,11 @@ classDiagram
     class FreelancerManager {
         -List freelancers
         +search_freelancer(name: str) List
-        +get_freelancer_details(id: int) str
+        +view_freelancer_details(name: str) str
     }
     class ProjectManager {
         -List projects
-        +create_project(name: str, description: str, freelancer_id: int) bool
+        +create_project(name: str, description: str, freelancer: str) bool
         +list_projects() List
     }
 ",

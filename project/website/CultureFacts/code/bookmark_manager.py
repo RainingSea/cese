@@ -1,24 +1,42 @@
 class BookmarkManager:
     def __init__(self):
-        self.bookmarks = []
+        self.bookmarks = self.load_bookmarks()
 
-    def add_bookmark(self, culture_name: str) -> None:
-        if culture_name not in self.bookmarks:
-            self.bookmarks.append(culture_name)
-            self.save_bookmarks()
-
-    def remove_bookmark(self, culture_name: str) -> None:
-        if culture_name in self.bookmarks:
-            self.bookmarks.remove(culture_name)
-            self.save_bookmarks()
-
-    def load_bookmarks(self) -> None:
+    def load_bookmarks(self):
+        bookmarks = {}
         try:
             with open('bookmarks.txt', 'r') as file:
-                self.bookmarks = file.read().strip().splitlines()
+                for line in file:
+                    username, culture_name = line.strip().split('|')
+                    if username not in bookmarks:
+                        bookmarks[username] = []
+                    bookmarks[username].append(culture_name)
         except FileNotFoundError:
-            self.bookmarks = []
+            pass
+        return bookmarks
 
-    def save_bookmarks(self) -> None:
+    def add_bookmark(self, username: str, culture_name: str) -> bool:
+        if username not in self.bookmarks:
+            self.bookmarks[username] = []
+        if culture_name not in self.bookmarks[username]:
+            self.bookmarks[username].append(culture_name)
+            with open('bookmarks.txt', 'a') as file:
+                file.write(f"{username}|{culture_name}\n")
+            return True
+        return False
+
+    def remove_bookmark(self, username: str, culture_name: str) -> bool:
+        if username in self.bookmarks and culture_name in self.bookmarks[username]:
+            self.bookmarks[username].remove(culture_name)
+            self.save_bookmarks()
+            return True
+        return False
+
+    def get_bookmarks(self, username: str):
+        return self.bookmarks.get(username, [])
+
+    def save_bookmarks(self):
         with open('bookmarks.txt', 'w') as file:
-            file.write('\n'.join(self.bookmarks))
+            for username, cultures in self.bookmarks.items():
+                for culture in cultures:
+                    file.write(f"{username}|{culture}\n")

@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The web application will be developed using HTML for the frontend and Python for the backend. The frontend will consist of static HTML pages for user registration, login, vehicle information input, and maintenance tracking. The backend will handle user authentication, data processing, and file management. Python will be used to read from and write to local text files for data storage, ensuring a lightweight and efficient application.",
+"Implementation approach": "The application will be developed using HTML for the frontend and Python for the backend. The backend will handle user registration, login, and maintenance tracking logic, while the frontend will provide a user-friendly interface for interaction. The application will utilize local text files for data storage, ensuring simplicity and efficiency.",
 
-"UI design":"The user interface will include the following components: 1) Registration Page with input fields for username and password and a submit button. 2) Login Page with input fields for username and password, a submit button, and a link to the registration page. 3) Vehicle Information Input Form with fields for make, model, year, and mileage, along with a submit button. 4) Maintenance Tracking Interface displaying a list of tasks with options to add, update, or delete tasks. 5) Maintenance History Viewing Section to display past maintenance records. 6) Notification area for reminders about upcoming maintenance tasks.",
+"UI design":"The user interface will consist of the following components: \n- Registration Page: A form with fields for username and password. \n- Login Page: A form with fields for username and password. \n- Vehicle Information Page: Input fields for make, model, year, and mileage. \n- Maintenance Tracking Page: Options to add, view, update, and delete maintenance tasks. \n- Notification Page: Displays upcoming maintenance reminders and history.",
 
-"Data Storage":"Data will be stored in local text files organized by type. The following files will be used: 'users.txt' for storing user credentials, 'vehicles.txt' for vehicle information, and 'maintenance.txt' for maintenance records. Each file will contain structured data in a simple format, such as JSON or CSV, to facilitate easy parsing and manipulation in Python.",
+"Data Storage":"Data will be stored in local text files. The following files will be used: \n- users.txt: To store user credentials (username and password). \n- vehicles.txt: To store vehicle information (make, model, year, mileage). \n- maintenance.txt: To store maintenance records (task type, date, mileage). Each record will be stored in a structured format, with each line representing a separate entry.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/vehicle_input.html", "templates/maintenance_tracking.html", "users.txt", "vehicles.txt", "maintenance.txt"],
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/vehicle_info.html", "templates/maintenance.html", "users.txt", "vehicles.txt", "maintenance.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -16,21 +16,19 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -List users
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class VehicleManager {
-        -List vehicles
+        -vehicles: list
         +add_vehicle(make: str, model: str, year: int, mileage: int) bool
-        +get_vehicles() List
+        +get_vehicles() list
     }
     class MaintenanceManager {
-        -List maintenance_records
-        +add_record(vehicle_id: int, task: str, date: str) bool
-        +get_records(vehicle_id: int) List
-        +update_record(record_id: int, task: str) bool
-        +delete_record(record_id: int) bool
+        -maintenance_records: list
+        +add_maintenance(vehicle_id: int, task: str, date: str, mileage: int) bool
+        +get_maintenance_history(vehicle_id: int) list
     }
 ",
 [/CONTENT]

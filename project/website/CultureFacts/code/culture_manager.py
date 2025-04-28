@@ -1,19 +1,25 @@
 class CultureManager:
     def __init__(self):
-        self.cultures = []
+        self.cultures = self.load_cultures()
 
-    def load_cultures(self) -> None:
+    def load_cultures(self):
+        cultures = []
         try:
             with open('cultures.txt', 'r') as file:
-                self.cultures = file.read().strip().splitlines()
+                for line in file:
+                    cultures.append(line.strip())
         except FileNotFoundError:
-            self.cultures = []
+            pass
+        return cultures
+
+    def get_all_cultures(self):
+        return self.cultures
 
     def get_culture_details(self, culture_name: str) -> str:
         for culture in self.cultures:
-            if culture.split('|')[0] == culture_name:
+            if culture.startswith(culture_name):
                 return culture
         return "Culture not found."
 
-    def search_cultures(self, keyword: str) -> list:
+    def search_cultures(self, keyword: str):
         return [culture for culture in self.cultures if keyword.lower() in culture.lower()]

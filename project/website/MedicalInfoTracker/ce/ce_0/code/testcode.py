@@ -9,7 +9,7 @@ class TestMedicalInfoTrackerApp(unittest.TestCase):
         # Start the Flask application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8179/')  # Access the login page
+        self.driver.get('http://localhost:8342/')  # Use the port from main.py
 
     def tearDown(self):
         # Close the web driver session and the Flask application
@@ -24,70 +24,75 @@ class TestMedicalInfoTrackerApp(unittest.TestCase):
 
     def test_registration(self):
         # Functionality 1: User Registration
-        self.driver.get('http://localhost:8179/register')  # Navigate to Registration Page
-        self.assertIn("Register", self.driver.title)
+        self.driver.get('http://localhost:8342/register')  # Navigate to Registration Page
+        self.assertIn("Registration", self.driver.title)
 
-        new_username = "test_user"
-        new_password = "test_password"
+        new_username = "testuser"
+        new_password = "testpass"
 
         # Input username and password for registration
         self.driver.find_element(By.NAME, 'username').send_keys(new_username)
         self.driver.find_element(By.NAME, 'password').send_keys(new_password)
         self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
 
-        # Verify the user is redirected to the login page
+        # Verify redirection to login page
         self.assertIn("Login", self.driver.title)
+
+        # Attempt to register with an existing username
+        self.driver.get('http://localhost:8342/register')
+        self.driver.find_element(By.NAME, 'username').send_keys("user1")  # Existing username
+        self.driver.find_element(By.NAME, 'password').send_keys("testpass")
+        self.driver.find_element(By.XPATH, '//button[text()="Register"]').click()
+
+        # Verify error message for existing username
+        self.assertIn("Username already exists", self.driver.page_source)
 
     def test_login(self):
         # Functionality 2: User Login
-        self.login("admin", "admin123")  # Valid credentials
+        self.login("user1", "user123")  # Valid credentials
 
-        # Verify that the user is redirected to the Dashboard Page
-        self.assertIn("Medical Information", self.driver.page_source)
+        # Verify redirection to Dashboard Page
+        self.assertIn("Dashboard", self.driver.title)
 
         # Attempt to login with invalid credentials
-        self.driver.get('http://localhost:8179/')
-        self.login("admin", "wrong_password")  # Invalid credentials
+        self.driver.get('http://localhost:8342/')
+        self.login("user1", "wrongpassword")  # Invalid password
 
-        # Verify error message is displayed
+        # Verify error message for invalid credentials
         self.assertIn("Invalid credentials", self.driver.page_source)
 
     def test_manage_medical_info(self):
         # Functionality 3: Manage Medical Information
-        self.login("admin", "admin123")  # Log in successfully
-        self.driver.get('http://localhost:8179/medical_info')  # Navigate to Medical Info Page
+        self.login("user1", "user123")  # Log in successfully
 
-        # Verify the page is displayed
-        self.assertIn("Medical Information", self.driver.title)
+        # Navigate to Medical Information section (assuming it's part of the dashboard)
+        self.driver.get('http://localhost:8342/dashboard')  # Assuming this is the dashboard URL
+        self.assertIn("Your Medical Information", self.driver.page_source)
 
-        # Add new medical information
-        self.driver.find_element(By.NAME, 'username').send_keys("admin")
-        self.driver.find_element(By.NAME, 'info').send_keys("New Diagnosis Info")
-        self.driver.find_element(By.XPATH, '//button[text()="Add Info"]').click()
+        # Input new medical information
+        self.driver.find_element(By.NAME, 'info').send_keys('{"diagnoses": ["Cold"], "medications": ["Cough Syrup"], "treatments": ["Rest"]}')
+        self.driver.find_element(By.XPATH, '//button[text()="Add Medical Info"]').click()
 
-        # Verify that the new information is saved
-        self.assertIn("New Diagnosis Info", self.driver.page_source)
+        # Verify that the new information is saved and displayed
+        self.assertIn("Cold", self.driver.page_source)
 
-    def test_set_reminders(self):
+    def test_set_appointment(self):
         # Functionality 4: Set and Receive Appointment Reminders
-        self.login("admin", "admin123")  # Log in successfully
-        self.driver.get('http://localhost:8179/reminders')  # Navigate to Reminders Page
+        self.login("user1", "user123")  # Log in successfully
 
-        # Verify the page is displayed
-        self.assertIn("Set Reminders", self.driver.title)
+        # Navigate to set appointment (assuming it's part of the dashboard)
+        self.driver.get('http://localhost:8342/dashboard')  # Assuming this is the dashboard URL
+        self.driver.find_element(By.NAME, 'appointment').send_keys('{"date": "2023-10-01", "time": "10:00 AM", "description": "Check-up"}')
+        self.driver.find_element(By.XPATH, '//button[text()="Set Appointment"]').click()
 
-        # Set a new reminder
-        self.driver.find_element(By.NAME, 'username').send_keys("admin")
-        self.driver.find_element(By.NAME, 'reminder').send_keys("Checkup Appointment")
-        self.driver.find_element(By.XPATH, '//button[text()="Set Reminder"]').click()
-
-        # Verify that the reminder is saved
-        self.assertIn("Checkup Appointment", self.driver.page_source)
+        # Verify that the appointment is saved and displayed
+        self.assertIn("Check-up", self.driver.page_source)
 
     def test_logout(self):
         # Functionality 6: User Logout
-        self.login("admin", "admin123")  # Log in successfully
-        # Assuming there is a logout button to click
+        self.login("user1", "user123")  # Log in successfully
+
+        # Click the logout button (assuming it's part of the dashboard)
         self.driver.find_element(By.LINK_TEXT, 'Logout').click()
 
         # Verify that the user is redirected to the Login Page

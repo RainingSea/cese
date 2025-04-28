@@ -4,11 +4,10 @@ class UserManager:
 
     def load_users(self):
         users = {}
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                for line in file:
-                    username, password = line.strip().split('|')
-                    users[username] = password
+        with open('users.txt', 'r') as file:
+            for line in file:
+                username, password = line.strip().split('|')
+                users[username] = password
         return users
 
     def register(self, username: str, password: str) -> bool:

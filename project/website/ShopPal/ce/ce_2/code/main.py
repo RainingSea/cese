@@ -1,12 +1,74 @@
-from flask import Flask, render_template, request, redirect, session
-from flask_session import Session
-from user_manager import UserManager
-from product_manager import ProductManager
+from flask import Flask, render_template, request, redirect, url_for
+import os
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
-app.config['SESSION_TYPE'] = 'filesystem'
-Session(app)
+
+class UserManager:
+    def __init__(self):
+        self.users = self.load_users()
+
+    def load_users(self):
+        users = {}
+        if os.path.exists('users.txt'):
+            with open('users.txt', 'r') as file:
+                for line in file:
+                    username, password = line.strip().split('|')
+                    users[username] = password
+        return users
+
+    def register(self, username: str, password: str) -> bool:
+        if username in self.users:
+            return False
+        self.users[username] = password
+        with open('users.txt', 'a') as file:
+            file.write(f"{username}|{password}\n")
+        return True
+
+    def login(self, username: str, password: str) -> bool:
+        return self.users.get(username) == password
+
+class ProductManager:
+    def __init__(self):
+        self.products = self.load_products()
+        self.collections = self.load_collections()
+
+    def load_products(self):
+        products = {}
+        if os.path.exists('products.txt'):
+            with open('products.txt', 'r') as file:
+                for line in file:
+                    product_id, details = line.strip().split('|', 1)
+                    products[product_id] = details
+        return products
+
+    def load_collections(self):
+        collections = {}
+        if os.path.exists('collections.txt'):
+            with open('collections.txt', 'r') as file:
+                for line in file:
+                    username, collection_name = line.strip().split('|')
+                    if username not in collections:
+                        collections[username] = []
+                    collections[username].append(collection_name)
+        return collections
+
+    def add_product(self, product_id: str, details: dict) -> None:
+        self.products[product_id] = details
+        with open('products.txt', 'a') as file:
+            file.write(f"{product_id}|{details}\n")
+
+    def get_product(self, product_id: str) -> dict:
+        return self.products.get(product_id, {})
+
+    def create_collection(self, username: str, collection_name: str) -> None:
+        if username not in self.collections:
+            self.collections[username] = []
+        self.collections[username].append(collection_name)
+        with open('collections.txt', 'a') as file:
+            file.write(f"{username}|{collection_name}\n")
+
+    def track_price_changes(self) -> None:
+        pass  # Placeholder for future implementation
 
 user_manager = UserManager()
 product_manager = ProductManager()
@@ -21,31 +83,17 @@ def register():
         username = request.form['username']
         password = request.form['password']
         if user_manager.register(username, password):
-            return redirect('/')
+            return redirect(url_for('login'))
     return render_template('registration.html')
 
-@app.route('/dashboard', methods=['GET', 'POST'])
+@app.route('/dashboard')
 def dashboard():
-    if 'username' not in session:
-        return redirect('/')
-    
-    if request.method == 'POST':
-        product_name = request.form['product_name']
-        product_description = request.form['product_description']
-        product_price = float(request.form['product_price'])
-        product_manager.add_product(product_name, product_description, product_price)
+    return render_template('dashboard.html')
 
-    user_collections = user_manager.get_user_collections(session['username'])
-    return render_template('dashboard.html', collections=user_collections)
-
-@app.route('/login', methods=['POST'])
-def do_login():
-    username = request.form['username']
-    password = request.form['password']
-    if user_manager.login(username, password):
-        session['username'] = username
-        return redirect('/dashboard')
-    return redirect('/')
+@app.route('/product/<product_id>')
+def product_detail(product_id):
+    product = product_manager.get_product(product_id)
+    return render_template('product_detail.html', product=product)
 
 if __name__ == '__main__':
-    app.run(port=8240, debug=False)
+    app.run(port=8412, debug=False)

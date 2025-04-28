@@ -1,67 +1,71 @@
-from flask import Flask, request, redirect, render_template, session
+from flask import Flask, render_template, request, redirect, url_for, session
 import os
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure key in production
+app.secret_key = 'your_secret_key'
 
-class TaskManager:
-    def __init__(self):
-        self.users = self.load_users()
-        
+class UserManager:
+    def __init__(self, filename):
+        self.filename = filename
+        self.load_users()
+
     def load_users(self):
-        users = {}
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
+        self.users = {}
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as file:
                 for line in file:
-                    username, password, email = line.strip().split(',')
-                    users[username] = {'password': password, 'email': email}
-        return users
+                    username, password, email = line.strip().split('|')
+                    self.users[username] = {'password': password, 'email': email}
 
     def register(self, username: str, password: str, email: str) -> bool:
         if username in self.users:
             return False
         self.users[username] = {'password': password, 'email': email}
-        with open('users.txt', 'a') as file:
-            file.write(f"{username},{password},{email}\n")
+        with open(self.filename, 'a') as file:
+            file.write(f"{username}|{password}|{email}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
-        user = self.users.get(username)
-        if user and user['password'] == password:
+        if username in self.users and self.users[username]['password'] == password:
             session['username'] = username
             return True
         return False
 
-    def add_task(self, username: str, task_description: str, due_date: str) -> None:
-        with open(f'tasks_{username}.txt', 'a') as file:
-            file.write(f"{task_description},{due_date}\n")
+class TaskManager:
+    def __init__(self, username):
+        self.filename = f'tasks_{username}.txt'
+        self.load_tasks()
 
-    def remove_task(self, username: str, task_index: int) -> None:
-        tasks = self.get_tasks(username)
-        if 0 <= task_index < len(tasks):
-            tasks.pop(task_index)
-            with open(f'tasks_{username}.txt', 'w') as file:
-                for task in tasks:
-                    file.write(f"{task[0]},{task[1]}\n")
-
-    def get_tasks(self, username: str) -> list:
-        tasks = []
-        if os.path.exists(f'tasks_{username}.txt'):
-            with open(f'tasks_{username}.txt', 'r') as file:
+    def load_tasks(self):
+        self.tasks = []
+        if os.path.exists(self.filename):
+            with open(self.filename, 'r') as file:
                 for line in file:
-                    task_description, due_date = line.strip().split(',')
-                    tasks.append((task_description, due_date))
-        return tasks
+                    task_id, description, due_date = line.strip().split('|')
+                    self.tasks.append({'id': int(task_id), 'description': description, 'due_date': due_date})
 
-task_manager = TaskManager()
+    def add_task(self, description: str, due_date: str) -> bool:
+        task_id = len(self.tasks) + 1
+        self.tasks.append({'id': task_id, 'description': description, 'due_date': due_date})
+        with open(self.filename, 'a') as file:
+            file.write(f"{task_id}|{description}|{due_date}\n")
+        return True
 
-@app.route('/', methods=['GET', 'POST'])
+    def remove_task(self, task_id: int) -> bool:
+        self.tasks = [task for task in self.tasks if task['id'] != task_id]
+        self.save_tasks()
+        return True
+
+    def save_tasks(self):
+        with open(self.filename, 'w') as file:
+            for task in self.tasks:
+                file.write(f"{task['id']}|{task['description']}|{task['due_date']}\n")
+
+    def get_tasks(self):
+        return self.tasks
+
+@app.route('/')
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if task_manager.login(username, password):
-            return redirect('/home')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -70,32 +74,37 @@ def register():
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
-        if task_manager.register(username, password, email):
-            return redirect('/')
-    return render_template('register.html')
+        user_manager = UserManager('users.txt')
+        if user_manager.register(username, password, email):
+            return redirect(url_for('login'))
+        else:
+            return "Username already exists!", 400
+    return render_template('registration.html')
 
 @app.route('/home', methods=['GET', 'POST'])
 def home():
     if 'username' not in session:
-        return redirect('/')
+        return redirect(url_for('login'))
     
     username = session['username']
+    task_manager = TaskManager(username)
+
     if request.method == 'POST':
         if 'add_task' in request.form:
-            task_description = request.form['task_description']
+            description = request.form['description']
             due_date = request.form['due_date']
-            task_manager.add_task(username, task_description, due_date)
+            task_manager.add_task(description, due_date)
         elif 'remove_task' in request.form:
-            task_index = int(request.form['task_index'])
-            task_manager.remove_task(username, task_index)
+            task_id = int(request.form['remove_task'])
+            task_manager.remove_task(task_id)
 
-    tasks = task_manager.get_tasks(username)
+    tasks = task_manager.get_tasks()
     return render_template('home.html', tasks=tasks)
 
 @app.route('/logout')
 def logout():
     session.pop('username', None)
-    return redirect('/')
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(port=8255, debug=False)
+    app.run(port=8427, debug=False)

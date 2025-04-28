@@ -1,94 +1,64 @@
-import os
-import json
+from flask import Flask, render_template, request, redirect, url_for, session
+from UserManager import UserManager
+from MovieManager import MovieManager
 
-class Main:
-    def __init__(self):
-        self.user_manager = UserManager()
-        self.movie_manager = MovieManager()
-        self.user_manager.load_users()
-        self.movie_manager.load_movies()
-        self.movie_manager.load_favorites()
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'
 
-    def main(self):
-        # Placeholder for the main application logic
-        print("Welcome to the Movie Recommendation App")
+user_manager = UserManager()
+movie_manager = MovieManager()
 
-class UserManager:
-    def __init__(self):
-        self.users = []
-
-    def register(self, username: str, password: str) -> bool:
-        if any(user[0] == username for user in self.users):
-            return False
-        self.users.append((username, password))
-        self.save_users()
-        return True
-
-    def login(self, username: str, password: str) -> bool:
-        return any(user[0] == username and user[1] == password for user in self.users)
-
-    def load_users(self) -> None:
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                self.users = [line.strip().split('|') for line in file.readlines()]
-
-    def save_users(self) -> None:
-        with open('users.txt', 'w') as file:
-            for user in self.users:
-                file.write('|'.join(user) + '\n')
-
-class MovieManager:
-    def __init__(self):
-        self.movies = []
-        self.favorites = {}
-
-    def search_movies(self, query: str) -> list:
-        return [movie for movie in self.movies if query.lower() in movie[1].lower()]
-
-    def get_movie_details(self, movie_id: str) -> dict:
-        for movie in self.movies:
-            if movie[0] == movie_id:
-                return {'id': movie[0], 'title': movie[1], 'description': movie[2], 'rating': movie[3]}
-        return {}
-
-    def add_to_favorites(self, user_id: str, movie_id: str) -> None:
-        if user_id in self.favorites:
-            self.favorites[user_id].add(movie_id)
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.login(username, password):
+            session['username'] = username
+            return redirect(url_for('search'))
         else:
-            self.favorites[user_id] = {movie_id}
-        self.save_favorites()
+            return "Invalid credentials"
+    return render_template('login.html')
 
-    def remove_from_favorites(self, user_id: str, movie_id: str) -> None:
-        if user_id in self.favorites and movie_id in self.favorites[user_id]:
-            self.favorites[user_id].remove(movie_id)
-            self.save_favorites()
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
+        else:
+            return "Registration failed"
+    return render_template('register.html')
 
-    def load_movies(self) -> None:
-        if os.path.exists('movies.txt'):
-            with open('movies.txt', 'r') as file:
-                self.movies = [line.strip().split('|') for line in file.readlines()]
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        query = request.form['query']
+        movies = movie_manager.search_movies(query)
+        return render_template('search.html', movies=movies)
+    return render_template('search.html')
 
-    def save_movies(self) -> None:
-        with open('movies.txt', 'w') as file:
-            for movie in self.movies:
-                file.write('|'.join(movie) + '\n')
+@app.route('/movie/<title>')
+def movie_detail(title):
+    movie = movie_manager.get_movie_details(title)
+    return render_template('movie_detail.html', movie=movie)
 
-    def load_favorites(self) -> None:
-        if os.path.exists('favorites.txt'):
-            with open('favorites.txt', 'r') as file:
-                for line in file:
-                    user_id, movie_id = line.strip().split('|')
-                    if user_id in self.favorites:
-                        self.favorites[user_id].add(movie_id)
-                    else:
-                        self.favorites[user_id] = {movie_id}
+@app.route('/favorites', methods=['GET', 'POST'])
+def favorites():
+    username = session.get('username')
+    if request.method == 'POST':
+        action = request.form['action']
+        movie_title = request.form['movie_title']
+        if action == 'add':
+            movie_manager.add_to_favorites(username, movie_title)
+        elif action == 'remove':
+            movie_manager.remove_from_favorites(username, movie_title)
+    favorites = movie_manager.favorites.get(username, [])
+    return render_template('favorites.html', favorites=favorites)
 
-    def save_favorites(self) -> None:
-        with open('favorites.txt', 'w') as file:
-            for user_id, movie_ids in self.favorites.items():
-                for movie_id in movie_ids:
-                    file.write(f"{user_id}|{movie_id}\n")
-
-if __name__ == "__main__":
-    app = Main()
-    app.main()
+if __name__ == '__main__':
+    user_manager.load_users()
+    movie_manager.load_movies()
+    movie_manager.load_favorites()
+    app.run(port=8352, debug=False)

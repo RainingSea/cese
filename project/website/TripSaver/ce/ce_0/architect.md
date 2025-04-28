@@ -1,11 +1,11 @@
 [CONTENT]
-"Implementation approach": "The 'Trip Saver' web application will be developed using Python for the backend logic and HTML for the frontend interface. The Flask framework will be utilized to create the web application structure, manage routing, and handle user sessions. For data storage, local text files will be used to store user information and trip details, ensuring simplicity and ease of access.",
+"Implementation approach": "The 'Trip Saver' web application will be developed using HTML for the frontend and Python for the backend logic. User interactions will be handled through HTML forms for registration, login, and trip details input. Upon submission, the data will be processed in Python, which will handle user authentication, trip processing, and transportation suggestions. Data will flow from user inputs to local text files for storage and retrieval, ensuring a lightweight application without SQL databases.",
 
-"UI design":"The user interface will consist of several key pages: 1) Registration Page with input fields for username and password, a submit button, and a link to the Login Page. 2) Login Page with input fields for username and password, a submit button, and a link to the Registration Page. 3) Trip Input Page with fields for starting point, destination, and travel date, along with a submit button. 4) Suggestions Page to display transportation options with estimated costs and times, and a comparison feature. 5) A Logout button to return to the Login Page.",
+"UI design": "The key UI components will include a Registration Page with fields for username and password, a Login Page with similar fields, a Trip Details Input Page with fields for starting point, destination, and travel date, and a Results Page displaying transportation options with estimated costs and times. A comparison interface will allow users to view and compare different transportation options. Accessibility will be considered by ensuring all forms are labeled and easy to navigate.",
 
-"Data Storage":"Data will be stored in local text files, organized by type. User accounts will be stored in 'users.txt', trip details in 'trips.txt', and preferred options in 'preferred_options.txt'. Each file will contain structured data in a simple format (e.g., JSON or CSV) to facilitate easy reading and writing.",
+"Data Storage": "All data will be stored in local text files. User accounts will be stored in 'users.txt', trip details in 'trips.txt', and saved options in 'saved_options.txt'. This choice simplifies data management and retrieval, making the application efficient and easy to maintain without the overhead of a SQL database.",
 
-"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/trip_input.html", "templates/suggestions.html", "users.txt", "trips.txt", "preferred_options.txt"],
+"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/trip_input.html", "templates/results.html", "users.txt", "trips.txt", "saved_options.txt"],
 
 "Data structures and interfaces": "
 classDiagram
@@ -15,7 +15,7 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -users: list
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
         +load_users() void
@@ -24,8 +24,8 @@ classDiagram
     class TripManager {
         -trips: list
         +add_trip(start: str, destination: str, date: str) void
-        +get_suggestions(start: str, destination: str, date: str) list
-        +save_trip(trip: dict) void
+        +get_transportation_options(start: str, destination: str, date: str) list
+        +save_trip_options(username: str, options: list) void
         +load_trips() void
     }
 ",

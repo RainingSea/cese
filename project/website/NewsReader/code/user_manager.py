@@ -1,27 +1,30 @@
-import os
-from typing import List, Tuple
-
 class UserManager:
-    def __init__(self):
-        self.users: List[Tuple[str, str]] = []
-        self.load_users()
+    def __init__(self, users_file: str):
+        self.users_file = users_file
+        self.users = self.load_users()
 
-    def add_user(self, username: str, password: str) -> Tuple[bool, str]:
-        if any(user[0] == username for user in self.users):
-            return False, "Username already exists."
-        self.users.append((username, password))
-        self.save_users()
-        return True, "User registered successfully."
+    def load_users(self) -> dict:
+        users = {}
+        with open(self.users_file, 'r') as file:
+            for line in file:
+                username, password = line.strip().split('|')
+                users[username] = password
+        return users
 
-    def validate_user(self, username: str, password: str) -> bool:
-        return any(user[0] == username and user[1] == password for user in self.users)
+    def register(self, username: str, password: str) -> dict:
+        if username in self.users:
+            return {'success': False, 'message': 'Username already taken.'}
+        with open(self.users_file, 'a') as file:
+            file.write(f"{username}|{password}\n")
+        self.users[username] = password
+        return {'success': True, 'message': 'Registration successful.'}
 
-    def load_users(self) -> None:
-        if os.path.exists('users.txt'):
-            with open('users.txt', 'r') as file:
-                self.users = [line.strip().split('|') for line in file.readlines()]
+    def login(self, username: str, password: str) -> dict:
+        if username not in self.users:
+            return {'success': False, 'message': 'Invalid credentials.'}
+        if self.users[username] == password:
+            return {'success': True, 'message': 'Login successful.'}
+        return {'success': False, 'message': 'Invalid credentials.'}
 
-    def save_users(self) -> None:
-        with open('users.txt', 'w') as file:
-            for user in self.users:
-                file.write('|'.join(user) + '\n')
+    def logout(self) -> None:
+        pass  # Session management is handled in main.py

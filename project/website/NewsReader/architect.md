@@ -1,30 +1,29 @@
 [CONTENT]
-"Implementation approach": "The application will be developed using Flask as the web framework for routing and serving pages. HTML will be used for the front-end interface. The development process will follow a simple MVC (Model-View-Controller) architecture to separate concerns and maintain clarity. User authentication will be managed through Flask sessions, and data will be stored in local text files for simplicity and efficiency.",
-"UI design": "The main user interface will consist of the following components: a Registration Page for new users, a Login Page for existing users, a Dashboard Page displaying news categories and articles, an Article Details Page for reading full articles, and a search bar for finding specific topics. Navigation will be straightforward, with links to register, log in, and log out clearly visible. The layout will be responsive and user-friendly, ensuring easy access to all features.",
-"Data Storage": "Data will be stored in local text files. User accounts will be stored in 'users.txt', and articles will be stored in 'articles.txt'. Each file will contain structured data, with each line representing a separate entry. User passwords will not be encrypted, and unique usernames will be enforced through simple checks when registering.",
-"File list": ["main.py", "templates/login.html", "templates/register.html", "templates/dashboard.html", "templates/article_details.html", "users.txt", "articles.txt"],
+"Implementation approach": "The software will be structured using Flask as the web framework, allowing for easy routing and rendering of HTML templates. The application will consist of a main Python file that handles user management and article management functionalities. User sessions will be managed using Flask's session capabilities, and the application will utilize local text files for data storage.",
+
+"UI design":"The UI will consist of a simple layout with a Registration Page, Login Page, Dashboard Page, and Article Details Page. The Dashboard will feature categories for news articles and a search bar for filtering articles. Navigation will be clear, with buttons for logging in, registering, and logging out. Visual feedback will be provided for user actions such as successful login or registration.",
+
+"Data Storage":"Data will be stored in local text files. Different types of data will be stored in separate files. User data will be stored in 'users.txt', and articles will be stored in 'articles.txt'. This structured data storage will facilitate easy data retrieval and management through simple file manipulations in Python.",
+
+"File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "templates/article_details.html", "users.txt", "articles.txt"],
+
 "Data structures and interfaces": "
 classDiagram
     class Main {
         -UserManager user_manager
         -ArticleManager article_manager
         +main() str
-        +register_user(username: str, password: str) bool
-        +login_user(username: str, password: str) bool
-        +logout_user() void
     }
     class UserManager {
-        -List users
-        +add_user(username: str, password: str) bool
-        +validate_user(username: str, password: str) bool
-        +load_users() void
-        +save_users() void
+        -users_file: str
+        +register(username: str, password: str) bool
+        +login(username: str, password: str) bool
+        +logout() void
     }
     class ArticleManager {
-        -List articles
-        +load_articles() void
-        +get_articles_by_category(category: str) List
-        +search_articles(query: str) List
+        -articles_file: str
+        +load_articles() list
+        +search_articles(keyword: str) list
         +get_article_details(article_id: int) str
     }
 ",

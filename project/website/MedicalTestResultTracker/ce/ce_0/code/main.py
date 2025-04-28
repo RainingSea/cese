@@ -1,142 +1,108 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
-from datetime import datetime
+from flask import Flask, render_template, request, redirect, session
+from flask_session import Session
 import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-class User(UserMixin):
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 class UserManager:
-    def __init__(self, users_file: str):
-        self.users_file = users_file
-        self.load_users()
+    def __init__(self):
+        self.users = self.load_users()
 
     def load_users(self):
-        self.users = {}
-        if os.path.exists(self.users_file):
-            with open(self.users_file, 'r') as file:
-                for line in file:
-                    username, password = line.strip().split('|')
-                    self.users[username] = password
+        if not os.path.exists('users.txt'):
+            return []
+        with open('users.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
     def register(self, username: str, password: str) -> bool:
-        if username in self.users:
-            return False
-        self.users[username] = password
-        with open(self.users_file, 'a') as file:
+        for user in self.users:
+            if user[0] == username:
+                return False
+        self.users.append([username, password])
+        with open('users.txt', 'a') as file:
             file.write(f"{username}|{password}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
-        if username in self.users and self.users[username] == password:
-            return True
+        for user in self.users:
+            if user[0] == username and user[1] == password:
+                return True
         return False
 
 class TestResultManager:
-    def __init__(self, results_file: str):
-        self.results_file = results_file
-        self.load_results()
+    def __init__(self):
+        self.test_results = self.load_test_results()
 
-    def load_results(self):
-        self.results = []
-        if os.path.exists(self.results_file):
-            with open(self.results_file, 'r') as file:
-                for line in file:
-                    user_id, test_name, result, date = line.strip().split('|')
-                    self.results.append((user_id, test_name, result, date))
+    def load_test_results(self):
+        if not os.path.exists('test_results.txt'):
+            return []
+        with open('test_results.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
-    def add_test_result(self, user_id: str, test_name: str, result: str, date: str) -> bool:
-        self.results.append((user_id, test_name, result, date))
-        with open(self.results_file, 'a') as file:
-            file.write(f"{user_id}|{test_name}|{result}|{date}\n")
+    def add_test_result(self, user_id: str, result: str) -> bool:
+        self.test_results.append([user_id, result])
+        with open('test_results.txt', 'a') as file:
+            file.write(f"{user_id}|{result}\n")
         return True
 
     def get_test_results(self, user_id: str) -> list:
-        return [result for result in self.results if result[0] == user_id]
+        return [result for result in self.test_results if result[0] == user_id]
+
+    def get_trends(self, user_id: str) -> str:
+        results = self.get_test_results(user_id)
+        # Placeholder for trend calculation logic
+        return "Trend data for user"
 
 class ReminderManager:
-    def __init__(self, reminders_file: str):
-        self.reminders_file = reminders_file
-        self.load_reminders()
+    def __init__(self):
+        self.reminders = self.load_reminders()
 
     def load_reminders(self):
-        self.reminders = []
-        if os.path.exists(self.reminders_file):
-            with open(self.reminders_file, 'r') as file:
-                for line in file:
-                    user_id, reminder_text, date = line.strip().split('|')
-                    self.reminders.append((user_id, reminder_text, date))
+        if not os.path.exists('reminders.txt'):
+            return []
+        with open('reminders.txt', 'r') as file:
+            return [line.strip().split('|') for line in file.readlines()]
 
-    def set_reminder(self, user_id: str, reminder_text: str, date: str) -> bool:
-        self.reminders.append((user_id, reminder_text, date))
-        with open(self.reminders_file, 'a') as file:
-            file.write(f"{user_id}|{reminder_text}|{date}\n")
+    def set_reminder(self, user_id: str, reminder: str) -> bool:
+        self.reminders.append([user_id, reminder])
+        with open('reminders.txt', 'a') as file:
+            file.write(f"{user_id}|{reminder}\n")
         return True
 
     def get_reminders(self, user_id: str) -> list:
         return [reminder for reminder in self.reminders if reminder[0] == user_id]
 
-user_manager = UserManager('users.txt')
-test_result_manager = TestResultManager('test_results.txt')
-reminder_manager = ReminderManager('reminders.txt')
-
-@login_manager.user_loader
-def load_user(username):
-    return User(username, user_manager.users[username])
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
+    user_manager = UserManager()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         if user_manager.login(username, password):
-            user = User(username, password)
-            login_user(user)
-            return redirect(url_for('test_results'))
+            session['username'] = username
+            return redirect('/dashboard')
+        else:
+            return "Invalid credentials"
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    user_manager = UserManager()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         if user_manager.register(username, password):
-            return redirect(url_for('login'))
-    return render_template('registration.html')
+            return redirect('/')
+        else:
+            return "Username already exists"
+    return render_template('register.html')
 
-@app.route('/test_results', methods=['GET', 'POST'])
-@login_required
-def test_results():
-    if request.method == 'POST':
-        test_name = request.form['test_name']
-        result = request.form['result']
-        date = datetime.now().strftime('%Y-%m-%d')
-        test_result_manager.add_test_result(session['user_id'], test_name, result, date)
-    results = test_result_manager.get_test_results(session['user_id'])
-    return render_template('test_results.html', results=results)
-
-@app.route('/reminders', methods=['GET', 'POST'])
-@login_required
-def reminders():
-    if request.method == 'POST':
-        reminder_text = request.form['reminder_text']
-        date = request.form['date']
-        reminder_manager.set_reminder(session['user_id'], reminder_text, date)
-    reminders = reminder_manager.get_reminders(session['user_id'])
-    return render_template('reminders.html', reminders=reminders)
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
 
 if __name__ == '__main__':
-    app.run(port=8182, debug=False)
+    app.run(port=8346, debug=False)

@@ -1,9 +1,9 @@
 [CONTENT]
-"Implementation approach": "The web application 'Medical Info Tracker' will be developed using Python for the backend and HTML for the frontend. The Flask framework will be utilized to handle web requests and serve HTML templates. The application will manage user sessions and handle file operations for data storage without the use of a SQL database.",
+"Implementation approach": "The web application 'Medical Info Tracker' will be developed using HTML for the front end and Python for the back end. The application will utilize a simple file-based storage system to manage user data and medical information, ensuring ease of access and manipulation. The project will follow a modular approach, with clear separation of concerns between the user interface, business logic, and data storage functionalities.",
 
-"UI design":"The UI will consist of the following key components: \n1. Registration Page: A form with fields for username and password. \n2. Login Page: A form for entering username and password. \n3. Medical Information Management: Input fields for diagnoses, medications, and treatments, along with buttons to save and edit entries. \n4. Appointment Reminders: A section to set reminders with date and time inputs. \n5. Medical History Tracking: A display area for viewing medical history with options to edit or delete entries. \n6. Logout Button: A button to log out and return to the Login Page.",
+"UI design": "The user interface will consist of the following components:\n1. **Registration Page**: A form with fields for username and password, and a submit button.\n2. **Login Page**: A form with fields for username and password, and a submit button.\n3. **Dashboard**: A main interface where users can view and manage their medical information, including sections for diagnoses, medications, treatments, and appointment reminders. Each section will have input forms and buttons for saving and editing data.",
 
-"Data Storage":"Data will be stored in local text files. Different types of data will be stored in separate `.txt` files: \n- users.txt for user credentials \n- medical_info.txt for storing medical information \n- appointments.txt for appointment reminders. This structured data storage will facilitate easy data retrieval and management through simple file manipulations in Python, ensuring the application remains light and efficient without the need for a SQL database.",
+"Data Storage": "Data will be stored in local text files, with separate `.txt` files for different types of data:\n- `users.txt`: Stores usernames and passwords.\n- `medical_info.txt`: Stores medical information including diagnoses, medications, and treatments.\n- `appointments.txt`: Stores appointment reminders. This approach allows for simple file manipulations in Python, ensuring the application remains lightweight and efficient without the complexity of a SQL database.",
 
 "File list": ["main.py", "templates/login.html", "templates/registration.html", "templates/dashboard.html", "users.txt", "medical_info.txt", "appointments.txt"],
 
@@ -16,20 +16,25 @@ classDiagram
         +main() str
     }
     class UserManager {
-        -List users
+        -users: dict
         +register(username: str, password: str) bool
         +login(username: str, password: str) bool
     }
     class MedicalInfoManager {
-        -List medical_info
-        +add_medical_info(info: str) void
-        +edit_medical_info(info_id: int, new_info: str) void
-        +view_medical_info() List
+        -medical_info: list
+        +add_diagnosis(diagnosis: str) void
+        +add_medication(medication: str) void
+        +add_treatment(treatment: str) void
+        +view_medical_info() list
     }
     class AppointmentManager {
-        -List appointments
+        -appointments: list
         +set_reminder(date: str, time: str) void
-        +view_reminders() List
+        +view_reminders() list
     }
 ",
+
+"Constraints": "The application will not use SQL databases and will rely solely on local text files for data storage. Passwords will not be encrypted for the login function, adhering to the specified constraints. The architecture will remain simple, focusing on achieving the functional requirements without unnecessary complexity.",
+
+"Functional Requirements": "All functional requirements will be addressed as follows:\n1. **User Registration**: Implemented through the Registration Page, allowing users to create accounts.\n2. **User Login**: Implemented through the Login Page, enabling users to log in.\n3. **Medical Information Management**: Users can input and manage their medical information via the Dashboard.\n4. **Appointment Reminders**: Users can set reminders through the Dashboard.\n5. **Medical History Tracking**: Users can view and edit their medical history on the Dashboard.\n6. **User Logout**: Implemented as a button on the Dashboard that returns users to the Login Page."
 [/CONTENT]

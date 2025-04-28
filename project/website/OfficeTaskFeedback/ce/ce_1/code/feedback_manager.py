@@ -12,11 +12,11 @@ class FeedbackManager:
             pass
         return feedbacks
 
-    def submit_feedback(self, user: str, feedback: str, category: str) -> bool:
-        self.feedbacks.append([user, feedback, category, 'Pending'])
+    def submit_feedback(self, username: str, category: str, feedback: str) -> bool:
+        self.feedbacks.append([username, category, feedback])
         with open('feedback.txt', 'a') as file:
-            file.write(f"{user}|{feedback}|{category}|Pending\n")
+            file.write(f"{username}|{category}|{feedback}\n")
         return True
 
-    def get_feedback_status(self, user: str) -> list:
-        return [feedback for feedback in self.feedbacks if feedback[0] == user]
+    def get_feedbacks(self) -> list:
+        return self.feedbacks

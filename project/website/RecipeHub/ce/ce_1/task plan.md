@@ -1,57 +1,24 @@
 [CONTENT]
-"Required packages": ["html", "os"],
+"Required packages": ["Flask", "os"],
 
-"Required Other language third-party packages": ["bcrypt"],
+"Required Other language third-party packages": ["Bootstrap for styling", "jQuery for dynamic interactions"],
 
-"Logic Analysis": {
-    "main.py": {
-        "classes": ["Main", "UserManager", "RecipeManager"],
-        "methods": [
-            {
-                "name": "main",
-                "description": "Entry point of the application."
-            }
-        ]
-    },
-    "UserManager": {
-        "methods": [
-            {
-                "name": "register",
-                "parameters": ["username: str", "password: str"],
-                "description": "Registers a new user by saving their credentials."
-            },
-            {
-                "name": "login",
-                "parameters": ["username: str", "password: str"],
-                "description": "Authenticates a user by checking credentials."
-            },
-            {
-                "name": "delete_account",
-                "parameters": ["username: str"],
-                "description": "Deletes the user's account from the system."
-            }
-        ]
-    },
-    "RecipeManager": {
-        "methods": [
-            {
-                "name": "submit_recipe",
-                "parameters": ["title: str", "ingredients: str", "instructions: str"],
-                "description": "Submits a new recipe and saves it to the file."
-            },
-            {
-                "name": "search_recipes",
-                "parameters": ["query: str"],
-                "description": "Searches for recipes based on the provided keywords."
-            },
-            {
-                "name": "get_recipe_details",
-                "parameters": ["title: str"],
-                "description": "Retrieves the details of a specific recipe."
-            }
-        ]
-    }
-},
+"Logic Analysis": 
+- **main.py**: 
+  - `Main`: Responsible for initializing the application and managing the main flow.
+    - `main()`: Entry point of the application.
+  
+- **UserManager**: 
+  - Manages user-related functionalities.
+    - `register(username: str, password: str) -> bool`: Registers a new user.
+    - `login(username: str, password: str) -> bool`: Authenticates a user.
+    - `delete_account(username: str) -> bool`: Deletes a user account.
+
+- **RecipeManager**: 
+  - Manages recipe-related functionalities.
+    - `submit_recipe(title: str, ingredients: str, instructions: str) -> bool`: Submits a new recipe.
+    - `search_recipes(keyword: str) -> List`: Searches for recipes based on keywords.
+    - `get_recipe_details(title: str) -> str`: Retrieves full details of a specific recipe.
 
 "Task list": [
     "main.py",
@@ -66,9 +33,9 @@
     "recipes.txt"
 ],
 
-"Shared Knowledge": {
-    "coding standards": "Follow PEP 8 guidelines for Python code formatting.",
-    "file organization": "Keep HTML templates in a 'templates' directory for clarity.",
-    "user experience considerations": "Ensure that all forms provide clear feedback on success or error states."
-}
+"Shared Knowledge": 
+- Follow PEP 8 coding standards for Python.
+- Use version control (e.g., Git) to manage code changes.
+- Implement unit tests for critical functionalities to ensure reliability.
+- Ensure proper error handling and user feedback for a better user experience.
 [/CONTENT]

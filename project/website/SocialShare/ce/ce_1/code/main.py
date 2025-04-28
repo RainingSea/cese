@@ -3,62 +3,65 @@ import os
 
 app = Flask(__name__)
 
-class User:
-    def __init__(self, username: str, password: str, bio: str = ""):
-        self.username = username
-        self.password = password
-        self.bio = bio
-
-    def get_profile(self) -> str:
-        return f"Username: {self.username}, Bio: {self.bio}"
-
-class Article:
-    def __init__(self, article_id: int, content: str, author: str):
-        self.id = article_id
-        self.content = content
-        self.author = author
-
-    def get_article(self) -> str:
-        return f"Article ID: {self.id}, Content: {self.content}, Author: {self.author}"
-
-class Interaction:
+class UserManager:
     def __init__(self):
-        self.likes = []
-        self.comments = {}
-        self.followers = []
+        self.users = self.load_users()
 
-    def add_like(self, username: str, article_id: int) -> None:
-        self.likes.append((username, article_id))
+    def load_users(self):
+        users = {}
+        if os.path.exists('users.txt'):
+            with open('users.txt', 'r') as f:
+                for line in f:
+                    username, password = line.strip().split('|')
+                    users[username] = password
+        return users
 
-    def add_comment(self, username: str, article_id: int, comment: str) -> None:
-        if article_id not in self.comments:
-            self.comments[article_id] = []
-        self.comments[article_id].append((username, comment))
+    def register(self, username: str, password: str) -> bool:
+        if username in self.users:
+            return False
+        with open('users.txt', 'a') as f:
+            f.write(f"{username}|{password}\n")
+        self.users[username] = password
+        return True
 
-    def add_follower(self, follower: str, followee: str) -> None:
-        self.followers.append((follower, followee))
+    def login(self, username: str, password: str) -> bool:
+        return self.users.get(username) == password
 
-def load_users():
-    users = {}
-    if os.path.exists('users.txt'):
-        with open('users.txt', 'r') as file:
-            for line in file:
-                username, password = line.strip().split('|')
-                users[username] = User(username, password)
-    return users
+    def update_profile(self, username: str, bio: str) -> bool:
+        # Placeholder for future implementation
+        return True
 
-def load_articles():
-    articles = []
-    if os.path.exists('articles.txt'):
-        with open('articles.txt', 'r') as file:
-            for line in file:
-                article_id, content, author = line.strip().split('|')
-                articles.append(Article(int(article_id), content, author))
-    return articles
+class ContentManager:
+    def __init__(self):
+        self.articles = self.load_articles()
 
-users = load_users()
-articles = load_articles()
-interactions = Interaction()
+    def load_articles(self):
+        articles = []
+        if os.path.exists('articles.txt'):
+            with open('articles.txt', 'r') as f:
+                for line in f:
+                    articles.append(line.strip())
+        return articles
+
+    def upload_article(self, username: str, content: str) -> bool:
+        with open('articles.txt', 'a') as f:
+            f.write(f"{username}|{content}\n")
+        self.articles.append(content)
+        return True
+
+    def get_feed(self) -> list:
+        return self.articles
+
+    def like_article(self, article_id: int) -> bool:
+        # Placeholder for future implementation
+        return True
+
+    def comment_article(self, article_id: int, comment: str) -> bool:
+        # Placeholder for future implementation
+        return True
+
+user_manager = UserManager()
+content_manager = ContentManager()
 
 @app.route('/')
 def login():
@@ -69,24 +72,30 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        users[username] = User(username, password)
-        with open('users.txt', 'a') as file:
-            file.write(f"{username}|{password}\n")
-        return redirect(url_for('login'))
+        if user_manager.register(username, password):
+            return redirect(url_for('login'))
+        else:
+            return "Registration failed. Username already exists."
     return render_template('registration.html')
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile')
 def profile():
-    if request.method == 'POST':
-        username = request.form['username']
-        bio = request.form['bio']
-        users[username].bio = bio
-        return redirect(url_for('profile'))
-    return render_template('profile.html', user=users)
+    # Placeholder for profile implementation
+    return render_template('profile.html')
 
 @app.route('/feed')
 def feed():
+    articles = content_manager.get_feed()
     return render_template('feed.html', articles=articles)
 
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST':
+        username = request.form['username']
+        content = request.form['content']
+        content_manager.upload_article(username, content)
+        return redirect(url_for('feed'))
+    return render_template('upload.html')
+
 if __name__ == '__main__':
-    app.run(port=8247, debug=False)
+    app.run(port=8419, debug=False)

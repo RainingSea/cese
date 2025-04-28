@@ -1,134 +1,88 @@
-from flask import Flask, render_template, request, redirect, url_for, session
 import os
+import json
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+class Main:
+    def __init__(self):
+        self.user_manager = UserManager()
+        self.note_manager = NoteManager()
+
+    def main(self):
+        # Load existing users and notes
+        self.user_manager.load_users()
+        self.note_manager.load_notes()
+        # Here you can set up the web framework and routing
+        print("Application started. Routes set up.")
 
 class UserManager:
-    def __init__(self, users_file: str):
-        self.users_file = users_file
-        self.load_users()
+    def __init__(self):
+        self.users = {}
 
     def load_users(self):
-        self.users = {}
-        if os.path.exists(self.users_file):
-            with open(self.users_file, 'r') as file:
+        if os.path.exists('users.txt'):
+            with open('users.txt', 'r') as file:
                 for line in file:
-                    username, password = line.strip().split(':')
+                    username, password = line.strip().split('|')
                     self.users[username] = password
 
     def register(self, username: str, password: str) -> bool:
         if username in self.users:
             return False
-        with open(self.users_file, 'a') as file:
-            file.write(f"{username}:{password}\n")
         self.users[username] = password
+        with open('users.txt', 'a') as file:
+            file.write(f"{username}|{password}\n")
         return True
 
     def login(self, username: str, password: str) -> bool:
         return self.users.get(username) == password
 
 class NoteManager:
-    def __init__(self, notes_file: str):
-        self.notes_file = notes_file
-        self.load_notes()
+    def __init__(self):
+        self.notes = []
 
     def load_notes(self):
-        self.notes = {}
-        if os.path.exists(self.notes_file):
-            with open(self.notes_file, 'r') as file:
+        if os.path.exists('notes.txt'):
+            with open('notes.txt', 'r') as file:
                 for line in file:
                     title, content = line.strip().split('|')
-                    self.notes[title] = content
+                    self.notes.append({'title': title, 'content': content})
 
     def add_note(self, title: str, content: str) -> bool:
-        if title in self.notes:
-            return False
-        with open(self.notes_file, 'a') as file:
+        self.notes.append({'title': title, 'content': content})
+        with open('notes.txt', 'a') as file:
             file.write(f"{title}|{content}\n")
-        self.notes[title] = content
-        return True
-
-    def edit_note(self, title: str, new_content: str) -> bool:
-        if title not in self.notes:
-            return False
-        self.notes[title] = new_content
-        self.save_notes()
-        return True
-
-    def delete_note(self, title: str) -> bool:
-        if title not in self.notes:
-            return False
-        del self.notes[title]
-        self.save_notes()
         return True
 
     def get_notes(self) -> list:
-        return list(self.notes.items())
+        return self.notes
+
+    def get_note_details(self, note_id: int) -> str:
+        if 0 <= note_id < len(self.notes):
+            note = self.notes[note_id]
+            return f"Title: {note['title']}\nContent: {note['content']}"
+        return "Note not found."
+
+    def edit_note(self, note_id: int, title: str, content: str) -> bool:
+        if 0 <= note_id < len(self.notes):
+            self.notes[note_id] = {'title': title, 'content': content}
+            self.save_notes()
+            return True
+        return False
+
+    def delete_note(self, note_id: int) -> bool:
+        if 0 <= note_id < len(self.notes):
+            del self.notes[note_id]
+            self.save_notes()
+            return True
+        return False
 
     def search_notes(self, title: str) -> list:
-        return [(t, c) for t, c in self.notes.items() if title in t]
+        return [note for note in self.notes if title.lower() in note['title'].lower()]
 
     def save_notes(self):
-        with open(self.notes_file, 'w') as file:
-            for title, content in self.notes.items():
-                file.write(f"{title}|{content}\n")
+        with open('notes.txt', 'w') as file:
+            for note in self.notes:
+                file.write(f"{note['title']}|{note['content']}\n")
 
-@app.route('/')
-def login():
-    return render_template('login.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user_manager.register(username, password)
-        return redirect(url_for('login'))
-    return render_template('registration.html')
-
-@app.route('/dashboard')
-def dashboard():
-    notes = note_manager.get_notes()
-    return render_template('dashboard.html', notes=notes)
-
-@app.route('/add_note', methods=['GET', 'POST'])
-def add_note():
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        note_manager.add_note(title, content)
-        return redirect(url_for('dashboard'))
-    return render_template('add_note.html')
-
-@app.route('/view_note/<title>')
-def view_note(title):
-    content = note_manager.notes.get(title, '')
-    return render_template('view_note.html', title=title, content=content)
-
-@app.route('/edit_note/<title>', methods=['GET', 'POST'])
-def edit_note(title):
-    if request.method == 'POST':
-        new_content = request.form['content']
-        note_manager.edit_note(title, new_content)
-        return redirect(url_for('dashboard'))
-    content = note_manager.notes.get(title, '')
-    return render_template('add_note.html', title=title, content=content)
-
-@app.route('/delete_note/<title>')
-def delete_note(title):
-    note_manager.delete_note(title)
-    return redirect(url_for('dashboard'))
-
-@app.route('/search_note', methods=['GET', 'POST'])
-def search_note():
-    results = []
-    if request.method == 'POST':
-        title = request.form['title']
-        results = note_manager.search_notes(title)
-    return render_template('search_note.html', results=results)
-
-if __name__ == '__main__':
-    user_manager = UserManager('users.txt')
-    note_manager = NoteManager('notes.txt')
-    app.run(port=8196, debug=False)
+if __name__ == "__main__":
+    app = Main()
+    app.main()

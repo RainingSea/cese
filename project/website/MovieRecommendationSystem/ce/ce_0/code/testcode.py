@@ -6,13 +6,13 @@ import subprocess
 class TestMovieRecommendationSystem(unittest.TestCase):
 
     def setUp(self):
-        # Start the server and open the login page
+        # Start the main application
         self.process = subprocess.Popen(['python', 'main.py'])
         self.driver = webdriver.Chrome()
-        self.driver.get('http://localhost:8000/') 
+        self.driver.get('http://localhost:8000/')  # Access the login page
 
     def tearDown(self):
-        # Close the web driver session and terminate the server
+        # Close the web driver session and the application
         self.driver.quit()
         self.process.terminate()
 
@@ -24,7 +24,7 @@ class TestMovieRecommendationSystem(unittest.TestCase):
 
     def test_registration(self):
         # Functionalities 1: User Registration
-        self.driver.get('http://localhost:8000/register')
+        self.driver.get('http://localhost:8000/register')  # Navigate to registration page
         new_username = "test_user"
         new_password = "test_password"
 
@@ -38,78 +38,75 @@ class TestMovieRecommendationSystem(unittest.TestCase):
 
     def test_login(self):
         # Functionalities 2: User Login
-        self.login("user1", "user123")
+        self.login("user1", "user123")  # Use valid credentials
 
-        # Verify that the recommendations page has loaded
-        self.assertIn("Recommendations", self.driver.title)
+        # Verify that the user is redirected to the recommendations page
+        self.assertIn("Recommended Movies", self.driver.page_source)
 
     def test_view_recommendations(self):
         # Functionalities 3: View Movie Recommendations
-        self.login("user1", "user123")
-        self.driver.get('http://localhost:8000/recommendations')
+        self.login("user1", "user123")  # Log in first
 
-        # Verify that the recommendations are displayed
-        self.assertIn("Movie Recommendations", self.driver.page_source)
+        # Verify that the recommendations page displays movies
+        self.assertIn("Recommended Movies", self.driver.page_source)
 
     def test_search_movies(self):
         # Functionalities 4: Search for Movies
-        self.login("user1", "user123")
-        self.driver.get('http://localhost:8000/search?query=Inception')
+        self.login("user1", "user123")  # Log in first
+        self.driver.get('http://localhost:8000/search')  # Navigate to search page
+
+        # Search for a valid movie title
+        self.driver.find_element(By.NAME, 'query').send_keys("Inception")
+        self.driver.find_element(By.XPATH, '//input[@type="submit"]').click()
 
         # Verify that the search results contain the movie
         self.assertIn("Inception", self.driver.page_source)
 
-    def test_view_movie_details(self):
-        # Functionalities 5: View Movie Details
-        self.login("user1", "user123")
-        self.driver.get('http://localhost:8000/movie_details?title=Inception')
+        # Search with part of a movie title
+        self.driver.find_element(By.NAME, 'query').clear()
+        self.driver.find_element(By.NAME, 'query').send_keys("The")
+        self.driver.find_element(By.XPATH, '//input[@type="submit"]').click()
 
-        # Verify that the movie details are displayed
-        self.assertIn("Inception", self.driver.page_source)
-        self.assertIn("A thief who steals corporate secrets", self.driver.page_source)
-
-    def test_add_to_favorites(self):
-        # Functionalities 6: Add Movies to Favorites
-        self.login("user1", "user123")
-        self.driver.get('http://localhost:8000/movie_details?title=Inception')
-        self.driver.find_element(By.XPATH, '//button[text()="Add to Favorites"]').click()
-
-        # Verify that the movie is added to favorites
-        self.driver.get('http://localhost:8000/favorites')
-        self.assertIn("Inception", self.driver.page_source)
+        # Verify that the search results contain the movie
+        self.assertIn("The Matrix", self.driver.page_source)
 
     def test_view_favorites(self):
         # Functionalities 7: View Favorites List
-        self.login("user1", "user123")
-        self.driver.get('http://localhost:8000/favorites')
+        self.login("user1", "user123")  # Log in first
+        self.driver.get('http://localhost:8000/favorites')  # Navigate to favorites page
 
-        # Verify that the favorites list is displayed
+        # Verify that the favorites page displays the user's favorites
         self.assertIn("Your Favorite Movies", self.driver.page_source)
+
+    def test_add_to_favorites(self):
+        # Functionalities 6: Add Movies to Favorites
+        self.login("user1", "user123")  # Log in first
+        self.driver.get('http://localhost:8000/recommendations')  # Navigate to recommendations page
+
+        # Simulate adding a movie to favorites (assuming there's a button for it)
+        self.driver.find_element(By.XPATH, '//button[text()="Add to Favorites"]').click()
+
+        # Verify that the movie is added to favorites
+        self.driver.get('http://localhost:8000/favorites')  # Navigate to favorites page
+        self.assertIn("Inception", self.driver.page_source)  # Check if the movie appears in favorites
 
     def test_remove_from_favorites(self):
         # Functionalities 8: Remove Movies from Favorites
-        self.login("user1", "user123")
-        self.driver.get('http://localhost:8000/movie_details?title=Inception')
+        self.login("user1", "user123")  # Log in first
+        self.driver.get('http://localhost:8000/favorites')  # Navigate to favorites page
+
+        # Simulate removing a movie from favorites (assuming there's a button for it)
         self.driver.find_element(By.XPATH, '//button[text()="Remove from Favorites"]').click()
 
         # Verify that the movie is removed from favorites
-        self.driver.get('http://localhost:8000/favorites')
-        self.assertNotIn("Inception", self.driver.page_source)
+        self.assertNotIn("Inception", self.driver.page_source)  # Check if the movie is removed
 
     def test_data_storage(self):
         # Functionalities 9: Data Storage and Retrieval
-        # Verify the structure of the local text files used for storing data
+        # Check if the users.txt file contains the expected user
         with open('users.txt', 'r') as file:
             users = file.readlines()
-            self.assertGreater(len(users), 0, "Users file is empty.")
-
-        with open('movies.txt', 'r') as file:
-            movies = file.readlines()
-            self.assertGreater(len(movies), 0, "Movies file is empty.")
-
-        with open('favorites.txt', 'r') as file:
-            favorites = file.readlines()
-            self.assertGreater(len(favorites), 0, "Favorites file is empty.")
+            self.assertIn("user1|user123\n", users)  # Check if the user exists in the file
 
 if __name__ == '__main__':
     unittest.main()
