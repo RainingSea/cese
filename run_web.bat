@@ -24,7 +24,7 @@
 @REM python start_by_file.py --category website --name PeerTutoringNetwork.md
 @REM python start_by_file.py --category website --name PersonalBlog.md
 @REM python start_by_file.py --category website --name QuickSearch.md
-python start_by_file.py --category website --name RecipeHub.md
+@REM python start_by_file.py --category website --name RecipeHub.md
 @REM python start_by_file.py --category website --name RemoteJobBoard.md
 @REM python start_by_file.py --category website --name ShopPal.md
 @REM python start_by_file.py --category website --name SocialLearn.md
