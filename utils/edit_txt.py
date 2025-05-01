@@ -30,8 +30,8 @@ def add_newline_to_txt_files(directory):
 
 # "D:\Project\CE\CE\port.txt"
 # "D:\\algorithm\\agent\\cese\\port.txt"
-# port_dir = "./port.txt"
-port_dir = "D:\Project\ATEdev\ATEDev_main\port.txt"
+port_dir = "./port.txt"
+# port_dir = "D:\Project\ATEdev\ATEDev_main\port.txt"
 
 
 def read_port():

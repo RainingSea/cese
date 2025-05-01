@@ -1,0 +1,37 @@
+@echo off
+python start_by_file.py --category gui --name AgeCalculator.md --seq re
+python start_by_file.py --category gui --name BMICalculator.md --seq re
+python start_by_file.py --category gui --name BookNote.md --seq re
+python start_by_file.py --category gui --name BookshelfManager.md --seq re
+python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq re
+python start_by_file.py --category gui --name CalculationAssistant.md --seq re
+python start_by_file.py --category gui --name DataSummarizer.md --seq re
+python start_by_file.py --category gui --name DataVisualizer.md --seq re
+python start_by_file.py --category gui --name DayPlanner.md --seq re
+python start_by_file.py --category gui --name ExpenseCategorizer.md --seq re
+python start_by_file.py --category gui --name ExpenseComparator.md --seq re
+python start_by_file.py --category gui --name ExpensePlanner.md --seq re
+python start_by_file.py --category gui --name ExpenseSplitter.md --seq re
+python start_by_file.py --category gui --name ImageEnhancer.md --seq re
+python start_by_file.py --category gui --name InvestmentTracker.md --seq re
+python start_by_file.py --category gui --name KnowledgeTracker.md --seq re
+python start_by_file.py --category gui --name MedicalHealthTracker.md --seq re
+python start_by_file.py --category gui --name NoteArchiver.md --seq re
+python start_by_file.py --category gui --name NotepadPlus.md --seq re
+python start_by_file.py --category gui --name OfficeStockManager.md --seq re
+python start_by_file.py --category gui --name PaintPal.md --seq re
+python start_by_file.py --category gui --name PhotoStickerMaker.md --seq re
+python start_by_file.py --category gui --name RandomPasswordGenerator.md --seq re
+python start_by_file.py --category gui --name ScienceExperimentPlanner.md --seq re
+python start_by_file.py --category gui --name ScienceLibrary.md --seq re
+python start_by_file.py --category gui --name SecretNoteKeeper.md --seq re
+python start_by_file.py --category gui --name SecurePasswordVault.md --seq re
+python start_by_file.py --category gui --name ShapeMaster.md --seq re
+python start_by_file.py --category gui --name ShoppingPlanner.md --seq re
+python start_by_file.py --category gui --name SmartRecipt.md --seq re
+python start_by_file.py --category gui --name SportsEquipmentInventoryTracker.md --seq re
+python start_by_file.py --category gui --name TaskTracker.md --seq re
+python start_by_file.py --category gui --name TextSnippetOrganizer.md --seq re
+python start_by_file.py --category gui --name TimeConverter.md --seq re
+python start_by_file.py --category gui --name UnitConverter.md --seq re
+pause

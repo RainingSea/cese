@@ -57,12 +57,30 @@ class Team(BaseModel):
     active_roles: ClassVar[list[str]] = []
     cost: ClassVar[int] = 0
 
+    # 测试用
     def run_test(self):
-
         self.roles["Product Manager"].go()
         self.roles["Architect"].go_in_sample()
         self.roles["Programmer"].go_in_sample()
 
+    # 单生成
+    def run_pure(self):
+        # root work dir
+        previous_work_dir = Path.cwd()
+        # root project dir
+        pervious_project_dir = Team.project_dir
+
+        # Generate PRD, no exploration
+        self.roles["Product Manager"].go()
+        self.roles["Architect"].go()
+        self.roles["Project Manager"].go()
+        self.roles["Programmer"].go()
+
+        self.roles["Programmer"].code_base.clear()
+        code_base_dir = os.path.join(Team.project_dir, "code")
+        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+
+    # baseline 只生成，并且用单元测试结果改进一次
     def run_self_evo(self):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
@@ -149,7 +167,7 @@ class Team(BaseModel):
 
         return
 
-    # 跑实验web特调版run()方法
+    # 完整的跑web的方法
     def run_web(self):
         # root work dir
         previous_work_dir = Path.cwd()
@@ -483,6 +501,79 @@ class Team(BaseModel):
             Team.log,
         )
 
+        print("Dev execute END")
+        return
+
+    # generate unit test or use feedback exist
+    def run_vice(self, seq):
+
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
+
+        # _______________ generate PRD, Architect, Task Plan _______________
+
+        Team.incremental_base_dir = Team.project_dir
+        self.roles["Product Manager"].go_inter()
+
+        ce_score = 0
+        ce_feedbacks = ""
+
+        # ___________________ one to one test and get result _________________
+        if seq != "re":
+            ce_projects_paths = []
+
+            _path = os.path.join(
+                Team.project_dir,
+                "ce",
+                f"ce_{seq}",
+            )
+            ce_projects_paths.append(_path)
+
+            # 只执行测试，flag是ite_fdbackQAQ，因此不会总结
+            ce_score, ce_feedbacks = ceaug(
+                previous_work_dir,
+                self.test_cases_dir,
+                ce_projects_paths,
+                Team.projec_catogory,
+                Team.project_name,
+                "no_ite_fdback",
+                Team.log,
+            )
+            print("ASDA!!!!")
+            return
+
+        # ___________________ one to one test and get result _________________
+
+        # ___________________ read feedbacks ___________________
+        # 属于vice的部分 -- 路径格式
+        # 这部分可以拿来读取已经测试过的unit test result
+
+        if seq == "re":
+            ce_projects_paths = []
+            # 更改反馈的次数
+
+            ce_index = 0
+            for i in range(3):
+                ce_projects_paths.append(
+                    os.path.join(
+                        Team.project_dir,
+                        "ce",
+                        f"ce_{ce_index}",
+                    )
+                )
+                ce_index = ce_index + 1
+
+            ce_score, ce_feedbacks = ceaug_vice(
+                previous_work_dir,
+                ce_projects_paths,
+                Team.projec_catogory,
+                Team.project_name,
+                "ite_fdback",
+                Team.log,
+            )
+
+        # ___________________ read feedbacks ___________________
+
         # |_____________________________________________________________|
         # |                      Attention!                             |
         # | ceaug() execute unit test, which                            |
@@ -491,12 +582,6 @@ class Team(BaseModel):
         # |_____________________________________________________________|
         # |
 
-        os.chdir(previous_work_dir)
-        Team.project_dir = pervious_project_dir
-        Team.incremental_base_dir = pervious_project_dir
-
-        # save feedback of this turn to a log file (formatted)
-        # 这里最好是写入到一个txt中，但我不知道为什么写入txt，程序就会异常退出
         save = True
         if save:
             for key, value in ce_feedbacks.items():
@@ -517,194 +602,52 @@ class Team(BaseModel):
 
         # _________________________ [ REGENERATE ] ____________________________
 
-        print("Dev execute END")
-        return
-
-    # 单生成
-    def run_pure(self):
-        # root work dir
-        previous_work_dir = Path.cwd()
-        # root project dir
-        pervious_project_dir = Team.project_dir
-        
-        # Generate PRD, no exploration
-        self.roles["Product Manager"].go()
-        self.roles["Architect"].go()
-        self.roles["Project Manager"].go()
-        self.roles["Programmer"].go()
-        
-        self.roles["Programmer"].code_base.clear()
-        code_base_dir = os.path.join(Team.project_dir, "code")
-        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
-
-    # generate unit test or use feedback exist
-    def run_vice(self, seq):
-
-        previous_work_dir = Path.cwd()
-        pervious_project_dir = Team.project_dir
-
-        inter_launch = True
-
-        # _______________ generate PRD, Architect, Task Plan _______________
-        if inter_launch:
-            Team.incremental_base_dir = os.path.join(
-                "D:\Project\CE\CE\project",
-                Team.projec_catogory,
-                Team.project_name,
-            )
-            self.roles["Product Manager"].go_inter()
-        else:
-            self.roles["Product Manager"].go()
-            Team.active_role(self.roles["Product Manager"].profile)
-
-        ce_score = 0
-        ce_feedbacks = ""
-
-        # ___________________ one to one test and get result _________________
-        if seq != "666":
-            ce_projects_paths = []
-
-            _path = os.path.join(
-                "D:\Project\CE\CE\project",
-                Team.projec_catogory,
-                Team.project_name,
-                "ce",
-                f"ce_{seq}",
-            )
-            ce_projects_paths.append(_path)
-
-            # 只执行测试，flag是ite_fdbackQAQ，因此不会总结
-            ce_score, ce_feedbacks = ceaug(
-                previous_work_dir,
-                self.test_cases_dir,
-                ce_projects_paths,
-                Team.projec_catogory,
-                Team.project_name,
-                "ite_fdbackQAQ",
-                Team.log,
-            )
-            return
-
-        # ___________________ one to one test and get result _________________
-
-        # ___________________ read feedbacks ___________________
-        # 属于vice的部分 -- 路径格式
-        # 这部分可以拿来读取已经测试过的unit test result
-
-        if seq == "666":
-            ce_projects_paths = []
-            # 更改反馈的次数
-
-            ce_index = 0
-            for i in range(3):
-                ce_projects_paths.append(
-                    os.path.join(
-                        "D:\Project\CE\CE\project",
-                        Team.projec_catogory,
-                        Team.project_name,
-                        "ce",
-                        f"ce_{ce_index}",
-                    )
-                )
-                ce_index = ce_index + 1
-
-            ce_score, ce_feedbacks = ceaug_vice(
-                previous_work_dir,
-                ce_projects_paths,
-                Team.projec_catogory,
-                Team.project_name,
-                "ite_fdback",
-                Team.log,
-            )
-
-        # with open(os.path.join(Team.project_dir, "feedback.txt"), "w") as file:
-        #     content = (
-        #         "#_#code_feedback#_#\n"
-        #         + ce_feedbacks["code"]
-        #         + "\n\n#_#architecture_feedback#_#\n"
-        #         + ce_feedbacks["arch"]
-        #         + "\n\n#_#task_plan_feedback#_#\n"
-        #         + ce_feedbacks["plan"]
-        #     )
-        #     file.write(content)
-
-        # return
-
-        # ___________________ read feedbacks ___________________
-
-        # |_____________________________________________________________|
-        # |                      Attention!                             |
-        # | ceaug() execute unit test, which                            |
-        # | requires switching work dir to the test code's project dir "|
-        # |                   Must switch back!                         |
-        # |_____________________________________________________________|
-        # |
-
-        os.chdir(previous_work_dir)
-        Team.project_dir = pervious_project_dir
-        Team.incremental_base_dir = pervious_project_dir
-
-        # _______________ use feedback to generate document _______________
         self.roles["Product Manager"].go_inter()
         self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
-        # self.roles["Architect"].go()
         self.roles["Project Manager"].go_with_fdback(ce_feedbacks["plan"])
-        # self.roles["Project Manager"].go()
 
         ce_feedback = ce_feedbacks["code"]
         if ce_feedback:
             if ce_feedback == "CodeIsGood":
                 print("Dev execute END")
                 return
-            # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
-            # Team.log.info("### ceaug feedback\n" + str(ce_feedback))
-            # use feedback from counter example to augment coding
+
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
 
             pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
-
             if pass_feedback:
                 Team.log.info("Pass Feedback:\n" + str(pass_feedback))
             if no_pass_feedback:
                 Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
             # process pass feedback
             init = True
+
+            self.roles["C_Programmer"].go("init", "0")
+
             if pass_feedback:
                 for passfd in pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(passfd, "1")
+                    self.roles["C_Programmer"].go(passfd, "1")
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
             # process no pass feedback
             if no_pass_feedback:
                 for n_passfd in no_pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(n_passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(n_passfd, "2")
+
+                    self.roles["C_Programmer"].go(n_passfd, "2")
                     # write only once
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
 
-            # self.roles["C_Programmer"].check_data_format()
-            # self.roles["C_Programmer"].message_to_file(
-            #     self.roles["C_Programmer"].own_message.content
-            # )
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()
             self.roles["Programmer"].go()
 
-        if Team.projec_catogory == "website":
-            code_base_dir = os.path.join(Team.project_dir, "code")
-            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        code_base_dir = os.path.join(Team.project_dir, "code")
+        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         print("Dev execute END")
         return
@@ -827,7 +770,7 @@ By addressing these areas during the development process, you can create a more 
 
     @classmethod
     def set_projdir(cls, projdir: str):
-        Team.project_dir = projdir
+
         abs_projdir = Path(projdir).absolute()
         print("相对路径为：" + str(projdir))
         print("绝对路径为：" + str(abs_projdir))

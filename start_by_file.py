@@ -39,7 +39,7 @@ def start_project():
     # __________ from shell __________
 
     # ______________ project soft config ________________
-    _dir = "D:\\Project\\ATEdev\\ATEDev_main"
+    _dir = "E:\Project\ATE\ATEdev\ATEDev"
     # dataset dir
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
@@ -71,6 +71,7 @@ def start_project():
     team.test_cases_dir = test_cases_dir
     Team.projec_catogory = category
     Team.project_name = project_name
+    Team.project_dir = projdir
 
     Team.set_projdir(projdir)
     Team.set_log()
