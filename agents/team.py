@@ -20,6 +20,7 @@ from ceaug.ceaug_main import (
     ceaug_vice_no_summary,
     create_ce_document,
     feedback_split,
+    feedback_split_ds,
     feedback_split_string,
     make_ce_dirs,
     read_feedback,
@@ -238,7 +239,7 @@ class Team(BaseModel):
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
 
-            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
+            pass_feedback, no_pass_feedback = feedback_split_ds(ce_feedback)
             if pass_feedback:
                 Team.log.info("Pass Feedback:\n" + str(pass_feedback))
             if no_pass_feedback:
@@ -526,13 +527,13 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         # root project dir
         pervious_project_dir = Team.project_dir
-        
+
         # Generate PRD, no exploration
         self.roles["Product Manager"].go()
         self.roles["Architect"].go()
         self.roles["Project Manager"].go()
         self.roles["Programmer"].go()
-        
+
         self.roles["Programmer"].code_base.clear()
         code_base_dir = os.path.join(Team.project_dir, "code")
         # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")

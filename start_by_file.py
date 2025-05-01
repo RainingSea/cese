@@ -52,7 +52,7 @@ def start_project():
     projdir = f"{_dir}\\project\\" + category + "\\" + project_name + "\\"
 
     # exploration numbers
-    explore_num = 3
+    explore_num = 2
     #
     # ______________ project soft config ________________
 

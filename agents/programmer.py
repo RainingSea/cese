@@ -16,7 +16,7 @@ from utils.commen import str_to_role
 from utils.edit_txt import add_newline_to_txt_files
 
 # custom lib
-from prompt.write_code_prompt import (
+from prompt.write_code_prompt_ds import (
     CODING_SYS,
     CODING_C,
     CODING,

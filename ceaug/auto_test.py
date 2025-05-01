@@ -12,23 +12,28 @@ from ceaug.auto_test_prompt import (
     prompt_for_game_testing,
     prompt_for_gui_testing,
     prompt_for_web_testing,
-    PROMPT_FOR_TESTCASE,
 )
 
+this_api_key = "sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA"
+this_model = "deepseek-v3"
 
-def chat_to_LLM(messages):
+### gpt api
+def call_openai_api(prompt, model):
 
     client = OpenAI(
-        api_key="sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA",  # 只需要填写key就可以了
+        api_key=this_api_key,
         base_url="https://api.chatanywhere.tech",
     )
-    response = client.chat.completions.create(
-        messages=messages,
-        model="gpt-4o-mini",
-        # stream=True, # 这个开了要用chunk的调用方法
-    )
-    # print(response.choices[0].message.content, end="", flush=True)
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model=this_model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+        )
+        print(response.choices[0].message.content)
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error: {e}"
 
 
 ### reletive path: codebase
@@ -66,22 +71,6 @@ def read_md_file(file_path):
         return f"Error: The file '{file_path}' was not found."
     except Exception as e:
         return f"Error: Could not read the file '{file_path}'. Reason: {e}"
-
-
-### gpt api
-def call_openai_api(prompt, model):
-    client = OpenAI(
-        api_key="sk-1SP4KiEAcGrjEnK6ppxolAHciQdJU0n8AhL8xmO1AogtJk9g",
-        base_url="https://api.chatanywhere.tech",
-    )
-    try:
-        response = client.chat.completions.create(
-            model=model, messages=[{"role": "user", "content": prompt}], temperature=0.2
-        )
-        print(response.choices[0].message.content)
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"Error: {e}"
 
 
 def extract_python_code(llm_response):
