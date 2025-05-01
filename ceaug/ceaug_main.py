@@ -23,6 +23,7 @@ def chat_to_LLM(messages):
     response = client.chat.completions.create(
         messages=messages,
         model="deepseek-v3",
+        temperature=0.2,
         # stream=True, # 这个开了要用chunk的调用方法
     )
     # print(response.choices[0].message.content, end="", flush=True)
@@ -581,17 +582,17 @@ def ceaug(
 
         # 1. get general unit test result
         PROMPT_FOR_TEST_ANA = """You are a software test analyst. Please help me analyze the code of a project.
-        (1) Here is the entire codebase for a project: {code_base}.
+(1) Here is the entire codebase for a project: {code_base}.
         
-        (2) Here are the unit test codes for this project: {unit_test_code}.
+(2) Here are the unit test codes for this project: {unit_test_code}.
         
-        (3) These are all the unit test results (Only failed tests have detailed information):{test_results}
-        ---
-        Action: Please analyze the test results one by one with related code. For each failed or error unit test, step by step to identify the reasons.
-        If test code like "self.fail(XXX functionality not implemented)" occurs, it suggests a problem with the project code, not the test code.
-        """
+(3) These are all the unit test results (Only failed tests have detailed information):{test_results}
+---
+Action: Please analyze the test results one by one with related code. For each failed or error unit test, step by step to identify the reasons.
+If test code like "self.fail(XXX functionality not implemented)" occurs, it suggests a problem with the project code, not the test code.
+"""
         messages.append(format_prompt(PROMPT_FOR_TEST_ANA, values))
-        # log.info(messages[0]["content"])
+        log.info(messages[0]["content"])
         unit_test_result_analysis = chat_to_LLM(messages)
 
         print("1-| unit test result analysis |")
@@ -645,9 +646,10 @@ def ceaug(
                 (4) don't write guidance on the test.
                 (5) don't provide guidance from higher-level aspects such as project management, development pattern, etc.
                 if failure or error related to more than 1 file, you should catch all key problems in all files, not only the main file.
-                Attention: only consider failure or error exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded. 
+                Attention: only consider failure or error exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded.
                 Besides, the deficiencies of testcode.py (test code) do not need to be summarized.
-                Issues unrelated to the code itself, such as network errors, do not need to be summarized.""",
+                Issues unrelated to the code itself, such as network errors, do not need to be summarized.
+                Focus only on the project code, not the test code.""",
             }
         )
 
@@ -655,7 +657,7 @@ def ceaug(
 
         print("Code Feedback")
         print(code_feedback)
-        log.info("Code Feedback\n" + code_feedback)
+        log.info("---Code Feedback---\n" + code_feedback)
 
         # 3. get architecture feedback
         architecture_messages.append(
@@ -668,7 +670,7 @@ def ceaug(
 
         print("Architecture Feedback")
         print(architecture_feedback)
-        log.info("\nArchitecture Feedback\n" + architecture_feedback)
+        log.info("\n---Architecture Feedback---\n" + architecture_feedback)
 
         # 4. get task plan feedback
         task_plan_messages.append(
@@ -680,23 +682,26 @@ def ceaug(
         task_plan_feedback = chat_to_LLM(task_plan_messages)
         print("Plan Feedback")
         print(task_plan_feedback)
-        log.info("\nPlan Feedback\n" + task_plan_feedback)
+        log.info("\n---Plan Feedback---\n" + task_plan_feedback)
+
+        with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+            pass
 
         # 5. save all the 3 types of feedback to txt
-        with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
-            content = (
-                "#_#unit_test_result#_#\n"
-                + str(unit_test_result)
-                + "\n\n\n#_#unit_test_result_analysis#_#\n"
-                + unit_test_result_analysis
-                + "\n\n\n#_#code_feedback#_#\n"
-                + code_feedback
-                + "\n\n\n#_#architecture_feedback#_#\n"
-                + architecture_feedback
-                + "\n\n\n#_#task_plan_feedback#_#\n"
-                + task_plan_feedback
-            )
-            file.write(content)
+        # with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+        #     content = (
+        #         "#_#unit_test_result#_#\n"
+        #         + str(unit_test_result)
+        #         + "\n\n\n#_#unit_test_result_analysis#_#\n"
+        #         + unit_test_result_analysis
+        #         + "\n\n\n#_#code_feedback#_#\n"
+        #         + code_feedback
+        #         + "\n\n\n#_#architecture_feedback#_#\n"
+        #         + architecture_feedback
+        #         + "\n\n\n#_#task_plan_feedback#_#\n"
+        #         + task_plan_feedback
+        #     )
+        #     file.write(content)
 
         all_code_feedbacks.append(code_feedback)
         all_architecture_feedbacks.append(architecture_feedback)
@@ -753,7 +758,7 @@ Failure Analysis2: add number does not consider the float number.
 Improvement Guidance2: consider the float type in implementation.
 
 # Notes:
-remember for ### Failed or Error Test Cases, you need to "extract".
+remember for "### Failed or Error Test Cases", you need to "extract".
 Case Name is the test case name with the test_ prefix removed (e.g., test_navigate_to_registration becomes navigate_to_registration).
 Do not summarize guidance specifically for the test code itself.
 There is no need to output the list test cases again at the end. 
@@ -765,9 +770,12 @@ The output should retain the section titles "### Passed Test Cases" and "### Fai
 Carefully analyze all results, do not forget any project.  
 
 # Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
+# Format: Use the |CASE| marker exactly, without adding other characters like * on either side of the marker.
 
 # Context
-Summarize following context:\n\n\n {summaries}."""
+Summarize following context:\n\n\n {summaries}.
+
+Your summary should strictly obey the format rules in #Notes, #Attention and #Format parts."""
         summary_merge_values = {"summaries": all_summaries}
         sum_messages.append(
             format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
@@ -904,6 +912,42 @@ def ce_generate(
         ce_result.append((new_task_plan))
 
     return ce_result
+
+
+def feedback_split_ds(feedback):
+    feedback = feedback.replace("*", "")
+    # 提取所有通过的测试结果
+    passed_test_cases = re.search(
+        r"(?<=### Passed Test Cases)(.*?)(?=### Failed or Error Test Cases|$)",
+        feedback,
+        re.DOTALL,
+    )
+    if passed_test_cases:
+        print(passed_test_cases)
+        pass_case_blocks = re.findall(
+            r"\|Case\|\s*:\s*.*?(?=\|Case\|\s*:|\Z)",
+            passed_test_cases.group(0).strip(),
+            re.DOTALL,
+        )
+        pass_feedback = process_array(pass_case_blocks)
+    else:
+        pass_feedback = None
+
+    # 提取没有通过测试的结果
+    failed_or_error_test_cases = re.search(
+        r"(?<=### Failed or Error Test Cases)(.*)", feedback, re.DOTALL
+    )
+    if failed_or_error_test_cases:
+        print(failed_or_error_test_cases)
+        pattern = r"\|Case\|\s*:\s*.*?(?=\|Case\|\s*:|\Z)"
+        no_pass_case_blocks = re.findall(
+            pattern, failed_or_error_test_cases.group(0).strip(), re.DOTALL
+        )
+        no_pass_feedback = process_array(no_pass_case_blocks)
+    else:
+        no_pass_feedback = None
+
+    return pass_feedback, no_pass_feedback
 
 
 def feedback_split(feedback):

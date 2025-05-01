@@ -1,7 +1,3 @@
-PROMPT_FOR_TESTCASE="""
-
-"""
-
 PROMPT_FOR_TEST_ANA = """
 Here is the entire codebase for a project: {code_base}.
 Here are the unit test codes for this project: {unit_test_code}.
@@ -18,9 +14,6 @@ So, step to step, analyze the issues mentioned above and assess the extent to wh
 At the end of your output, you need to display the average score(also range from 0 to 10), using the following format:[END]score[END], where "score" should be replaced with the score you have assigned.
 example:[END]5.0[END]
 """
-
-## 
-
 
 
 prompt_for_web_testing = """

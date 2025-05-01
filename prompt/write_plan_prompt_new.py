@@ -234,10 +234,9 @@ Specially, do not use flask_wtf to build html files.
 
 ## Attention
 In "lessons and experience" section, there is a summary and feedback from previous work on this project. When you generate, you need to take these insight into consideration. 
-for example, if they are suggestions, you should adopt them. If they are error warnings, you need to avoid them.
+for example, if they are suggestions or good strength, you should adopt them. If they are error warnings, you need to avoid them.
 However, your main task remains to generate a corresponding code plan based on "original_requirement" and "architecture".
 
-
-## action
+## Action
 Follow instructions of nodes and Attention, generate output and make sure it follows the format example.
 """

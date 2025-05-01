@@ -209,7 +209,7 @@ If you are doing website development, do not encrypt the account password for th
 
 ## Additional Notes
 In "lessons and experience" section, there is a summary and feedback from previous work on this project. 
-When you generate, you need to take these insight into consideration, for example, if they are suggestions, you should adopt them. If they are error warnings, you need to avoid them.
+When you generate, you need to take these insight into consideration, for example, if they are suggestions or good strength, you should adopt them. If they are error warnings, you need to avoid them.
 However, your main task remains to generate a corresponding architecture based on "original_requirement" and "functional requirements".
 Even if there are suggestions regarding JSON or other complex data structures, please do not consider using JSON in your architectural design.
 Even if there are suggestions regarding data encryption, please do not consider data encryption in your architectural design.

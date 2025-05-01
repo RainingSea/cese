@@ -12,19 +12,21 @@ from ceaug.auto_test_prompt import (
     prompt_for_game_testing,
     prompt_for_gui_testing,
     prompt_for_web_testing,
-    PROMPT_FOR_TESTCASE,
 )
+
+this_api_key = "sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA"
+this_model = "deepseek-v3"
 
 ### gpt api
 def call_openai_api(prompt, model):
-    _model = "deepseek-v3"
+
     client = OpenAI(
-        api_key="sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA",
+        api_key=this_api_key,
         base_url="https://api.chatanywhere.tech",
     )
     try:
         response = client.chat.completions.create(
-            model=_model,
+            model=this_model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
         )
