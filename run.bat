@@ -1,7 +1,7 @@
 @echo off
-@REM python start_by_file.py --category website --name BookWormSearch.md
-@REM python start_by_file.py --category website --name CharitableGivingPlatform.md
-@REM python start_by_file.py --category website --name CulturalCalendar.md
+python start_by_file.py --category website --name BookWormSearch.md
+python start_by_file.py --category website --name CharitableGivingPlatform.md
+python start_by_file.py --category website --name CulturalCalendar.md
 @REM python start_by_file.py --category website --name CulturalStoryteller.md
 @REM python start_by_file.py --category website --name CultureFacts.md
 @REM python start_by_file.py --category website --name DailyHealthTips.md
@@ -24,7 +24,7 @@
 @REM python start_by_file.py --category website --name PeerTutoringNetwork.md
 @REM python start_by_file.py --category website --name PersonalBlog.md
 @REM python start_by_file.py --category website --name QuickSearch.md
-python start_by_file.py --category website --name RecipeHub.md
+@REM python start_by_file.py --category website --name RecipeHub.md
 @REM python start_by_file.py --category website --name RemoteJobBoard.md
 @REM python start_by_file.py --category website --name ShopPal.md
 @REM python start_by_file.py --category website --name SocialLearn.md
