@@ -95,6 +95,8 @@ def start_project():
     # [model 2] (config top p)
 
     # 自己配温度和top p
+    
+    # 这里虽然用的是config里的，但实际上需要自己进去配温度等参数
     sample_model = GPT_topP(config["llm_4o"])
     # --------------- sample model----------------
 
