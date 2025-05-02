@@ -142,11 +142,11 @@ def ceaug_vice(base_dir, project_dirs, project_category, project_name, flag, log
         task_plan_feedback = all_feedbacks["#_#task_plan_feedback#_#"]
         unit_test_result = all_feedbacks["#_#unit_test_result#_#"]
 
-        log.info("read feedbacks from " + project_dirs[i])
-        log.info("unit_test_result\n" + unit_test_result + "\n")
-        log.info("code_feedback\n" + code_feedback + "\n")
-        log.info("architecture_feedback\n" + architecture_feedback + "\n")
-        log.info("task_plan_feedback\n" + task_plan_feedback + "\n")
+        log.info("Read feedbacks from " + project_dirs[i])
+        log.info("[0] unit_test_result\n" + unit_test_result + "\n")
+        log.info("[1] code_feedback\n" + code_feedback + "\n")
+        log.info("[2] architecture_feedback\n" + architecture_feedback + "\n")
+        log.info("[3] task_plan_feedback\n" + task_plan_feedback + "\n")
 
         print("read feedbacks from " + project_dirs[i])
         print("unit_test_result\n" + unit_test_result + "\n")
@@ -162,83 +162,92 @@ def ceaug_vice(base_dir, project_dirs, project_category, project_name, flag, log
         all_unit_test_results.append(unit_test_result)
 
     if flag == "ite_fdback":
+        # 1. summary code feedback
         sum_messages = []
-        all_summaries = ""
+        all_summaries = "-------"
+
         for k in range(len(all_code_feedbacks)):
             all_summaries = (
                 all_summaries
-                + "### the "
+                + "[The "
                 + str(k + 1)
-                + "th"
-                + " project result:\n"
-                + f"test result is {all_unit_test_results[k]}: analysis&guidance is {all_code_feedbacks[k]} \n\n"
+                + "th project test result]:\n"
+                + f" {all_code_feedbacks[k]} \n\n"
             )
 
-        # means it is counter example model
-        PROMPT_FOR_SUMMARY_MERGE = """# instruction
-I have multiple implementations of the same project, each of which has undergone unit testing. For each implementation, I have obtained test results, analyzed them, and developed improvement recommendations. Now, you should extract and compile all my contents with the following requirements:
-
-1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, may not need to outptut.
+        PROMPT_FOR_SUMMARY_MERGE = """I have multiple implementations of the same project, each of which has undergone unit testing. For each implementation, I have obtained test results, analyzed them, and developed improvement recommendations. Now, you should understand and compile all my test feedbacks with the following requirements:
+        
+1.Summarize all test cases: identify how many test_XXX_XXX (like this format) test cases exist in all my result, not need to outptut.
 
 2.Prepare the output, divided into two parts: Passed Test Cases and Failed or Error Test Cases, with following description:
 ### Passed Test Cases
 Summarize solutions for all test cases that passed. Use the pseudocode provided in the input to represent the solutions; do not generate new pseudocode. Present each case in the format:
 1. |Case|:**Case Name**
-Followed by the pseudocode which represent the successful implementation for this function.
+Followed by the pseudocodes which represent the successful implementation for this function.
+keep the pseudocode long as you can, do not cut information.
+Additionally, there may have some accomanying information about third-party libraries used in pseudocode, you should keep and summrize them also.
 
 ### Failed or Error Test Cases
-Collect the analysis and guidance related to each failure or error. present it in the format:
-For each error or failure, extract all related analyses and guidance from allthe content. If there are duplicates, please remove them.
-Then, combine them and output them in the following format:
+Collect the analysis and guidance related to each failure or error from all 3 test feedback. present it in the format:
+For each error or failure, extract all related analyses and guidance from all the content.
+Then, organize them and output them in the following format:
 1. |Case|:**Case Name**
-Followed by:
 Failure/Error Analysis1
 Improvement Guidance1 (textual, pseudocode, etc.)
 Failure/Error Analysis2
 Improvement Guidance2 (textual, pseudocode, etc.)
-Each pair above represents content extracted from different projects (after deduplication).
-Ensure that if there are differing analyses or guidance for a single test case, all are recorded. 
+
+Each (Analysis, Guidance) pair above represents content extracted from different projects.
+Ensure that if there are differing analyses or guidance for a single same test case, all of them are recorded, but only one "|Case|" symbol is needed.
+example:
+1. |Case|:**add_number**
+Error Analysis1: not implemented.
+Improvement Guidance1: implement this function in a.py.
+Failure Analysis2: add number does not consider the float number.
+Improvement Guidance2: consider the float type in implementation.
 
 # Notes:
-For ### Passed Test Cases, you need to "summarize"; for ### Failed or Error Test Cases, you need to "extract".
+remember for ### Failed or Error Test Cases, you need to "extract".
 Case Name is the test case name with the test_ prefix removed (e.g., test_navigate_to_registration becomes navigate_to_registration).
 Do not summarize guidance specifically for the test code itself.
 There is no need to output the list test cases again at the end. 
 
 # Attention
-must consider all results in "context", don't omit. don't lose information.
-The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
+Must synthesize test results for the same test case from all projects, do not just output test result from only one project as the final case result.
+Pass pseudocode or error/failure analysis about one same case, should be assembled within one |CASE|.
+The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation.
+Carefully analyze all results, do not forget any project.  
 
 # Format: You Must add a |Case| before the Case Name for differentiation. like |Case|: test_a_function, must use two "|".
 
-# context
-The content you need to summarize is as follows: {summaries}.\n"""
+# Context
+Summarize following context:\n\n\n {summaries}."""
         summary_merge_values = {"summaries": all_summaries}
         sum_messages.append(
             format_prompt(PROMPT_FOR_SUMMARY_MERGE, summary_merge_values)
         )
         print(sum_messages[0]["content"])
-        log.info("code summary prompt is\n" + sum_messages[0]["content"])
-        # log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+        log.info("prompt for summaries summary:\n" + sum_messages[0]["content"])
+
         code_summaries_summary = chat_to_LLM(sum_messages)
-        print("Code Feedback is")
-        print(code_summaries_summary)
+
+        print("Code Feedback is:\n" + code_summaries_summary)
         log.info("Code Feedback is\n" + code_summaries_summary)
 
-        # summary the architecture feedback
+        # 2. summary code feedback
         arch_sum_messages = []
         arch_all_summaries = ""
+
         for g in range(len(all_architecture_feedbacks)):
             arch_all_summaries = (
                 arch_all_summaries
                 + "### the "
                 + str(g + 1)
-                + "th"
-                + " project result:\n"
+                + "th project result:\n"
                 + f"{all_architecture_feedbacks[g]}\n\n"
             )
 
-        PROMPT_FOR_ARCHITECT_MERGE = """You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of architecture-related feedback for a software development project and produce a concise, unified summary.
+        PROMPT_FOR_ARCHITECT_MERGE = """(1) You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of architecture-related feedback for a software development project and produce a concise, unified summary.
 ## Instructions:
 1. Combine Similar Feedback:Identify and merge duplicate or overlapping suggestions while retaining their key points. For example, if multiple feedback items suggest improving navigation in the UI, consolidate them into a single suggestion.
 2. Retain Unique Feedback:Preserve suggestions that address distinct issues, even if they apply to different aspects of the project. Ensure no unique feedback is omitted.
@@ -250,34 +259,39 @@ Architecture Enhancements
 Attention:Use bullet points for readability, and provide actionable suggestions where applicable.
 Ensure Clarity and Precision.
 Use concise language to convey the ideas clearly and avoid redundancy.
-remove any password bcrypt feedback in the final summary.
-the content you need to summarize is:{summaries}.
+Result should be concise but also informative.
+(2) the content you need to summarize is:\n{summaries}
+Mind: do not summary advice like using json or like enhancing data encryption in your final summary, it is too high level.
         """
         arch_summary_merge_values = {"summaries": arch_all_summaries}
         arch_sum_messages.append(
             format_prompt(PROMPT_FOR_ARCHITECT_MERGE, arch_summary_merge_values)
         )
         print(arch_sum_messages[0]["content"])
-        log.info("prompt for summaries summary:\n" + arch_sum_messages[0]["content"])
+        log.info(
+            "prompt for architecture summaries summary:\n"
+            + arch_sum_messages[0]["content"]
+        )
+
         arch_summaries_summary = chat_to_LLM(arch_sum_messages)
-        print("Architecture Summary")
-        print(arch_summaries_summary)
+
+        print("Architecture Summary\n" + arch_summaries_summary)
         log.info("Architecture Summary\n" + arch_summaries_summary)
 
         # plan summary
         plan_sum_messages = []
         plan_all_summaries = ""
+
         for p in range(len(all_task_plan_feedbacks)):
             plan_all_summaries = (
                 plan_all_summaries
                 + "### the "
                 + str(p + 1)
-                + "th"
-                + " project result:\n"
+                + "th project result:\n"
                 + f"{all_task_plan_feedbacks[p]}\n\n"
             )
 
-        PROMPT_FOR_PLAN_MERGE = """You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of task-related feedback for a software development project and produce a concise, unified summary.You will receive multiple feedback reports, each containing various suggestions, including areas for improvement and potential enhancements. Your task is to extract suggestions that are useful for generating new plans and meet the following requirements:
+        PROMPT_FOR_PLAN_MERGE = """(1) You will act as a feedback summarization assistant. Your goal is to analyze multiple sets of task-related feedback for a software development project and produce a concise, unified summary.You will receive multiple feedback reports, each containing various suggestions, including areas for improvement and potential enhancements. Your task is to extract suggestions that are useful for generating new plans and meet the following requirements:
 1.Categorize Suggestions: Group the suggestions into the following categories:
 Specific Areas for Improvement
 Suggested Enhancements
@@ -295,30 +309,33 @@ output example:
 - Specify expected behaviors after user actions, such as feedback confirmation messages.  
 - Implement basic form validations to prevent invalid or empty submissions.  
 Use this format to summarize the feedback provided, ensuring the suggestions are actionable for creating improved new plans.
-remove any password bcrypt feedback in the final summary.
 
-the content you need to summarize is:{summaries}. follow the example, output you summary.
+(2) the content you need to summarize is:{summaries}.
+---
+follow the example, output you summary.
         """
         plan_summary_merge_values = {"summaries": plan_all_summaries}
         plan_sum_messages.append(
             format_prompt(PROMPT_FOR_PLAN_MERGE, plan_summary_merge_values)
         )
         print(plan_sum_messages[0]["content"])
-        log.info("prompt for summaries summary:\n" + plan_sum_messages[0]["content"])
-        plan_summaries_summary = chat_to_LLM(plan_sum_messages)
-        print("Plan Summary")
-        print(plan_summaries_summary)
-        log.info("Plan Summary\n" + plan_summaries_summary)
+        log.info(
+            "prompt for plan summaries summary:\n" + plan_sum_messages[0]["content"]
+        )
 
-        # get respective feedback: architecture suggestion, task plan suggestion, code suggestion
-        # return 3 types feedback
+        plan_summaries_summary = chat_to_LLM(plan_sum_messages)
+
+        print("Plan Summary \n" + plan_summaries_summary)
+        log.info("Plan Summary\n" + plan_summaries_summary)
 
         feedback_result = {
             "arch": arch_summaries_summary,
             "plan": plan_summaries_summary,
             "code": code_summaries_summary,
         }
-        return max_score, feedback_result
+        return 1, feedback_result
+    else:
+        return 1, "no_summary"
 
 
 def ceaug_vice_no_summary(
@@ -501,7 +518,7 @@ def test_code_generate(
         test_code = autogen(project_dir, project_category, project_name, testcase_dir)
         test_code = utils.remove_time_sleep_after_popen(test_code)
 
-        # [POINT] 如果只是生成测试代码，那么到这里就可以结束了
+    # [POINT] 如果只是生成测试代码，那么到这里就可以结束了
     return 1, "CodeIsGood"
 
 
@@ -542,9 +559,6 @@ def ceaug(
 
         test_code = autogen(project_dir, project_category, project_name, testcase_dir)
         test_code = utils.remove_time_sleep_after_popen(test_code)
-
-        # [POINT] 如果只是生成测试代码，那么到这里就可以结束了
-        # continue
 
         # 运行测试代码
         print("workdir before test: " + str(Path.cwd()))
@@ -877,6 +891,8 @@ follow the example, output you summary.
             "code": code_summaries_summary,
         }
         return 1, feedback_result
+    else:
+        return 1, "no_summary"
 
 
 # _______________ useful functions _______________
@@ -1314,7 +1330,6 @@ def read_feedback(file_path):
     markers = [
         "#_#unit_test_result#_#",
         "#_#unit_test_result_analysis#_#",
-        "#_#relevance#_#",
         "#_#architecture_feedback#_#",
         "#_#task_plan_feedback#_#",
         "#_#code_feedback#_#",

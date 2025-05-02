@@ -208,9 +208,9 @@ class Architect(Role):
         )
         result = self.llm.invoke(system_prompt, user_prompt)
 
-        print(self.profile + " " + self.name + " generate Architect with feedback")
+        print(self.profile + " " + self.name + " generate Architect with feedback done")
         Team.log.info(
-            self.profile + " " + self.name + " generate Architect with feedback"
+            self.profile + " " + self.name + " generate Architect with feedback done"
         )
 
         Team.log.info(result)

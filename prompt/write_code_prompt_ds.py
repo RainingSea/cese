@@ -70,6 +70,8 @@ if you generate json data, you must change the file extension to .json.
 You need to write some pre-stored data to facilitate testing.
 Must follow above format rules.
 
+You must write every file in File list or Task List.
+
 If you are doing website development, do not encrypt the account password for the login function.
 """
 
