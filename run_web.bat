@@ -20,23 +20,23 @@
 @REM python start_by_file.py --category website --name OnlineLibraryManagementSystem.md
 @REM python start_by_file.py --category website --name OnlineShoppingCenter.md
 @REM python start_by_file.py --category website --name OnlineVintageMarket.md
-@REM python start_by_file.py --category website --name ParentingAdiviceForum.md
-@REM python start_by_file.py --category website --name PeerTutoringNetwork.md
-@REM python start_by_file.py --category website --name PersonalBlog.md
-@REM python start_by_file.py --category website --name QuickSearch.md
-@REM python start_by_file.py --category website --name RecipeHub.md
-@REM python start_by_file.py --category website --name RemoteJobBoard.md
-@REM python start_by_file.py --category website --name ShopPal.md
-@REM python start_by_file.py --category website --name SocialLearn.md
-@REM python start_by_file.py --category website --name SocialShare.md
-@REM python start_by_file.py --category website --name SportsEquipmentInventoryTracker.md
-@REM python start_by_file.py --category website --name TaskManager.md
-@REM python start_by_file.py --category website --name TravalMemoryShare.md
-@REM python start_by_file.py --category website --name TravalTipper.md
-@REM python start_by_file.py --category website --name TravelLog.md
-@REM python start_by_file.py --category website --name TravelRecommender.md
-@REM python start_by_file.py --category website --name TripSaver.md
-@REM python start_by_file.py --category website --name VehicleMaintenanceTracker.md
-@REM python start_by_file.py --category website --name VirtualBookPublishing.md
-@REM python start_by_file.py --category website --name WhishListTracker.md
+python start_by_file.py --category website --name ParentingAdiviceForum.md
+python start_by_file.py --category website --name PeerTutoringNetwork.md
+python start_by_file.py --category website --name PersonalBlog.md
+python start_by_file.py --category website --name QuickSearch.md
+python start_by_file.py --category website --name RecipeHub.md
+python start_by_file.py --category website --name RemoteJobBoard.md
+python start_by_file.py --category website --name ShopPal.md
+python start_by_file.py --category website --name SocialLearn.md
+python start_by_file.py --category website --name SocialShare.md
+python start_by_file.py --category website --name SportsEquipmentInventoryTracker.md
+python start_by_file.py --category website --name TaskManager.md
+python start_by_file.py --category website --name TravalMemoryShare.md
+python start_by_file.py --category website --name TravalTipper.md
+python start_by_file.py --category website --name TravelLog.md
+python start_by_file.py --category website --name TravelRecommender.md
+python start_by_file.py --category website --name TripSaver.md
+python start_by_file.py --category website --name VehicleMaintenanceTracker.md
+python start_by_file.py --category website --name VirtualBookPublishing.md
+python start_by_file.py --category website --name WhishListTracker.md
 pause
