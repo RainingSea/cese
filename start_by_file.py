@@ -39,7 +39,7 @@ def start_project():
     # __________ from shell __________
 
     # ______________ project soft config ________________
-    _dir = "E:\Project\ATE\ATEdev\ATEDev"
+    _dir = "D:\Project\ATEdev\ATEDev_main"
     # dataset dir
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
@@ -129,15 +129,20 @@ def start_project():
     if not seq:
         if category == "website":
             # team.run_web()
-            
+
             team.run_web_iterative()
-            
-        elif category == "dev":
-            team.run_pure()
+
+        # elif category == "dev":
+        #     team.run_pure()
         else:
-            team.run_before_test()
+            # 如果是Game和Gui，那就只能分步骤来跑，part1是只生成探索的代码和testcode.py
+            # team.run_part1()
+
+            team.run_part1_iterative()
     elif seq:
-        team.run_vice(seq)
+        # part2,分别对game和gui进行测试，并且根据seq的不同来看是单元测试还是反馈
+        # 可以共用run_part2方法，里面根据seq来区分
+        team.run_part2(seq)
 
     # team.run_self_evo()
     # ------------------- launch project ------------------------

@@ -396,13 +396,12 @@ class Team(BaseModel):
 
         ce_feedback = ce_feedbacks["code"]
         if ce_feedback:
-            
 
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
 
             pass_feedback, no_pass_feedback = feedback_split_ds(ce_feedback)
-            
+
             if pass_feedback:
                 Team.log.info("Pass Feedback:\n" + str(pass_feedback))
             if no_pass_feedback:
@@ -435,7 +434,7 @@ class Team(BaseModel):
         return
 
     # 只生成测试代码
-    def run_before_test(self):
+    def run_part1(self):
         # root work dir
         previous_work_dir = Path.cwd()
         # root project dir
@@ -479,25 +478,63 @@ class Team(BaseModel):
         print("Dev execute END")
         return
 
-    # 单生成
-    def run_pure(self):
+    def run_part1_iterative(self):
         # root work dir
         previous_work_dir = Path.cwd()
         # root project dir
         pervious_project_dir = Team.project_dir
 
-        # Generate PRD, no exploration
-        self.roles["Product Manager"].go()
-        self.roles["Architect"].go()
-        self.roles["Project Manager"].go()
-        self.roles["Programmer"].go()
+        Team.incremental_base_dir = Team.project_dir
+        self.roles["Product Manager"].go_inter()
 
-        self.roles["Programmer"].code_base.clear()
-        code_base_dir = os.path.join(Team.project_dir, "code")
-        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        # make ce dirs and copy the PRD to each dir
+        ce_projects_paths = make_ce_dirs(Team.project_dir, self.explore_num)
+
+        pre_feedbacks = read_feedback(os.path.join(Team.project_dir, "feedbacks.txt"))
+
+        for j in range(len(ce_projects_paths)):
+
+            Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
+            Team.project_dir = ce_projects_paths[j]
+
+            self.roles["Product Manager"].go_inter()
+            self.roles["Architect"].go_in_sample_with_fdback(
+                pre_feedbacks["#_#architecture_feedback#_#"]
+            )
+            self.roles["Project Manager"].go_in_sample_with_fdback(
+                pre_feedbacks["#_#task_plan_feedback#_#"]
+            )
+
+            pass_feedback, no_pass_feedback = feedback_split_string(
+                pre_feedbacks["#_#code_feedback#_#"]
+            )
+            self.roles["Programmer"].go_in_sample_with_fdback(pass_feedback, "0")
+            if pass_feedback:
+                Team.log.info("Pass Feedback:\n" + str(pass_feedback))
+                self.roles["Programmer"].go_in_sample_with_fdback(pass_feedback, "1")
+
+            if no_pass_feedback:
+                Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
+                self.roles["Programmer"].go_in_sample_with_fdback(no_pass_feedback, "2")
+
+            self.roles["Programmer"].code_base.clear()
+
+        # generate feedbacks of explored projects above
+        ce_score, ce_feedbacks = test_code_generate(
+            previous_work_dir,
+            self.test_cases_dir,
+            ce_projects_paths,
+            Team.projec_catogory,
+            Team.project_name,
+            "nothing",
+            Team.log,
+        )
+
+        print("Dev execute END")
+        return
 
     # generate unit test or use feedback exist
-    def run_vice(self, seq):
+    def run_part2(self, seq):
 
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
@@ -633,122 +670,6 @@ class Team(BaseModel):
                         self.roles["C_Programmer"].own_message.content
                     )
 
-        else:
-            Team.log.info("No CE, Normal Coding")
-            self.roles["Programmer"].code_base.clear()
-            self.roles["Programmer"].go()
-
-        code_base_dir = os.path.join(Team.project_dir, "code")
-        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
-
-        print("Dev execute END")
-        return
-
-    def run_inter(self):
-        previous_work_dir = Path.cwd()
-        pervious_project_dir = Team.project_dir
-
-        inter_launch = True
-
-        # _______________ generate PRD, Architect, Task Plan _______________
-        if inter_launch:
-            # Read files from an existing project, then proceed with development.
-            # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
-            Team.incremental_base_dir = os.path.normpath(
-                # "D:\Project\CE\CE\project\website\PersonalBlog_20250112143843"
-                # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\{}"
-                # pervious_project_dir
-            )
-            self.roles["Product Manager"].go_inter()
-            self.roles["Architect"].go_inter()
-            self.roles["Project Manager"].go_inter()
-
-        ce_feedback = """### Passed Test Cases
-There were no test cases that passed successfully.
-
-### Failed or Error Test Cases
-
-1. |Case|:**create_new_blog_post**
-   - **Error**: `NoSuchElementException` for "Create New Post" link.
-   - **Analysis**: The test fails to find the link, likely due to unsuccessful login, which prevents access to the main page.
-
-2. |Case|:**delete_blog_post**
-   - **Error**: `NoSuchElementException` for delete button.
-   - **Analysis**: Similar to the previous test, the absence of the delete button may stem from a failed login or because posts aren't displayed.
-
-3. |Case|:**edit_existing_post**
-   - **Error**: `NoSuchElementException` for "First Post" link.
-   - **Analysis**: Test cannot locate the post link due to login failure or due to no posts being displayed.
-
-4. |Case|:**user_login**
-   - **Failure**: The user was not directed to the main page. Assertion error indicating "Main Blog Page" is not found, showing a 404 error instead.
-   - **Analysis**: This points to issues in the login flow leading to improper redirection.
-
-5. |Case|:**user_registration**
-   - **Failure**: The content for registration success was not found on the page, indicating that the registration process failed.
-   - **Analysis**: This may be due to duplicate username checks or issues in user creation functionality.
-
-6. |Case|:**view_blog_posts**
-   - **Failure**: The test found no posts available to display.
-   - **Analysis**: Likely indicates that the create post functionality is not working correctly or hasn't been triggered prior.
-
-### Guidance to Resolve Issues
-1. **Ensure Robust Authentication**:
-   - Implement thorough checks in the registration and login mechanisms. Make sure that errors (e.g., username already in use) are handled gracefully and provide clear messaging to the user, which can also facilitate debugging during development.
-
-2. **Validation of Post Operations**:
-   - Before conducting tests related to posts (create, edit, delete), ensure that the functionality for creating a post is working correctly. This prevents subsequent tests from failing due to dependent operations that haven't been successfully implemented.
-
-3. **Manage Routes and Responses**:
-   - Clearly define the routes and their expected behaviors post-login. Ensure that routing logic in the Flask app leads users to the correct pages based on their authentication state. Any failure in routing should yield appropriate responses rather than exposing a 404 error.
-
-4. **Perform Data Persistence Checks**:
-   - Regularly verify that data (users and posts) is being saved correctly and that retrieval operations work as intended (i.e., posts being available after being created). Consider implementing unit tests for these functionalities as well.
-
-5. **Maintain Clear Communication in the Application**:
-   - Ensure that for every operation (registration, login, post creation, etc.), the application provides feedback to the user, such as success or failure messages. This aids both user experience and debugging.
-
-6. **Log Important Events**:
-   - Introduce logging mechanisms to trace important actions and errors within the application. Observing logs can provide insight into where failures occur during operational testing or debugging sessions. 
-
-By addressing these areas during the development process, you can create a more robust application that minimizes issues reflected in unit tests and enhances overall code stability.
-        """
-        if ce_feedback:
-            if ce_feedback == "CodeIsGood":
-                print("Dev execute END")
-                return
-            # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
-            Team.log.info("### ceaug feedback\n" + str(ce_feedback))
-            # use feedback from counter example to augment coding
-            Team.log.info("begin CE Coding")
-            # C_programmer temperature is 0.2
-
-            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
-            if pass_feedback:
-                Team.log.info("Pass Feedback:\n" + str(pass_feedback))
-            if no_pass_feedback:
-                Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
-            # process pass feedback
-            init = True
-            if pass_feedback:
-                for passfd in pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(passfd, "1")
-            # process no pass feedback
-            if no_pass_feedback:
-                for n_passfd in no_pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(n_passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(n_passfd, "2")
-            # write only once
-            self.roles["C_Programmer"].message_to_file(
-                self.roles["C_Programmer"].own_message.content
-            )
         else:
             Team.log.info("No CE, Normal Coding")
             self.roles["Programmer"].code_base.clear()
