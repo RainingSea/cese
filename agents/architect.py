@@ -226,23 +226,40 @@ class Architect(Role):
 
     # 迭代的探索生成
     def go_in_sample_with_fdback(self, feedback):
-        print(self.profile + " " + self.name + " generate Architect with feedback")
-        Team.log.info(
-            self.profile + " " + self.name + " generate Architect with feedback"
-        )
+        # ---------- log info --------
+        print(self.profile + " " + self.name + " generate Architecture......")
+        Team.log.info(" ")
+        Team.log.info(self.profile + " " + self.name + " Writing Architecture...")
 
         # ---------- get the information needed from SCR ----------
-        functional_requirement = self.getPRD().content
         original_requirement = self.getOriginRequirement().content
+        functional_requirement = self.getPRD().content
+
+        # ---------- use metaprompt to let LLM write instruction
+        meta_prompt_tplt = ChatPromptTemplate.from_template(
+            WRITE_ARCHITECT_FORMAT + META_PROMPT
+        )
+
+        meta_prompt_prompt = meta_prompt_tplt.invoke(
+            {
+                "original_requirement": original_requirement,
+                "functional_requirement": functional_requirement,
+                "role_output": "Software Architecture Analysis",
+            }
+        )
+        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
+        # Team.log.info("\n<Architect Instruction>" + meta_prompt_msg.content)
+        prompt_instruction = self.llm_sample.invoke(meta_prompt_msg)
+
         # ---------- constructing prompt to LLM ----------
-        # using message template from LangChain, the result is SYS Message & HUMAN Message.
         user_prompt_template = ChatPromptTemplate.from_template(
-            WRITE_ARCHITECT_WITH_FDBACK
+            WRITE_ARCHITECT_WITH_FDBACK_META
         )
         user_prompt_msg = user_prompt_template.invoke(
             {
                 "original_requirement": original_requirement,
                 "functional_requirement": functional_requirement,
+                "instruction": prompt_instruction,
                 "ce_feedback": feedback,
             }
         )
@@ -251,11 +268,19 @@ class Architect(Role):
         system_prompt = SystemMessage(content=self.system_msg)
 
         # ---------- prompt LLM ----------
-        Team.log.info(system_prompt.content + "\n" + user_prompt.content)
+        Team.log.info(
+            "Prompt to generate architecture is: \n"
+            + system_prompt.content
+            + "\n"
+            + user_prompt.content
+        )
         result = self.llm_sample.invoke(system_prompt, user_prompt)
 
-        # ------------ logging ----------
-        Team.log.info(self.profile + " " + self.name)
+        print(self.profile + " " + self.name + " generate Architect with feedback")
+        Team.log.info(
+            self.profile + " " + self.name + " generate Architect with feedback"
+        )
+
         Team.log.info(result)
 
         # ---------- adding result to SCR(before align) ----------

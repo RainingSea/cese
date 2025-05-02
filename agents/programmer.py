@@ -19,6 +19,8 @@ from utils.edit_txt import add_newline_to_txt_files
 from prompt.write_code_prompt_ds import (
     CODING_SYS,
     CODING_C,
+    CODING_ITE_C1,
+    CODING_ITE_C2,
     CODING,
     CODING_FD,
 )
@@ -119,27 +121,40 @@ class Programmer(Role):
         return
 
     def go_in_sample_with_fdback(self, ce_feedback, flag):
-        print(self.profile + " " + self.name + " Coding with feedback...")
-        Team.log.info(self.profile + " " + self.name + " Coding with feedback...")
+        print(self.profile + " " + self.name + " Feedback Coding...")
+        Team.log.info(self.profile + " " + self.name + "Feedback Coding...")
 
         # ---------- get the information needed from SCR ----------
+
         functional_requirement = self.getPRD().content
         architecture = self.getArchiture().content
+        task_plan = self.getProjectPlan().content
 
+        # --------------- decompose and assign tasks to programmer
+
+        # ---------- constructing prompt to LLM ----------
         system_prompt = SystemMessage(content=CODING_SYS)
-
+        # use counter prompt
         if flag == "0":
             user_prompt_template = ChatPromptTemplate.from_template(CODING_C)
             user_prompt_msg = user_prompt_template.invoke(
                 {
                     "architecture": architecture,
-                    "functional_requirements": functional_requirement,
-                    "ce_feedback": ce_feedback,
+                    "task_plan": task_plan,
                 }
             )
         elif flag == "1":
             exist_code = self.own_message.content
-            user_prompt_template = ChatPromptTemplate.from_template(CODING_FD)
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_ITE_C1)
+            user_prompt_msg = user_prompt_template.invoke(
+                {
+                    "exist_code": exist_code,
+                    "ce_feedback": ce_feedback,
+                }
+            )
+        elif flag == "2":
+            exist_code = self.own_message.content
+            user_prompt_template = ChatPromptTemplate.from_template(CODING_ITE_C2)
             user_prompt_msg = user_prompt_template.invoke(
                 {
                     "exist_code": exist_code,
@@ -148,12 +163,12 @@ class Programmer(Role):
             )
 
         user_prompt = user_prompt_msg.to_messages()[0]
-        # prompt LLM
         Team.log.info(system_prompt.content + "\n" + user_prompt.content)
         code_result = self.llm_sample.invoke(system_prompt, user_prompt)
-        Team.log.info("\n" + code_result)
+        if flag == "0":
+            Team.log.info("Generated Code: \n" + code_result)
+
         # ________ store in self code dict ________
-        Team.log.info("Compare Code")
         self.compare_code(code_result)
         code_result_split = code_result.split("*** ")
         for i in range(1, len(code_result_split)):
@@ -162,9 +177,8 @@ class Programmer(Role):
 
         self.message_to_file(code_result)
         code_msg = Message(sender=self.profile, content=code_result)
-        Team.all_messages.append(code_msg)
+        # Team.all_messages.append(code_msg)
         self.own_message = code_msg
-
         return
 
     def store_code_dict(self, code_result):

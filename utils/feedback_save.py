@@ -18,7 +18,11 @@ def log_extract(dir):
     # tags = ["arch", "plan", "code"]
 
     pattern_template = r"({tag})(.*?)(?=2025|\Z)"
-    tags = ["Archtecture Summary", "Plan Summary", "Code Feedback is"]
+    tags = [
+        "ITERATIVE_FEEDBACK #_#arch#_#",
+        "ITERATIVE_FEEDBACK #_#plan#_#",
+        "ITERATIVE_FEEDBACK #_#code#_#",
+    ]
 
     matches = {}
 
@@ -28,58 +32,19 @@ def log_extract(dir):
         if match:
             matches[tag] = match.group(2).strip()
 
-    with open(
-        os.path.join(dir, "feedbacks_last_turn.txt"), "w", encoding="utf-8"
-    ) as file:
+    with open(os.path.join(dir, "feedbacks.txt"), "w", encoding="utf-8") as file:
         # 输出结果
         for tag, content in matches.items():
-            if tag == "arch":
+            if tag == "ITERATIVE_FEEDBACK #_#arch#_#":
                 file.write(f"#_#architecture_feedback#_#\n{content}\n\n")
-            elif tag == "plan":
+            elif tag == "ITERATIVE_FEEDBACK #_#plan#_#":
                 file.write(f"#_#task_plan_feedback#_#\n{content}\n\n")
-            elif tag == "code":
-                file.write(f"#_#code_feedback#_#\n{content}\n\n")
-
-
-def log_extract_2(dir):
-    encoding_type = ""
-    with open(os.path.join(dir, "log.log"), "rb") as file:
-        raw_data = file.read()
-        encoding_type = chardet.detect(raw_data)["encoding"]
-
-    with open(os.path.join(dir, "log.log"), mode="r", encoding=encoding_type) as file:
-        text = file.read()
-
-    # 正则表达式模式定义
-    # pattern_template = r"ITERATIVE_FEEDBACK #_#({tag})#_#(.*?)(?=2025|\Z)"
-    # tags = ["arch", "plan", "code"]
-
-    pattern_template = r"({tag})(.*?)(?=2025|\Z)"
-    tags = ["Archtecture Summary", "Plan Summary", "Code Feedback is"]
-
-    matches = {}
-
-    for tag in tags:
-        pattern = pattern_template.format(tag=tag)
-        match = re.search(pattern, text, re.DOTALL)
-        if match:
-            matches[tag] = match.group(2).strip()
-
-    with open(
-        os.path.join(dir, "feedbacks_last_turn.txt"), "w", encoding="utf-8"
-    ) as file:
-        # 输出结果
-        for tag, content in matches.items():
-            if tag == "Archtecture Summary":
-                file.write(f"#_#architecture_feedback#_#\n{content}\n\n")
-            elif tag == "Plan Summary":
-                file.write(f"#_#task_plan_feedback#_#\n{content}\n\n")
-            elif tag == "Code Feedback is":
+            elif tag == "ITERATIVE_FEEDBACK #_#code#_#":
                 file.write(f"#_#code_feedback#_#\n{content}\n\n")
 
 
 def clean_dir(dir):
-    files_to_keep = ["prd.md", "feedbacks_last_turn.txt"]
+    files_to_keep = ["prd.md", "feedbacks.txt"]
     try:
         for item in os.listdir(dir):
             item_path = os.path.join(dir, item)
@@ -94,9 +59,12 @@ def clean_dir(dir):
 
 
 if __name__ == "__main__":
-    base_dir = "D:\Project\CE\CE\project\website"
+    base_dir = "D:\Project\ATEdev\ATEDev_main\project\website"
+    i = 1
     for project_name in os.listdir(base_dir):
-        print(project_name)
+        print(str(i) + " " + project_name)
+        i = i + 1
+        
         project_path = os.path.join(base_dir, project_name)
-        # log_extract_2(project_path)
+        # log_extract(project_path)
         clean_dir(project_path)

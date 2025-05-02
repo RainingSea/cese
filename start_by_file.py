@@ -127,7 +127,10 @@ def start_project():
 
     if not seq:
         if category == "website":
-            team.run_web()
+            # team.run_web()
+            
+            team.run_web_iterative()
+            
         elif category == "dev":
             team.run_pure()
         else:

@@ -166,7 +166,7 @@ class Team(BaseModel):
         # _________________________ [ EXPLORE ] ____________________________
 
         for j in range(len(ce_projects_paths)):
-            print(f"\ngenerate the architect of {j}th counter project\n")
+
             # temporarily change project dir to a ce folder
             Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
             Team.project_dir = ce_projects_paths[j]
@@ -278,14 +278,15 @@ class Team(BaseModel):
 
     # K的实验，可以读取之前的反馈（必须是总结好的）
     def run_web_iterative(self):
+        # root work dir
         previous_work_dir = Path.cwd()
+        # root project dir
         pervious_project_dir = Team.project_dir
 
         # _______________ generate PRD, Architect, Task Plan _______________
 
         Team.incremental_base_dir = Team.project_dir
         self.roles["Product Manager"].go_inter()
-        Team.active_role(self.roles["Product Manager"].profile)
 
         # make ce dirs and copy the prd to each dir
         ce_projects_paths = make_ce_dirs(Team.project_dir, self.explore_num)
@@ -294,20 +295,18 @@ class Team(BaseModel):
         # generate sampling architect
 
         # 读取之前生成的反馈
-        _path = os.path.join(Team.project_dir, "feedbacks_last_turn.txt")
-        pre_feedbacks = read_feedback(_path)
+        # 提取架构，计划和代码等的反馈
+        pre_feedbacks = read_feedback(os.path.join(Team.project_dir, "feedbacks.txt"))
 
         for j in range(len(ce_projects_paths)):
-            print(f"\ngenerate the architect of {j}th counter project\n")
+
             Team.incremental_base_dir = os.path.normpath(ce_projects_paths[j])
             Team.project_dir = ce_projects_paths[j]
 
             self.roles["Product Manager"].go_inter()
-            # sample architect generate
             self.roles["Architect"].go_in_sample_with_fdback(
                 pre_feedbacks["#_#architecture_feedback#_#"]
             )
-            # sample task plan generate
             self.roles["Project Manager"].go_in_sample_with_fdback(
                 pre_feedbacks["#_#task_plan_feedback#_#"]
             )
@@ -315,24 +314,14 @@ class Team(BaseModel):
             pass_feedback, no_pass_feedback = feedback_split_string(
                 pre_feedbacks["#_#code_feedback#_#"]
             )
-
-            init = False
+            self.roles["Programmer"].go_in_sample_with_fdback(pass_feedback, "0")
             if pass_feedback:
                 Team.log.info("Pass Feedback:\n" + str(pass_feedback))
-                self.roles["Programmer"].go_in_sample_with_fdback(pass_feedback, "0")
-                init = True
+                self.roles["Programmer"].go_in_sample_with_fdback(pass_feedback, "1")
 
             if no_pass_feedback:
-                if init:
-                    Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
-                    self.roles["Programmer"].go_in_sample_with_fdback(
-                        no_pass_feedback, "1"
-                    )
-                else:
-                    Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
-                    self.roles["Programmer"].go_in_sample_with_fdback(
-                        no_pass_feedback, "0"
-                    )
+                Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
+                self.roles["Programmer"].go_in_sample_with_fdback(no_pass_feedback, "2")
 
             self.roles["Programmer"].code_base.clear()
             code_base_dir = os.path.join(Team.project_dir, "code")
@@ -361,7 +350,8 @@ class Team(BaseModel):
         Team.project_dir = pervious_project_dir
         Team.incremental_base_dir = pervious_project_dir
 
-        # save feedback of this turn to a local txt file (formatted)
+        # save feedback of this turn to a log file (formatted)
+        # 这里最好是写入到一个txt中，但我不知道为什么写入txt，程序就会异常退出
         save = True
         if save:
             for key, value in ce_feedbacks.items():
@@ -381,7 +371,6 @@ class Team(BaseModel):
                 )
 
         # _________________________ [ REGENERATE ] ____________________________
-        # _______________ use feedback to generate document _______________
 
         self.roles["Product Manager"].go_inter()
         self.roles["Architect"].go_with_fdback(ce_feedbacks["arch"])
@@ -389,52 +378,37 @@ class Team(BaseModel):
 
         ce_feedback = ce_feedbacks["code"]
         if ce_feedback:
-            if ce_feedback == "CodeIsGood":
-                print("Dev execute END")
-                return
-            Team.log.info("### ceaug feedback\n" + str(ce_feedback))
-            # use feedback from counter example to augment coding
+            
+
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
 
-            pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
+            pass_feedback, no_pass_feedback = feedback_split_ds(ce_feedback)
+            
             if pass_feedback:
                 Team.log.info("Pass Feedback:\n" + str(pass_feedback))
             if no_pass_feedback:
                 Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
             # process pass feedback
             init = True
+
+            self.roles["C_Programmer"].go("init", "0")
+
             if pass_feedback:
                 for passfd in pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(passfd, "1")
+                    self.roles["C_Programmer"].go(passfd, "1")
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
             # process no pass feedback
             if no_pass_feedback:
                 for n_passfd in no_pass_feedback:
-                    if init:
-                        self.roles["C_Programmer"].go(n_passfd, "0")
-                        init = False
-                    else:
-                        self.roles["C_Programmer"].go(n_passfd, "2")
+
+                    self.roles["C_Programmer"].go(n_passfd, "2")
                     # write only once
                     self.roles["C_Programmer"].message_to_file(
                         self.roles["C_Programmer"].own_message.content
                     )
-
-            # self.roles["C_Programmer"].check_data_format()
-            # self.roles["C_Programmer"].message_to_file(
-            #     self.roles["C_Programmer"].own_message.content
-            # )
-        else:
-            Team.log.info("No CE, Normal Coding")
-            self.roles["Programmer"].code_base.clear()
-            self.roles["Programmer"].go()
 
         code_base_dir = os.path.join(Team.project_dir, "code")
         port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
@@ -618,19 +592,6 @@ class Team(BaseModel):
                 Team.log,
             )
 
-        # with open(os.path.join(Team.project_dir, "feedback.txt"), "w") as file:
-        #     content = (
-        #         "#_#code_feedback#_#\n"
-        #         + ce_feedbacks["code"]
-        #         + "\n\n#_#architecture_feedback#_#\n"
-        #         + ce_feedbacks["arch"]
-        #         + "\n\n#_#task_plan_feedback#_#\n"
-        #         + ce_feedbacks["plan"]
-        #     )
-        #     file.write(content)
-
-        # return
-
         # ___________________ read feedbacks ___________________
 
         # |_____________________________________________________________|
@@ -657,9 +618,7 @@ class Team(BaseModel):
             if ce_feedback == "CodeIsGood":
                 print("Dev execute END")
                 return
-            # ceaug finally return the most valuable(temporarily is 1 case) project issues feedback
-            # Team.log.info("### ceaug feedback\n" + str(ce_feedback))
-            # use feedback from counter example to augment coding
+            
             Team.log.info("begin CE Coding")
             # C_programmer temperature is 0.2
 

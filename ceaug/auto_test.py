@@ -13,20 +13,25 @@ from ceaug.auto_test_prompt import (
     prompt_for_gui_testing,
     prompt_for_web_testing,
 )
+from utils.commen import read_yaml
+
 
 this_api_key = "sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA"
-this_model = "deepseek-v3"
+this_model = "gpt-4o-mini"
+
 
 ### gpt api
 def call_openai_api(prompt, model):
+    config = model_config("./0_config/config.yaml")
+    config = config["llm_4o"]
 
     client = OpenAI(
-        api_key=this_api_key,
-        base_url="https://api.chatanywhere.tech",
+        api_key=config["api_key"],
+        base_url=config["base_url"],
     )
     try:
         response = client.chat.completions.create(
-            model=this_model,
+            model=config["model"],
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
         )
@@ -301,3 +306,10 @@ def runUnitTest(project_path, category):
     suite = None  # 清空 TestSuite 对象
     output_stream.close()  # 关闭 StringIO 流
     return info
+
+
+def model_config(path):
+    # loading config for different models, include Qwen and GPT
+    config = read_yaml(path)
+    # dashscope.api_key = config["Qwen"]["api_key"]
+    return config

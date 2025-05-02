@@ -12,17 +12,20 @@ import math
 from datetime import datetime
 from pathlib import Path
 from utils import utils
+from utils.commen import read_yaml
 
 
 def chat_to_LLM(messages):
-
+    config = model_config("./0_config/config.yaml")
+    config = config["llm_4o"]
+    
     client = OpenAI(
-        api_key="sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA",  # 只需要填写key就可以了
-        base_url="https://api.chatanywhere.tech",
+        api_key=config["api_key"],  # 只需要填写key就可以了
+        base_url=config["base_url"],
     )
     response = client.chat.completions.create(
         messages=messages,
-        model="deepseek-v3",
+        model=config["model"],
         temperature=0.2,
         # stream=True, # 这个开了要用chunk的调用方法
     )
@@ -206,7 +209,7 @@ There is no need to output the list test cases again at the end.
 must consider all results in "context", don't omit. don't lose information.
 The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation. 
 
-# Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
+# Format: You Must add a |Case| before the Case Name for differentiation. like |Case|: test_a_function, must use two "|".
 
 # context
 The content you need to summarize is as follows: {summaries}.\n"""
@@ -751,12 +754,12 @@ There is no need to output the list test cases again at the end.
 
 # Attention
 Must synthesize test results for the same test case from all projects, do not just output test result from only one project as the final case result.
-Pass pseudocode or error/failure analysis about one same case, should be assembled within one |CASE|.
+Pass pseudocode or error/failure analysis about one same case, should be assembled within one |Case|.
 The output should retain the section titles "### Passed Test Cases" and "### Failed or Error Test Cases" as fixed headers for easy differentiation.
 Carefully analyze all results, do not forget any project.  
 
-# Format: You Must add a |Case| before the Case Name for differentiation. like |case|: test_a_function, must use two "|".
-# Format: Use the |CASE| marker exactly, without adding other characters like * on either side of the marker.
+# Format: You Must add a |Case| before the Case Name for differentiation. like |Case|: test_a_function, must use two "|".
+# Format: Use the |Case| marker exactly, without adding other characters like * on either side of the marker.
 
 # Context
 Summarize following context:\n\n\n {summaries}.
@@ -969,6 +972,9 @@ def feedback_split(feedback):
 
 
 def feedback_split_string(feedback):
+    """
+    少去了把每个|CASE|组合的步骤，直接返回结果了
+    """
     # 提取所有通过的测试结果
     passed_test_cases_match = re.search(
         r"(?<=### Passed Test Cases)(.*?)(?=### Failed or Error Test Cases|$)",
@@ -1344,6 +1350,13 @@ def read_feedback(file_path):
         results[marker] = extracted_content
 
     return results
+
+
+def model_config(path):
+    # loading config for different models, include Qwen and GPT
+    config = read_yaml(path)
+    # dashscope.api_key = config["Qwen"]["api_key"]
+    return config
 
 
 if __name__ == "__main__":
