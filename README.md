@@ -36,4 +36,11 @@ log还没有同步
 (1)发现一些共性错误，例如route login
 
 
-唉唉
+2025-04-28 game
+跑之前是￥56
+
+漏算了用call openai api 以及 ChatLLM 的token
+以及时间
+
+生成测试代码的花费
+测试反馈生成和总结的花费
