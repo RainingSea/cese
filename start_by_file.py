@@ -39,7 +39,8 @@ def start_project():
     # __________ from shell __________
 
     # ______________ project soft config ________________
-    _dir = "D:\Project\ATEdev\ATEDev_main"
+    # 到根目录，注意最后的ATE后不要有 \\ 等分隔符，因为后面会拼接
+    _dir = "E:\Project\ATE\ATEdev\ATEDev"
     # dataset dir
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"

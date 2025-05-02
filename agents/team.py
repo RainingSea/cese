@@ -568,7 +568,7 @@ class Team(BaseModel):
                 "no_ite_fdback",
                 Team.log,
             )
-            print("ASDA!!!!")
+            
             return
 
         # ___________________ one to one test and get result _________________
