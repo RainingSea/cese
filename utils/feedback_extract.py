@@ -6,9 +6,12 @@ import chardet
 
 def log_extract(dir):
     encoding_type = ""
-    with open(os.path.join(dir, "log.log"), "rb") as file:
-        raw_data = file.read()
-        encoding_type = chardet.detect(raw_data)["encoding"]
+    try:
+        with open(os.path.join(dir, "log.log"), "rb") as file:
+            raw_data = file.read()
+            encoding_type = chardet.detect(raw_data)["encoding"]
+    except:
+        return
 
     with open(os.path.join(dir, "log.log"), mode="r", encoding=encoding_type) as file:
         text = file.read()
@@ -59,8 +62,9 @@ def clean_dir(dir):
 
 
 if __name__ == "__main__":
-    base_dir = "D:\Project\ATEdev\ATEDev_main\project\gui"
+    base_dir = "E:\Project\ATE\ATEdev\ATEDev\project\website"
     i = 1
+    input("DELETE")
     for project_name in os.listdir(base_dir):
         print(str(i) + " " + project_name)
         i = i + 1
