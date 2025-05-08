@@ -1,7 +1,7 @@
 @echo off
-python start_by_file.py --category gui --name AgeCalculator.md --seq 0
-python start_by_file.py --category gui --name AgeCalculator.md --seq 1
-python start_by_file.py --category gui --name AgeCalculator.md --seq 2
+@REM python start_by_file.py --category gui --name AgeCalculator.md --seq 0
+@REM python start_by_file.py --category gui --name AgeCalculator.md --seq 1
+@REM python start_by_file.py --category gui --name AgeCalculator.md --seq 2
 @REM python start_by_file.py --category gui --name BMICalculator.md --seq 0
 @REM python start_by_file.py --category gui --name BMICalculator.md --seq 1
 @REM python start_by_file.py --category gui --name BMICalculator.md --seq 2
@@ -56,7 +56,7 @@ python start_by_file.py --category gui --name AgeCalculator.md --seq 2
 @REM python start_by_file.py --category gui --name NotepadPlus.md --seq 0
 @REM python start_by_file.py --category gui --name NotepadPlus.md --seq 1
 @REM python start_by_file.py --category gui --name NotepadPlus.md --seq 2
-@REM python start_by_file.py --category gui --name OfficeStockManager.md --seq 0
+python start_by_file.py --category gui --name OfficeStockManager.md --seq 0
 python start_by_file.py --category gui --name OfficeStockManager.md --seq 1
 python start_by_file.py --category gui --name OfficeStockManager.md --seq 2
 python start_by_file.py --category gui --name PaintPal.md --seq 0

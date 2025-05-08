@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BookWorm Search - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('dashboard') }}">BookWorm Search</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <span class="navbar-text text-white me-3">Hello, {{ username }}</span>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('reading_list') }}">My Reading List</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container mt-4">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <form method="post" action="{{ url_for('dashboard') }}" class="mb-4">
+    <div class="input-group">
+      <input type="text" class="form-control" name="query" placeholder="Search books by title, author, or keywords" value="{{ query }}" required autofocus />
+      <button class="btn btn-primary" type="submit">Search</button>
+    </div>
+  </form>
+  {% if books %}
+    <h4>Search Results ({{ books|length }})</h4>
+    <ul class="list-group">
+      {% for book in books %}
+        <li class="list-group-item">
+          <h5><a href="{{ url_for('book_details', title=book.title) }}">{{ book.title }}</a></h5>
+          <p class="mb-1"><strong>Author:</strong> {{ book.author }}</p>
+          <p class="mb-0">{{ book.summary }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% elif query %}
+    <p>No books found matching "{{ query }}".</p>
+  {% endif %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
