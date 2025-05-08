@@ -197,6 +197,11 @@ class Architect(Role):
         print(self.profile + " " + self.name + " generate Architecture......")
         Team.log.info(" ")
         Team.log.info(self.profile + " " + self.name + " Writing Architecture...")
+        
+        # ---------- log info --------
+        print(self.profile + " " + self.name + " generate Architecture......")
+        Team.log.info(" ")
+        Team.log.info(self.profile + " " + self.name + " Writing Architecture...")
 
         # ---------- get the information needed from SCR ----------
         original_requirement = self.getOriginRequirement().content
