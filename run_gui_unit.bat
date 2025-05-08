@@ -2,57 +2,57 @@
 python start_by_file.py --category gui --name AgeCalculator.md --seq 0
 python start_by_file.py --category gui --name AgeCalculator.md --seq 1
 python start_by_file.py --category gui --name AgeCalculator.md --seq 2
-@REM python start_by_file.py --category gui --name BMICalculator.md --seq 0
-@REM python start_by_file.py --category gui --name BMICalculator.md --seq 1
-@REM python start_by_file.py --category gui --name BMICalculator.md --seq 2
-@REM python start_by_file.py --category gui --name BookNote.md --seq 0
-@REM python start_by_file.py --category gui --name BookNote.md --seq 1
-@REM python start_by_file.py --category gui --name BookNote.md --seq 2
-@REM python start_by_file.py --category gui --name BookshelfManager.md --seq 0
-@REM python start_by_file.py --category gui --name BookshelfManager.md --seq 1
-@REM python start_by_file.py --category gui --name BookshelfManager.md --seq 2
-@REM python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq 0
-@REM python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq 1
-@REM python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq 2
-@REM python start_by_file.py --category gui --name CalculationAssistant.md --seq 0
-@REM python start_by_file.py --category gui --name CalculationAssistant.md --seq 1
-@REM python start_by_file.py --category gui --name CalculationAssistant.md --seq 2
-@REM python start_by_file.py --category gui --name DataSummarizer.md --seq 0
-@REM python start_by_file.py --category gui --name DataSummarizer.md --seq 1
-@REM python start_by_file.py --category gui --name DataSummarizer.md --seq 2
-@REM python start_by_file.py --category gui --name DataVisualizer.md --seq 0
-@REM python start_by_file.py --category gui --name DataVisualizer.md --seq 1
-@REM python start_by_file.py --category gui --name DataVisualizer.md --seq 2
-@REM python start_by_file.py --category gui --name DayPlanner.md --seq 0
-@REM python start_by_file.py --category gui --name DayPlanner.md --seq 1
-@REM python start_by_file.py --category gui --name DayPlanner.md --seq 2
-@REM python start_by_file.py --category gui --name ExpenseCategorizer.md --seq 0
-@REM python start_by_file.py --category gui --name ExpenseCategorizer.md --seq 1
-@REM python start_by_file.py --category gui --name ExpenseCategorizer.md --seq 2
-@REM python start_by_file.py --category gui --name ExpenseComparator.md --seq 0
-@REM python start_by_file.py --category gui --name ExpenseComparator.md --seq 1
-@REM python start_by_file.py --category gui --name ExpenseComparator.md --seq 2
-@REM python start_by_file.py --category gui --name ExpensePlanner.md --seq 0
-@REM python start_by_file.py --category gui --name ExpensePlanner.md --seq 1
-@REM python start_by_file.py --category gui --name ExpensePlanner.md --seq 2
-@REM python start_by_file.py --category gui --name ExpenseSplitter.md --seq 0
-@REM python start_by_file.py --category gui --name ExpenseSplitter.md --seq 1
-@REM python start_by_file.py --category gui --name ExpenseSplitter.md --seq 2
-@REM python start_by_file.py --category gui --name ImageEnhancer.md --seq 0
-@REM python start_by_file.py --category gui --name ImageEnhancer.md --seq 1
-@REM python start_by_file.py --category gui --name ImageEnhancer.md --seq 2
-@REM python start_by_file.py --category gui --name InvestmentTracker.md --seq 0
-@REM python start_by_file.py --category gui --name InvestmentTracker.md --seq 1
-@REM python start_by_file.py --category gui --name InvestmentTracker.md --seq 2
-@REM python start_by_file.py --category gui --name KnowledgeTracker.md --seq 0
-@REM python start_by_file.py --category gui --name KnowledgeTracker.md --seq 1
-@REM python start_by_file.py --category gui --name KnowledgeTracker.md --seq 2
-@REM python start_by_file.py --category gui --name MedicalHealthTracker.md --seq 0
-@REM python start_by_file.py --category gui --name MedicalHealthTracker.md --seq 1
-@REM python start_by_file.py --category gui --name MedicalHealthTracker.md --seq 2
-@REM python start_by_file.py --category gui --name NoteArchiver.md --seq 0
-@REM python start_by_file.py --category gui --name NoteArchiver.md --seq 1
-@REM python start_by_file.py --category gui --name NoteArchiver.md --seq 2
+python start_by_file.py --category gui --name BMICalculator.md --seq 0
+python start_by_file.py --category gui --name BMICalculator.md --seq 1
+python start_by_file.py --category gui --name BMICalculator.md --seq 2
+python start_by_file.py --category gui --name BookNote.md --seq 0
+python start_by_file.py --category gui --name BookNote.md --seq 1
+python start_by_file.py --category gui --name BookNote.md --seq 2
+python start_by_file.py --category gui --name BookshelfManager.md --seq 0
+python start_by_file.py --category gui --name BookshelfManager.md --seq 1
+python start_by_file.py --category gui --name BookshelfManager.md --seq 2
+python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq 0
+python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq 1
+python start_by_file.py --category gui --name BusinessTaskScheduler.md --seq 2
+python start_by_file.py --category gui --name CalculationAssistant.md --seq 0
+python start_by_file.py --category gui --name CalculationAssistant.md --seq 1
+python start_by_file.py --category gui --name CalculationAssistant.md --seq 2
+python start_by_file.py --category gui --name DataSummarizer.md --seq 0
+python start_by_file.py --category gui --name DataSummarizer.md --seq 1
+python start_by_file.py --category gui --name DataSummarizer.md --seq 2
+python start_by_file.py --category gui --name DataVisualizer.md --seq 0
+python start_by_file.py --category gui --name DataVisualizer.md --seq 1
+python start_by_file.py --category gui --name DataVisualizer.md --seq 2
+python start_by_file.py --category gui --name DayPlanner.md --seq 0
+python start_by_file.py --category gui --name DayPlanner.md --seq 1
+python start_by_file.py --category gui --name DayPlanner.md --seq 2
+python start_by_file.py --category gui --name ExpenseCategorizer.md --seq 0
+python start_by_file.py --category gui --name ExpenseCategorizer.md --seq 1
+python start_by_file.py --category gui --name ExpenseCategorizer.md --seq 2
+python start_by_file.py --category gui --name ExpenseComparator.md --seq 0
+python start_by_file.py --category gui --name ExpenseComparator.md --seq 1
+python start_by_file.py --category gui --name ExpenseComparator.md --seq 2
+python start_by_file.py --category gui --name ExpensePlanner.md --seq 0
+python start_by_file.py --category gui --name ExpensePlanner.md --seq 1
+python start_by_file.py --category gui --name ExpensePlanner.md --seq 2
+python start_by_file.py --category gui --name ExpenseSplitter.md --seq 0
+python start_by_file.py --category gui --name ExpenseSplitter.md --seq 1
+python start_by_file.py --category gui --name ExpenseSplitter.md --seq 2
+python start_by_file.py --category gui --name ImageEnhancer.md --seq 0
+python start_by_file.py --category gui --name ImageEnhancer.md --seq 1
+python start_by_file.py --category gui --name ImageEnhancer.md --seq 2
+python start_by_file.py --category gui --name InvestmentTracker.md --seq 0
+python start_by_file.py --category gui --name InvestmentTracker.md --seq 1
+python start_by_file.py --category gui --name InvestmentTracker.md --seq 2
+python start_by_file.py --category gui --name KnowledgeTracker.md --seq 0
+python start_by_file.py --category gui --name KnowledgeTracker.md --seq 1
+python start_by_file.py --category gui --name KnowledgeTracker.md --seq 2
+python start_by_file.py --category gui --name MedicalHealthTracker.md --seq 0
+python start_by_file.py --category gui --name MedicalHealthTracker.md --seq 1
+python start_by_file.py --category gui --name MedicalHealthTracker.md --seq 2
+python start_by_file.py --category gui --name NoteArchiver.md --seq 0
+python start_by_file.py --category gui --name NoteArchiver.md --seq 1
+python start_by_file.py --category gui --name NoteArchiver.md --seq 2
 @REM python start_by_file.py --category gui --name NotepadPlus.md --seq 0
 @REM python start_by_file.py --category gui --name NotepadPlus.md --seq 1
 @REM python start_by_file.py --category gui --name NotepadPlus.md --seq 2

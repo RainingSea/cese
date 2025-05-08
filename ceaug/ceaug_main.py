@@ -143,7 +143,7 @@ def ceaug_vice(base_dir, project_dirs, project_category, project_name, flag, log
         unit_test_result = all_feedbacks["#_#unit_test_result#_#"]
 
         log.info("Read feedbacks from " + project_dirs[i])
-        log.info("[0] unit_test_result\n" + unit_test_result + "\n")
+        # log.info("[0] unit_test_result\n" + unit_test_result + "\n")
         log.info("[1] code_feedback\n" + code_feedback + "\n")
         log.info("[2] architecture_feedback\n" + architecture_feedback + "\n")
         log.info("[3] task_plan_feedback\n" + task_plan_feedback + "\n")

@@ -95,7 +95,7 @@ def start_project():
     # [model 2] (config top p)
 
     # 自己配温度和top p
-    
+
     # 这里虽然用的是config里的，但实际上需要自己进去配温度等参数
     sample_model = GPT_topP(config["llm_4o"])
     # --------------- sample model----------------
@@ -130,19 +130,19 @@ def start_project():
 
     if not seq:
         if category == "website":
-            # team.run_web()
+            Team.log.info("迭代实验：K = 0")  # 到时候查log以防记混，每次跑之前记得改改
+            team.run_web()
 
-            Team.log.info("迭代实验：K = 1")  # 到时候查log以防记混，每次跑之前记得改改
-            team.run_web_iterative()
+            # team.run_web_iterative()
 
         # elif category == "dev":
         #     team.run_pure()
         else:
+            Team.log.info("迭代实验：K = 0")  # 到时候查log以防记混，每次跑之前记得改改
             # 如果是Game和Gui，那就只能分步骤来跑，part1是只生成探索的代码和testcode.py
-            # team.run_part1()
+            team.run_part1()
 
-            Team.log.info("迭代实验：K = 1")  # 到时候查log以防记混，每次跑之前记得改改
-            team.run_part1_iterative()
+            # team.run_part1_iterative()
 
     elif seq:
         # part2,分别对game和gui进行测试，并且根据seq的不同来看是单元测试还是反馈

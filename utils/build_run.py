@@ -67,8 +67,11 @@ def generate_commands_regeneration(folder_path, category):
 
 if __name__ == "__main__":
     # 使用示例
-    folder_path = "E:\Project\ATE\ATEdev\ATEDev\dataset\SD-bench\dataset\gui"  # 替换为你的文件夹路径
+    folder_path = (
+        "D:\Project\ATEdev\ATEDev_main\project\website"  # 替换为你的文件夹路径
+    )
     category = os.path.basename(folder_path)  # 你想要设置的category值
+    
     # generate_commands(folder_path, category)
     # generate_commands_vice(folder_path, category)
     generate_commands_regeneration(folder_path, category)
