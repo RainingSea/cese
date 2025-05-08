@@ -193,7 +193,6 @@ class Architect(Role):
     # 迭代的探索生成
     def go_in_sample_with_fdback(self, feedback):
         # write bbb
-        # write ccc
         # write aaa
         # ---------- log info --------
         print(self.profile + " " + self.name + " generate Architecture......")
