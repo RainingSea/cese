@@ -62,7 +62,7 @@ functional requirement:
 {functional_requirement}
 
 architecture:
-{architecture}
+{software_architecture}
 
 ## lessons and experience
 {ce_feedback}
