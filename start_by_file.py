@@ -39,6 +39,7 @@ def start_project():
     # __________ from shell __________
 
     # ______________ project soft config ________________
+    # 到根目录，注意最后的ATE后不要有 \\ 等分隔符，因为后面会拼接
     _dir = "D:\Project\ATEdev\ATEDev_main"
     # dataset dir
     project_description_path = (
@@ -130,12 +131,13 @@ def start_project():
 
     if not seq:
         if category == "website":
-            Team.log.info("迭代实验：K = 3")  # 到时候查log以防记混，每次跑之前记得改改
+            Team.log.info("迭代实验：K = 0")  # 到时候查log以防记混，每次跑之前记得改改
             # team.run_web()
-            
+
             team.run_web_iterative()
 
-        
+        # elif category == "dev":
+        #     team.run_pure()
         else:
             Team.log.info("迭代实验：K = 0")  # 到时候查log以防记混，每次跑之前记得改改
             # 如果是Game和Gui，那就只能分步骤来跑，part1是只生成探索的代码和testcode.py

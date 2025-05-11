@@ -409,6 +409,9 @@ class Team(BaseModel):
             init = True
 
             self.roles["C_Programmer"].go("init", "0")
+            self.roles["C_Programmer"].message_to_file(
+                        self.roles["C_Programmer"].own_message.content
+                    )
 
             if pass_feedback:
                 for passfd in pass_feedback:
@@ -652,6 +655,9 @@ class Team(BaseModel):
             init = True
 
             self.roles["C_Programmer"].go("init", "0")
+            self.roles["C_Programmer"].message_to_file(
+                        self.roles["C_Programmer"].own_message.content
+                    )
 
             if pass_feedback:
                 for passfd in pass_feedback:
