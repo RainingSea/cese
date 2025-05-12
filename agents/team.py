@@ -98,8 +98,9 @@ class Team(BaseModel):
             port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         # 这个2就是重复测试的次数
-        # 这里代码是第N+1次的代码，result是第N次的结果，因为不会测试
-        for j in range(6):
+        # 这里result是第N次的结果（包含最初直接生成的那一次）
+        times = 6
+        for j in range(times):
             # set code dir
             ce_projects_paths = [Team.project_dir]
             # execute unit test
@@ -112,7 +113,9 @@ class Team(BaseModel):
                 "self_evo",
                 Team.log,
             )
-
+            if j == times - 1:
+                # 最后一次就不用根据反馈生成了，直接返回即可
+                return
             self.roles["Code Tester"].unit_test_feedback = ce_feedback
             self.roles["Code Tester"].go()
             # 每个测试流程结束后写入一次本地文件
@@ -169,7 +172,7 @@ class Team(BaseModel):
             "#_#code_feedback#_#"
         ]
         self.roles["Code Tester"].go()
-        
+
         self.roles["Programmer"].message_to_file(
             self.roles["Programmer"].own_message.content
         )
