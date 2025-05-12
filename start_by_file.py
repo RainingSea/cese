@@ -128,9 +128,10 @@ def start_project():
         c_programmer,
     )
 
-    # team.run_pure()
+    team.run_self_evo()
+    
     # team.run_self_evo_iterative_1()
-    team.run_self_evo_iterative_2()
+    # team.run_self_evo_iterative_2()
 
     # if not seq:
     #     if category == "website":

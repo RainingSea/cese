@@ -99,7 +99,7 @@ class Team(BaseModel):
 
         # 这个2就是重复测试的次数
         # 这里代码是第N+1次的代码，result是第N次的结果，因为不会测试
-        for j in range(1):
+        for j in range(6):
             # set code dir
             ce_projects_paths = [Team.project_dir]
             # execute unit test
