@@ -144,21 +144,14 @@ def autogen(project_path, category, project_name, _testcase_path):
     """
     project_category = category
 
-    if os.path.exists(os.path.join(project_path, "code", "testcode.py")):
-        print("### Already exist a testcode.py ###")
-        testcode = read_file_2_line(os.path.join(project_path, "code", "testcode.py"))
-        return testcode
+    # if os.path.exists(os.path.join(project_path, "code", "testcode.py")):
+    #     print("### Already exist a testcode.py ###")
+    #     testcode = read_file_2_line(os.path.join(project_path, "code", "testcode.py"))
+    #     return testcode
+    
     # 只处理文件夹
     if os.path.isdir(project_path):
-        # 生成测试用例
-        # 读取需求文档，路径为project_path/prd.md
-        # prd = read_file_2_line()
-        # testcase_prompt = PROMPT_FOR_TESTCASE.replace("{prd}", prd)
-        # testcase_md = call_openai_api(prompt=testcase_prompt, model="gpt-4o-mini")
-        # testcase_path = os.path.join(project_path, f"TestCases_{project_name},md")
-        # with open(testcase_path, "w", encoding="utf-8") as file:
-        #     file.write(testcase_md)
-        # 调用模型，生成TestCases_{project_name}.md文件并保存
+        
 
         # 确保代码库和测试用例路径正确
         codebase_path = os.path.join(project_path, "code")

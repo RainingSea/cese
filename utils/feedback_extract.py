@@ -62,17 +62,17 @@ def clean_dir(dir):
 
 
 if __name__ == "__main__":
-    base_dir = "E:\Project\ATE\ATEdev\ATEDev\project\website"
+    base_dir = "D:\Project\ATEdev\ATEDev_main\project\website"
     i = 1
     input("DELETE")
-    input("DELETE")
+
     for project_name in os.listdir(base_dir):
         print(str(i) + " " + project_name)
         i = i + 1
 
         project_path = os.path.join(base_dir, project_name)
 
-        # log_extract(project_path)
+        log_extract(project_path)
 
         clean_dir(project_path)
 

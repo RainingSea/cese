@@ -891,8 +891,165 @@ follow the example, output you summary.
             "code": code_summaries_summary,
         }
         return 1, feedback_result
-    else:
-        return 1, "no_summary"
+    elif flag == "ite_fdback":
+        return 1, all_code_feedbacks[0]
+
+
+def ceaug_self_evo(
+    base_dir, testcase_dir, project_dirs, project_category, project_name, flag, log
+):
+    """
+    base_dir: 当前整个项目的根目录，例如"D:/Project/CE/CE/",
+    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase",
+    project_dirs: 需要被测试的文件的目录（需要是列表，即使只有一个项目）
+    project_category: 项目种类
+    project_name: 项目名字
+    flag: 决定ceaug的不同处理方式，如要不要测试等
+    log: 项目的log对象，用来记录
+    """
+
+    all_unit_test_results = []
+    all_code_feedbacks = []
+
+    for i in range(len(project_dirs)):
+        print("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
+        log.info("Ready Auto Test # # # # # # # # # # # # " + project_dirs[i])
+
+        # _______________ [1] AUTO TEST ______________
+        #
+        project_dir = project_dirs[i]
+        if not os.path.exists(os.path.join(project_dirs[i], "test_result")):
+            os.makedirs(os.path.join(project_dirs[i], "test_result"))
+        unit_test_result_dir = os.path.join(project_dirs[i], "test_result")
+
+        # 抽取代码，架构，计划
+        code_base = read_codebase(os.path.join(project_dir, "code"))
+        log.info("READ Tested Code:\n" + code_base)
+
+        test_code = autogen(project_dir, project_category, project_name, testcase_dir)
+        test_code = utils.remove_time_sleep_after_popen(test_code)
+
+        # 运行测试代码
+        print("workdir before test: " + str(Path.cwd()))
+
+        unit_test_result = runUnitTest(project_dir, project_category)
+
+        if (
+            int(unit_test_result["failed"]) == 0
+            and int(unit_test_result["errors"]) == 0
+        ):
+            return "good", "no need to test"
+
+        log.info("unit_test_result_is\n" + unit_test_result["output"])
+        #
+        # _______________ [1] AUTO TEST ______________
+
+        # 切回来原本的根工作目录
+        os.chdir(base_dir)
+        print()
+
+        # _______________ [2] FEEDBACK GENERATE _______________
+        #
+        messages = []
+
+        values = {
+            "code_base": code_base,
+            "unit_test_code": test_code,
+            "test_results": str(unit_test_result),
+        }
+
+        # 1. get general unit test result
+        PROMPT_FOR_TEST_ANA = """You are a software test analyst. Please help me analyze the code of a project.
+(1) Here is the entire codebase for a project: {code_base}.
+        
+(2) Here are the unit test codes for this project: {unit_test_code}.
+        
+(3) These are all the unit test results (Only failed tests have detailed information):{test_results}
+---
+Action: Please analyze the test results one by one with related code. For each failed or error unit test, step by step to identify the reasons.
+If test code like "self.fail(XXX functionality not implemented)" occurs, it suggests a problem with the project code, not the test code.
+"""
+        messages.append(format_prompt(PROMPT_FOR_TEST_ANA, values))
+        log.info(messages[0]["content"])
+        unit_test_result_analysis = chat_to_LLM(messages)
+
+        print("1-| unit test result analysis |")
+        print(unit_test_result_analysis)
+        log.info("1-| General unit test result analysis |")
+        log.info(unit_test_result_analysis)
+        print("\n###################################")
+        log.info("\n###################################")
+
+        messages.append({"role": "assistant", "content": unit_test_result_analysis})
+
+        # 2. get code feedback
+        messages.append(
+            {
+                "role": "user",
+                "content": """Summarize the above mentioned unit test analysis. You only need to summarize the
+                content in the project identified from the unit test result. You need to do 2 jobs:
+                ### 1. summarize test pass cases
+                Identify all passed test cases (test_XX_XX, marked as "ok"). For each passed case, find the corresponding project code from all the related files in codebase (not the test code), understand the full implementation thought of the project codes related to the test case, then express them in pseudocode format(pseudocode should capture all parts of the code, not just function body, if function related to more than 1 file, you should catch all key code from all files, not only the main file, may include different types of files). 
+                Additionally, describe the key functionality and usage of special third-party libraries used in your pseudocode.
+                Focus only on the project code, not the test code. 
+                Your presented pseudocode should contain full information from the actual code, rather than just repeat input and output.
+                Here is SOME EXAMPLES, and for different style code, like HTML,css,CLASS, you should present them with other suitable format.
+                EXAMPLE:
+                FUNCTION A()
+                    IF CONDITION_A
+                        select DATA for A_1
+                        select DATA for A_2
+
+                        Process A_1 and A_2
+                        Analyze the processed result
+                        ENDIF
+                    ENDIF
+                    RENDER NOT IF LOGIC
+                ENDIF
+                ---
+                <form method="POST" action=/route>
+                    <label for="XXX">DOM ELEMENT:</label>
+                <form>
+                ...
+                
+                ### 2. summarize test failed or error cases
+                Summarize all previously mentioned failed or error test cases along with their error analyses. then, you need to provide guidance on how to solve these issues in program. The guidance should adhere to the following aspects:
+                (1) Be concise and instructive, but do not lose key information.
+                (2) Must offer insights based on issues revealed by unit tests, highlighting points to watch for when developing the project again.
+                (3) Provide guidance at the level of planning, rather than addressing simple code-related issues. 
+                (4) don't write guidance on the test.
+                (5) don't provide guidance from higher-level aspects such as project management, development pattern, etc.
+                if failure or error related to more than 1 file, you should catch all key problems in all files, not only the main file.
+                Attention: only consider failure or error exclusively those highlighted by the unit tests; areas that may need improvement (e.g., performance or security concerns) but pass the unit tests should be excluded.
+                Besides, the deficiencies of testcode.py (test code) do not need to be summarized.
+                Issues unrelated to the code itself, such as network errors, do not need to be summarized.
+                Focus only on the project code, not the test code.""",
+            }
+        )
+
+        code_feedback = chat_to_LLM(messages)
+
+        print("Code Feedback")
+        print(code_feedback)
+        log.info("\n---Code Feedback " + str(i) + "---\n" + code_feedback)
+
+        with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+            pass
+
+        # 5. save all the 3 types of feedback to txt
+        with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+            content = (
+                "#_#unit_test_result#_#\n"
+                + str(unit_test_result)
+                + "\n\n\n#_#code_feedback#_#\n"
+                + code_feedback
+            )
+            file.write(content)
+
+        all_code_feedbacks.append(code_feedback)
+        all_unit_test_results.append(unit_test_result)
+
+    return 1, all_code_feedbacks[0]
 
 
 # _______________ useful functions _______________

@@ -50,7 +50,7 @@ class Code_Tester(Role):
             system_prompt, user_prompt
         )
         # logging
-        Team.log.info("Tester | Fixed code based on the test :\n" + fix_code_result)
+        # Team.log.info("Tester | Fixed code based on the test :\n" + fix_code_result)
 
         self.team.roles["Programmer"].compare_code(fix_code_result)
         self.team.roles["Programmer"].store_code_dict(fix_code_result)

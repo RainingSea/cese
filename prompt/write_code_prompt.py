@@ -447,26 +447,22 @@ UNIT TEST FEEDBACK:
 ...
 ```
 -----
-# Instruction: Based on the CODE and UNIT TEST FEEDBACK:, follow "Format example", fix code.
+## Instruction:
+Based on the CODE and UNIT TEST FEEDBACK:, follow "Format example", fix code.
 
-# ATTENTION
-1. Use '***' to SPLIT different CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example".
-3. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
-4. You must import the third-party libraries used in your code
-6. Determine the order of writing the files based on your understanding of the project.
-7. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
-8. Only write code result, do not output any other content in the start or in the end.
-9. If you need to generate text data, follow the rules outlined in "<When Storing Data>" below.
- <When storing data>:
-Different groups of data are distinguished by line breaks.
+## ATTENTION
+2. CAREFULLY CHECK THAT YOU DONT MISS ANY NECESSARY CLASS/FUNCTION IN THE FILE.
+3. You must import the third-party libraries used in your code
+4. If you use a Class not in your file, you must ensure you import it firstly.
+6. Write out EVERY CODE DETAIL, DON'T LEAVE TODO,PASS,PLACEHOLDER.
+7. Only write code result, do not output any other content in the start or in the end.
+8. If you need to generate text data, must follow below rules:
+(Different groups of data are distinguished by line breaks.
 Different contents of the same group of data are distinguished by |.
-Within any single content that contains multiple sub-entries, those sub-entries are separated by commas ,.
-Example:
-admin1|pass123|entry1,entry2,entry3  
-admin2|pass123|entry1
-Make sure:
-The | character is used only to separate distinct contents within a group.
-Commas , are used exclusively to separate multiple sub-entries within a single content.
+Make sure: The "|" character is used only to separate distinct contents within a group.
+Your code of handling data must be consistent with rule in which you define the data.)
+9. if you generate json data, you must change the file extension to .json.
+10. You need to write some pre-stored data to facilitate testing.
 
 # Website Development Rule
 If you are doing website development, be sure to route the root path (/). If there is a login page, set the login page as the root route(/).
@@ -474,9 +470,20 @@ If you are doing website development, please do not encrypt the account password
 If you are doing website development, your code needs to take into account the process of loading data from the data file, so don't forget to load the data.
 If you are doing Website Development, do not follow the rules of Website and Game development.
 
+# GUI tkinter Development Rule
+If you are doing GUI tkinter Development, do not follow the rules of Website and Game development.
+# Game Development Rule
+If the software needs to load data, please make sure the loading data code matches the data format and data file.
+If you are doing Game Development, do not follow the rules of Website and Game development.
+
 # important rule
-Use '***' to SPLIT CODE SECTIONS. do not forget ``` in each file, refer the the example. Output format carefully referenced "Format example". 
+1. Use '***' to SPLIT different CODE SECTIONS. Each code section must start with '***' followed by the file name, then followed by the code block enclosed in ```.
+- CORRECT: *** filename.py\n ```python\n...\n```
+- INCORRECT: ```python\n*** filename.py\n...\n``` (WRONG ORDER)
 Adhere strictly to the task requirements and implement them fully; do not include placeholders or "example" for code that is intended for future implementation.
+If you are doing website development, do not encrypt the account password for the login function.
+
+Based on the CODE and UNIT TEST FEEDBACK:, follow "Format example", fix code.
 """
 
 CODING_FORMAT = """

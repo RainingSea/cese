@@ -20,7 +20,7 @@ python start_by_file.py --category website --name OfficeTaskFeedback.md
 python start_by_file.py --category website --name OnlineLibraryManagementSystem.md
 python start_by_file.py --category website --name OnlineShoppingCenter.md
 @REM python start_by_file.py --category website --name OnlineVintageMarket.md
-@REM python start_by_file.py --category website --name ParentingAdiviceForum.md
+python start_by_file.py --category website --name ParentingAdiviceForum.md
 @REM python start_by_file.py --category website --name PeerTutoringNetwork.md
 @REM python start_by_file.py --category website --name PersonalBlog.md
 @REM python start_by_file.py --category website --name QuickSearch.md

@@ -84,7 +84,8 @@ def start_project():
     # config temperature only (fixed 0.2)
     model = GPT(config["llm_4o"])
 
-    model_t3 = GPT(config["llm_4o_t3"])
+    # model_t3 = GPT(config["llm_4o_t3"])
+    model_t3 = GPT(config["llm_4o"])
 
     # -------------- sample model ----------------
     # [model 1] (with no config for top P)
@@ -128,27 +129,29 @@ def start_project():
     )
 
     # team.run_pure()
+    # team.run_self_evo_iterative_1()
+    team.run_self_evo_iterative_2()
 
-    if not seq:
-        if category == "website":
-            Team.log.info("迭代实验：K = 0")  # 到时候查log以防记混，每次跑之前记得改改
-            # team.run_web()
+    # if not seq:
+    #     if category == "website":
+    #         Team.log.info("迭代实验：K = 1")  # 到时候查log以防记混，每次跑之前记得改改
+    #         # team.run_web()
 
-            team.run_web_iterative()
+    #         team.run_web_iterative()
 
-        # elif category == "dev":
-        #     team.run_pure()
-        else:
-            Team.log.info("迭代实验：K = 0")  # 到时候查log以防记混，每次跑之前记得改改
-            # 如果是Game和Gui，那就只能分步骤来跑，part1是只生成探索的代码和testcode.py
-            # team.run_part1()
+    #     # elif category == "dev":
+    #     #     team.run_pure()
+    #     else:
+    #         Team.log.info("迭代实验：K = 0")  # 到时候查log以防记混，每次跑之前记得改改
+    #         # 如果是Game和Gui，那就只能分步骤来跑，part1是只生成探索的代码和testcode.py
+    #         # team.run_part1()
 
-            team.run_part1_iterative()
+    #         team.run_part1_iterative()
 
-    elif seq:
-        # part2,分别对game和gui进行测试，并且根据seq的不同来看是单元测试还是反馈
-        # 可以共用run_part2方法，里面根据seq来区分
-        team.run_part2(seq)
+    # elif seq:
+    #     # part2,分别对game和gui进行测试，并且根据seq的不同来看是单元测试还是反馈
+    #     # 可以共用run_part2方法，里面根据seq来区分
+    #     team.run_part2(seq)
 
     # team.run_self_evo()
     # ------------------- launch project ------------------------

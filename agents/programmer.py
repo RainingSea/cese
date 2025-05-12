@@ -70,7 +70,6 @@ class Programmer(Role):
         code_result = self.llm.invoke(system_prompt, user_prompt)
         Team.log.info("Generated Code: \n" + code_result)
         # ________ store in self code dict ________
-        # Team.log.info("Compare Code")
         # self.compare_code(code_result)
         code_result_split = code_result.split("*** ")
         for i in range(1, len(code_result_split)):
@@ -79,7 +78,7 @@ class Programmer(Role):
 
         self.message_to_file(code_result)
         code_msg = Message(sender=self.profile, content=code_result)
-        # Team.all_messages.append(code_msg)
+        Team.all_messages.append(code_msg)
         self.own_message = code_msg
         return
 
@@ -383,24 +382,27 @@ class Programmer(Role):
         return Team.all_messages[3]
 
     def go_inter(self):
-        pass
+        # 从项目dir里读取，并且加到自己的
+        print(self.profile + " " + self.name + " extracting Code......")
+        Team.log.info(self.profile + " " + self.name + " extracting Code......")
 
-    def read_counter(self):
-        # input counter example path
-        counter_path = Path(
-            "D:\\02-Project\\02-Align\models\RTADev\Altdev\project\website\RecipeHub_20241220151721 counter"
-        )
-        counter_codes_path = [
-            "review_code/templates/browse_recipes.html",
-            "review_code/recipe_manager.py",
-        ]
-        counter_codes = ""
-        for ccp in counter_codes_path:
-            counter_codes += ccp.split("/")[-1]
-            counter_codes += read_file_2_line(counter_path / Path(ccp))
-            counter_codes += "\n"
+        result = ""
+        path = Path(Team.incremental_base_dir) / "code"
+        for file in path.rglob("*"):
+            # 确保不是__pycache__目录下的内容，并且是个文件，且不是testcode.py
+            if file.is_file() and "__pycache__" not in file.parts and file.name != "testcode.py":
+                # 打开并读取文件内容
+                with file.open(mode="r", encoding="utf-8") as f:
+                    content = f.read()
+                    # 获取相对路径作为key
+                    relative_path = str(file.relative_to(path))
+                    # 添加到code_base字典
+                    self.code_base[relative_path] = content
+                    result += f"\n\n=== File: {relative_path} ===\n{content}"
 
-        counter_reason_path = counter_path / "counter_reason.txt"
-        counter_reason = read_file_2_line(counter_reason_path)
-
-        return counter_reason, counter_codes
+        module_msg = Message(sender=self.profile, content=result)
+        self.own_message = module_msg
+        if len(Team.all_messages) <= 4:
+            Team.all_messages.append(module_msg)
+        else:
+            Team.all_messages[4] = module_msg

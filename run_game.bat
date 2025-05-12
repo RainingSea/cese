@@ -11,13 +11,13 @@ python start_by_file.py --category game --name DodgeFallingObjects.md
 python start_by_file.py --category game --name DriftRivals.md
 python start_by_file.py --category game --name FallingObjects.md
 python start_by_file.py --category game --name FlappyBirdClone.md
-python start_by_file.py --category game --name GemBlast.md
+@REM python start_by_file.py --category game --name GemBlast.md
 python start_by_file.py --category game --name Ghostly.md
 python start_by_file.py --category game --name Gomoku.md
 python start_by_file.py --category game --name GravitySpeedway.md
 python start_by_file.py --category game --name JigsawMania.md
 python start_by_file.py --category game --name JumppingFrog.md
-python start_by_file.py --category game --name Mario.md
+@REM python start_by_file.py --category game --name Mario.md
 python start_by_file.py --category game --name MazeEscapeChallenge.md
 python start_by_file.py --category game --name MazeRunner.md
 python start_by_file.py --category game --name MemoryGame.md

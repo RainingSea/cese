@@ -15,6 +15,7 @@ from agents.role import Role
 from utils.log import Log
 from ceaug.ceaug_main import (
     ceaug,
+    ceaug_self_evo,
     test_code_generate,
     ceaug_vice,
     ceaug_vice_no_summary,
@@ -86,45 +87,22 @@ class Team(BaseModel):
         previous_work_dir = Path.cwd()
         pervious_project_dir = Team.project_dir
 
-        # inter_launch = True
-        inter_launch = False
-
-        # _______________ generate PRD, Architect, Task Plan _______________
-        if inter_launch:
-            # Read files from an existing project, then proceed with development.
-            # go_inter() represents reading existing files to serve as artifacts for roles in the workflow.
-            Team.incremental_base_dir = os.path.normpath(
-                "D:\Project\CE\CE\project\website\RecipeHub"
-            )
-            self.roles["Product Manager"].go_inter()
-            self.roles["Architect"].go_inter()
-            self.roles["Project Manager"].go_inter()
-        else:
-            self.roles["Product Manager"].go()
-            Team.active_role(self.roles["Product Manager"].profile)
-
-            self.roles["Architect"].go()
-            # self.roles["Reviewer"].target = self.roles["Architect"]
-            # self.roles["Reviewer"].go()
-            Team.active_role(self.roles["Architect"].profile)
-
-            self.roles["Project Manager"].go()
-            # self.roles["Reviewer"].target = self.roles["Project Manager"]
-            # self.roles["Reviewer"].go()
-            Team.active_role(self.roles["Project Manager"].profile)
-
-        # generate code
+        self.roles["Product Manager"].go()
+        self.roles["Architect"].go()
+        self.roles["Project Manager"].go()
         self.roles["Programmer"].go()
+
         # codebase dir
-        code_base_dir = os.path.join(Team.project_dir, "code")
-        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
+        if Team.projec_catogory == "website":
+            code_base_dir = os.path.join(Team.project_dir, "code")
+            port = update_flask_port(os.path.join(code_base_dir, "main.py"), "")
 
         # 这个2就是重复测试的次数
         for j in range(1):
             # set code dir
             ce_projects_paths = [Team.project_dir]
             # execute unit test
-            ce_score, ce_feedback = ceaug(
+            ce_score, ce_feedback = ceaug_self_evo(
                 previous_work_dir,
                 self.test_cases_dir,
                 ce_projects_paths,
@@ -133,38 +111,82 @@ class Team(BaseModel):
                 "self_evo",
                 Team.log,
             )
-            # use feedback to regenate
-            # self.roles["C_Programmer"].go(ce_feedback)
-            if ce_feedback == "CodeIsGood":
-                return
-            else:
-                print(ce_feedback)
 
-                pass_feedback, no_pass_feedback = feedback_split(ce_feedback)
-                if no_pass_feedback:
-                    Team.log.info("No Pass Feedback:\n" + str(no_pass_feedback))
-                # 测试就不需要处理通过的单元测试反馈了，只需要处理出错的
-                init = True
-                if no_pass_feedback:
-                    # 迭代式的取出切片后的反馈，然后交给code tester来修改
-                    for n_passfd in no_pass_feedback:
-                        self.roles["Code Tester"].unit_test_feedback = n_passfd
-                        if init:
-                            self.roles["Code Tester"].go()
-                            init = False
-                        else:
-                            self.roles["Code Tester"].go()
-
-                # port = update_flask_port(
-                #     os.path.join(code_base_dir, "main.py"), str(port)
-                # )
+            self.roles["Code Tester"].unit_test_feedback = ce_feedback
+            self.roles["Code Tester"].go()
             # 每个测试流程结束后写入一次本地文件
             self.roles["Programmer"].message_to_file(
                 self.roles["Programmer"].own_message.content
             )
+            if Team.projec_catogory == "website":
+                code_base_dir = os.path.join(Team.project_dir, "code")
+                port = update_flask_port(os.path.join(code_base_dir, "main.py"), port)
+        return
 
-        # 将最初的分配的端口写入
-        # port = update_flask_port(os.path.join(code_base_dir, "main.py"), str(port))
+    def run_self_evo_iterative_1(self):
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
+
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
+
+        self.roles["Product Manager"].go()
+        self.roles["Architect"].go()
+        self.roles["Project Manager"].go()
+        self.roles["Programmer"].go()
+
+        for j in range(1):
+            # set code dir
+            ce_projects_paths = [Team.project_dir]
+            # execute unit test
+            ce_score, ce_feedback = ceaug_self_evo(
+                previous_work_dir,
+                self.test_cases_dir,
+                ce_projects_paths,
+                Team.projec_catogory,
+                Team.project_name,
+                "self_evo",
+                Team.log,
+            )
+        return
+
+    def run_self_evo_iterative_2(self):
+        Team.incremental_base_dir = Team.project_dir
+        previous_work_dir = Path.cwd()
+        pervious_project_dir = Team.project_dir
+
+        self.roles["Product Manager"].go_inter()
+        self.roles["Architect"].go_inter()
+        self.roles["Project Manager"].go_inter()
+        self.roles["Programmer"].go_inter()
+
+        # 读取上一轮测试结果，并改进
+        test_result = read_feedback(
+            os.path.join(Team.project_dir, "test_result", "result.txt")
+        )
+        self.roles["Code Tester"].unit_test_feedback = test_result[
+            "#_#code_feedback#_#"
+        ]
+        self.roles["Code Tester"].go()
+        
+        self.roles["Programmer"].message_to_file(
+            self.roles["Programmer"].own_message.content
+        )
+
+        # 这个2就是重复测试的次数
+        for j in range(1):
+            # set code dir
+            ce_projects_paths = [Team.project_dir]
+            # execute unit test
+            ce_score, ce_feedback = ceaug_self_evo(
+                previous_work_dir,
+                self.test_cases_dir,
+                ce_projects_paths,
+                Team.projec_catogory,
+                Team.project_name,
+                "self_evo",
+                Team.log,
+            )
 
         return
 
@@ -293,6 +315,7 @@ class Team(BaseModel):
 
         print("Dev execute END")
         return
+
     # K的实验，可以读取之前的反馈（必须是总结好的）
     def run_web_iterative(self):
         # root work dir
@@ -410,8 +433,8 @@ class Team(BaseModel):
 
             self.roles["C_Programmer"].go("init", "0")
             self.roles["C_Programmer"].message_to_file(
-                        self.roles["C_Programmer"].own_message.content
-                    )
+                self.roles["C_Programmer"].own_message.content
+            )
 
             if pass_feedback:
                 for passfd in pass_feedback:
@@ -570,7 +593,7 @@ class Team(BaseModel):
                 "no_ite_fdback",
                 Team.log,
             )
-            
+
             return
 
         # ___________________ one to one test and get result _________________
@@ -656,8 +679,8 @@ class Team(BaseModel):
 
             self.roles["C_Programmer"].go("init", "0")
             self.roles["C_Programmer"].message_to_file(
-                        self.roles["C_Programmer"].own_message.content
-                    )
+                self.roles["C_Programmer"].own_message.content
+            )
 
             if pass_feedback:
                 for passfd in pass_feedback:

@@ -22,9 +22,9 @@ functional requirements
 [/CONTENT]
 
 ## nodes: "<node>: <type>  # <instruction>"
-- Implementation approach: <class 'str'>  # Analyze the difficult points of the requirements, select the appropriate open-source framework. If require GUI, you must also choose a GUI framework (e.g., in Python, you can implement GUI via tkinter, Pygame, Flexx, PyGUI, etc,)
+- Implementation approach: <class 'str'>  # Analyze the difficult points of the requirements, select the appropriate open-source framework. If require GUI, you must also choose a GUI framework.
 - File list: typing.List[str]  #  Only need relative paths. ALWAYS write a main.py here
-- Data structures and interfaces: <class 'str'>  # Use mermaid classDiagram code syntax, including classes, method(__init__ etc.) and functions with type annotations, CLEARLY MARK the RELATIONSHIPS between classes, and comply with PEP8 standards. The data structures SHOULD BE VERY DETAILED and the API should be comprehensive with a complete design.
+- Data structures and interfaces: <class 'str'>  # Use mermaid classDiagram code syntax.
 - UI design:<class 'str'>  # optional, if system require UI, choose a GUI framework (e.g., in Python, you can implement GUI via tkinter, Pygame, Flexx, PyGUI, etc,) and list system UI design and corresponding feature's UI design.
 
 ## constraint
