@@ -40,7 +40,7 @@ class GPT:
     # args is HumanMessage, SystemMessage (variable length)
     def invoke(self, *args):
         Team.log.info(
-            f"{self.model.model}  |  self.model.temperature-----------------{self.model.temperature}-------------------------------"
+            f"{self.model.model_name}  |  self.model.temperature-----------------{self.model.temperature}-------------------------------"
         )
         # messages = [system_msg, user_msg]
         messages = [arg for arg in args]
@@ -86,7 +86,7 @@ class GPT_topP:
     # args is HumanMessage, SystemMessage (variable length)
     def invoke(self, *args):
         Team.log.info(
-            f"{self.model.model}  |  self.model.temperature --- {self.model.temperature} | top p --- {self.model.model_kwargs.get('top_p')} ---"
+            f"{self.model.model_name}  |  self.model.temperature --- {self.model.temperature} | top p --- {self.model.model_kwargs.get('top_p')} ---"
         )
         # messages = [system_msg, user_msg]
         messages = [arg for arg in args]
