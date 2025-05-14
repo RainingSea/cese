@@ -40,7 +40,7 @@ def start_project():
 
     # ______________ project soft config ________________
     # 到根目录，注意最后的ATE后不要有 \\ 等分隔符，因为后面会拼接
-    _dir = "D:\Project\ATEdev\ATEDev_main"
+    _dir = "E:\Project\ATE\ATEdev_main"
     # dataset dir
     project_description_path = (
         # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
@@ -132,12 +132,12 @@ def start_project():
     # team.run_self_evo_iterative_1()
     team.run_self_evo_iterative_2()
 
-    # if not seq:
-    #     if category == "website":
-    #         Team.log.info("迭代实验：K = 1")  # 到时候查log以防记混，每次跑之前记得改改
-    #         # team.run_web()
-
-    #         team.run_web_iterative()
+    if not seq:
+        if category == "website":
+            Team.log.info("迭代实验：K = 0")  # 到时候查log以防记混，每次跑之前记得改改
+            team.run_web()
+            
+            # team.run_web_iterative()
 
     #     # elif category == "dev":
     #     #     team.run_pure()

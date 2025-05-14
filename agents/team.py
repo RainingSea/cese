@@ -232,6 +232,9 @@ class Team(BaseModel):
             Team.log,
         )
 
+        if ce_feedbacks == "no need to test":
+            return
+
         # |_____________________________________________________________|
         # |                      Attention!                             |
         # | ceaug() execute unit test, which                            |

@@ -76,9 +76,9 @@ if __name__ == "__main__":
 
         clean_dir(project_path)
 
-    # project_path = (
-    #     "D:\Project\ATEdev\ATEDev_main\project\website\MedicalTestResultTracker"
-    # )
+    # 删除单个项目的代码
+    # base_dir = "E:\Project\ATE\ATEdev\ATEDev\project\website\CultureFacts"
+    # project_path = base_dir
 
     # # log_extract(project_path)
 
