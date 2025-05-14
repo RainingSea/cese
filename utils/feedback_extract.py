@@ -62,15 +62,23 @@ def clean_dir(dir):
 
 
 if __name__ == "__main__":
-    base_dir = "E:\Project\ATE\ATEdev\ATEDev\project\website"
+    base_dir = "E:\Project\ATE\ATEdev_main\project\website"
     i = 1
     input("DELETE")
     for project_name in os.listdir(base_dir):
         print(str(i) + " " + project_name)
         i = i + 1
-        
+
         project_path = os.path.join(base_dir, project_name)
-        
-        # log_extract(project_path)
-        
+
+        log_extract(project_path)
+
         clean_dir(project_path)
+
+    # 删除单个项目的代码
+    # base_dir = "E:\Project\ATE\ATEdev\ATEDev\project\website\CultureFacts"
+    # project_path = base_dir
+
+    # # log_extract(project_path)
+
+    # clean_dir(project_path)

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transport Options - Trip Saver</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h1 class="mb-4">Transportation Options</h1>
+    <h2 class="mb-3">From {{ start }} to {{ destination }}</h2>
+    
+    <form method="POST" action="{{ url_for('compare') }}">
+        <input type="hidden" name="start" value="{{ start }}">
+        <input type="hidden" name="destination" value="{{ destination }}">
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Transport Mode</th>
+                    <th>Estimated Cost</th>
+                    <th>Estimated Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for option in options %}
+                <tr>
+                    <td><input type="radio" name="option1" value="{{ option.mode }}"></td>
+                    <td>{{ option.mode }}</td>
+                    <td>${{ option.cost }}</td>
+                    <td>{{ option.time }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('save_preference') }}">
+                            <input type="hidden" name="transport_mode" value="{{ option.mode }}">
+                            <input type="hidden" name="start" value="{{ start }}">
+                            <input type="hidden" name="destination" value="{{ destination }}">
+                            <button type="submit" class="btn btn-sm btn-success">Save</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="mb-3">
+            <label class="form-label">Select two options to compare:</label>
+            <div class="row">
+                <div class="col-md-5">
+                    <select class="form-select" name="option1">
+                        {% for option in options %}
+                        <option value="{{ option.mode }}">{{ option.mode }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 text-center">vs</div>
+                <div class="col-md-5">
+                    <select class="form-select" name="option2">
+                        {% for option in options %}
+                        <option value="{{ option.mode }}">{{ option.mode }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Compare</button>
+    </form>
+    
+    <p class="mt-3"><a href="{{ url_for('trip_input') }}">Plan Another Trip</a></p>
+</body>
+</html>

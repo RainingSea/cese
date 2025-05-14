@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Welcome, {{ session['username'] }}</h1>
+            <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+        </header>
+
+        {% if is_manager %}
+        <div class="manager-view">
+            <h2>Feedback Review</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Category</th>
+                        <th>Content</th>
+                        <th>Status</th>
+                        <th>Timestamp</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>{{ feedback.id }}</td>
+                        <td>{{ feedback.username }}</td>
+                        <td>{{ feedback.category }}</td>
+                        <td>{{ feedback.content }}</td>
+                        <td>{{ feedback.status }}</td>
+                        <td>{{ feedback.timestamp }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('update_status') }}">
+                                <input type="hidden" name="feedback_id" value="{{ feedback.id }}">
+                                <select name="status">
+                                    <option value="Submitted" {% if feedback.status == 'Submitted' %}selected{% endif %}>Submitted</option>
+                                    <option value="In Review" {% if feedback.status == 'In Review' %}selected{% endif %}>In Review</option>
+                                    <option value="Addressed" {% if feedback.status == 'Addressed' %}selected{% endif %}>Addressed</option>
+                                </select>
+                                <button type="submit">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="employee-view">
+            <h2>Submit Feedback</h2>
+            <form method="POST" action="{{ url_for('submit_feedback') }}">
+                <select name="category" required>
+                    {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+                <textarea name="content" placeholder="Your feedback..." required></textarea>
+                <button type="submit">Submit</button>
+            </form>
+
+            <h2>Your Feedback</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Content</th>
+                        <th>Status</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>{{ feedback.category }}</td>
+                        <td>{{ feedback.content }}</td>
+                        <td>{{ feedback.status }}</td>
+                        <td>{{ feedback.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

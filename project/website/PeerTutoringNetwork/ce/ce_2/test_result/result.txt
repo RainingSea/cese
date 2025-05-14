@@ -1,0 +1,448 @@
+#_#unit_test_result#_#
+{'category': 'website', 'project_name': 'ce_2', 'passed': 6, 'failed': 0, 'errors': 3, 'total': 9, 'output': 'test_1_user_login (testcode.TestPeerTutoringNetwork.test_1_user_login)\nFunctionalities 1: Test valid user login ... ok\ntest_2_user_registration (testcode.TestPeerTutoringNetwork.test_2_user_registration)\nFunctionalities 2: Test user registration ... ok\ntest_3_access_dashboard (testcode.TestPeerTutoringNetwork.test_3_access_dashboard)\nFunctionalities 3: Test dashboard access after login ... ok\ntest_4_view_available_tutors (testcode.TestPeerTutoringNetwork.test_4_view_available_tutors)\nFunctionalities 4: Test viewing available tutors ... ok\ntest_5_request_tutoring (testcode.TestPeerTutoringNetwork.test_5_request_tutoring)\nFunctionalities 5: Test submitting a tutoring request ... ERROR\ntest_6_access_profile_page (testcode.TestPeerTutoringNetwork.test_6_access_profile_page)\nFunctionalities 6: Test accessing profile page ... ok\ntest_7_user_logout (testcode.TestPeerTutoringNetwork.test_7_user_logout)\nFunctionalities 7: Test user logout ... ok\ntest_8_contact_support (testcode.TestPeerTutoringNetwork.test_8_contact_support)\nFunctionalities 8: Test contacting support ... ERROR\ntest_9_cancel_tutoring_request (testcode.TestPeerTutoringNetwork.test_9_cancel_tutoring_request)\nFunctionalities 9: Test canceling tutoring request ... ERROR\n======================================================================\nERROR: test_5_request_tutoring (testcode.TestPeerTutoringNetwork.test_5_request_tutoring)\nFunctionalities 5: Test submitting a tutoring request\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File "E:\\Project\\ATE\\ATEdev_main\\project\\website\\PeerTutoringNetwork\\ce\\ce_2\\code\\testcode.py", line 96, in test_5_request_tutoring\n    self.wait.until(EC.url_contains(\'dashboard\'))\n  File "D:\\CodeSoftware\\Anaconda_envs\\envs\\mfg\\Lib\\site-packages\\selenium\\webdriver\\support\\wait.py", line 146, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: \n======================================================================\nERROR: test_8_contact_support (testcode.TestPeerTutoringNetwork.test_8_contact_support)\nFunctionalities 8: Test contacting support\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File "E:\\Project\\ATE\\ATEdev_main\\project\\website\\PeerTutoringNetwork\\ce\\ce_2\\code\\testcode.py", line 130, in test_8_contact_support\n    self.wait.until(EC.url_contains(\'dashboard\'))\n  File "D:\\CodeSoftware\\Anaconda_envs\\envs\\mfg\\Lib\\site-packages\\selenium\\webdriver\\support\\wait.py", line 146, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: \n======================================================================\nERROR: test_9_cancel_tutoring_request (testcode.TestPeerTutoringNetwork.test_9_cancel_tutoring_request)\nFunctionalities 9: Test canceling tutoring request\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File "E:\\Project\\ATE\\ATEdev_main\\project\\website\\PeerTutoringNetwork\\ce\\ce_2\\code\\testcode.py", line 142, in test_9_cancel_tutoring_request\n    self.wait.until(EC.url_contains(\'dashboard\'))\n  File "D:\\CodeSoftware\\Anaconda_envs\\envs\\mfg\\Lib\\site-packages\\selenium\\webdriver\\support\\wait.py", line 146, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: \n----------------------------------------------------------------------\nRan 9 tests in 72.495s\nFAILED (errors=3)\n'}
+
+
+#_#code_feedback#_#
+### 1. Summary of Passed Test Cases
+
+#### test_1_user_login (User Login)
+**Key Functionality**: Authenticates users against stored credentials
+**Pseudocode**:
+```
+FUNCTION login()
+    IF request.method == POST
+        username = request.form['username']
+        password = request.form['password']
+        users = LOAD_FROM_FILE(USERS_FILE)  # Format: username|password|email
+        FOR user IN users
+            IF user.username == username AND user.password == password
+                SET_SESSION('username', username)
+                SET_SESSION('email', user.email)
+                REDIRECT_TO('dashboard')
+            ENDIF
+        ENDFOR
+        RENDER_TEMPLATE('login.html', error='Invalid credentials')
+    ELSE
+        RENDER_TEMPLATE('login.html')
+    ENDIF
+END FUNCTION
+
+<!-- login.html -->
+<form method="POST">
+    <input name="username" required>
+    <input type="password" name="password" required>
+    <button type="submit">Login</button>
+</form>
+```
+
+#### test_2_user_registration (User Registration)
+**Key Functionality**: Creates new user accounts
+**Pseudocode**:
+```
+FUNCTION register()
+    IF request.method == POST
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        users = LOAD_FROM_FILE(USERS_FILE)
+        IF username EXISTS IN users
+            RENDER_TEMPLATE('register.html', error='Username exists')
+        ELSE
+            APPEND_TO_FILE(USERS_FILE, f"{username}|{password}|{email}")
+            SET_SESSION('username', username)
+            SET_SESSION('email', email)
+            REDIRECT_TO('dashboard')
+        ENDIF
+    ELSE
+        RENDER_TEMPLATE('register.html')
+    ENDIF
+END FUNCTION
+```
+
+#### test_3_access_dashboard (Dashboard Access)
+**Key Functionality**: Displays main navigation interface
+**Pseudocode**:
+```
+FUNCTION dashboard()
+    IF NOT SESSION_CONTAINS('username')
+        REDIRECT_TO('login')
+    ELSE
+        RENDER_TEMPLATE('dashboard.html', username=session['username'])
+    ENDIF
+END FUNCTION
+
+<!-- dashboard.html -->
+<h1>Welcome, {{ username }}!</h1>
+<nav>
+    <a href="/tutors">View Tutors</a>
+    <a href="/request">Request Tutoring</a>
+    <a href="/profile">My Profile</a>
+</nav>
+```
+
+#### test_4_view_available_tutors (Tutor Listing)
+**Key Functionality**: Displays available tutors
+**Pseudocode**:
+```
+FUNCTION tutors()
+    IF NOT SESSION_CONTAINS('username')
+        REDIRECT_TO('login')
+    ELSE
+        tutors = LOAD_FROM_FILE(TUTORS_FILE)  # Format: name|subjects|availability
+        RENDER_TEMPLATE('tutors.html', tutors=tutors)
+    ENDIF
+END FUNCTION
+
+<!-- tutors.html -->
+{% for tutor in tutors %}
+    <h3>{{ tutor.name }}</h3>
+    <p>Subjects: {{ tutor.subjects }}</p>
+    <p>Availability: {{ tutor.availability }}</p>
+{% endfor %}
+```
+
+#### test_6_access_profile_page (Profile Access)
+**Key Functionality**: Displays user profile information
+**Pseudocode**:
+```
+FUNCTION profile()
+    IF NOT SESSION_CONTAINS('username')
+        REDIRECT_TO('login')
+    ELSE
+        RENDER_TEMPLATE('profile.html', 
+                       username=session['username'],
+                       email=session['email'])
+    ENDIF
+END FUNCTION
+
+<!-- profile.html -->
+<p>Username: {{ username }}</p>
+<p>Email: {{ email }}</p>
+```
+
+#### test_7_user_logout (User Logout)
+**Key Functionality**: Terminates user session
+**Pseudocode**:
+```
+FUNCTION logout()
+    CLEAR_SESSION('username')
+    CLEAR_SESSION('email')
+    REDIRECT_TO('login')
+END FUNCTION
+```
+
+### 2. Summary of Failed/Error Test Cases and Guidance
+
+#### Error Case 1: Tutoring Request Submission (test_5_request_tutoring)
+**Root Issues**:
+1. No validation feedback when form submission fails
+2. No file operation error handling in request processing
+3. Potential file permission issues with requests.txt
+
+**Guidance**:
+1. Implement explicit file operation checks:
+   - Verify requests.txt exists/writable before saving
+   - Add error logging for file operations
+2. Enhance form handling:
+   - Add server-side validation for date format
+   - Return form with errors if submission fails
+3. Add transaction safety:
+   - Use temporary files for atomic writes
+   - Implement file locking for concurrent access
+
+#### Error Case 2: Contact Support (test_8_contact_support)
+**Root Issues**:
+1. Missing authentication requirement for contact form
+2. No validation for email format
+3. Silent failure in contact message storage
+
+**Guidance**:
+1. Implement proper access control:
+   - Require login for contact form submission
+   - Store submitting user's ID with messages
+2. Enhance message handling:
+   - Add email format validation
+   - Implement message length limits
+3. Improve feedback:
+   - Display success/error messages after submission
+   - Add confirmation before message sending
+
+#### Error Case 3: Cancel Tutoring Request (test_9_cancel_tutoring_request)
+**Root Issues**:
+1. No proper page load detection mechanism
+2. Potential template rendering issues
+3. Missing navigation state management
+
+**Guidance**:
+1. Improve navigation reliability:
+   - Add explicit page load checks in frontend
+   - Implement proper HTTP status codes
+2. Enhance template handling:
+   - Verify all links render correctly
+   - Add loading states for navigation
+3. Implement state management:
+   - Track navigation progress
+   - Handle interrupted navigation gracefully
+
+**Common Improvements Needed**:
+1. Form handling robustness:
+   - CSRF protection for all forms
+   - Consistent validation patterns
+2. File operation safety:
+   - Atomic write operations
+   - Proper error recovery
+3. User feedback:
+   - Consistent error display
+   - Operation confirmation
+
+
+#_#architecture_feedback#_#
+### 1. **Overall Evaluation:**
+
+#### **Strengths:**
+- **Implementation:**  
+  - Simple and clear Flask-based architecture with well-defined routes.  
+  - Separation of concerns (routes, templates, and data files) follows a basic MVC pattern.  
+  - Functional user authentication, tutor listing, and request handling.  
+
+- **UI:**  
+  - Basic but functional HTML templates with navigation links.  
+  - Forms for login, registration, tutoring requests, and contact support are straightforward.  
+
+- **Data Structures:**  
+  - Text files (`users.txt`, `tutors.txt`, `requests.txt`, `contacts.txt`) are sufficient for small-scale storage.  
+  - Data is structured logically (pipe-delimited format).  
+
+#### **Weaknesses:**  
+- **Implementation:**  
+  - No error handling for file operations (e.g., missing files, permission issues).  
+  - No input validation (e.g., duplicate usernames, invalid email formats).  
+  - No session timeout or forced logout mechanism.  
+
+- **UI:**  
+  - No feedback messages (e.g., success/error alerts after form submissions).  
+  - No confirmation dialogs (e.g., before submitting a tutoring request).  
+
+- **Data Storage:**  
+  - No locking mechanism for concurrent file writes (risk of data corruption).  
+  - No backup or recovery mechanism for data files.  
+
+---
+
+### 2. **Specific Problem Areas & Solutions:**
+
+#### **Problem 1: Missing Error Handling in File Operations**  
+- **Issue:**  
+  - If `users.txt`, `tutors.txt`, or other files are missing, the app crashes.  
+  - No feedback if file writes fail (e.g., disk full, permission denied).  
+- **Solution:**  
+  - Wrap file operations in `try-except` blocks and log errors.  
+  - Example:  
+    ```python
+    def load_users():
+        users = []
+        try:
+            if os.path.exists(USERS_FILE):
+                with open(USERS_FILE, 'r') as f:
+                    for line in f:
+                        username, password, email = line.strip().split('|')
+                        users.append({'username': username, 'password': password, 'email': email})
+        except Exception as e:
+            print(f"Error loading users: {e}")
+        return users
+    ```
+
+#### **Problem 2: No Input Validation**  
+- **Issue:**  
+  - Usernames/emails can be duplicated.  
+  - No checks for empty fields or invalid formats (e.g., email without "@").  
+- **Solution:**  
+  - Add validation in `register()` and `save_user()`:  
+    ```python
+    def register():
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            email = request.form['email']
+            
+            if not username or not password or not email:
+                return render_template('register.html', error='All fields are required')
+            
+            if '@' not in email:
+                return render_template('register.html', error='Invalid email format')
+                
+            users = load_users()
+            if any(user['username'] == username for user in users):
+                return render_template('register.html', error='Username already exists')
+            if any(user['email'] == email for user in users):
+                return render_template('register.html', error='Email already registered')
+    ```
+
+#### **Problem 3: Form Submissions Fail Silently (Test Errors 5, 8, 9)**  
+- **Issue:**  
+  - Tests fail because redirects don¡¯t happen (likely due to unhandled errors).  
+- **Solution:**  
+  - Add error handling and explicit redirects:  
+    ```python
+    @app.route('/request', methods=['GET', 'POST'])
+    def request_tutor():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        if request.method == 'POST':
+            try:
+                subject = request.form['subject']
+                details = request.form['details']
+                date = request.form['date']
+                save_request(session['username'], subject, details, date)
+                return redirect(url_for('dashboard'))
+            except Exception as e:
+                return render_template('request.html', error='Failed to submit request')
+        return render_template('request.html')
+    ```
+
+#### **Problem 4: No Feedback for User Actions**  
+- **Issue:**  
+  - Users don¡¯t know if their actions (e.g., submitting a request) succeeded.  
+- **Solution:**  
+  - Add flash messages (requires Flask¡¯s `flash` and `get_flashed_messages`):  
+    ```python
+    from flask import flash
+
+    @app.route('/request', methods=['GET', 'POST'])
+    def request_tutor():
+        if request.method == 'POST':
+            save_request(...)
+            flash('Tutoring request submitted successfully!', 'success')
+            return redirect(url_for('dashboard'))
+    ```
+    ```html
+    <!-- In templates/dashboard.html -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert">
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
+    ```
+
+---
+
+### 3. **Architecture Enhancements:**
+
+#### **Implementation:**  
+- **Flask is appropriate** for this small-scale project. No changes needed.  
+
+#### **UI Design:**  
+- Add basic feedback (success/error messages) for user actions.  
+- Add a confirmation step for critical actions (e.g., "Are you sure you want to submit this request?").  
+
+#### **Data Storage:**  
+- **Add file locking** to prevent concurrent write issues:  
+  ```python
+  import fcntl
+
+  def save_user(username, password, email):
+      with open(USERS_FILE, 'a') as f:
+          fcntl.flock(f, fcntl.LOCK_EX)  # Lock file
+          f.write(f"{username}|{password}|{email}\n")
+          fcntl.flock(f, fcntl.LOCK_UN)  # Unlock file
+  ```
+- **Backup mechanism:** Periodically copy files to a backup directory.  
+
+#### **File List:**  
+- No missing files. All required templates and data files are present.  
+
+#### **Data Structures:**  
+- Ensure classes follow single responsibility:  
+  - `User`: Handle registration/login.  
+  - `Tutor`: Manage tutor data (no changes needed).  
+  - `Request`: Handle request creation/cancellation (add error handling).  
+  - `Contact`: Manage support messages (add validation).  
+
+---
+
+### Final Notes:  
+- **Keep it simple** (no databases, no JSON).  
+- **Focus on robustness** (error handling, validation).  
+- **No scalability or security improvements** (per constraints).  
+- **Tests should pass** after fixing silent failures in form submissions.
+
+
+#_#task_plan_feedback#_#
+### 1. Overall Evaluation:
+- **Strengths:**
+  - Covers all core functionality (authentication, tutor viewing, requests, contact)
+  - Clear mapping between files and requirements
+  - Simple, flat structure suitable for a small project
+  - Explicit about data storage approach (text files)
+  
+- **Weaknesses:**
+  - No error handling tasks specified
+  - Missing file operation safeguards (file existence checks, permissions)
+  - No data validation tasks for forms
+  - No test-related tasks despite test failures
+
+### 2. Specific Areas for Improvement:
+- **Missing Features:**
+  - Error handling for file operations (missing in current test failures)
+  - Form validation logic (visible in test timeouts)
+  - Redirect confirmation after form submissions
+  - File cleanup/maintenance tasks
+
+- **Unclear Tasks:**
+  - "main.py" task is too broad - should be split by route groups
+  - No specification for handling malformed data in text files
+  - No details on required response times for redirects
+
+- **Task Breakdown:**
+  - Break "main.py" into:
+    - Auth routes (login/register/logout)
+    - Dashboard routes
+    - Tutor management routes
+    - Form handling routes
+  - Add explicit "File Operations" task group
+
+- **Dependencies:**
+  - Authentication must precede all dashboard-related tasks
+  - File operations must be implemented before form handling
+  - UI templates depend on route availability
+
+### 3. Suggested Enhancements:
+- **Prioritization:**
+  1. Authentication system (login/register)
+  2. Core file operations
+  3. Basic dashboard routes
+  4. Form handling routes
+  5. UI templates
+
+- **Clarity:**
+  - Add subtasks for each route group in main.py
+  - Specify required error states for each form
+  - Add task for implementing test fixes
+
+- **Feature Clarification:**
+  - Add "Error Handling" section to task plan
+  - Specify expected behavior for missing data files
+  - Define required redirect behavior after form submissions
+
+- **Task Grouping:**
+  - Group 1: Core Infrastructure (auth, file ops)
+  - Group 2: Feature Routes (tutors, requests, contact)
+  - Group 3: UI Templates
+  - Group 4: Error Handling
+
+- **Additional Considerations:**
+  - Add task for implementing test fixes
+  - Specify file locking mechanism for concurrent access
+  - Add data format validation tasks
+
+### Implementation Notes:
+1. The test failures suggest adding explicit tasks for:
+   - Form submission handling (tests 5,8)
+   - Navigation reliability (test 9)
+   - File operation error handling
+
+2. The task plan should reflect the actual issues found in testing rather than just the happy path.
+
+3. While security isn't a concern per requirements, basic data integrity tasks should still be included.

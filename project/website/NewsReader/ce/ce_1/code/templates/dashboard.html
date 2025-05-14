@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header { background-color: #4CAF50; color: white; padding: 10px 20px; display: flex; justify-content: space-between; }
+        .search { padding: 20px; background-color: #f2f2f2; }
+        .search input { padding: 8px; width: 70%; }
+        .search button { padding: 8px 15px; background-color: #4CAF50; color: white; border: none; }
+        .categories { display: flex; padding: 10px 20px; background-color: #e9e9e9; }
+        .categories a { margin-right: 15px; text-decoration: none; color: #333; }
+        .categories a.active { color: #4CAF50; font-weight: bold; }
+        .articles { padding: 20px; }
+        .article { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .article h3 { margin-top: 0; }
+        .article p { color: #666; }
+        .article .meta { font-size: 0.8em; color: #999; }
+        .logout { color: white; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome, {{ username }}</h1>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </header>
+    
+    <div class="search">
+        <form method="GET" action="{{ url_for('dashboard') }}">
+            <input type="text" name="query" placeholder="Search articles..." value="{{ query }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    
+    <div class="categories">
+        <a href="{{ url_for('dashboard') }}" {% if not selected_category %}class="active"{% endif %}>All</a>
+        {% for category in categories %}
+        <a href="{{ url_for('dashboard', category=category) }}" {% if selected_category == category %}class="active"{% endif %}>{{ category }}</a>
+        {% endfor %}
+    </div>
+    
+    <div class="articles">
+        {% for article in articles %}
+        <div class="article">
+            <h3><a href="{{ url_for('article', article_id=article['id']) }}">{{ article['title'] }}</a></h3>
+            <p>{{ article['summary'] }}</p>
+            <div class="meta">
+                {{ article['source'] }} | {{ article['date'] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

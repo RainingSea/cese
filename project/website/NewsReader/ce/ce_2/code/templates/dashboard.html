@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .header { background: #333; color: white; padding: 10px 20px; display: flex; justify-content: space-between; }
+        .container { display: flex; }
+        .sidebar { width: 200px; background: #f4f4f4; padding: 20px; }
+        .main-content { flex: 1; padding: 20px; }
+        .search-bar { margin-bottom: 20px; }
+        .search-bar input { padding: 8px; width: 70%; }
+        .search-bar button { padding: 8px 15px; }
+        .category-list { list-style: none; padding: 0; }
+        .category-list li { margin-bottom: 10px; }
+        .category-list a { text-decoration: none; color: #333; }
+        .category-list a.active { font-weight: bold; color: #4CAF50; }
+        .article-card { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+        .article-card h3 { margin-top: 0; }
+        .article-card .meta { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        .logout-link { color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>News Reader</h2>
+        <div>
+            <span>Welcome, {{ username }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Categories</h3>
+            <ul class="category-list">
+                <li><a href="{{ url_for('dashboard') }}" {% if not selected_category %}class="active"{% endif %}>All</a></li>
+                {% for category in categories %}
+                    <li><a href="{{ url_for('dashboard', category=category) }}" {% if selected_category == category %}class="active"{% endif %}>{{ category }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="search-bar">
+                <form action="{{ url_for('dashboard') }}" method="GET">
+                    <input type="text" name="query" placeholder="Search articles..." value="{{ request.args.get('query', '') }}">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+            {% if articles %}
+                {% for article in articles %}
+                    <div class="article-card">
+                        <h3><a href="{{ url_for('article', article_id=article.id) }}">{{ article.title }}</a></h3>
+                        <div class="meta">{{ article.category }} | {{ article.source }}</div>
+                        <p>{{ article.summary }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No articles found.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

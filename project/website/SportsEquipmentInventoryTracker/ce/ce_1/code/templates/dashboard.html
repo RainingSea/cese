@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}! <a href="/logout">Logout</a></h1>
+    
+    <h2>Add Equipment</h2>
+    <form method="POST" action="/add_equipment">
+        <label>Name:</label>
+        <input type="text" name="name" required><br>
+        <label>Type:</label>
+        <input type="text" name="type" required><br>
+        <label>Quantity:</label>
+        <input type="number" name="quantity" required><br>
+        <label>Condition:</label>
+        <select name="condition" required>
+            <option value="New">New</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+            <option value="Poor">Poor</option>
+        </select><br>
+        <label>Availability:</label>
+        <select name="availability" required>
+            <option value="Available">Available</option>
+            <option value="In Use">In Use</option>
+            <option value="Maintenance">Maintenance</option>
+        </select><br>
+        <label>Location:</label>
+        <input type="text" name="location" required><br>
+        <label>Alert Date:</label>
+        <input type="date" name="alert_date"><br>
+        <button type="submit">Add Equipment</button>
+    </form>
+
+    <h2>Search Equipment</h2>
+    <form method="POST" action="/search_equipment">
+        <input type="text" name="query" placeholder="Search by name, type or location">
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Filter Equipment</h2>
+    <form method="POST" action="/filter_equipment">
+        <label>Condition:</label>
+        <select name="condition">
+            <option value="">Any</option>
+            <option value="New">New</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+            <option value="Poor">Poor</option>
+        </select>
+        <label>Availability:</label>
+        <select name="availability">
+            <option value="">Any</option>
+            <option value="Available">Available</option>
+            <option value="In Use">In Use</option>
+            <option value="Maintenance">Maintenance</option>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
+    <h2>Equipment List</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Condition</th>
+            <th>Availability</th>
+            <th>Location</th>
+            <th>Alert Date</th>
+            <th>Actions</th>
+        </tr>
+        {% for item in equipment %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.type }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.condition }}</td>
+            <td>{{ item.availability }}</td>
+            <td>{{ item.location }}</td>
+            <td>{{ item.alert_date }}</td>
+            <td>
+                <form method="POST" action="/update_equipment/{{ item.id }}" style="display:inline;">
+                    <input type="text" name="name" value="{{ item.name }}" required>
+                    <input type="text" name="type" value="{{ item.type }}" required>
+                    <input type="number" name="quantity" value="{{ item.quantity }}" required>
+                    <select name="condition" required>
+                        <option value="New" {% if item.condition == 'New' %}selected{% endif %}>New</option>
+                        <option value="Good" {% if item.condition == 'Good' %}selected{% endif %}>Good</option>
+                        <option value="Fair" {% if item.condition == 'Fair' %}selected{% endif %}>Fair</option>
+                        <option value="Poor" {% if item.condition == 'Poor' %}selected{% endif %}>Poor</option>
+                    </select>
+                    <select name="availability" required>
+                        <option value="Available" {% if item.availability == 'Available' %}selected{% endif %}>Available</option>
+                        <option value="In Use" {% if item.availability == 'In Use' %}selected{% endif %}>In Use</option>
+                        <option value="Maintenance" {% if item.availability == 'Maintenance' %}selected{% endif %}>Maintenance</option>
+                    </select>
+                    <input type="text" name="location" value="{{ item.location }}" required>
+                    <input type="date" name="alert_date" value="{{ item.alert_date }}">
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Set Alert</h2>
+    <form method="POST" action="/set_alert">
+        <label>Equipment ID:</label>
+        <select name="equipment_id" required>
+            {% for item in equipment %}
+                <option value="{{ item.id }}">{{ item.name }} (ID: {{ item.id }})</option>
+            {% endfor %}
+        </select><br>
+        <label>Alert Type:</label>
+        <select name="alert_type" required>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Low Stock">Low Stock</option>
+            <option value="Expiration">Expiration</option>
+        </select><br>
+        <label>Threshold:</label>
+        <input type="text" name="threshold" required><br>
+        <button type="submit">Set Alert</button>
+    </form>
+
+    <h2>Current Alerts</h2>
+    <table border="1">
+        <tr>
+            <th>Equipment ID</th>
+            <th>Alert Type</th>
+            <th>Threshold</th>
+        </tr>
+        {% for alert in alerts %}
+        <tr>
+            <td>{{ alert.equipment_id }}</td>
+            <td>{{ alert.alert_type }}</td>
+            <td>{{ alert.threshold }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

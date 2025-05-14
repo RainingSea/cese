@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Equipment Management</h2>
+
+<h3>Add New Equipment</h3>
+<form method="POST" action="{{ url_for('add_equipment') }}">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <div>
+        <label for="type">Type:</label>
+        <input type="text" id="type" name="type" required>
+    </div>
+    <div>
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" required>
+    </div>
+    <div>
+        <label for="condition">Condition:</label>
+        <select id="condition" name="condition" required>
+            <option value="New">New</option>
+            <option value="Good">Good</option>
+            <option value="Worn">Worn</option>
+            <option value="Damaged">Damaged</option>
+        </select>
+    </div>
+    <div>
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location" required>
+    </div>
+    <div>
+        <label for="last_maintenance_date">Last Maintenance Date:</label>
+        <input type="date" id="last_maintenance_date" name="last_maintenance_date" required>
+    </div>
+    <button type="submit">Add Equipment</button>
+</form>
+
+<h3>Search Equipment</h3>
+<form method="POST" action="{{ url_for('search_equipment') }}">
+    <input type="text" name="query" placeholder="Search by name..." required>
+    <button type="submit">Search</button>
+</form>
+
+<h3>Filter Equipment</h3>
+<form method="POST" action="{{ url_for('filter_equipment') }}">
+    <div>
+        <label for="type">Type:</label>
+        <input type="text" id="type" name="type">
+    </div>
+    <div>
+        <label for="condition">Condition:</label>
+        <select id="condition" name="condition">
+            <option value="">Any</option>
+            <option value="New">New</option>
+            <option value="Good">Good</option>
+            <option value="Worn">Worn</option>
+            <option value="Damaged">Damaged</option>
+        </select>
+    </div>
+    <div>
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location">
+    </div>
+    <button type="submit">Filter</button>
+</form>
+
+<h3>Equipment List</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Condition</th>
+            <th>Location</th>
+            <th>Last Maintenance</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in equipment %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.type }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.condition }}</td>
+            <td>{{ item.location }}</td>
+            <td>{{ item.last_maintenance_date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Alert Settings</h3>
+<form method="POST" action="{{ url_for('set_alert') }}">
+    <div>
+        <label for="equipment_name">Equipment Name:</label>
+        <input type="text" id="equipment_name" name="equipment_name" required>
+    </div>
+    <div>
+        <label for="alert_type">Alert Type:</label>
+        <select id="alert_type" name="alert_type" required>
+            <option value="maintenance">Maintenance Due</option>
+            <option value="low_quantity">Low Quantity</option>
+        </select>
+    </div>
+    <div>
+        <label for="threshold_date">Threshold Date:</label>
+        <input type="date" id="threshold_date" name="threshold_date" required>
+    </div>
+    <button type="submit">Set Alert</button>
+</form>
+
+<h3>Your Alerts</h3>
+<ul>
+    {% for alert in alerts %}
+    <li>{{ alert.equipment }} - {{ alert.alert_type }} ({{ alert.date }})</li>
+    {% endfor %}
+</ul>
+{% endblock %}

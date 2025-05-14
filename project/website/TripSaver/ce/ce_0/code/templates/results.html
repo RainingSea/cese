@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trip Options</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        button { background-color: #4CAF50; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        .logout { background-color: #f44336; }
+        .comparison { margin-top: 20px; padding: 15px; background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>Trip Options</h1>
+    <p>From {{ start }} to {{ destination }} on {{ date }}</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Cost</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for option in options %}
+            <tr>
+                <td>{{ option.type }}</td>
+                <td>${{ option.cost }}</td>
+                <td>{{ option.time }}</td>
+                <td>
+                    <form method="POST" action="/save_trip">
+                        <input type="hidden" name="start" value="{{ start }}">
+                        <input type="hidden" name="destination" value="{{ destination }}">
+                        <input type="hidden" name="date" value="{{ date }}">
+                        <input type="hidden" name="type" value="{{ option.type }}">
+                        <input type="hidden" name="cost" value="{{ option.cost }}">
+                        <input type="hidden" name="time" value="{{ option.time }}">
+                        <button type="submit">Save</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="comparison">
+        <h3>Comparison</h3>
+        {% if options %}
+            <p>Cheapest: {{ options|min(attribute='cost').type }} at ${{ options|min(attribute='cost').cost }}</p>
+            <p>Fastest: {{ options|min(attribute='time').type }} in {{ options|min(attribute='time').time }}</p>
+        {% else %}
+            <p>No transportation options available for this route.</p>
+        {% endif %}
+    </div>
+
+    <a href="/trip"><button>Back to Trip Input</button></a>
+    <a href="/logout"><button class="logout">Logout</button></a>
+</body>
+</html>

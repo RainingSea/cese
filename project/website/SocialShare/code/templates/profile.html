@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}{{ username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>{{ username }}'s Profile</h2>
+        {% if bio %}
+            <p class="lead">{{ bio }}</p>
+        {% endif %}
+        
+        {% if username != current_user %}
+            <form method="POST" action="{{ url_for('follow' if not is_following else 'unfollow') }}" class="mb-4">
+                <input type="hidden" name="target_user" value="{{ username }}">
+                <button type="submit" class="btn btn-{{ 'primary' if not is_following else 'danger' }}">
+                    {{ 'Follow' if not is_following else 'Unfollow' }}
+                </button>
+            </form>
+        {% endif %}
+        
+        <h3 class="mt-4">Posts</h3>
+        {% if posts %}
+            {% for post in posts %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.content }}</p>
+                        <small class="text-muted">{{ post.timestamp }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No posts yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

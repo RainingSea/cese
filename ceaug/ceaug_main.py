@@ -565,6 +565,14 @@ def ceaug(
 
         unit_test_result = runUnitTest(project_dir, project_category)
 
+        if (
+            int(unit_test_result["failed"]) == 0
+            and int(unit_test_result["errors"]) == 0
+        ):
+            log.info("unit_test_result_info\n" + str(unit_test_result))
+            
+            return 0, "no need to test"
+
         log.info("unit_test_result_is\n" + unit_test_result["output"])
         #
         # _______________ [1] AUTO TEST ______________
@@ -693,18 +701,18 @@ If test code like "self.fail(XXX functionality not implemented)" occurs, it sugg
             pass
 
         # 5. save all the 3 types of feedback to txt
-        with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
-            content = (
-                "#_#unit_test_result#_#\n"
-                + str(unit_test_result)
-                + "\n\n\n#_#code_feedback#_#\n"
-                + code_feedback
-                + "\n\n\n#_#architecture_feedback#_#\n"
-                + architecture_feedback
-                + "\n\n\n#_#task_plan_feedback#_#\n"
-                + task_plan_feedback
-            )
-            file.write(content)
+        # with open(os.path.join(unit_test_result_dir, "result.txt"), "w") as file:
+        #     content = (
+        #         "#_#unit_test_result#_#\n"
+        #         + str(unit_test_result)
+        #         + "\n\n\n#_#code_feedback#_#\n"
+        #         + code_feedback
+        #         + "\n\n\n#_#architecture_feedback#_#\n"
+        #         + architecture_feedback
+        #         + "\n\n\n#_#task_plan_feedback#_#\n"
+        #         + task_plan_feedback
+        #     )
+        #     file.write(content)
 
         all_code_feedbacks.append(code_feedback)
         all_architecture_feedbacks.append(architecture_feedback)

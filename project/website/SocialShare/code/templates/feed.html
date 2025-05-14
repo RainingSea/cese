@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Content Feed{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Welcome, {{ username }}!</h2>
+
+{% if feed %}
+    {% for item in feed %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ item.content.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    Posted by <a href="{{ url_for('view_profile', username=item.content.username) }}">
+                        {{ item.content.username }}
+                    </a> on {{ item.content.timestamp }}
+                </h6>
+                <p class="card-text">{{ item.content.content }}</p>
+                
+                <div class="d-flex align-items-center mb-2">
+                    <form method="POST" action="{{ url_for('like') }}" class="me-2">
+                        <input type="hidden" name="content_id" value="{{ item.content.id }}">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            Like ({{ item.likes }})
+                        </button>
+                    </form>
+                </div>
+                
+                {% if item.comments %}
+                    <div class="mt-3">
+                        <h6>Comments:</h6>
+                        {% for comment in item.comments %}
+                            <div class="mb-2">
+                                <strong>{{ comment.username }}</strong>: {{ comment.text }}
+                                <small class="text-muted">{{ comment.timestamp }}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('comment') }}" class="mt-3">
+                    <input type="hidden" name="content_id" value="{{ item.content.id }}">
+                    <div class="input-group">
+                        <input type="text" name="text" class="form-control" placeholder="Add a comment..." required>
+                        <button type="submit" class="btn btn-primary">Comment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No posts yet. Be the first to post something!</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Travel Tipper - Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    <a href="{{ url_for('favorites') }}">View Favorites</a>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p style="color:{% if category == 'error' %}red{% else %}green{% endif %}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <h2>Get Travel Tips</h2>
+    <form method="POST" action="{{ url_for('tips') }}">
+        <label>Destination:</label>
+        <select name="destination" required>
+            <option value="Paris">Paris</option>
+            <option value="Tokyo">Tokyo</option>
+            <option value="New York">New York</option>
+            <option value="London">London</option>
+        </select><br>
+        
+        <label>Interests:</label><br>
+        <input type="checkbox" name="interests" value="Food"> Food<br>
+        <input type="checkbox" name="interests" value="Sightseeing"> Sightseeing<br>
+        <input type="checkbox" name="interests" value="Shopping"> Shopping<br>
+        
+        <button type="submit">Get Tips</button>
+    </form>
+    
+    <h2>Search Tips</h2>
+    <form action="{{ url_for('search') }}" method="GET">
+        <input type="text" name="query" placeholder="Search tips..." value="{{ request.args.get('query', '') }}">
+        <button type="submit">Search</button>
+    </form>
+    
+    {% if favorites %}
+        <h2>Your Favorite Tips</h2>
+        {% for tip in favorites %}
+            <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+                <h3>{{ tip.destination }} - {{ tip.category }}</h3>
+                <p>{{ tip.content }}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trip Options</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        button { padding: 10px 15px; background: #007bff; color: white; border: none; cursor: pointer; }
+        nav { margin-bottom: 20px; }
+        .trip-info { margin-bottom: 20px; }
+        .highlight { background-color: #fffacd; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('trip_input') }}">New Trip</a> |
+        <a href="{{ url_for('saved_trips') }}">Saved Trips</a> |
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+    
+    <div class="trip-info">
+        <h2>Trip Details</h2>
+        <p><strong>From:</strong> {{ start }}</p>
+        <p><strong>To:</strong> {{ destination }}</p>
+        <p><strong>Date:</strong> {{ date }}</p>
+    </div>
+
+    <h2>Transportation Options</h2>
+    <form method="POST" action="{{ url_for('save_trip') }}">
+        <input type="hidden" name="start" value="{{ start }}">
+        <input type="hidden" name="destination" value="{{ destination }}">
+        <input type="hidden" name="date" value="{{ date }}">
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Cost</th>
+                    <th>Time</th>
+                    <th>Description</th>
+                    <th>Select</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for option, details in options.items() %}
+                <tr {% if option == cheapest or option == fastest %}class="highlight"{% endif %}>
+                    <td>
+                        {{ option.replace('_', ' ').title() }}
+                        {% if option == cheapest %}(Cheapest){% endif %}
+                        {% if option == fastest %}(Fastest){% endif %}
+                    </td>
+                    <td>${{ "%.2f"|format(details.cost) }}</td>
+                    <td>{{ details.time }}</td>
+                    <td>{{ details.description }}</td>
+                    <td><input type="radio" name="option" value="{{ option }}" required></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Save Trip</button>
+    </form>
+</body>
+</html>

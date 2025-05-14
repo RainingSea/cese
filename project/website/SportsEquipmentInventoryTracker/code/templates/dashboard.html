@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        .error { color: red; }
+        .success { color: green; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        form { margin-bottom: 20px; }
+        .form-group { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Welcome, {{ session.username }}!</h1>
+    <div>
+        <a href="/logout">Logout</a> | 
+        <a href="/alerts">View Alerts</a>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <h2>Search Equipment</h2>
+    <form method="POST" action="/search_equipment">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label>Search:</label>
+            <input type="text" name="query" required>
+        </div>
+        <div class="form-group">
+            <label>Filter by Type:</label>
+            <select name="filter_type">
+                <option value="">All Types</option>
+                <option value="Sports">Sports</option>
+                <option value="Medical">Medical</option>
+                <option value="Office">Office</option>
+            </select>
+        </div>
+        <button type="submit">Search</button>
+    </form>
+    
+    <h2>Add Equipment</h2>
+    <form method="POST" action="/add_equipment">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label>Name:</label>
+            <input type="text" name="name" required>
+        </div>
+        <div class="form-group">
+            <label>Type:</label>
+            <input type="text" name="type" required>
+        </div>
+        <div class="form-group">
+            <label>Quantity:</label>
+            <input type="number" name="quantity" required>
+        </div>
+        <div class="form-group">
+            <label>Condition:</label>
+            <select name="condition" required>
+                <option value="New">New</option>
+                <option value="Good">Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Availability:</label>
+            <select name="availability" required>
+                <option value="Available">Available</option>
+                <option value="In Use">In Use</option>
+                <option value="Maintenance">Maintenance</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Location:</label>
+            <input type="text" name="location" required>
+        </div>
+        <div class="form-group">
+            <label>Alert Date (YYYY-MM-DD):</label>
+            <input type="text" name="alert_date" required placeholder="YYYY-MM-DD">
+        </div>
+        <button type="submit">Add Equipment</button>
+    </form>
+    
+    <h2>Equipment List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Quantity</th>
+                <th>Condition</th>
+                <th>Availability</th>
+                <th>Location</th>
+                <th>Alert Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in equipment %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.condition }}</td>
+                <td>{{ item.availability }}</td>
+                <td>{{ item.location }}</td>
+                <td>{{ item.alert_date }}</td>
+                <td>
+                    <form method="POST" action="/update_equipment/{{ item.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="form-group">
+                            <input type="text" name="name" value="{{ item.name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="type" value="{{ item.type }}" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="quantity" value="{{ item.quantity }}" required>
+                        </div>
+                        <div class="form-group">
+                            <select name="condition" required>
+                                <option value="New" {% if item.condition == 'New' %}selected{% endif %}>New</option>
+                                <option value="Good" {% if item.condition == 'Good' %}selected{% endif %}>Good</option>
+                                <option value="Fair" {% if item.condition == 'Fair' %}selected{% endif %}>Fair</option>
+                                <option value="Poor" {% if item.condition == 'Poor' %}selected{% endif

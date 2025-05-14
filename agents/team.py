@@ -210,6 +210,9 @@ class Team(BaseModel):
             Team.log,
         )
 
+        if ce_feedbacks == "no need to test":
+            return
+
         # |_____________________________________________________________|
         # |                      Attention!                             |
         # | ceaug() execute unit test, which                            |
@@ -293,6 +296,7 @@ class Team(BaseModel):
 
         print("Dev execute END")
         return
+
     # K的实验，可以读取之前的反馈（必须是总结好的）
     def run_web_iterative(self):
         # root work dir
@@ -410,8 +414,8 @@ class Team(BaseModel):
 
             self.roles["C_Programmer"].go("init", "0")
             self.roles["C_Programmer"].message_to_file(
-                        self.roles["C_Programmer"].own_message.content
-                    )
+                self.roles["C_Programmer"].own_message.content
+            )
 
             if pass_feedback:
                 for passfd in pass_feedback:
@@ -570,7 +574,7 @@ class Team(BaseModel):
                 "no_ite_fdback",
                 Team.log,
             )
-            
+
             return
 
         # ___________________ one to one test and get result _________________
@@ -656,8 +660,8 @@ class Team(BaseModel):
 
             self.roles["C_Programmer"].go("init", "0")
             self.roles["C_Programmer"].message_to_file(
-                        self.roles["C_Programmer"].own_message.content
-                    )
+                self.roles["C_Programmer"].own_message.content
+            )
 
             if pass_feedback:
                 for passfd in pass_feedback:

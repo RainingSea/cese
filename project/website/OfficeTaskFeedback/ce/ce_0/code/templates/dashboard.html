@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <header>
+        <h1>Welcome, {{ username }}!</h1>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </header>
+
+    {% if not is_manager %}
+    <section>
+        <h2>Submit Feedback</h2>
+        <form method="POST" action="{{ url_for('submit_feedback') }}">
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select><br>
+            <label for="content">Feedback:</label><br>
+            <textarea id="content" name="content" rows="4" cols="50" required></textarea><br>
+            <button type="submit">Submit</button>
+        </form>
+    </section>
+    {% endif %}
+
+    <section>
+        <h2>Your Feedback</h2>
+        <table border="1">
+            <tr>
+                <th>Timestamp</th>
+                <th>Category</th>
+                <th>Content</th>
+                <th>Status</th>
+                {% if is_manager %}
+                <th>Username</th>
+                <th>Action</th>
+                {% endif %}
+            </tr>
+            {% for item in feedback %}
+            <tr>
+                <td>{{ item.timestamp }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.content }}</td>
+                <td>{{ item.status }}</td>
+                {% if is_manager %}
+                <td>{{ item.username }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('update_status') }}">
+                        <input type="hidden" name="feedback_id" value="{{ loop.index0 }}">
+                        <select name="status">
+                            <option value="pending" {% if item.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="approved" {% if item.status == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="rejected" {% if item.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+</body>
+</html>
