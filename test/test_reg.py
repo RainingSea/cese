@@ -39,7 +39,7 @@ def write_file(filename, content):
         file.write(content)
 
 if __name__ == "__main__":
-    pro = "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\codebase\\website\\"
+    pro = "D:\\algorithm\\agent\\cese\\dataset\\FSD-bench\\codebase\\website\\"
     directs = list_directories(pro)
     for direct in directs:
         code_path = os.path.join(pro, direct, 'code', 'testcode.py')

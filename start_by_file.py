@@ -43,11 +43,11 @@ def start_project():
     _dir = "D:\Project\ATEdev\ATEDev_main"
     # dataset dir
     project_description_path = (
-        # f"D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\dataset\\{category}/{name}"
-        f"{_dir}\\dataset\\SD-bench\\dataset\\{category}\\{name}"
+        # f"D:\\algorithm\\agent\\cese\\dataset\\FSD-bench\\dataset\\{category}/{name}"
+        f"{_dir}\\dataset\\FSD-bench\\dataset\\{category}\\{name}"
     )
     # test case dir
-    test_cases_dir = f"{_dir}\\dataset\\SD-bench\\testcase"
+    test_cases_dir = f"{_dir}\\dataset\\FSD-bench\\testcase"
 
     # project dir
     projdir = f"{_dir}\\project\\" + category + "\\" + project_name + "\\"

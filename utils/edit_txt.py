@@ -95,7 +95,7 @@ def update_flask_port(file_path, port):
 
 if __name__ == "__main__":
     # add_newline_to_txt_files("D:\Project\CE\CE\project\website\Headlinr\code")
-    directory = "D:\Project\Datasets\SD-bench\codebase\website"
+    directory = "D:\Project\Datasets\FSD-bench\codebase\website"
     update_flask_port(
         "D:\Project\ATEdev\ATEDev_main\project\website\DigitalStorytellingPlatform\code\main.py",
         "",

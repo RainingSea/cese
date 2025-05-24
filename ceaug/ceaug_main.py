@@ -488,7 +488,7 @@ def test_code_generate(
     其实就是autogen，来不及改了
 
     base_dir: 当前整个项目的根目录，例如"D:/Project/CE/CE/",
-    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase",
+    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\FSD-bench\\testcase",
     project_dirs: 需要被测试的文件的目录（需要是列表，即使只有一个项目）
     project_category: 项目种类
     project_name: 项目名字
@@ -530,7 +530,7 @@ def ceaug(
 ):
     """
     base_dir: 当前整个项目的根目录，例如"D:/Project/CE/CE/",
-    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase",
+    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\FSD-bench\\testcase",
     project_dirs: 需要被测试的文件的目录（需要是列表，即使只有一个项目）
     project_category: 项目种类
     project_name: 项目名字
@@ -913,7 +913,7 @@ def ceaug_self_evo(
 ):
     """
     base_dir: 当前整个项目的根目录，例如"D:/Project/CE/CE/",
-    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\SD-bench\\testcase",
+    testcase_dir: 存那个所有测试文件的大目录，例如"D:\\Project\\CE\\CE\\dataset\\FSD-bench\\testcase",
     project_dirs: 需要被测试的文件的目录（需要是列表，即使只有一个项目）
     project_category: 项目种类
     project_name: 项目名字

@@ -139,6 +139,6 @@ def read_files(folder_path):
 
 
 if __name__ == "__main__":
-    # print(read_files("D:\Project\CE\CE\dataset\SD-bench\dataset\gui"))
+    # print(read_files("D:\Project\CE\CE\dataset\FSD-bench\dataset\gui"))
     # generate()
     delete_files()

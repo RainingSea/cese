@@ -160,7 +160,7 @@ def autogen(project_path, category, project_name, _testcase_path):
 
         testcase_path = _testcase_path
         testcase_path = os.path.join(
-            # "D:\\algorithm\\agent\\cese\\dataset\\SD-bench\\testcase",
+            # "D:\\algorithm\\agent\\cese\\dataset\\FSD-bench\\testcase",
             _testcase_path,
             category,
             f"TestCases_{project_name}.md",
