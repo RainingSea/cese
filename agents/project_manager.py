@@ -44,12 +44,30 @@ class Project_Manager(Role):
         functional_requirement = self.getPRD().content
         architect = self.getSystemModule().content
 
+        # ---------- use metaprompt to let LLM write prompt to generate PRD
+        meta_prompt_tplt = ChatPromptTemplate.from_template(
+            WRITE_PLAN_FORMAT + META_PROMPT
+        )
+        # define the role_input and role_output
+        meta_prompt_prompt = meta_prompt_tplt.invoke(
+            {
+                "functional_requirement": functional_requirement,
+                "software_architecture": architect,
+                "role_output": "Coding task arrangement",
+            }
+        )
+
+        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
+        # Team.log.info("\n<Plan Instruction>" + meta_prompt_msg.content)
+        prompt_instruction = self.llm.invoke(meta_prompt_msg)
+
         # ---------- constructing prompt to LLM ----------
-        user_prompt_template = ChatPromptTemplate.from_template(WRITE_PLAN)
+        user_prompt_template = ChatPromptTemplate.from_template(WRITE_PLAN_PROMPT)
         user_prompt_msg = user_prompt_template.invoke(
             {
                 "functional_requirement": functional_requirement,
                 "software_architecture": architect,
+                "instruction": prompt_instruction,
             }
         )
         user_prompt = user_prompt_msg.to_messages()[0]
@@ -88,15 +106,34 @@ class Project_Manager(Role):
         functional_requirement = self.getPRD().content
         architect = self.getSystemModule().content
 
+        # ---------- use metaprompt to let LLM write prompt to generate PRD
+        meta_prompt_tplt = ChatPromptTemplate.from_template(
+            WRITE_PLAN_FORMAT + META_PROMPT
+        )
+        # define the role_input and role_output
+        meta_prompt_prompt = meta_prompt_tplt.invoke(
+            {
+                "functional_requirement": functional_requirement,
+                "software_architecture": architect,
+                "role_output": "Coding task arrangement",
+            }
+        )
+
+        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
+        # Team.log.info("\n<Plan Instruction>" + meta_prompt_msg.content)
+        prompt_instruction = self.llm_sample.invoke(meta_prompt_msg)
+
         # ---------- constructing prompt to LLM ----------
-        user_prompt_template = ChatPromptTemplate.from_template(WRITE_PLAN)
+        user_prompt_template = ChatPromptTemplate.from_template(WRITE_PLAN_PROMPT)
         user_prompt_msg = user_prompt_template.invoke(
             {
                 "functional_requirement": functional_requirement,
                 "software_architecture": architect,
+                "instruction": prompt_instruction,
             }
         )
         user_prompt = user_prompt_msg.to_messages()[0]
+
         system_prompt = SystemMessage(content=WRITE_PLAN_SYS)
 
         Team.log.info(
@@ -114,7 +151,6 @@ class Project_Manager(Role):
 
         # ---------- adding result to SCR(before align) ----------
         plan_msg = Message(sender=self.profile, content=result)
-
         self.own_message = plan_msg
 
         self.update_scr(plan_msg)
@@ -133,12 +169,33 @@ class Project_Manager(Role):
         functional_requirement = self.getPRD().content
         architect = self.getSystemModule().content
 
+        # ---------- use metaprompt to let LLM write prompt to generate PRD
+        meta_prompt_tplt = ChatPromptTemplate.from_template(
+            WRITE_PLAN_FORMAT + META_PROMPT
+        )
+        # define the role_input and role_output
+        meta_prompt_prompt = meta_prompt_tplt.invoke(
+            {
+                "functional_requirement": functional_requirement,
+                "software_architecture": architect,
+                "role_output": "Coding task arrangement",
+            }
+        )
+
+        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
+        Team.log.info(meta_prompt_msg.content)
+        # Team.log.info("\n<Plan Instruction>" + meta_prompt_msg.content)
+        prompt_instruction = self.llm.invoke(meta_prompt_msg)
+
         # ---------- constructing prompt to LLM ----------
-        user_prompt_template = ChatPromptTemplate.from_template(WRITE_PLAN_WITH_FDBACK)
+        user_prompt_template = ChatPromptTemplate.from_template(
+            WRITE_PLAN_WITH_FDBACK_META
+        )
         user_prompt_msg = user_prompt_template.invoke(
             {
                 "functional_requirement": functional_requirement,
                 "software_architecture": architect,
+                "instruction": prompt_instruction,
                 "ce_feedback": feedback,
             }
         )
@@ -179,12 +236,33 @@ class Project_Manager(Role):
         functional_requirement = self.getPRD().content
         architect = self.getSystemModule().content
 
+        # ---------- use metaprompt to let LLM write prompt to generate PRD
+        meta_prompt_tplt = ChatPromptTemplate.from_template(
+            WRITE_PLAN_FORMAT + META_PROMPT
+        )
+        # define the role_input and role_output
+        meta_prompt_prompt = meta_prompt_tplt.invoke(
+            {
+                "functional_requirement": functional_requirement,
+                "software_architecture": architect,
+                "role_output": "Coding task arrangement",
+            }
+        )
+
+        meta_prompt_msg = meta_prompt_prompt.to_messages()[0]
+        Team.log.info(meta_prompt_msg.content)
+        # Team.log.info("\n<Plan Instruction>" + meta_prompt_msg.content)
+        prompt_instruction = self.llm_sample.invoke(meta_prompt_msg)
+
         # ---------- constructing prompt to LLM ----------
-        user_prompt_template = ChatPromptTemplate.from_template(WRITE_PLAN_WITH_FDBACK)
+        user_prompt_template = ChatPromptTemplate.from_template(
+            WRITE_PLAN_WITH_FDBACK_META
+        )
         user_prompt_msg = user_prompt_template.invoke(
             {
                 "functional_requirement": functional_requirement,
                 "software_architecture": architect,
+                "instruction": prompt_instruction,
                 "ce_feedback": feedback,
             }
         )

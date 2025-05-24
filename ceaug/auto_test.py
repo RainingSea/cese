@@ -17,7 +17,7 @@ from utils.commen import read_yaml
 
 
 this_api_key = "sk-d2kqS2XA5BpTCyKTn9m05MNUbe6awegwK2xkQrMdH9JJFVoA"
-this_model = "gpt-4o-mini"
+this_model = "gpt-4o"
 
 
 ### gpt api
@@ -31,7 +31,8 @@ def call_openai_api(prompt, model):
     )
     try:
         response = client.chat.completions.create(
-            model=config["model"],
+            # model=config["model"],
+            model=this_model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
         )
@@ -144,14 +145,13 @@ def autogen(project_path, category, project_name, _testcase_path):
     """
     project_category = category
 
-    # if os.path.exists(os.path.join(project_path, "code", "testcode.py")):
-    #     print("### Already exist a testcode.py ###")
-    #     testcode = read_file_2_line(os.path.join(project_path, "code", "testcode.py"))
-    #     return testcode
-    
+    if os.path.exists(os.path.join(project_path, "code", "testcode.py")):
+        print("### Already exist a testcode.py ###")
+        testcode = read_file_2_line(os.path.join(project_path, "code", "testcode.py"))
+        return testcode
+
     # 只处理文件夹
     if os.path.isdir(project_path):
-        
 
         # 确保代码库和测试用例路径正确
         codebase_path = os.path.join(project_path, "code")

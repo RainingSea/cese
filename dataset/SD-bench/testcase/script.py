@@ -1,24 +1,34 @@
 import os
 import re
 
+
 def count_expectation_in_file(file_path):
     """
-    统计单个 .md 文件中 "Expectation" 的出现次数
+    统计单个 .md 文件中 "functionality" 或 "functionalities" 的出现次数
     """
     count = 0
     try:
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
-                count += len(re.findall(r'\bExpectation\b', line))  # 仅匹配完整单词
+                # 匹配完整单词 functionality 或 functionalities
+                count += len(
+                    re.findall(
+                        r"\bfunctionality\b|\bfunctionalities\b",
+                        line,
+                        flags=re.IGNORECASE,
+                    )
+                )
     except Exception as e:
         print(f"无法读取文件 {file_path}: {e}")
     return count
+
 
 def process_directory(base_path):
     """
     遍历 website、game、gui 目录，统计所有 .md 文件中 "Expectation" 的总出现次数
     """
-    categories = ["website", "game", "gui"]
+    # categories = ["website", "game", "gui"]
+    categories = ["abalation"]
     total_expectation_count = 0
     file_count = 0
 
@@ -35,6 +45,7 @@ def process_directory(base_path):
 
     return file_count, total_expectation_count
 
+
 def main():
     base_path = os.getcwd()  # 当前目录
     file_count, total_expectation = process_directory(base_path)
@@ -42,6 +53,7 @@ def main():
     print("\n统计结果:")
     print(f"总 .md 文件个数: {file_count}")
     print(f'"Expectation" 总出现次数: {total_expectation}')
+
 
 if __name__ == "__main__":
     main()

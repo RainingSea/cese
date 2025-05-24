@@ -14,6 +14,8 @@ from pathlib import Path
 from utils import utils
 from utils.commen import read_yaml
 
+this_model = "gpt-4o"
+
 
 def chat_to_LLM(messages):
     config = model_config("./0_config/config.yaml")
@@ -26,6 +28,7 @@ def chat_to_LLM(messages):
     response = client.chat.completions.create(
         messages=messages,
         model=config["model"],
+        # model=this_model,
         temperature=0.2,
         # stream=True, # 这个开了要用chunk的调用方法
     )
@@ -570,7 +573,7 @@ def ceaug(
             and int(unit_test_result["errors"]) == 0
         ):
             log.info("unit_test_result_info\n" + str(unit_test_result))
-            
+
             return 0, "no need to test"
 
         log.info("unit_test_result_is\n" + unit_test_result["output"])
@@ -701,7 +704,9 @@ If test code like "self.fail(XXX functionality not implemented)" occurs, it sugg
             pass
 
         # 5. save all the 3 types of feedback to txt
-        with open(os.path.join(unit_test_result_dir, "result.txt"), "w",encoding='utf-8') as file:
+        with open(
+            os.path.join(unit_test_result_dir, "result.txt"), "w", encoding="utf-8"
+        ) as file:
             content = (
                 "#_#unit_test_result#_#\n"
                 + str(unit_test_result)
@@ -1500,12 +1505,7 @@ def read_feedback(file_path):
         "#_#code_feedback#_#",
     ]
 
-    encoding_type = ""
-    with open(file_path, "rb") as file:
-        raw_data = file.read()
-        encoding_type = chardet.detect(raw_data)["encoding"]
-
-    with open(file_path, mode="r", encoding=encoding_type) as file:
+    with open(file_path, mode="r", encoding="utf-8") as file:
         content = file.read()
         # print(content)
 
