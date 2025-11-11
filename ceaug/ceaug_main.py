@@ -16,10 +16,11 @@ from utils.commen import read_yaml
 
 this_model = "gpt-4o"
 
-
 def chat_to_LLM(messages):
     config = model_config("./0_config/config.yaml")
     config = config["llm_4o"]
+    
+    
 
     client = OpenAI(
         api_key=config["api_key"],  # 只需要填写key就可以了

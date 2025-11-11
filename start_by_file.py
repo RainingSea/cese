@@ -1,61 +1,79 @@
-import dashscope
+# system library(lib)
 from datetime import datetime
+import re
 import argparse
 from pathlib import Path
 import copy
+import json
+import os
 
+# third-party lib
+
+# langchain lib
+from langchain_openai import ChatOpenAI
+
+# custom lib
+from agents import *
+from model.model import Qwen, GPT, GPT_topP
 from utils.commen import read_yaml
 from agents.team import Team
 
-from agents import *
-from model.model import Qwen, GPT, GPT_topP
-
-from langchain_openai import ChatOpenAI
-
-import json
-import os
-import re
-import argparse
-
 
 def start_project():
-    # __________ from shell __________
+    # _______________ Parse project parameters from the command line ________________
     parser = argparse.ArgumentParser(description="original Requirement")
-    parser.add_argument("--category", type=str, help="gui")
-    parser.add_argument("--name", type=str, help="DailyHealthTips.md")
-    parser.add_argument("--seq", type=str, help="1")
+    parser.add_argument("--category", type=str, help="category of project, like gui")
+    parser.add_argument(
+        "--name",
+        type=str,
+        help="name of project, presented as a .md file, like DailyHealthTips.md",
+    )
+    parser.add_argument(
+        "--seq",
+        type=str,
+        help="marks of different processes",
+    )
+
+    # 项目种类，项目名称，seq参数
     args = parser.parse_args()
     category = args.category
-    name = args.name
-
-    # specification for different running time
+    req = args.name
     seq = args.seq
 
-    match = re.match(r"^(.*)\.md$", name)
+    # 去除 .md 字样
+    match = re.match(r"^(.*)\.md$", req)
+    if not match:
+        # 非法项目名称，框架终止
+        print("Invalid Project name")
+        return
 
-    if match:
-        project_name = match.group(1)
-        print("|| Project Name: " + project_name + " ||")
-    # __________ from shell __________
+    project_name = match.group(1)
+    print("|| Project Name: " + project_name + " ||")
 
-    # ______________ project soft config ________________
-    # 到根目录，注意最后的ATE后不要有 \\ 等分隔符，因为后面会拼接
+    #
+    #
+    #
+
+    # _______________ Configure framework ________________
+    # 项目根目录，注意最后不要有 \\ 分隔符，因为后面会根据字符串拼接
     _dir = "D:\Project\ATEdev\ATEDev_main"
-    # dataset dir
+    # project_description(.md file) dir
     project_description_path = (
-        # f"D:\\algorithm\\agent\\cese\\dataset\\FSD-bench\\dataset\\{category}/{name}"
-        f"{_dir}\\dataset\\FSD-bench\\dataset\\{category}\\{name}"
+        Path(_dir) / "dataset" / "FSD-bench" / "dataset" / category / req
     )
-    # test case dir
-    test_cases_dir = f"{_dir}\\dataset\\FSD-bench\\testcase"
+
+    # test case base dir
+    test_cases_dir = Path(_dir) / "dataset" / "FSD-bench" / "testcase"
 
     # project dir
-    projdir = f"{_dir}\\project\\" + category + "\\" + project_name + "\\"
+    proj_dir = Path(_dir) / "project" / category / project_name
 
     # exploration numbers
     explore_num = 3
+
     #
-    # ______________ project soft config ________________
+    #
+    #
 
     # framework execution start time
     start_time = datetime.now()
@@ -187,7 +205,7 @@ def start_project():
     )
 
 
-def create_config_copy_with_new_temperature(
+def create_config_copy_with_new_temperature(  ##
     config: dict, new_temperature: float
 ) -> dict:
     """
